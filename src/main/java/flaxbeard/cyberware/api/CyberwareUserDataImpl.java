@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
@@ -36,20 +37,20 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 {
 	public static final IStorage<ICyberwareUserData> STORAGE = new CyberwareUserDataStorage();
 
-	private ItemStack[][] wares = new ItemStack[EnumSlot.values().length][LibConstants.WARE_PER_SLOT];
+	private NonNullList<NonNullList<ItemStack>> wares = NonNullList.create();
 	private boolean[] missingEssentials = new boolean[EnumSlot.values().length * 2];
 	
 	private int storedPower = 0;
 	private int powerCap = 0;
 	private Map<ItemStack, Integer> powerBuffer = new HashMap<ItemStack, Integer>();
 	private Map<ItemStack, Integer> powerBufferLast = new HashMap<ItemStack, Integer>();
-	private List<ItemStack> outOfPower = new ArrayList<ItemStack>();
+	private NonNullList<ItemStack> outOfPower = NonNullList.create();
 	private List<Integer> outOfPowerTimes = new ArrayList<Integer>();
-	private List<ItemStack> specialBatteries = new ArrayList<ItemStack>();
+	private NonNullList<ItemStack> specialBatteries = NonNullList.create();
 	private int essence = 0;
 	private int maxEssence = 0;
-	private List<ItemStack> activeItems = new ArrayList<ItemStack>();
-	private List<ItemStack> hudjackItems = new ArrayList<ItemStack>();
+	private NonNullList<ItemStack> activeItems = NonNullList.create();
+	private NonNullList<ItemStack> hudjackItems = NonNullList.create();
 	private Map<Integer, ItemStack> hotkeys = new HashMap<Integer, ItemStack>();
 	private NBTTagCompound hudData = new NBTTagCompound();
 	private boolean hasOpenedRadialMenu = false;
@@ -60,13 +61,20 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	public CyberwareUserDataImpl()
 	{
 		hudData = new NBTTagCompound();
+		for (int i = 0; i < EnumSlot.values().length; i ++){
+			NonNullList<ItemStack> wareSlot = NonNullList.create();
+			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
+				wareSlot.add(ItemStack.EMPTY);
+			}
+			wares.add(wareSlot);
+		}
 		resetWare(null);
 	}
 	
 	@Override
 	public void resetWare(EntityLivingBase e)
 	{
-		for (ItemStack[] slot : this.wares)
+		for (NonNullList<ItemStack> slot : this.wares)
 		{
 			for (ItemStack item : slot)
 			{
@@ -77,9 +85,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 		}
 		essence = maxEssence = CyberwareConfig.ESSENCE;
-		for (int i = 0; i < wares.length; i++)
+		for (int i = 0; i < wares.size(); i++)
 		{
-			wares[i] = CyberwareConfig.getStartingItems(EnumSlot.values()[i]).clone();
+			NonNullList<ItemStack> wareSlot = NonNullList.create();
+			NonNullList<ItemStack> startItems = CyberwareConfig.getStartingItems(EnumSlot.values()[i]);
+			for (ItemStack s : startItems){
+				wareSlot.add(s.copy());
+			}
+			wares.set(i,wareSlot);
 		}
 		this.missingEssentials =  new boolean[EnumSlot.values().length * 2];
 		this.updateCapacity();
@@ -119,7 +132,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			{
 				ItemStack stack = wares[slotNum][i];
 				
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					ICyberware ware = CyberwareAPI.getCyberware(stack);
 					if (ware.isEssential(stack))
@@ -206,8 +219,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		//{
 		
 		int amountAlready = 0;
-		ItemStack stack = null;
-		if (inputter != null)
+		ItemStack stack = ItemStack.EMPTY;
+		if (!inputter.isEmpty())
 		{
 			stack = new ItemStack(inputter.getItem(), 1, inputter.getItemDamage());
 		}
@@ -329,14 +342,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@SideOnly(Side.CLIENT)
 	public void setOutOfPower(ItemStack stack)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
-		if (p != null && stack != null)
+		EntityPlayer p = Minecraft.getMinecraft().player;
+		if (p != null && !stack.isEmpty())
 		{
 			int i = -1;
 			int n = 0;
 			for (ItemStack e : outOfPower)
 			{
-				if (e != null && e.getItem() == stack.getItem() && e.getItemDamage() == stack.getItemDamage())
+				if (!e.isEmpty() && e.getItem() == stack.getItem() && e.getItemDamage() == stack.getItemDamage())
 				{
 					i = n;
 					break;
@@ -359,9 +372,9 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 	
 	@Override
-	public ItemStack[] getInstalledCyberware(EnumSlot slot)
+	public NonNullList<ItemStack> getInstalledCyberware(EnumSlot slot)
 	{
-		return wares[slot.ordinal()];
+		return wares.get(slot.ordinal());
 	}
 	
 	@Override
@@ -392,18 +405,18 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		}
 		while (cyberware.size() < LibConstants.WARE_PER_SLOT)
 		{
-			cyberware.add(null);
+			cyberware.add(ItemStack.EMPTY);
 		}
-		setInstalledCyberware(entity, slot, cyberware.toArray(new ItemStack[LibConstants.WARE_PER_SLOT]));
+		setInstalledCyberware(entity, slot, cyberware);
 	}
 	
 	@Override
 	public void updateCapacity()
 	{
 		powerCap = 0;
-		specialBatteries = new ArrayList<ItemStack>();
-		activeItems = new ArrayList<ItemStack>();
-		hudjackItems = new ArrayList<ItemStack>();
+		specialBatteries = NonNullList.create();
+		activeItems = NonNullList.create();
+		hudjackItems = NonNullList.create();
 		hotkeys = new HashMap<Integer, ItemStack>();
 		
 		for (EnumSlot slot : EnumSlot.values())
@@ -446,14 +459,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 	
 	@Override
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, ItemStack[] cyberware)
+	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, NonNullList<ItemStack> cyberware)
 	{
-		if (cyberware.length != wares[slot.ordinal()].length)
+		if (cyberware.size() != wares.get(slot.ordinal()).size())
 		{
 			System.out.println("ERROR!");
 		}
-		List<ItemStack> newWares = Arrays.asList(cyberware);
-		List<ItemStack> oldWares = Arrays.asList(wares[slot.ordinal()]);
+		NonNullList<ItemStack> newWares = cyberware;
+		NonNullList<ItemStack> oldWares = wares.get(slot.ordinal());
 		
 		if (entity != null)
 		{
@@ -464,7 +477,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 					boolean found = false;
 					for (ItemStack newWare : newWares)
 					{
-						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.stackSize == oldWare.stackSize)
+						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.getCount() == oldWare.getCount())
 						{
 							found = true;
 							break;
@@ -486,7 +499,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 					boolean found = false;
 					for (ItemStack oldWare : oldWares)
 					{
-						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.stackSize == oldWare.stackSize)
+						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.getCount() == oldWare.getCount())
 						{
 							found = true;
 							break;
@@ -502,7 +515,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 		}
 		
-		wares[slot.ordinal()] = cyberware;
+		wares.set(slot.ordinal(),cyberware);
 	}
 	
 	@Override
@@ -516,9 +529,9 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	{
 		ItemStack cw = getCyberware(cyberware);
 		
-		if (cw != null)
+		if (!cw.isEmpty())
 		{
-			return cw.stackSize;
+			return cw.getCount();
 		}
 		
 		return 0;
@@ -527,15 +540,15 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public ItemStack getCyberware(ItemStack cyberware)
 	{
-		ItemStack[] slotItems = getInstalledCyberware(CyberwareAPI.getCyberware(cyberware).getSlot(cyberware));
+		NonNullList<ItemStack> slotItems = getInstalledCyberware(CyberwareAPI.getCyberware(cyberware).getSlot(cyberware));
 		for (ItemStack item : slotItems)
 		{
-			if (item != null && item.getItem() == cyberware.getItem() && item.getItemDamage() == cyberware.getItemDamage())
+			if (!item.isEmpty() && item.getItem() == cyberware.getItem() && item.getItemDamage() == cyberware.getItemDamage())
 			{
 				return item;
 			}
 		}
-		return null;
+		return ItemStack.EMPTY;
 	}
 	
 	@Override
@@ -550,7 +563,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			for (ItemStack cyberware : getInstalledCyberware(slot))
 			{
 				NBTTagCompound temp = new NBTTagCompound();
-				if (cyberware != null)
+				if (!cyberware.isEmpty())
 				{
 					temp = cyberware.writeToNBT(temp);
 				}
@@ -586,8 +599,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			NBTTagCompound temp = new NBTTagCompound();
 			NBTTagCompound item = new NBTTagCompound();
-			temp.setBoolean("null", stack == null);
-			if (stack != null)
+			temp.setBoolean("null", stack.isEmpty());
+			if (!stack.isEmpty())
 			{
 				stack.writeToNBT(item);
 				temp.setTag("item", item);
@@ -607,10 +620,10 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			NBTTagCompound temp = list.getCompoundTagAt(i);
 			boolean isNull = temp.getBoolean("null");
-			ItemStack stack = null;
+			ItemStack stack = ItemStack.EMPTY;
 			if (!isNull)
 			{
-				stack = ItemStack.loadItemStackFromNBT(temp.getCompoundTag("item"));
+				stack = new ItemStack(temp.getCompoundTag("item"));
 			}
 			
 			map.put(stack, temp.getInteger("value"));
@@ -642,12 +655,15 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			EnumSlot slot = EnumSlot.values()[i];
 			
 			NBTTagList list2 = (NBTTagList) list.get(i);
-			ItemStack[] cyberware = new ItemStack[LibConstants.WARE_PER_SLOT];
+			NonNullList<ItemStack> cyberware = NonNullList.create();
+			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
+				cyberware.add(ItemStack.EMPTY);
+			}
 
-			for (int j = 0; j < list2.tagCount() && j < cyberware.length; j++)
+			for (int j = 0; j < list2.tagCount() && j < cyberware.size(); j++)
 			{
 				
-				cyberware[j] = ItemStack.loadItemStackFromNBT(list2.getCompoundTagAt(j));
+				cyberware.set(j,new ItemStack(list2.getCompoundTagAt(j)));
 			}
 			
 			setInstalledCyberware(null, slot, cyberware);
@@ -815,7 +831,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	{
 		if (!hotkeys.containsKey(i))
 		{
-			return null;
+			return ItemStack.EMPTY;
 		}
 		return hotkeys.get(i);
 	}

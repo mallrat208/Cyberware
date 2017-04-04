@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
@@ -32,6 +33,7 @@ import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
 import flaxbeard.cyberware.common.network.GuiPacket;
 
@@ -46,23 +48,23 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{
-		return new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 0), new ItemStack(CyberwareContent.cyberlimbs, 1, 1) }};
+		return NNLUtil.fromArray(new ItemStack[][] { 
+				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 0), new ItemStack(CyberwareContent.cyberlimbs, 1, 1) }});
 	}
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void handleOpenInv(GuiOpenEvent event)
 	{
-		if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().thePlayer != null && event.getGui() != null && event.getGui().getClass() == GuiInventory.class && !Minecraft.getMinecraft().thePlayer.isCreative())
+		if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null && event.getGui() != null && event.getGui().getClass() == GuiInventory.class && !Minecraft.getMinecraft().player.isCreative())
 		{
-			if (CyberwareAPI.isCyberwareInstalled(Minecraft.getMinecraft().thePlayer, new ItemStack(this, 1, 0)))
+			if (CyberwareAPI.isCyberwareInstalled(Minecraft.getMinecraft().player, new ItemStack(this, 1, 0)))
 			{
 				event.setCanceled(true);
 	
-				Minecraft.getMinecraft().thePlayer.openGui(Cyberware.INSTANCE, 1, Minecraft.getMinecraft().thePlayer.worldObj, 0, 0, 0);
+				Minecraft.getMinecraft().player.openGui(Cyberware.INSTANCE, 1, Minecraft.getMinecraft().player.world, 0, 0, 0);
 				CyberwarePacketHandler.INSTANCE.sendToServer(new GuiPacket(1, 0, 0, 0));
 			}
 		}
@@ -86,7 +88,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
 			boolean last = getLastClaws(e);
-			boolean isEquipped = e.getHeldItemMainhand() == null && 
+			boolean isEquipped = e.getHeldItemMainhand().isEmpty() && 
 					(e.getPrimaryHand() == EnumHandSide.RIGHT ? 
 							(CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) : 
 							(CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
@@ -119,9 +121,9 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 	
 	private void updateHand(EntityLivingBase e, boolean delay)
 	{
-		if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().thePlayer != null)
+		if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null)
 		{
-			if (e == Minecraft.getMinecraft().thePlayer)
+			if (e == Minecraft.getMinecraft().player)
 			{
 				clawsTime = Minecraft.getMinecraft().getRenderPartialTicks() + e.ticksExisted + (delay ? 5 : 0);
 			}
@@ -144,7 +146,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		{
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(strengthId, "Claws damage upgrade", 5.5F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws damage upgrade", 5.5F, 0));
 			entity.getAttributeMap().applyAttributeModifiers(multimap);
 		}
 	}
@@ -155,7 +157,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		{
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(strengthId, "Claws Claws upgrade", 5.5F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws Claws upgrade", 5.5F, 0));
 			entity.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
@@ -177,7 +179,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		boolean rightArm = (p.getPrimaryHand() == EnumHandSide.RIGHT ? 
 				(CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) : 
 				(CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
-		if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand() == null)
+		if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand().isEmpty())
 		{
 			ItemStack pick = new ItemStack(Items.STONE_PICKAXE);
 			if (pick.canHarvestBlock(event.getTargetBlock()))
@@ -195,10 +197,10 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		boolean rightArm = (p.getPrimaryHand() == EnumHandSide.RIGHT ? 
 						(CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) : 
 						(CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
-		if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand() == null)
+		if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand().isEmpty())
 		{
 			ItemStack pick = new ItemStack(Items.STONE_PICKAXE);
-			event.setNewSpeed(event.getNewSpeed() * pick.getStrVsBlock(p.worldObj.getBlockState(event.getPos())));
+			event.setNewSpeed(event.getNewSpeed() * pick.getStrVsBlock(p.world.getBlockState(event.getPos())));
 		}
 	}
 	

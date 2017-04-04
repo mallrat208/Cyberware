@@ -16,7 +16,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntityComponentBox;
 public class GuiComponentBox extends GuiContainer
 {
 	/** The ResourceLocation containing the chest GUI texture. */
-	public static final ResourceLocation BOX_GUI_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/componentBox.png");
+	public static final ResourceLocation BOX_GUI_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/component_box.png");
 	private IInventory playerInventory;
 	private String name;
 	/** window height is calculated with these values; the more rows, the heigher */

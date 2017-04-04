@@ -80,7 +80,7 @@ public class NotificationDisplay extends HudElementBase
 			}
 			
 			int temp = radioRange;
-			radioRange = TileEntityBeacon.isInRange(p.worldObj, p.posX, p.posY, p.posZ);
+			radioRange = TileEntityBeacon.isInRange(p.world, p.posX, p.posY, p.posZ);
 			if (radioRange != temp)
 			{
 				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationRadio(radioRange)));
@@ -152,16 +152,16 @@ public class NotificationDisplay extends HudElementBase
 	{
 		for (ItemStack stack : inv)
 		{
-			if (stack != null && stack.getItem() instanceof ItemArmor)
+			if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
 			{
 				if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
 				{
 					return false;
 				}
 			}
-			else if (stack != null && stack.getItem() instanceof ISpecialArmor)
+			else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
 			{
-				if (((ISpecialArmor) stack.getItem()).getProperties(Minecraft.getMinecraft().thePlayer, stack, DamageSource.cactus, 1, 1).AbsorbRatio * 25D > 4)
+				if (((ISpecialArmor) stack.getItem()).getProperties(Minecraft.getMinecraft().player, stack, DamageSource.CACTUS, 1, 1).AbsorbRatio * 25D > 4)
 				{
 					return false;
 				}

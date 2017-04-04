@@ -38,9 +38,9 @@ public class RenderPlayerCyberware extends RenderPlayer
 		super(renderManager, arms);
 	}
 
-	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID + ":textures/models/playerMuscles.png");
-	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID + ":textures/models/playerRobot.png");
-	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/playerRustyRobot.png");
+	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID + ":textures/models/player_muscles.png");
+	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID + ":textures/models/player_robot.png");
+	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/player_rusty_robot.png");
 
 	@Override
 	protected ResourceLocation getEntityTexture(AbstractClientPlayer entity)
@@ -62,12 +62,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderRightArm(clientPlayer);
 		
-		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1)) && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1)) && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT && clientPlayer.getHeldItemMainhand() == null
+		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1)) && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1)) && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT && clientPlayer.getHeldItemMainhand().isEmpty()
 				&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
 		{
 			GL11.glPushMatrix();
 
-			float percent = ((Minecraft.getMinecraft().thePlayer.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
+			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
 			percent = Math.max(0F, percent);
 			percent = (float) Math.sin(percent * Math.PI / 2F);
@@ -88,12 +88,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 		
 		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
 			&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))
-			&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT && clientPlayer.getHeldItemMainhand() == null
+			&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT && clientPlayer.getHeldItemMainhand().isEmpty()
 			&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
 		{
 			GL11.glPushMatrix();
 
-			float percent = ((Minecraft.getMinecraft().thePlayer.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
+			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
 			percent = Math.max(0F, percent);
 			percent = (float) Math.sin(percent * Math.PI / 2F);
@@ -135,19 +135,19 @@ public class RenderPlayerCyberware extends RenderPlayer
 		this.mainModel.isRiding = shouldSit;
 		this.mainModel.isChild = entity.isChild();
 		
-		ItemStack head = entity.inventory.armorInventory[3];
-		ItemStack body = entity.inventory.armorInventory[2];
-		ItemStack legs = entity.inventory.armorInventory[1];
-		ItemStack shoes = entity.inventory.armorInventory[0];
+		ItemStack head = entity.inventory.armorInventory.get(3);
+		ItemStack body = entity.inventory.armorInventory.get(2);
+		ItemStack legs = entity.inventory.armorInventory.get(1);
+		ItemStack shoes = entity.inventory.armorInventory.get(0);
 		ItemStack heldItem = entity.getHeldItemMainhand();
 		ItemStack offHand = entity.getHeldItemOffhand();
 
 		if (this.doRobo)
 		{
-			entity.inventory.armorInventory[0] = null;	
-			entity.inventory.armorInventory[1] = null;
-			entity.inventory.mainInventory[entity.inventory.currentItem] = null;
-			entity.inventory.offHandInventory[0] = null;
+			entity.inventory.armorInventory.set(0,ItemStack.EMPTY);	
+			entity.inventory.armorInventory.set(1,ItemStack.EMPTY);
+			entity.inventory.mainInventory.set(entity.inventory.currentItem,ItemStack.EMPTY);
+			entity.inventory.offHandInventory.set(0,ItemStack.EMPTY);
 		}
 		try
 		{
@@ -183,7 +183,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			float f7 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 			this.renderLivingAt(entity, x, y, z);
 			float f8 = this.handleRotationFloat(entity, partialTicks);
-			this.rotateCorpse(entity, f8, f, partialTicks);
+			this.applyRotations(entity, f8, f, partialTicks);
 			float f4 = this.prepareScale(entity, partialTicks);
 			float f5 = 0.0F;
 			float f6 = 0.0F;
@@ -256,12 +256,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 		{
 		}
 
-		entity.inventory.armorInventory[3] = head;
-		entity.inventory.armorInventory[2] = body;
-		entity.inventory.armorInventory[1] = legs;
-		entity.inventory.armorInventory[0] = shoes;
-		entity.inventory.mainInventory[entity.inventory.currentItem] = heldItem;
-		entity.inventory.offHandInventory[0] = offHand;
+		entity.inventory.armorInventory.set(3,head);
+		entity.inventory.armorInventory.set(2,body);
+		entity.inventory.armorInventory.set(1,legs);
+		entity.inventory.armorInventory.set(0,shoes);
+		entity.inventory.mainInventory.set(entity.inventory.currentItem,heldItem);
+		entity.inventory.offHandInventory.set(0, offHand);
 
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.enableTexture2D();
@@ -301,7 +301,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
 			ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;
 
-			if (itemstack != null)
+			if (!itemstack.isEmpty())
 			{
 				modelbiped$armpose = ModelBiped.ArmPose.ITEM;
 
@@ -320,7 +320,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 				}
 			}
 
-			if (itemstack1 != null)
+			if (!itemstack1.isEmpty())
 			{
 				modelbiped$armpose1 = ModelBiped.ArmPose.ITEM;
 

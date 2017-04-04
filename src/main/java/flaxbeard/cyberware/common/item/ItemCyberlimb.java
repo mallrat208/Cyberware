@@ -70,7 +70,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	public void handleFallDamage(LivingAttackEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		if (e.worldObj.isRemote && (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)) || CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 3))) && event.getSource() == DamageSource.fall)
+		if (e.world.isRemote && (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)) || CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 3))) && event.getSource() == DamageSource.FALL)
 		{
 			if (!didFall.contains(e.getEntityId()))
 			{
@@ -83,7 +83,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	public void handleSound(PlaySoundAtEntityEvent event)
 	{
 		Entity e = event.getEntity();
-		if (event.getSound() == SoundEvents.ENTITY_PLAYER_HURT && e.worldObj.isRemote)
+		if (event.getSound() == SoundEvents.ENTITY_PLAYER_HURT && e.world.isRemote)
 		{
 			if (didFall.contains(e.getEntityId()))
 			{
@@ -118,7 +118,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		{
 			ItemStack test = new ItemStack(this, 1, i);
 			ItemStack installed = CyberwareAPI.getCyberware(e, test);
-			if (e.ticksExisted % 20 == 0 && installed != null)
+			if (e.ticksExisted % 20 == 0 && !installed.isEmpty())
 			{
 				boolean used = CyberwareAPI.getCapability(e).usePower(installed, getPowerConsumption(installed));
 				

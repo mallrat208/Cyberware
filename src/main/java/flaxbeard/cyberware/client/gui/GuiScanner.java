@@ -51,11 +51,11 @@ public class GuiScanner extends GuiContainer
 		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
 		
 
-		if (scanner.slots.getStackInSlot(0) != null && scanner.slots.getStackInSlot(0).stackSize > 0 && (scanner.slots.getStackInSlot(2) == null || scanner.slots.getStackInSlot(2).stackSize == 0))
+		if (!scanner.slots.getStackInSlot(0).isEmpty() && scanner.slots.getStackInSlot(0).getCount() > 0 && (scanner.slots.getStackInSlot(2).isEmpty() || scanner.slots.getStackInSlot(2).getCount() == 0))
 		{
 			int maxMessage = getMaxMessage(mc.gameSettings.language);
 	
-			int ticks = mc.getMinecraft().thePlayer.ticksExisted / 10;
+			int ticks = mc.getMinecraft().player.ticksExisted / 10;
 			int dotsNum = ticks % 6;
 			if ((dotsNum == 0 && !resetLast) || messageNum == -1 || messageNum >= maxMessage)
 			{
@@ -63,13 +63,13 @@ public class GuiScanner extends GuiContainer
 				{
 					resetLast = true;
 				}
-				messageNum = mc.getMinecraft().theWorld.rand.nextInt(maxMessage);
+				messageNum = mc.getMinecraft().world.rand.nextInt(maxMessage);
 			}
 			if (dotsNum != 0)
 			{
 				resetLast = false;
 			}
-			String baseMessage = I18n.format("cyberware.gui.scannerSaying." + messageNum);
+			String baseMessage = I18n.format("cyberware.gui.scanner_saying." + messageNum);
 			String message = baseMessage + dots[dotsNum];
 			this.fontRendererObj.drawString(message, 6, 20, 0x1F6D7C);
 
@@ -80,9 +80,9 @@ public class GuiScanner extends GuiContainer
 		
 		
 		float chance = 0F;
-		if (scanner.slots.getStackInSlot(0) != null)
+		if (!scanner.slots.getStackInSlot(0).isEmpty())
 		{
-			chance = CyberwareConfig.SCANNER_CHANCE + (CyberwareConfig.SCANNER_CHANCE_ADDL * (scanner.slots.getStackInSlot(0).stackSize - 1));
+			chance = CyberwareConfig.SCANNER_CHANCE + (CyberwareConfig.SCANNER_CHANCE_ADDL * (scanner.slots.getStackInSlot(0).getCount() - 1));
 			if (scanner.slots.getStackInSlot(0).isItemStackDamageable())
 			{
 				chance = 50F * (1F - (scanner.slots.getStackInSlot(0).getItemDamage() * 1F  / scanner.slots.getStackInSlot(0).getMaxDamage()));
@@ -107,11 +107,11 @@ public class GuiScanner extends GuiContainer
 		
 		GL11.glDisable(GL11.GL_BLEND);
 
-		if (this.isPointInRegion(35, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(0) == null)
+		if (this.isPointInRegion(35, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.toScan") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_scan") } ), mouseX - i, mouseY - j, fontRendererObj);
 		}
-		if (this.isPointInRegion(15, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(1) == null)
+		if (this.isPointInRegion(15, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(1).isEmpty())
 		{
 			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRendererObj);
 		}
@@ -123,7 +123,7 @@ public class GuiScanner extends GuiContainer
 				int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
 				int seconds = (ticksLeft % 1200) / 20;
 				int minutes = (ticksLeft / 1200);
-				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.timeLeft", minutes, seconds) } ), mouseX - i, mouseY - j, fontRendererObj);
+				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.time_left", minutes, seconds) } ), mouseX - i, mouseY - j, fontRendererObj);
 			}
 		}
 	}
@@ -138,7 +138,7 @@ public class GuiScanner extends GuiContainer
 		}
 		else
 		{
-			int count = Integer.parseInt(I18n.format("cyberware.gui.scannerSaying.count")) - 1;
+			int count = Integer.parseInt(I18n.format("cyberware.gui.scanner_saying.count")) - 1;
 			
 			langMax.put(language, count);
 			return count;

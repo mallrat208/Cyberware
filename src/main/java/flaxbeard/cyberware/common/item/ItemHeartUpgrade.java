@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -54,14 +55,15 @@ public class ItemHeartUpgrade extends ItemCyberware
 			ItemStack stack = CyberwareAPI.getCyberware(e, test);
 			if ((!CyberwareAPI.getCyberwareNBT(stack).hasKey("used")) && cyberware.usePower(test, this.getPowerConsumption(test), false))
 			{
-				ItemStack[] items = cyberware.getInstalledCyberware(EnumSlot.HEART);
-				ItemStack[] itemsNew = items.clone();
-				for (int i = 0; i < items.length; i++)
+				NonNullList<ItemStack> items = cyberware.getInstalledCyberware(EnumSlot.HEART);
+				NonNullList<ItemStack> itemsNew = NonNullList.create();
+				itemsNew.addAll(items);
+				for (int i = 0; i < items.size(); i++)
 				{
-					ItemStack item = items[i];
-					if (item != null && item.getItem() == this && item.getItemDamage() == 0)
+					ItemStack item = items.get(i);
+					if (!item.isEmpty() && item.getItem() == this && item.getItemDamage() == 0)
 					{
-						itemsNew[i] = null;
+						itemsNew.set(i,ItemStack.EMPTY);
 						break;
 					}
 				}
@@ -69,7 +71,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 				{
 					cyberware.setInstalledCyberware(e, EnumSlot.HEART, itemsNew);
 					cyberware.updateCapacity();
-					if (!e.worldObj.isRemote)
+					if (!e.world.isRemote)
 					{
 						CyberwareAPI.updateData(e);
 					}
@@ -85,7 +87,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 				}
 				e.setHealth(e.getMaxHealth() / 3F);
 				CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(1, (float) e.posX, (float) e.posY + e.height / 2F, (float) e.posZ), 
-						new TargetPoint(e.worldObj.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
+						new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
 				event.setCanceled(true);
 			}
 		}
@@ -143,7 +145,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 				if (t >= 100 && damageMedkit.get(e.getEntityId()) > 0F)
 				{
 					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(0, (float) e.posX, (float) e.posY + e.height / 2F, (float) e.posZ), 
-							new TargetPoint(e.worldObj.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
+							new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
 
 					e.heal(damageMedkit.get(e.getEntityId()));
 					timesMedkit.put(e.getEntityId(), 0);
@@ -230,7 +232,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 		else
 		{
-			if (e.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.outOfWorld)
+			if (e.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD)
 			{
 				int i = (e.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
 				int j = 25 - i;

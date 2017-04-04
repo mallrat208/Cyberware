@@ -50,7 +50,7 @@ public class GuiPacket implements IMessage
 		public IMessage onMessage(GuiPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(serverPlayer.worldObj.provider.getDimension()).addScheduledTask(new DoSync(ctx, message.guid, message.x, message.y, message.z));
+			DimensionManager.getWorld(serverPlayer.world.provider.getDimension()).addScheduledTask(new DoSync(ctx, message.guid, message.x, message.y, message.z));
 
 
 			return null;
@@ -79,7 +79,7 @@ public class GuiPacket implements IMessage
 		public void run()
 		{
 			EntityPlayerMP serverPlayer = context.getServerHandler().playerEntity;
-			serverPlayer.openGui(Cyberware.INSTANCE, guid, serverPlayer.worldObj, x, y, z);
+			serverPlayer.openGui(Cyberware.INSTANCE, guid, serverPlayer.world, x, y, z);
 			
 			
 		}

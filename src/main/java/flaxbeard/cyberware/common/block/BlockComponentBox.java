@@ -48,7 +48,7 @@ public class BlockComponentBox extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "componentBox";
+		String name = "component_box";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);
@@ -97,7 +97,7 @@ public class BlockComponentBox extends BlockContainer
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
@@ -177,9 +177,10 @@ public class BlockComponentBox extends BlockContainer
 		return new BlockStateContainer(this, new IProperty[] {FACING});
 	}
 	
-
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = player.getHeldItem(hand);
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntityComponentBox)
@@ -194,9 +195,9 @@ public class BlockComponentBox extends BlockContainer
 				TileEntityComponentBox box = (TileEntityComponentBox) tileentity;
 				ItemStack toDrop = this.getStack(box);
 				
-				if (player.inventory.mainInventory[player.inventory.currentItem] == null)
+				if (player.inventory.mainInventory.get(player.inventory.currentItem).isEmpty())
 				{
-					player.inventory.mainInventory[player.inventory.currentItem] = toDrop;
+					player.inventory.mainInventory.set(player.inventory.currentItem, toDrop);
 				}
 				else
 				{

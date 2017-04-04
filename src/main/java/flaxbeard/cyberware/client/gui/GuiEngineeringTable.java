@@ -112,7 +112,7 @@ public class GuiEngineeringTable extends GuiContainer
 
 	public GuiEngineeringTable(InventoryPlayer playerInv, TileEntityEngineeringTable engineering)
 	{
-		super(new ContainerEngineeringTable(Minecraft.getMinecraft().thePlayer.getCachedUniqueIdString(), playerInv, engineering));
+		super(new ContainerEngineeringTable(Minecraft.getMinecraft().player.getCachedUniqueIdString(), playerInv, engineering));
 		this.playerInventory = playerInv;
 		this.engineering = engineering;
 		
@@ -146,7 +146,7 @@ public class GuiEngineeringTable extends GuiContainer
 		next.visible = prev.visible = (archive() != null && ((ContainerEngineeringTable) this.inventorySlots).archiveList.size() > 1);
 		nextC.visible = prevC.visible = (componentBox() != null && ((ContainerEngineeringTable) this.inventorySlots).componentBoxList.size() > 1);
 
-		((ContainerEngineeringTable) this.inventorySlots).canInteractWith(mc.thePlayer);
+		((ContainerEngineeringTable) this.inventorySlots).canInteractWith(mc.player);
 		
 		if (archive() != null)
 		{
@@ -196,10 +196,10 @@ public class GuiEngineeringTable extends GuiContainer
 		if (this.isPointInRegion(offset + 39, 34, 21, 21, mouseX, mouseY))
 		{
 			String[] tooltip;
-			if (engineering.slots.getStackInSlot(1) != null)
+			if (!engineering.slots.getStackInSlot(1).isEmpty())
 			{
 				float chance = CyberwareConfig.ENGINEERING_CHANCE;
-				if (engineering.slots.getStackInSlot(0) != null && engineering.slots.getStackInSlot(0).isItemStackDamageable())
+				if (!engineering.slots.getStackInSlot(0).isEmpty() && engineering.slots.getStackInSlot(0).isItemStackDamageable())
 				{
 					chance = Math.min(100F, CyberwareConfig.ENGINEERING_CHANCE * 5F * (1F - (engineering.slots.getStackInSlot(0).getItemDamage() * 1F  / engineering.slots.getStackInSlot(0).getMaxDamage())));
 				}
@@ -212,15 +212,15 @@ public class GuiEngineeringTable extends GuiContainer
 			this.drawHoveringText(Arrays.asList(tooltip), mouseX - i, mouseY - j, fontRendererObj);
 		}
 		
-		if (this.isPointInRegion(offset + 15, 20, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(0) == null)
+		if (this.isPointInRegion(offset + 15, 20, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.toDestroy") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_destroy") } ), mouseX - i, mouseY - j, fontRendererObj);
 		}
-		if (this.isPointInRegion(offset + 15, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(1) == null)
+		if (this.isPointInRegion(offset + 15, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(1).isEmpty())
 		{
 			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRendererObj);
 		}
-		if (this.isPointInRegion(offset + 115, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(8) == null)
+		if (this.isPointInRegion(offset + 115, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(8).isEmpty())
 		{
 			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.blueprint") } ), mouseX - i, mouseY - j, fontRendererObj);
 		}
@@ -305,8 +305,8 @@ public class GuiEngineeringTable extends GuiContainer
 		ContainerEngineeringTable table = ((ContainerEngineeringTable) this.inventorySlots);
 		if (table.componentBox instanceof Integer)
 		{
-			ItemStack stack = table.playerInv.mainInventory[(Integer) table.componentBox];
-			if (stack != null)
+			ItemStack stack = table.playerInv.mainInventory.get((Integer) table.componentBox);
+			if (!stack.isEmpty())
 			{
 				return stack.getDisplayName();
 			}
@@ -317,7 +317,7 @@ public class GuiEngineeringTable extends GuiContainer
 	
 	private void nextComponentBox()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.thePlayer, true, true));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, true, true));
 
 		((ContainerEngineeringTable) this.inventorySlots).nextComponentBox();
 		//engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
@@ -326,7 +326,7 @@ public class GuiEngineeringTable extends GuiContainer
 	
 	private void prevComponentBox()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.thePlayer, false, true));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, false, true));
 
 		((ContainerEngineeringTable) this.inventorySlots).prevComponentBox();
 		//engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
@@ -335,19 +335,19 @@ public class GuiEngineeringTable extends GuiContainer
 	
 	private void nextArchive()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.thePlayer, true, false));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, true, false));
 
 		((ContainerEngineeringTable) this.inventorySlots).nextArchive();
-		engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
+		engineering.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
 
 	}
 	
 	private void prevArchive()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.thePlayer, false, false));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, false, false));
 
 		((ContainerEngineeringTable) this.inventorySlots).prevArchive();
-		engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
+		engineering.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
 
 	}
 }

@@ -19,9 +19,9 @@ public class RenderCyberZombie extends RenderZombie
 {
 	
 	private static final ResourceLocation ZOMBIE = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombie.png");
-	private static final ResourceLocation HIGHLIGHT = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombieHighlight.png");
-	private static final ResourceLocation ZOMBIE_BRUTE = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombieBrute.png");
-	private static final ResourceLocation HIGHLIGHT_BRUTE = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombieBruteHighlight.png");
+	private static final ResourceLocation HIGHLIGHT = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombie_highlight.png");
+	private static final ResourceLocation ZOMBIE_BRUTE = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombie_brute.png");
+	private static final ResourceLocation HIGHLIGHT_BRUTE = new ResourceLocation(Cyberware.MODID + ":textures/models/cyberzombie_brute_highlight.png");
 
 	@SideOnly(Side.CLIENT)
 	public static class LayerZombieHighlight<T extends EntityCyberZombie> implements LayerRenderer<T>
@@ -80,9 +80,7 @@ public class RenderCyberZombie extends RenderZombie
 	public RenderCyberZombie(RenderManager renderManagerIn)
 	{
 		super(renderManagerIn);
-        List<LayerRenderer<EntityZombie>> defaultLayers = ReflectionHelper.getPrivateValue(RenderZombie.class, this, 10);
-        defaultLayers.add(new LayerZombieHighlight(this));
-        ReflectionHelper.setPrivateValue(RenderZombie.class, this, defaultLayers, 10);
+        layerRenderers.add(new LayerZombieHighlight(this));
 	}
 	
 	@Override

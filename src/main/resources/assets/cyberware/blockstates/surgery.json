@@ -3,9 +3,9 @@
     "defaults": {
         "model": "minecraft:cube_column",
         "textures": {
-            "particle": "cyberware:blocks/surgeryChamberTop",
-            "end": "cyberware:blocks/surgeryChamberTop",
-            "side": "cyberware:blocks/robosurgeonScreen"
+            "particle": "cyberware:blocks/surgery_chamber_top",
+            "end": "cyberware:blocks/surgery_chamber_top",
+            "side": "cyberware:blocks/robosurgeon_screen"
         }
     },
     "variants": {

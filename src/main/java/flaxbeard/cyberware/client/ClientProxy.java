@@ -178,13 +178,13 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void wrong(TileEntitySurgery tileEntitySurgery)
 	{
-		tileEntitySurgery.ticksWrong = Minecraft.getMinecraft().thePlayer.ticksExisted;
+		tileEntitySurgery.ticksWrong = Minecraft.getMinecraft().player.ticksExisted;
 	}
 	
 	@Override
 	public boolean workingOnPlayer(EntityLivingBase targetEntity)
 	{
-		return targetEntity == Minecraft.getMinecraft().thePlayer;
+		return targetEntity == Minecraft.getMinecraft().player;
 	}
 
 }

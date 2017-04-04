@@ -62,9 +62,10 @@ public class BlockSurgery extends BlockContainer
 		return EnumBlockRenderType.MODEL;
 	}
 	
-
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = player.getHeldItem(hand);
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntitySurgery)
@@ -106,7 +107,7 @@ public class BlockSurgery extends BlockContainer
 			for (int i = 0; i < surgery.slots.getSlots(); i++)
 			{
 				ItemStack stack = surgery.slots.getStackInSlot(i);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
 				}

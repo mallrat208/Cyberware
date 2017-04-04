@@ -100,7 +100,7 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 	@Override
 	public void update()
 	{
-		List<EntityLivingBase> entities = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1F, pos.getY() + 2.5F, pos.getZ() + 1F));
+		List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1F, pos.getY() + 2.5F, pos.getZ() + 1F));
 		for (EntityLivingBase entity : entities)
 		{
 			
@@ -111,7 +111,7 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 				
 				if(!data.isAtCapacity(null, 20) && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER))
 				{
-					if (!worldObj.isRemote)
+					if (!world.isRemote)
 					{
 						System.out.println(container.getStoredPower());
 						container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
@@ -120,11 +120,11 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 					
 					if (entity.ticksExisted % 5 == 0)
 					{
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, new int[] { 255, 150, 255 } );
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, new int[] { 255, 150, 255 } );
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, new int[] { 255, 150, 255 } );
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, new int[] { 255, 150, 255 } );
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, new int[] { 255, 150, 255 } );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, new int[] { 255, 150, 255 } );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, new int[] { 255, 150, 255 } );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, new int[] { 255, 150, 255 } );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, new int[] { 255, 150, 255 } );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, new int[] { 255, 150, 255 } );
 
 					}
 
@@ -133,10 +133,10 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 		}
 		
 		boolean hasPower = (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER);
-		if (hasPower != last && !worldObj.isRemote)
+		if (hasPower != last && !world.isRemote)
 		{
-			IBlockState state = worldObj.getBlockState(getPos());
-			worldObj.notifyBlockUpdate(pos, state, state, 2);
+			IBlockState state = world.getBlockState(getPos());
+			world.notifyBlockUpdate(pos, state, state, 2);
 			last = hasPower;
 		}
 	}

@@ -8,6 +8,7 @@ import java.util.Map;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -27,9 +28,9 @@ public class TabCyberware extends CreativeTabs
 	}
 	
 	@Override
-	public Item getTabIconItem()
+	public ItemStack getTabIconItem()
 	{
-		return null;
+		return ItemStack.EMPTY;
 	}
 	@Override
 	public ItemStack getIconItemStack()
@@ -39,14 +40,14 @@ public class TabCyberware extends CreativeTabs
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void displayAllRelevantItems(List<ItemStack> list)
+	public void displayAllRelevantItems(NonNullList<ItemStack> list)
 	{
 		Map<EnumCategory, List<ItemStack>> subLists = new EnumMap<EnumCategory, List<ItemStack>>(EnumCategory.class);
 		for (EnumCategory category : EnumCategory.values())
 		{
 			subLists.put(category, new ArrayList<ItemStack>());
 		}
-		List<ItemStack> unsorted = new ArrayList<ItemStack>();
+		NonNullList<ItemStack> unsorted = NonNullList.create();
 		
 		Quality q = CreativeMenuHandler.pageSelected == 0 ? CyberwareAPI.QUALITY_SCAVENGED : CyberwareAPI.QUALITY_MANUFACTURED;
 		
@@ -62,12 +63,12 @@ public class TabCyberware extends CreativeTabs
 				{
 					if (item instanceof ICyberwareTabItem)
 					{
-						List<ItemStack> tempList = new ArrayList<ItemStack>();	
+						NonNullList<ItemStack> tempList = NonNullList.create();	
 						item.getSubItems(item, this, tempList);
 						
 						for (ItemStack stack : tempList)
 						{
-							if (stack != null)
+							if (!stack.isEmpty())
 							{
 								if (CyberwareAPI.isCyberware(stack))
 								{

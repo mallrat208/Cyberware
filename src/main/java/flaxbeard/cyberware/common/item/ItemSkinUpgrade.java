@@ -46,7 +46,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ItemStack test = new ItemStack(this, 1, 0);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			if (e.worldObj.canBlockSeeSky(new BlockPos((int) e.posX,(int) (e.posY + e.height),(int) e.posZ)))
+			if (e.world.canBlockSeeSky(new BlockPos((int) e.posX,(int) (e.posY + e.height),(int) e.posZ)))
 			{
 				CyberwareAPI.getCapability(e).addPower(getPowerProduction(test), test);
 			}
@@ -133,14 +133,14 @@ public class ItemSkinUpgrade extends ItemCyberware
 			{
 				for (ItemStack stack : e.getArmorInventoryList())
 				{
-					if (stack != null && stack.getItem() instanceof ItemArmor)
+					if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
 					{
 						if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
 						{
 							return;
 						}
 					}
-					else if (stack != null && stack.getItem() instanceof ISpecialArmor)
+					else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
 					{
 						if (((ISpecialArmor) stack.getItem()).getProperties(e, stack, event.getSource(), event.getAmount(), 1).AbsorbRatio * 25D > 4)
 						{

@@ -53,7 +53,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 	@Override
 	public void update()
 	{			
-		boolean working = !worldObj.isBlockPowered(pos);
+		boolean working = !world.isBlockPowered(pos);
 		
 		if (!wasWorking && working)
 		{
@@ -68,12 +68,12 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		wasWorking = working;
 
 		
-		if (worldObj.isRemote && working)
+		if (world.isRemote && working)
 		{
 			count = (count + 1) % 20;
 			if (count == 0)
 			{
-				IBlockState state = worldObj.getBlockState(pos);
+				IBlockState state = world.getBlockState(pos);
 				if (state.getBlock() == CyberwareContent.radio)
 				{
 					boolean ns = state.getValue(BlockBeaconLarge.FACING) == EnumFacing.NORTH || state.getValue(BlockBeaconLarge.FACING) == EnumFacing.SOUTH;
@@ -92,7 +92,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 						float backOffsetX = (backwards ^ ns ? -.3F : .3F);
 						float backOffsetZ = (backwards ? .4F : -.4F);
 
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
 								pos.getX() + .5F + (ns ? xOffset + backOffsetX : backOffsetZ), 
 								pos.getY() + .5F + yOffset, 
 								pos.getZ() + .5F + (ns ? backOffsetZ : xOffset + backOffsetX), 
@@ -101,7 +101,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 								ns ? 0 : xSpeed,
 								new int[] {255, 255, 255});
 						
-						worldObj.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
 								pos.getX() + .5F + (ns ? -xOffset + backOffsetX : backOffsetZ), 
 								pos.getY() + .5F + yOffset, 
 								pos.getZ() + .5F + (ns ? backOffsetZ : -xOffset + backOffsetX), 
@@ -119,11 +119,11 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 
 	private void disable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(worldObj.provider.getDimension());
+		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
 		if (map == null)
 		{
-			posForTier(TIER).put(worldObj.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(worldObj.provider.getDimension());
+			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
+			map = posForTier(TIER).get(world.provider.getDimension());
 		}
 		if (map.containsKey(this.getPos()))
 		{
@@ -134,11 +134,11 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 
 	private void enable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(worldObj.provider.getDimension());
+		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
 		if (map == null)
 		{
-			posForTier(TIER).put(worldObj.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(worldObj.provider.getDimension());
+			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
+			map = posForTier(TIER).get(world.provider.getDimension());
 		}
 		if (!map.containsKey(this.getPos()))
 		{

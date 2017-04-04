@@ -91,11 +91,10 @@ public class BlockScanner extends BlockContainer
 		}
 	}
 	
-
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		TileEntity tileentity = worldIn.getTileEntity(pos);
-		
 		if (tileentity instanceof TileEntityScanner)
 		{
 			if (player.isCreative() && player.isSneaking())
@@ -122,7 +121,7 @@ public class BlockScanner extends BlockContainer
 			for (int i = 0; i < scanner.slots.getSlots(); i++)
 			{
 				ItemStack stack = scanner.slots.getStackInSlot(i);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
 				}

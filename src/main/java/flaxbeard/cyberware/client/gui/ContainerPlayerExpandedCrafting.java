@@ -37,8 +37,8 @@ public class ContainerPlayerExpandedCrafting extends ContainerPlayer
 		
 		for (int i = 0; i < 5; i++)
 		{
-			this.inventorySlots.get(i).xDisplayPosition = -999;
-			this.inventorySlots.get(i).yDisplayPosition = -999;
+			this.inventorySlots.get(i).xPos = -999;
+			this.inventorySlots.get(i).yPos = -999;
 
 		}
 	}
@@ -52,13 +52,13 @@ public class ContainerPlayerExpandedCrafting extends ContainerPlayer
 		{
 			ItemStack itemstack = this.craftMatrix.removeStackFromSlot(i);
 
-			if (itemstack != null)
+			if (!itemstack.isEmpty())
 			{
 				playerIn.dropItem(itemstack, false);
 			}
 		}
 
-		this.craftResult.setInventorySlotContents(0, (ItemStack)null);
+		this.craftResult.setInventorySlotContents(0, ItemStack.EMPTY);
 	}
 	
 

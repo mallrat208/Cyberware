@@ -53,7 +53,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
-			if (!canRemoveItem(slot)) return null;
+			if (!canRemoveItem(slot)) return ItemStack.EMPTY;
 			
 
 			ItemStack result = super.extractItem(slot, amount, simulate);
@@ -132,6 +132,11 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		{
 			slots.setStackInSlot(slot, stack);
 		}
+
+		@Override
+		public int getSlotLimit(int slot) {
+			return 64;
+		}
 		
 	}
 	
@@ -164,7 +169,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		{
 			if (facing == EnumFacing.DOWN)
 			{
-				if (slots.getStackInSlot(2) != null && slots.getStackInSlot(0) != null)
+				if (!slots.getStackInSlot(2).isEmpty() && !slots.getStackInSlot(0).isEmpty())
 				{
 					return (T) slotsBottom2;
 				}
@@ -237,7 +242,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -265,7 +270,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	public void update()
 	{
 		ItemStack toDestroy = slots.getStackInSlot(0);
-		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.stackSize > 0 && (slots.getStackInSlot(2) == null || slots.getStackInSlot(2).stackSize == 0))
+		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.getCount() > 0 && (slots.getStackInSlot(2).isEmpty() || slots.getStackInSlot(2).getCount() == 0))
 		{
 			ticks++;
 			
@@ -276,11 +281,11 @@ public class TileEntityScanner extends TileEntity implements ITickable
 				lastZ = z;
 				while (x == lastX)
 				{
-					x = worldObj.rand.nextInt(11);
+					x = world.rand.nextInt(11);
 				}
 				while (z == lastZ)
 				{
-					z = worldObj.rand.nextInt(11);
+					z = world.rand.nextInt(11);
 				}
 			}
 			if (ticks > CyberwareConfig.SCANNER_TIME)
@@ -288,27 +293,27 @@ public class TileEntityScanner extends TileEntity implements ITickable
 				ticks = 0;
 				ticksMove = 0;
 
-				if (!worldObj.isRemote && (slots.getStackInSlot(1) != null && slots.getStackInSlot(1).stackSize > 0))
+				if (!world.isRemote && !(slots.getStackInSlot(1).isEmpty() && slots.getStackInSlot(1).getCount() > 0))
 				{
-					float chance = CyberwareConfig.SCANNER_CHANCE + (CyberwareConfig.SCANNER_CHANCE_ADDL * (slots.getStackInSlot(0).stackSize - 1));
+					float chance = CyberwareConfig.SCANNER_CHANCE + (CyberwareConfig.SCANNER_CHANCE_ADDL * (slots.getStackInSlot(0).getCount() - 1));
 					if (slots.getStackInSlot(0).isItemStackDamageable())
 					{
 						chance = 50F * (1F - (slots.getStackInSlot(0).getItemDamage() * 1F / slots.getStackInSlot(0).getMaxDamage()));
 					}
 					chance = Math.min(chance, 50F);
 					
-					if (worldObj.rand.nextFloat() < (chance / 100F))
+					if (world.rand.nextFloat() < (chance / 100F))
 					{
 						ItemStack blue = ItemBlueprint.getBlueprintForItem(toDestroy);
 						slots.setStackInSlot(2, blue);
 						ItemStack current = slots.getStackInSlot(1);
-						current.stackSize--;
-						if (current.stackSize <= 0)
+						current.shrink(1);
+						if (current.getCount() <= 0)
 						{
-							current = null;
+							current = ItemStack.EMPTY;
 						}
 						slots.setStackInSlot(1, current);
-						worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(getPos()), worldObj.getBlockState(getPos()), 2);
+						world.notifyBlockUpdate(pos, world.getBlockState(getPos()), world.getBlockState(getPos()), 2);
 
 					}
 					

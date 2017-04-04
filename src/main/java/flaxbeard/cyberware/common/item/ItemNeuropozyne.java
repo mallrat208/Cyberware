@@ -41,7 +41,7 @@ public class ItemNeuropozyne extends Item
 	{
 		if (!playerIn.capabilities.isCreativeMode)
 		{
-			--stack.stackSize;
+			stack.shrink(1);
 		}
 		
 		playerIn.addPotionEffect(new PotionEffect(CyberwareContent.neuropozyneEffect, 24000, 0, false, false));

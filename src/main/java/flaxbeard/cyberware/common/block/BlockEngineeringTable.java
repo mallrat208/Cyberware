@@ -51,7 +51,7 @@ public class BlockEngineeringTable extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "engineeringTable";
+		String name = "engineering_table";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);
@@ -106,7 +106,7 @@ public class BlockEngineeringTable extends BlockContainer
 	}
 	
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
 		if (state.getValue(HALF) == EnumEngineeringHalf.UPPER)
 		{
@@ -119,7 +119,7 @@ public class BlockEngineeringTable extends BlockContainer
 			}
 			else if (blockIn != this)
 			{
-				iblockstate.neighborChanged(worldIn, blockpos, blockIn);
+				iblockstate.neighborChanged(worldIn, blockpos, blockIn, fromPos);
 			}
 		}
 		else
@@ -188,8 +188,10 @@ public class BlockEngineeringTable extends BlockContainer
 	}
 	
 
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = player.getHeldItem(hand);
 		boolean top = state.getValue(HALF) == EnumEngineeringHalf.UPPER;
 		BlockPos checkPos = top ? pos : pos.add(0, 1, 0);
 		TileEntity tileentity = worldIn.getTileEntity(checkPos);
@@ -218,7 +220,7 @@ public class BlockEngineeringTable extends BlockContainer
 				for (int i = 0; i < engineering.slots.getSlots(); i++)
 				{
 					ItemStack stack = engineering.slots.getStackInSlot(i);
-					if (stack != null)
+					if (!stack.isEmpty())
 					{
 						InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
 					}

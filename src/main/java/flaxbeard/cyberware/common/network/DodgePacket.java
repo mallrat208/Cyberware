@@ -67,14 +67,14 @@ public class DodgePacket implements IMessage
 		@Override
 		public Void call() throws Exception
 		{
-			Entity targetEntity = Minecraft.getMinecraft().theWorld.getEntityByID(entityId);
+			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			
 			if (targetEntity != null)
 			{
 				for (int i = 0; i < 25; i++)
 				{
-					Random rand = targetEntity.worldObj.rand;
-					targetEntity.worldObj.spawnParticle(EnumParticleTypes.SPELL, targetEntity.posX, targetEntity.posY + rand.nextFloat() * targetEntity.height, targetEntity.posZ, 
+					Random rand = targetEntity.world.rand;
+					targetEntity.world.spawnParticle(EnumParticleTypes.SPELL, targetEntity.posX, targetEntity.posY + rand.nextFloat() * targetEntity.height, targetEntity.posZ, 
 							(rand.nextFloat() - .5F) * .2F,
 							0,
 							(rand.nextFloat() - .5F) * .2F,
@@ -84,7 +84,7 @@ public class DodgePacket implements IMessage
 				
 				targetEntity.playSound(SoundEvents.ENTITY_FIREWORK_SHOOT, 1F, 1F);
 				
-				if (targetEntity == Minecraft.getMinecraft().thePlayer)
+				if (targetEntity == Minecraft.getMinecraft().player)
 				{
 					HudHandler.addNotification(new NotificationInstance(targetEntity.ticksExisted, new DodgeNotification()));
 				}

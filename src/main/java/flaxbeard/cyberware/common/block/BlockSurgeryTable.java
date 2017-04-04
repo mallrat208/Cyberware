@@ -1,3 +1,4 @@
+
 package flaxbeard.cyberware.common.block;
 
 import javax.annotation.Nullable;
@@ -39,8 +40,10 @@ public class BlockSurgeryTable extends BlockBed
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = playerIn.getHeldItem(hand);
 		if (worldIn.isRemote)
 		{
 			return true;
@@ -58,7 +61,7 @@ public class BlockSurgeryTable extends BlockBed
 				}
 			}
 
-			if (worldIn.provider.canRespawnHere() && worldIn.getBiomeGenForCoords(pos) != Biomes.HELL)
+			if (worldIn.provider.canRespawnHere() && worldIn.getBiome(pos) != Biomes.HELL)
 			{
 				if (((Boolean)state.getValue(OCCUPIED)).booleanValue())
 				{
@@ -66,7 +69,7 @@ public class BlockSurgeryTable extends BlockBed
 
 					if (entityplayer != null)
 					{
-						playerIn.addChatComponentMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]));
+						playerIn.sendMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]));
 						return true;
 					}
 
@@ -86,11 +89,11 @@ public class BlockSurgeryTable extends BlockBed
 				{
 					if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_POSSIBLE_NOW)
 					{
-						playerIn.addChatComponentMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]));
+						playerIn.sendMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]));
 					}
 					else if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_SAFE)
 					{
-						playerIn.addChatComponentMessage(new TextComponentTranslation("tile.bed.notSafe", new Object[0]));
+						playerIn.sendMessage(new TextComponentTranslation("tile.bed.notSafe", new Object[0]));
 					}
 
 					return true;
@@ -128,7 +131,7 @@ public class BlockSurgeryTable extends BlockBed
 	{
 		for (EntityPlayer entityplayer : worldIn.playerEntities)
 		{
-			if (entityplayer.isPlayerSleeping() && entityplayer.playerLocation.equals(pos))
+			if (entityplayer.isPlayerSleeping() && entityplayer.getPosition().equals(pos))
 			{
 				return entityplayer;
 			}

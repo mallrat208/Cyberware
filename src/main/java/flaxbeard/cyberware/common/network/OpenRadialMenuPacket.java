@@ -28,7 +28,7 @@ public class OpenRadialMenuPacket implements IMessage
 		public IMessage onMessage(OpenRadialMenuPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(player.worldObj.provider.getDimension()).addScheduledTask(new DoSync(player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(player));
 
 			return null;
 		}

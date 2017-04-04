@@ -74,7 +74,7 @@ public class MissingPowerDisplay extends HudElementBase
 			for (int i = stacks.size() - 1; i >= 0; i--)
 			{
 				ItemStack stack = stacks.get(i);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					int time = (int) currTime;
 					if (isConfigOpen)

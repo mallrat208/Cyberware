@@ -13,8 +13,8 @@ public class CyberwareMeshDefinition implements ItemMeshDefinition
 	@Override
 	public ModelResourceLocation getModelLocation(ItemStack stack)
 	{
-		ItemStack test = ItemStack.copyItemStack(stack);
-		if (test != null && test.hasTagCompound())
+		ItemStack test = stack.copy();
+		if (!test.isEmpty() && test.hasTagCompound())
 		{
 			test.getTagCompound().removeTag(CyberwareAPI.QUALITY_TAG);
 		}

@@ -32,21 +32,22 @@ public class ItemComponentBox extends ItemBlockCyberware
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
 	{
+		ItemStack itemStackIn = playerIn.getHeldItem(hand);
 		playerIn.openGui(Cyberware.INSTANCE, 6, worldIn, 0, 0, 0);
 		return new ActionResult(EnumActionResult.PASS, itemStackIn);
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		if (playerIn.isSneaking())
 		{
-			EnumActionResult res = super.onItemUse(stack, playerIn, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+			EnumActionResult res = super.onItemUse(playerIn, worldIn, pos, hand, facing, hitX, hitY, hitZ);
 			if (res == EnumActionResult.SUCCESS && playerIn.isCreative())
 			{
-				playerIn.inventory.mainInventory[playerIn.inventory.currentItem] = null;
+				playerIn.inventory.mainInventory.set(playerIn.inventory.currentItem, ItemStack.EMPTY);
 			}
 			return res;
 		}

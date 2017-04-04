@@ -55,7 +55,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			//System.out.println("ADDED0");
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
 			entity.getAttributeMap().applyAttributeModifiers(multimap);
 		}
 		else if (stack.getItemDamage() == 1)
@@ -63,7 +63,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			//System.out.println("ADDED1");
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
 			entity.getAttributeMap().applyAttributeModifiers(multimap);
 		}
 	}
@@ -76,7 +76,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			//System.out.println("REMOVED0");
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
 			entity.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 		else if (stack.getItemDamage() == 1)
@@ -84,7 +84,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			//System.out.println("REMOVED1");
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
 			entity.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
@@ -115,9 +115,9 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 				{
 					ItemStack weapon = p.getHeldItemMainhand();
 					int loc = -1;
-					if (weapon != null)
+					if (!weapon.isEmpty())
 					{
-						if (p.getItemInUseCount() > 0 || weapon.getItem() instanceof ItemSword || weapon.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, weapon).containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName()))
+						if (p.getItemInUseCount() > 0 || weapon.getItem() instanceof ItemSword || weapon.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, weapon).containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
 						{
 							loc = p.inventory.currentItem;
 						}
@@ -131,13 +131,13 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 						{
 							if (i != p.inventory.currentItem)
 							{
-								ItemStack potentialWeapon = p.inventory.mainInventory[i];
-								if (potentialWeapon != null)
+								ItemStack potentialWeapon = p.inventory.mainInventory.get(i);
+								if (!potentialWeapon.isEmpty())
 								{
 									Multimap<String, AttributeModifier> modifiers = potentialWeapon.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, potentialWeapon);
-									if (modifiers.containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName()))
+									if (modifiers.containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
 									{
-										double damage = modifiers.get(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName()).iterator().next().getAmount();
+										double damage = modifiers.get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()).iterator().next().getAmount();
 										
 										if (damage > mostDamage || loc == -1)
 										{
@@ -159,7 +159,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			
 						CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(loc, p.getEntityId(), rank > 2 ? attacker.getEntityId() : -1), (EntityPlayerMP) p);
 						
-						WorldServer world = (WorldServer) p.worldObj;
+						WorldServer world = (WorldServer) p.world;
 						
 						for (EntityPlayer trackingPlayer : world.getEntityTracker().getTrackingPlayers(p))
 						{
@@ -266,7 +266,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		if (stack.getItemDamage() == 0)
 		{
-			switch (stack.stackSize)
+			switch (stack.getCount())
 			{
 				case 1:
 					return 9;

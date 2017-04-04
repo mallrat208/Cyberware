@@ -40,7 +40,7 @@ public class UpdateHudColorPacket implements IMessage
 		public IMessage onMessage(UpdateHudColorPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(player.worldObj.provider.getDimension()).addScheduledTask(new DoSync(message.color, player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.color, player));
 
 			return null;
 		}

@@ -6,11 +6,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import toughasnails.api.config.GameplayOption;
+import toughasnails.api.config.SyncedConfig;
 import toughasnails.api.stat.capability.ITemperature;
 import toughasnails.api.stat.capability.IThirst;
 import toughasnails.api.temperature.TemperatureHelper;
 import toughasnails.api.thirst.ThirstHelper;
-import toughasnails.config.GameplayOption;
 import toughasnails.config.SyncedConfigHandler;
 import toughasnails.temperature.TemperatureHandler;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -34,7 +35,7 @@ public class ItemToughAsNailsUpgrade extends ItemCyberware
 		EntityLivingBase e = event.getEntityLiving();
 		
 		ItemStack test = new ItemStack(this, 1, 0);
-		if (e instanceof EntityPlayer && CyberwareAPI.isCyberwareInstalled(e, test) && !e.worldObj.isRemote)
+		if (e instanceof EntityPlayer && CyberwareAPI.isCyberwareInstalled(e, test) && !e.world.isRemote)
 		{
 			
 			EntityPlayer p = (EntityPlayer) e;
@@ -65,7 +66,7 @@ public class ItemToughAsNailsUpgrade extends ItemCyberware
 		}
 		
 		test = new ItemStack(this, 1, 1);
-		if (e instanceof EntityPlayer && CyberwareAPI.isCyberwareInstalled(e, test) && !e.worldObj.isRemote)
+		if (e instanceof EntityPlayer && CyberwareAPI.isCyberwareInstalled(e, test) && !e.world.isRemote)
 		{
 			
 			EntityPlayer p = (EntityPlayer) e;
@@ -92,7 +93,7 @@ public class ItemToughAsNailsUpgrade extends ItemCyberware
 	
 	public void addExhaustion(IThirst data, float amount)
 	{
-		if (SyncedConfigHandler.getBooleanValue(GameplayOption.ENABLE_THIRST))
+		if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
 		{
 			data.setExhaustion(Math.min(data.getExhaustion() + amount, 40.0F));
 		}

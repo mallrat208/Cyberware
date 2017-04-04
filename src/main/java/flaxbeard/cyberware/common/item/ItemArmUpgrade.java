@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common.item;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -20,10 +21,14 @@ public class ItemArmUpgrade extends ItemCyberware
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{		
-		return new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 0), new ItemStack(CyberwareContent.cyberlimbs, 1, 1) }};
+		NonNullList<NonNullList<ItemStack>> l1 = NonNullList.create();
+		NonNullList<ItemStack> l2 = NonNullList.create();
+		l2.add(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
+		l2.add(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
+		l1.add(l2);
+		return l1;
 	}
 	
 	
@@ -37,7 +42,7 @@ public class ItemArmUpgrade extends ItemCyberware
 		{
 			ItemStack item = event.getItem();
 			
-			if (item != null && item.getItem() instanceof ItemBow)
+			if (!item.isEmpty() && item.getItem() instanceof ItemBow)
 			{
 				event.setDuration(event.getDuration() - 1);
 			}

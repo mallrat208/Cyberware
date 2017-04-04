@@ -24,7 +24,7 @@ public class CommandClearCyberware extends CommandBase
 	/**
 	 * Gets the name of the command
 	 */
-	public String getCommandName()
+	public String getName()
 	{
 		return "clearcyberware";
 	}
@@ -32,7 +32,7 @@ public class CommandClearCyberware extends CommandBase
 	/**
 	 * Gets the usage string for the command.
 	 */
-	public String getCommandUsage(ICommandSender sender)
+	public String getUsage(ICommandSender sender)
 	{
 		return "cyberware.commands.clearCyberware.usage";
 	}
@@ -61,7 +61,7 @@ public class CommandClearCyberware extends CommandBase
 
 	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos)
 	{
-		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : Collections.<String>emptyList();
+		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : Collections.<String>emptyList();
 	}
 
 	/**

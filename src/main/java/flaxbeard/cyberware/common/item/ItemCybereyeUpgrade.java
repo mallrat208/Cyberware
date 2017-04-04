@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.event.EntityViewRenderEvent.FogDensity;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
@@ -28,6 +29,7 @@ import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IHudjack;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 
 public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHudjack
 {
@@ -41,17 +43,17 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{
 		if (stack.getItemDamage() > 2 && stack.getItemDamage() != 4)
 		{
-			return new ItemStack[][] { 
+			return NNLUtil.fromArray(new ItemStack[][] { 
 					new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) }, 
-					new ItemStack[] { new ItemStack(this, 1, 2) }};
+					new ItemStack[] { new ItemStack(this, 1, 2) }});
 		}
 		
-		return new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) }};
+		return NNLUtil.fromArray(new ItemStack[][] { 
+				new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) }});
 	}
 
 	private static List<EntityLivingBase> affected = new ArrayList<EntityLivingBase>();
@@ -61,7 +63,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	@SideOnly(Side.CLIENT)
 	public void handleHighlight(RenderTickEvent event)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		ItemStack testItem = new ItemStack(this, 1, 3);
 		if (CyberwareAPI.isCyberwareInstalled(p, testItem) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(p, testItem)))
 		{
@@ -71,7 +73,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 			{
 				affected.clear();
 				float range = 25F;
-				List<EntityLivingBase> test = p.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.posX - range, p.posY - range, p.posZ - range, p.posX + p.width + range, p.posY + p.height + range, p.posZ + p.width + range));
+				List<EntityLivingBase> test = p.world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.posX - range, p.posY - range, p.posZ - range, p.posX + p.width + range, p.posY + p.height + range, p.posZ + p.width + range));
 				for (EntityLivingBase e : test)
 				{
 					if (p.getDistanceToEntity(e) <= range && e != p && !e.isGlowing())
@@ -98,7 +100,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	@SubscribeEvent
 	public void handleFog(FogDensity event)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 1)))
 		{
 			if (p.isInsideOfMaterial(Material.WATER))
@@ -168,7 +170,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		{
 			wasInUse = inUse;
 				
-			EntityPlayer p = mc.thePlayer;
+			EntityPlayer p = mc.player;
 			
 			if (!inUse && !wasInUse)
 			{

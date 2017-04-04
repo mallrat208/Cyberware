@@ -34,7 +34,7 @@ public class HotkeyHelper
 	
 	public static int getHotkey(ItemStack stack)
 	{
-		if (stack == null) return -1;
+		if (stack.isEmpty()) return -1;
 		
 		NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
 		if (!comp.hasKey("hotkey"))

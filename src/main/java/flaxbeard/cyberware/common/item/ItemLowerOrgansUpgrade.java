@@ -41,7 +41,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 		
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && stack != null && (stack.getItem().getItemUseAction(stack) == EnumAction.EAT || stack.getItem().getItemUseAction(stack) == EnumAction.DRINK))
+		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && (stack.getItem().getItemUseAction(stack) == EnumAction.EAT || stack.getItem().getItemUseAction(stack) == EnumAction.DRINK))
 		{
 			EntityPlayer p = (EntityPlayer) e;
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -64,7 +64,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 		
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && stack != null && (stack.getItem().getItemUseAction(stack) == EnumAction.EAT || stack.getItem().getItemUseAction(stack) == EnumAction.DRINK))
+		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && (stack.getItem().getItemUseAction(stack) == EnumAction.EAT || stack.getItem().getItemUseAction(stack) == EnumAction.DRINK))
 		{
 			EntityPlayer p = (EntityPlayer) e;
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -193,7 +193,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 	public int getCapacity(ItemStack wareStack)
 	{
 		return wareStack.getItemDamage() == 1 ? LibConstants.METABOLIC_PRODUCTION : 
-			wareStack.getItemDamage() == 2 ? LibConstants.BATTERY_CAPACITY * wareStack.stackSize : 0;
+			wareStack.getItemDamage() == 2 ? LibConstants.BATTERY_CAPACITY * wareStack.getCount() : 0;
 	}
 	
 	@Override
@@ -219,7 +219,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 	{
 		if (stack.getItemDamage() == 2)
 		{
-			switch (stack.stackSize) // 0.2.0 changed from 10 11 13 15
+			switch (stack.getCount()) // 0.2.0 changed from 10 11 13 15
 			{
 				case 1:
 					return 5;

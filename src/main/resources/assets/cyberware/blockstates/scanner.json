@@ -3,7 +3,7 @@
     "defaults": {
         "model": "cyberware:scanner",
         "textures": {
-            "particle": "cyberware:blocks/surgeryChamberTop"
+            "particle": "cyberware:blocks/surgery_chamber_top"
         }
     },
     "variants": {

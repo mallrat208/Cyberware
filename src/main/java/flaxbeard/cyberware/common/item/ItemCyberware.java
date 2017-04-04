@@ -9,6 +9,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -25,7 +26,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 {
 	private EnumSlot[] slots;
 	private int[] essence;
-	private ItemStack[][] components;
+	private NonNullList<NonNullList<ItemStack>> components;
 	
 	public ItemCyberware(String name, EnumSlot[] slots, String[] subnames)
 	{		
@@ -34,7 +35,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		this.slots = slots;
 		
 		this.essence = new int[subnames.length + 1];
-		this.components = new ItemStack[0][0];
+		this.components = NonNullList.create();
 
 	}
 	
@@ -54,7 +55,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		{
 			ItemStack stack = new ItemStack(this, 1, meta);
 			int installedStackSize = installedStackSize(stack);
-			stack.stackSize = installedStackSize;
+			stack.setCount(installedStackSize);
 			this.setQuality(stack, CyberwareAPI.QUALITY_SCAVENGED);
 			CyberwareContent.zombieItems.add(new ZombieItem(weight[meta], stack));
 		}
@@ -67,9 +68,13 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		return this;
 	}
 	
-	public ItemCyberware setComponents(ItemStack[]... components)
+	public ItemCyberware setComponents(NonNullList<ItemStack>... components)
 	{
-		this.components = components;
+		NonNullList<NonNullList<ItemStack>> list = NonNullList.create();
+		for (NonNullList<ItemStack> l : components){
+			list.add(l);
+		}
+		this.components = list;
 		return this;
 	}
 	
@@ -98,7 +103,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, List list)
+	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (subnames.length == 0)
 		{
@@ -169,7 +174,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		
 		if (installedStackSize(stack) > 1)
 		{
-			toReturn.add(ChatFormatting.BLUE + I18n.format("cyberware.tooltip.maxInstall", installedStackSize(stack)));
+			toReturn.add(ChatFormatting.BLUE + I18n.format("cyberware.tooltip.max_install", installedStackSize(stack)));
 		}
 		
 		boolean hasPowerConsumption = false;
@@ -177,7 +182,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		for (int i = 0; i < installedStackSize(stack); i++)
 		{
 			ItemStack temp = stack.copy();
-			temp.stackSize = i + 1;
+			temp.setCount(i+1);
 			int cost = this.getPowerConsumption(temp);
 			if (cost > 0)
 			{
@@ -196,9 +201,9 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		{
 			String toTranslate = hasCustomPowerMessage(stack) ? 
 					"cyberware.tooltip." + this.getRegistryName().toString().substring(10)
-					+ (this.subnames.length > 0 ? "." + stack.getItemDamage() : "") + ".powerConsumption"
+					+ (this.subnames.length > 0 ? "." + stack.getItemDamage() : "") + ".power_consumption"
 					:
-					"cyberware.tooltip.powerConsumption";
+					"cyberware.tooltip.power_consumption";
 			toReturn.add(ChatFormatting.GREEN + I18n.format(toTranslate, toAddPowerConsumption));
 		}
 		
@@ -207,7 +212,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		for (int i = 0; i < installedStackSize(stack); i++)
 		{
 			ItemStack temp = stack.copy();
-			temp.stackSize = i + 1;
+			temp.setCount(i+1);
 			int cost = this.getPowerProduction(temp);
 			if (cost > 0)
 			{
@@ -226,9 +231,9 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		{
 			String toTranslate = hasCustomPowerMessage(stack) ? 
 					"cyberware.tooltip." + this.getRegistryName().toString().substring(10)
-					+ (this.subnames.length > 0 ? "." + stack.getItemDamage() : "") + ".powerProduction"
+					+ (this.subnames.length > 0 ? "." + stack.getItemDamage() : "") + ".power_production"
 					:
-					"cyberware.tooltip.powerProduction";
+					"cyberware.tooltip.power_production";
 			toReturn.add(ChatFormatting.GREEN + I18n.format(toTranslate, toAddPowerProduction));
 		}
 		
@@ -249,7 +254,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		for (int i = 0; i < installedStackSize(stack); i++)
 		{
 			ItemStack temp = stack.copy();
-			temp.stackSize = i + 1;
+			temp.setCount(i+1);
 			int cost = this.getEssenceCost(temp);
 			if (cost != 0)
 			{
@@ -270,7 +275,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		
 		if (hasEssenceCost)
 		{
-			toReturn.add(ChatFormatting.DARK_PURPLE + I18n.format(essenceCostNegative ? "cyberware.tooltip.essence" : "cyberware.tooltip.essenceAdd", toAddEssence));
+			toReturn.add(ChatFormatting.DARK_PURPLE + I18n.format(essenceCostNegative ? "cyberware.tooltip.essence" : "cyberware.tooltip.essence_add", toAddEssence));
 		}
 		
 
@@ -300,9 +305,9 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{
-		return new ItemStack[0][0];
+		return NonNullList.create();
 	}
 
 	@Override
@@ -326,13 +331,13 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public boolean canDestroy(ItemStack stack)
 	{
-		return stack.getItemDamage() < this.components.length;
+		return stack.getItemDamage() < this.components.size();
 	}
 
 	@Override
-	public ItemStack[] getComponents(ItemStack stack)
+	public NonNullList<ItemStack> getComponents(ItemStack stack)
 	{
-		return components[Math.min(this.components.length - 1, stack.getItemDamage())];
+		return components.get(Math.min(this.components.size() - 1, stack.getItemDamage()));
 	}
 
 	@Override
@@ -350,7 +355,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	{
 		if (quality == CyberwareAPI.QUALITY_MANUFACTURED)
 		{
-			if (stack != null && stack.hasTagCompound())
+			if (!stack.isEmpty() && stack.hasTagCompound())
 			{
 				stack.getTagCompound().removeTag(CyberwareAPI.QUALITY_TAG);
 				if (stack.getTagCompound().hasNoTags())

@@ -1,6 +1,7 @@
 package flaxbeard.cyberware.common.integration.tan;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberware;
@@ -16,9 +17,16 @@ public class ToughAsNailsIntegration
 				new String[] { "sweat", "blubber" });
 		sweat.setEssenceCost(7, 14);
 		sweat.setWeights(CyberwareContent.UNCOMMON, CyberwareContent.UNCOMMON);
+		NonNullList<ItemStack> l1 = NonNullList.create();
+		NonNullList<ItemStack> l2 = NonNullList.create();
+		l1.add(new ItemStack(CyberwareContent.component, 1, 8));
+		l1.add(new ItemStack(CyberwareContent.component, 2, 7));
+		l1.add(new ItemStack(CyberwareContent.component, 1, 1));
+		l2.add(new ItemStack(CyberwareContent.component, 2, 6));
+		l2.add(new ItemStack(CyberwareContent.component, 1, 7));
+		l2.add(new ItemStack(CyberwareContent.component, 3, 1));
 		sweat.setComponents(
-				new ItemStack[] { new ItemStack(CyberwareContent.component, 1, 8), new ItemStack(CyberwareContent.component, 2, 7), new ItemStack(CyberwareContent.component, 1, 1) },
-				new ItemStack[] { new ItemStack(CyberwareContent.component, 2, 6), new ItemStack(CyberwareContent.component, 1, 7), new ItemStack(CyberwareContent.component, 3, 1) }
+				l1, l2
 				);
 	}
 }

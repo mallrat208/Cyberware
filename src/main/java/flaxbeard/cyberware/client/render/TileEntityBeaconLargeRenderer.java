@@ -14,14 +14,14 @@ public class TileEntityBeaconLargeRenderer extends TileEntitySpecialRenderer<Til
 {
 	private static ModelBeaconLarge model = new ModelBeaconLarge();
 	private static String texture = "cyberware:textures/models/radio.png";
-	private static String texture2 = "cyberware:textures/models/radioBase.png";
+	private static String texture2 = "cyberware:textures/models/radio_base.png";
 
 	@Override
 	public void renderTileEntityAt(TileEntityBeaconPostMaster te, double x, double y, double z, float partialTicks, int destroyStage)
 	{
 		if (te != null)
 		{
-			float ticks = Minecraft.getMinecraft().thePlayer.ticksExisted + partialTicks;
+			float ticks = Minecraft.getMinecraft().player.ticksExisted + partialTicks;
 
 			
 			IBlockState state = te.getWorld().getBlockState(te.getPos());

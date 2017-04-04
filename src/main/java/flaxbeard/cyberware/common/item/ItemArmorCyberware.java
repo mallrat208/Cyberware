@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -99,33 +100,30 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 	}
 
 	@Override
-	public ItemStack[] getComponents(ItemStack stack)
+	public NonNullList<ItemStack> getComponents(ItemStack stack)
 	{
 		Item i = stack.getItem();
 		
 		if (i == CyberwareContent.trenchcoat)
 		{
-			return new ItemStack[]
-					{
-						new ItemStack(CyberwareContent.component, 2, 2),
-						new ItemStack(Items.LEATHER, 12, 0),
-						new ItemStack(Items.DYE, 1, 0)
-					};
+			NonNullList<ItemStack> l = NonNullList.create();
+			l.add(new ItemStack(CyberwareContent.component, 2, 2));
+			l.add(new ItemStack(Items.LEATHER, 12, 0));
+			l.add(new ItemStack(Items.DYE, 1, 0));
+			return l;
 		}
 		else if (i == CyberwareContent.jacket)
 		{
-			return new ItemStack[]
-					{
-						new ItemStack(CyberwareContent.component, 1, 2),
-						new ItemStack(Items.LEATHER, 8, 0),
-						new ItemStack(Items.DYE, 1, 0)
-					};
+			NonNullList<ItemStack> l = NonNullList.create();
+			l.add(new ItemStack(CyberwareContent.component, 1, 2));
+			l.add(new ItemStack(Items.LEATHER, 8, 0));
+			l.add(new ItemStack(Items.DYE, 1, 0));
+			return l;
 		}
-		return new ItemStack[]
-				{
-					new ItemStack(Blocks.STAINED_GLASS, 4, 15),
-					new ItemStack(CyberwareContent.component, 1, 4)
-				};
+		NonNullList<ItemStack> l = NonNullList.create();
+		l.add(new ItemStack(Blocks.STAINED_GLASS, 4, 15));
+		l.add(new ItemStack(CyberwareContent.component, 1, 4));
+		return l;
 	}
 
 
@@ -141,7 +139,7 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		ClientUtils.armor.bipedRightArm.isHidden = ClientUtils.trench.bipedRightArm.isHidden;
 		ClientUtils.armor.bipedLeftArm.isHidden = ClientUtils.trench.bipedLeftArm.isHidden;
 
-		if (itemStack != null && itemStack.getItem() == CyberwareContent.trenchcoat) return ClientUtils.trench;
+		if (!itemStack.isEmpty() && itemStack.getItem() == CyberwareContent.trenchcoat) return ClientUtils.trench;
 		
 		return ClientUtils.armor;
 	}
@@ -229,7 +227,7 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, List list)
+	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (this.getArmorMaterial() == CyberwareContent.trenchMat)
 		{

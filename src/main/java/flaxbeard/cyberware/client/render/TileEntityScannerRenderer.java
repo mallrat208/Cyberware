@@ -25,7 +25,7 @@ public class TileEntityScannerRenderer extends TileEntitySpecialRenderer<TileEnt
 	{
 		if (te != null)
 		{
-			float ticks = Minecraft.getMinecraft().thePlayer.ticksExisted + partialTicks;
+			float ticks = Minecraft.getMinecraft().player.ticksExisted + partialTicks;
 			
 			GL11.glPushMatrix();
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -35,7 +35,7 @@ public class TileEntityScannerRenderer extends TileEntitySpecialRenderer<TileEnt
 			if (state.getBlock() == CyberwareContent.scanner)
 			{
 				ItemStack stack = te.slots.getStackInSlot(0);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GL11.glPushMatrix();

@@ -134,7 +134,7 @@ public class GuiCyberwareMenu extends GuiScreen
 			int centerY = height  / 2;
 			mc = Minecraft.getMinecraft();
 			
-			ICyberwareUserData data = CyberwareAPI.getCapability(mc.thePlayer);
+			ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
 			int piePieces = data.getNumActiveItems();
 			
 			if (movedWheel && !editing)
@@ -257,7 +257,7 @@ public class GuiCyberwareMenu extends GuiScreen
 				
 				if (piece == selectedPart && editing)
 				{
-					if ((mc.thePlayer.ticksExisted / 4) % 2 == 0)
+					if ((mc.player.ticksExisted / 4) % 2 == 0)
 					{
 						GlStateManager.pushMatrix();
 						String str = "__";
@@ -329,11 +329,11 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		else if (this.isPointInRegion(sx, sy + 9 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.openHudConfig") } ), mouseX, mouseY, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_hud_config") } ), mouseX, mouseY, fontRendererObj);
 		}
 		else if (this.isPointInRegion(sx, sy + 18 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.openColorChange") } ), mouseX, mouseY, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_color_change") } ), mouseX, mouseY, fontRendererObj);
 		}
 
 		GlStateManager.popMatrix();
@@ -402,7 +402,7 @@ public class GuiCyberwareMenu extends GuiScreen
 			}
 			else if (this.selectedPart != -1)
 			{
-				ICyberwareUserData data = CyberwareAPI.getCapability(mc.thePlayer);
+				ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
 
 				HotkeyHelper.removeHotkey(data, data.getActiveItems().get(selectedPart));
 				
@@ -427,13 +427,13 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		if (mc != null && mc.gameSettings != null)
 		{
-			if (KeyBinds.menu != null && (!mc.gameSettings.isKeyDown(KeyBinds.menu) && !editing && !color) || CyberwareAPI.getCapability(mc.thePlayer).getNumActiveItems() < 1)
+			if (KeyBinds.menu != null && (!mc.gameSettings.isKeyDown(KeyBinds.menu) && !editing && !color) || CyberwareAPI.getCapability(mc.player).getNumActiveItems() < 1)
 			{
 				if (this.selectedPart != -1 && !editing)
 				{
-					ICyberwareUserData data = CyberwareAPI.getCapability(mc.thePlayer);
+					ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
 					ItemStack hki = data.getActiveItems().get(this.selectedPart);
-					ClientUtils.useActiveItemClient(mc.thePlayer, hki);
+					ClientUtils.useActiveItemClient(mc.player, hki);
 
 				}
 				mc.displayGuiScreen(null);
@@ -478,7 +478,7 @@ public class GuiCyberwareMenu extends GuiScreen
 	
 	private void assignHotkey(int code)
 	{
-		ICyberwareUserData data = CyberwareAPI.getCapability(mc.thePlayer);
+		ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
 
 		
 		HotkeyHelper.removeHotkey(data, code);

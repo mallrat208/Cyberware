@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 
@@ -14,7 +15,7 @@ public interface ICyberware
 {
 	public EnumSlot getSlot(ItemStack stack);
 	public int installedStackSize(ItemStack stack);
-	public ItemStack[][] required(ItemStack stack);
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack);
 	public boolean isIncompatible(ItemStack stack, ItemStack comparison);
 	boolean isEssential(ItemStack stack);
 	public List<String> getInfo(ItemStack stack);
@@ -88,7 +89,7 @@ public interface ICyberware
 		CRANIUM(11, "cranium"),
 		HEART(14, "heart"),
 		LUNGS(15, "lungs"),
-		LOWER_ORGANS(17, "lowerOrgans"),
+		LOWER_ORGANS(17, "lower_organs"),
 		SKIN(18, "skin"),
 		MUSCLE(19, "muscle"),
 		BONE(20, "bone"),

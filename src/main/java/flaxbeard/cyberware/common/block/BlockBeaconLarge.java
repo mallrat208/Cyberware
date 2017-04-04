@@ -46,7 +46,7 @@ public class BlockBeaconLarge extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "beaconLarge";
+		String name = "beacon_large";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);
@@ -68,7 +68,7 @@ public class BlockBeaconLarge extends BlockContainer
 	private static final AxisAlignedBB middle = new AxisAlignedBB(6.5F / 16F, 0F, 6.5F / 16F, 9.5F / 16F, 1F, 9.5F / 16F);
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
 	{
 		addCollisionBoxToList(pos, entityBox, collidingBoxes, middle);
 	}
@@ -124,7 +124,7 @@ public class BlockBeaconLarge extends BlockContainer
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}

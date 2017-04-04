@@ -45,7 +45,7 @@ public class RenderCyberlimbHand
 		EnumHandSide enumhandside = flag ? p_187457_1_.getPrimaryHand() : p_187457_1_.getPrimaryHand().opposite();
 		GlStateManager.pushMatrix();
 
-		if (p_187457_6_ == null)
+		if (p_187457_6_.isEmpty())
 		{
 			if (flag && !p_187457_1_.isInvisible())
 			{
@@ -55,7 +55,7 @@ public class RenderCyberlimbHand
 		}
 		else if (p_187457_6_.getItem() instanceof net.minecraft.item.ItemMap)
 		{
-			if (flag && itemStackOffHand == null)
+			if (flag && itemStackOffHand.isEmpty())
 			{
 				this.renderMapFirstPerson(p_187457_3_, p_187457_7_, p_187457_5_);
 			}
@@ -91,7 +91,7 @@ public class RenderCyberlimbHand
 						GlStateManager.rotate(-13.935F, 1.0F, 0.0F, 0.0F);
 						GlStateManager.rotate((float)j * 35.3F, 0.0F, 1.0F, 0.0F);
 						GlStateManager.rotate((float)j * -9.785F, 0.0F, 0.0F, 1.0F);
-						float f5 = (float)p_187457_6_.getMaxItemUseDuration() - ((float)this.mc.thePlayer.getItemInUseCount() - p_187457_2_ + 1.0F);
+						float f5 = (float)p_187457_6_.getMaxItemUseDuration() - ((float)this.mc.player.getItemInUseCount() - p_187457_2_ + 1.0F);
 						float f6 = f5 / 20.0F;
 						f6 = (f6 * f6 + f6 * 2.0F) / 3.0F;
 
@@ -115,8 +115,8 @@ public class RenderCyberlimbHand
 			}
 			else
 			{
-				float f = -0.4F * MathHelper.sin(MathHelper.sqrt_float(p_187457_5_) * (float)Math.PI);
-				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt_float(p_187457_5_) * ((float)Math.PI * 2F));
+				float f = -0.4F * MathHelper.sin(MathHelper.sqrt(p_187457_5_) * (float)Math.PI);
+				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(p_187457_5_) * ((float)Math.PI * 2F));
 				float f2 = -0.2F * MathHelper.sin(p_187457_5_ * (float)Math.PI);
 				int i = flag1 ? 1 : -1;
 				GlStateManager.translate((float)i * f, f1, f2);
@@ -134,7 +134,7 @@ public class RenderCyberlimbHand
 	{
 		boolean flag = p_187456_3_ != EnumHandSide.LEFT;
 		float f = flag ? 1.0F : -1.0F;
-		float f1 = MathHelper.sqrt_float(p_187456_2_);
+		float f1 = MathHelper.sqrt(p_187456_2_);
 		float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
 		float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
 		float f4 = -0.4F * MathHelper.sin(p_187456_2_ * (float)Math.PI);
@@ -144,14 +144,14 @@ public class RenderCyberlimbHand
 		float f6 = MathHelper.sin(f1 * (float)Math.PI);
 		GlStateManager.rotate(f * f6 * 70.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.rotate(f * f5 * -20.0F, 0.0F, 0.0F, 1.0F);
-		AbstractClientPlayer abstractclientplayer = this.mc.thePlayer;
+		AbstractClientPlayer abstractclientplayer = this.mc.player;
 		this.mc.getTextureManager().bindTexture(abstractclientplayer.getLocationSkin());
 		GlStateManager.translate(f * -1.0F, 3.6F, 3.5F);
 		GlStateManager.rotate(f * 120.0F, 0.0F, 0.0F, 1.0F);
 		GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate(f * -135.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.translate(f * 5.6F, 0.0F, 0.0F);
-		RenderPlayer renderplayer = getEntityRenderObject(this.mc.thePlayer, p_187456_3_);
+		RenderPlayer renderplayer = getEntityRenderObject(this.mc.player, p_187456_3_);
 		GlStateManager.disableCull();
 
 		if (flag)
@@ -177,7 +177,7 @@ public class RenderCyberlimbHand
 		int i = p_187453_1_ == EnumHandSide.RIGHT ? 1 : -1;
 		float f = MathHelper.sin(p_187453_2_ * p_187453_2_ * (float)Math.PI);
 		GlStateManager.rotate((float)i * (45.0F + f * -20.0F), 0.0F, 1.0F, 0.0F);
-		float f1 = MathHelper.sin(MathHelper.sqrt_float(p_187453_2_) * (float)Math.PI);
+		float f1 = MathHelper.sin(MathHelper.sqrt(p_187453_2_) * (float)Math.PI);
 		GlStateManager.rotate((float)i * f1 * -20.0F, 0.0F, 0.0F, 1.0F);
 		GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate((float)i * -45.0F, 0.0F, 1.0F, 0.0F);
@@ -185,7 +185,7 @@ public class RenderCyberlimbHand
 	
 	public void renderItemSide(EntityLivingBase entitylivingbaseIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform, boolean p_187462_4_)
 	{
-		if (heldStack != null)
+		if (!heldStack.isEmpty())
 		{
 			Item item = heldStack.getItem();
 			Block block = Block.getBlockFromItem(item);
@@ -218,7 +218,7 @@ public class RenderCyberlimbHand
 		float f = p_187465_2_ == EnumHandSide.RIGHT ? 1.0F : -1.0F;
 		GlStateManager.translate(f * 0.125F, -0.125F, 0.0F);
 
-		if (!this.mc.thePlayer.isInvisible())
+		if (!this.mc.player.isInvisible())
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.rotate(f * 10.0F, 0.0F, 0.0F, 1.0F);
@@ -228,7 +228,7 @@ public class RenderCyberlimbHand
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(f * 0.51F, -0.08F + p_187465_1_ * -1.2F, -0.75F);
-		float f1 = MathHelper.sqrt_float(p_187465_3_);
+		float f1 = MathHelper.sqrt(p_187465_3_);
 		float f2 = MathHelper.sin(f1 * (float)Math.PI);
 		float f3 = -0.5F * f2;
 		float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
@@ -242,7 +242,7 @@ public class RenderCyberlimbHand
 	
 	private void transformEatFirstPerson(float p_187454_1_, EnumHandSide p_187454_2_, ItemStack p_187454_3_)
 	{
-		float f = (float)this.mc.thePlayer.getItemInUseCount() - p_187454_1_ + 1.0F;
+		float f = (float)this.mc.player.getItemInUseCount() - p_187454_1_ + 1.0F;
 		float f1 = f / (float)p_187454_3_.getMaxItemUseDuration();
 
 		if (f1 < 0.8F)
@@ -261,7 +261,7 @@ public class RenderCyberlimbHand
 
 	private void renderMapFirstPerson(float p_187463_1_, float p_187463_2_, float p_187463_3_)
 	{
-		float f = MathHelper.sqrt_float(p_187463_3_);
+		float f = MathHelper.sqrt(p_187463_3_);
 		float f1 = -0.2F * MathHelper.sin(p_187463_3_ * (float)Math.PI);
 		float f2 = -0.4F * MathHelper.sin(f * (float)Math.PI);
 		GlStateManager.translate(0.0F, -f1 / 2.0F, f2);
@@ -293,9 +293,9 @@ public class RenderCyberlimbHand
 		vertexbuffer.pos(-7.0D, -7.0D, 0.0D).tex(0.0D, 0.0D).endVertex();
 		tessellator.draw();
 		
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
-			MapData mapdata = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().theWorld);
+			MapData mapdata = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().world);
 	
 			if (mapdata != null)
 			{
@@ -308,7 +308,7 @@ public class RenderCyberlimbHand
 	
 	private void renderArms()
 	{
-		if (!this.mc.thePlayer.isInvisible())
+		if (!this.mc.player.isInvisible())
 		{
 			GlStateManager.disableCull();
 			GlStateManager.pushMatrix();
@@ -322,8 +322,8 @@ public class RenderCyberlimbHand
 	
 	private void renderArm(EnumHandSide p_187455_1_)
 	{
-		this.mc.getTextureManager().bindTexture(this.mc.thePlayer.getLocationSkin());
-		Render<AbstractClientPlayer> render = getEntityRenderObject(this.mc.thePlayer, p_187455_1_);
+		this.mc.getTextureManager().bindTexture(this.mc.player.getLocationSkin());
+		Render<AbstractClientPlayer> render = getEntityRenderObject(this.mc.player, p_187455_1_);
 		RenderPlayer renderplayer = (RenderPlayer)render;
 		GlStateManager.pushMatrix();
 		float f = p_187455_1_ == EnumHandSide.RIGHT ? 1.0F : -1.0F;
@@ -334,11 +334,11 @@ public class RenderCyberlimbHand
 
 		if (p_187455_1_ == EnumHandSide.RIGHT)
 		{
-			renderplayer.renderRightArm(this.mc.thePlayer);
+			renderplayer.renderRightArm(this.mc.player);
 		}
 		else
 		{
-			renderplayer.renderLeftArm(this.mc.thePlayer);
+			renderplayer.renderLeftArm(this.mc.player);
 		}
 
 		GlStateManager.popMatrix();
@@ -371,7 +371,7 @@ public class RenderCyberlimbHand
 	private float getMapAngleFromPitch(float pitch)
 	{
 		float f = 1.0F - pitch / 45.0F + 0.1F;
-		f = MathHelper.clamp_float(f, 0.0F, 1.0F);
+		f = MathHelper.clamp(f, 0.0F, 1.0F);
 		f = -MathHelper.cos(f * (float)Math.PI) * 0.5F + 0.5F;
 		return f;
 	}

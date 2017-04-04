@@ -23,7 +23,7 @@ public class ContainerComponentBox extends Container
 	public ContainerComponentBox(IInventory playerInventory, TileEntityComponentBox box)
 	{
 		this.box = box;
-		this.item = null;
+		this.item = ItemStack.EMPTY;
 		this.slots = box.slots;
 		this.numRows = slots.getSlots() / 9;
 		int i = (this.numRows - 4) * 18;
@@ -88,14 +88,14 @@ public class ContainerComponentBox extends Container
 
 	public boolean canInteractWith(EntityPlayer playerIn)
 	{
-		return box == null ? playerIn.inventory.mainInventory[playerIn.inventory.currentItem] == item : this.box.isUseableByPlayer(playerIn);
+		return box == null ? playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem) == item : this.box.isUseableByPlayer(playerIn);
 	}
 
 	public void onContainerClosed(EntityPlayer playerIn)
 	{
 		super.onContainerClosed(playerIn);
 		
-		if (item != null)
+		if (!item.isEmpty())
 		{
 			NBTTagCompound comp = slots.serializeNBT();
 			if (!item.hasTagCompound())
@@ -111,7 +111,7 @@ public class ContainerComponentBox extends Container
 	@Nullable
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
 	{
-		ItemStack itemstack = null;
+		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = (Slot)this.inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack())
@@ -123,17 +123,17 @@ public class ContainerComponentBox extends Container
 			{
 				if (!this.mergeItemStack(itemstack1, this.numRows * 9, this.inventorySlots.size(), true))
 				{
-					return null;
+					return ItemStack.EMPTY;
 				}
 			}
 			else if (!this.mergeItemStack(itemstack1, 0, this.numRows * 9, false))
 			{
-				return null;
+				return ItemStack.EMPTY;
 			}
 
-			if (itemstack1.stackSize == 0)
+			if (itemstack1.getCount() == 0)
 			{
-				slot.putStack((ItemStack)null);
+				slot.putStack(ItemStack.EMPTY);
 			}
 			else
 			{

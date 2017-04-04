@@ -78,28 +78,28 @@ public class ContainerSurgery extends Container
 			surgery.updateEssence();
 		}
 		
-		@Override
+		/*@Override
 		public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
 	    {
 			super.onPickupFromSlot(playerIn, stack);
 			surgery.markDirty();
 			surgery.updateEssential(slot);
 			surgery.updateEssence();
-	    }
+	    }*/
 		
 		@Override
 		public boolean isItemValid(@Nullable ItemStack stack)
 		{
 			//System.out.println(surgery.canDisableItem(getPlayerStack(), slot, index % LibConstants.WARE_PER_SLOT));
 			ItemStack playerStack = getPlayerStack();
-			//if (stack != null && playerStack != null && stack.getit) return false;
-			if (getPlayerStack() != null && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
-			if (!(stack != null && stack.getItem() != null && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
+			//if (!stack.isEmpty() && !playerStack.isEmpty() && stack.getit) return false;
+			if (!getPlayerStack().isEmpty() && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
+			if (!(!stack.isEmpty() && stack.getItem() != null && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
 			
 			if (CyberwareAPI.areCyberwareStacksEqual(stack, playerStack))
 			{
 				int stackSize = CyberwareAPI.getCyberware(stack).installedStackSize(stack);
-				if (playerStack.stackSize == stackSize) return false;
+				if (playerStack.getCount() == stackSize) return false;
 			}
 			
 			
@@ -119,7 +119,7 @@ public class ContainerSurgery extends Container
 		@Override
 		public int getItemStackLimit(ItemStack stack)
 		{
-			if (stack == null || !(CyberwareAPI.isCyberware(stack)))
+			if (stack.isEmpty() || !(CyberwareAPI.isCyberware(stack)))
 			{
 				return 1;
 			}
@@ -127,7 +127,7 @@ public class ContainerSurgery extends Container
 			int stackSize = CyberwareAPI.getCyberware(stack).installedStackSize(stack);
 			if (CyberwareAPI.areCyberwareStacksEqual(playerStack, stack))
 			{
-				return stackSize - playerStack.stackSize;
+				return stackSize - playerStack.getCount();
 			}
 			return stackSize;
 		}
@@ -180,7 +180,7 @@ public class ContainerSurgery extends Container
 	@Nullable
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
 	{
-		ItemStack itemstack = null;
+		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = (Slot)this.inventorySlots.get(index);
 	
 		if (slot != null && slot.getHasStack())
@@ -196,31 +196,31 @@ public class ContainerSurgery extends Container
 				{
 					if (!this.mergeItemStack(itemstack1, 30, 39, false))
 					{
-						return null;
+						return ItemStack.EMPTY;
 					}
 				}
 				else if (index >= 30 && index < 39 && !this.mergeItemStack(itemstack1, 3, 30, false))
 				{
-					return null;
+					return ItemStack.EMPTY;
 				}
 			}
 		
 	
-			if (itemstack1.stackSize == 0)
+			if (itemstack1.getCount() == 0)
 			{
-				slot.putStack((ItemStack)null);
+				slot.putStack(ItemStack.EMPTY);
 			}
 			else
 			{
 				slot.onSlotChanged();
 			}
 	
-			if (itemstack1.stackSize == itemstack.stackSize)
+			if (itemstack1.getCount() == itemstack.getCount())
 			{
-				return null;
+				return ItemStack.EMPTY;
 			}
 	
-			slot.onPickupFromSlot(playerIn, itemstack1);
+			slot.onTake(playerIn, itemstack1);
 		}
 	
 		return itemstack;

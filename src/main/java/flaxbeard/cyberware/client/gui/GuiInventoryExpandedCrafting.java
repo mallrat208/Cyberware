@@ -16,7 +16,7 @@ import flaxbeard.cyberware.Cyberware;
 @SideOnly(Side.CLIENT)
 public class GuiInventoryExpandedCrafting extends GuiInventory
 {
-	private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocation(Cyberware.MODID + ":textures/gui/inventoryCrafting.png");
+	private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocation(Cyberware.MODID + ":textures/gui/inventory_crafting.png");
 
 	
 	/** The old x position of the mouse pointer */
@@ -27,7 +27,7 @@ public class GuiInventoryExpandedCrafting extends GuiInventory
 	public GuiInventoryExpandedCrafting(EntityPlayer player)
 	{
 		super(player);
-		this.inventorySlots = new ContainerPlayerExpandedCrafting(player.inventory, !player.worldObj.isRemote, player);
+		this.inventorySlots = new ContainerPlayerExpandedCrafting(player.inventory, !player.world.isRemote, player);
 	}
 	
 	@Override
@@ -38,7 +38,7 @@ public class GuiInventoryExpandedCrafting extends GuiInventory
 		int i = this.guiLeft;
 		int j = this.guiTop;
 		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
-		drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.thePlayer);
+		drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.player);
 	}
 	
 	@Override

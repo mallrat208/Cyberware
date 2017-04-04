@@ -24,7 +24,7 @@ public class EngineeringSwitchArchivePacket implements IMessage
 
 	public EngineeringSwitchArchivePacket(BlockPos pos, EntityPlayer player, boolean direction, boolean isComponent)
 	{
-		this.dimensionId = player.worldObj.provider.getDimension();
+		this.dimensionId = player.world.provider.getDimension();
 		this.entityId = player.getEntityId();
 		this.pos = pos;
 		this.direction = direction;

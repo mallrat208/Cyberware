@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,7 +38,7 @@ public class ItemExpCapsule extends Item
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, List list)
+	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		ItemStack stack = new ItemStack(this);
 		NBTTagCompound compound = new NBTTagCompound();
@@ -56,7 +57,7 @@ public class ItemExpCapsule extends Item
 	{
 		if (!playerIn.capabilities.isCreativeMode)
 		{
-			--stack.stackSize;
+			stack.shrink(1);
 		}
 		
 		int xp = 0;
@@ -86,10 +87,10 @@ public class ItemExpCapsule extends Item
 				xp = c.getInteger("xp");
 			}
 		}
-		String before = I18n.format("cyberware.tooltip.expCapsule.before");
+		String before = I18n.format("cyberware.tooltip.exp_capsule.before");
 		if (before.length() > 0) before = before += " ";
 		
-		String after = I18n.format("cyberware.tooltip.expCapsule.after");
+		String after = I18n.format("cyberware.tooltip.exp_capsule.after");
 		if (after.length() > 0) after = " " + after;
 		
 		tooltip.add(ChatFormatting.RED + before + xp + after);

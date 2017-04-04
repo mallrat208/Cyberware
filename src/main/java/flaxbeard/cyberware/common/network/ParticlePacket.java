@@ -79,7 +79,7 @@ public class ParticlePacket implements IMessage
 		@Override
 		public Void call() throws Exception
 		{
-			World world = Minecraft.getMinecraft().theWorld;
+			World world = Minecraft.getMinecraft().world;
 			
 			if (world != null)
 			{

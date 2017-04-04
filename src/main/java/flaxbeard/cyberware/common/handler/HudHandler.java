@@ -132,7 +132,7 @@ public class HudHandler
 		{
 			GlStateManager.pushMatrix();
 			Minecraft mc = Minecraft.getMinecraft();
-			EntityPlayerSP p = mc.thePlayer;
+			EntityPlayerSP p = mc.player;
 			
 			float floatAmt = 0F;
 			boolean active = false;
@@ -214,15 +214,15 @@ public class HudHandler
 			}
 			
 			// Display a prompt to the user to open the radial menu if they haven't yet
-			if (CyberwareAPI.hasCapability(mc.thePlayer))
+			if (CyberwareAPI.hasCapability(mc.player))
 			{
-				ICyberwareUserData data = CyberwareAPI.getCapability(mc.thePlayer);
+				ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
 				if (data.getActiveItems().size() > 0)
 				{
-					boolean done = CyberwareAPI.getCapability(mc.thePlayer).hasOpenedRadialMenu();
+					boolean done = CyberwareAPI.getCapability(mc.player).hasOpenedRadialMenu();
 					if (!done)
 					{
-						String s = I18n.format("cyberware.gui.openMenu", KeyBinds.menu.getDisplayName());
+						String s = I18n.format("cyberware.gui.open_menu", KeyBinds.menu.getDisplayName());
 						FontRenderer fr = mc.fontRendererObj;
 						fr.drawStringWithShadow(s, sr.getScaledWidth() - fr.getStringWidth(s) - 5, 5, CyberwareAPI.getHUDColorHex());
 					}
@@ -336,7 +336,7 @@ public class HudHandler
 					for (int i = stacks.size() - 1; i >= 0; i--)
 					{
 						ItemStack stack = stacks.get(i);
-						if (stack != null)
+						if (!stack.isEmpty())
 						{
 							int time = stackTimes.get(i);
 							boolean keep = p.ticksExisted - time < 50;

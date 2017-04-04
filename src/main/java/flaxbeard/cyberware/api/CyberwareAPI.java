@@ -14,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -26,6 +27,7 @@ import flaxbeard.cyberware.api.item.ICyberware;
 import flaxbeard.cyberware.api.item.ICyberware.Quality;
 import flaxbeard.cyberware.api.item.IDeconstructable;
 import flaxbeard.cyberware.api.item.IMenuItem;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 import flaxbeard.cyberware.common.network.CyberwareSyncPacket;
 
 public final class CyberwareAPI
@@ -41,7 +43,7 @@ public final class CyberwareAPI
 	/**
 	 * Quality for Cyberware scavenged from mobs
 	 */
-	public static final Quality QUALITY_SCAVENGED = new Quality("cyberware.quality.scavenged", "cyberware.quality.scavenged.nameModifier", "scavenged");
+	public static final Quality QUALITY_SCAVENGED = new Quality("cyberware.quality.scavenged", "cyberware.quality.scavenged.name_modifier", "scavenged");
 	
 	/**
 	 * Quality for Cyberware built at the Engineering Table
@@ -66,7 +68,7 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(float[] color)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		if (CyberwareAPI.hasCapability(p))
 		{
 			CyberwareAPI.getCapability(p).setHudColor(color);
@@ -86,7 +88,7 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(int hexVal)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		if (CyberwareAPI.hasCapability(p))
 		{
 			CyberwareAPI.getCapability(p).setHudColor(hexVal);
@@ -102,7 +104,7 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static int getHUDColorHex()
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		if (CyberwareAPI.hasCapability(p))
 		{
 			return CyberwareAPI.getCapability(p).getHudColorHex();
@@ -113,7 +115,7 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static float[] getHUDColor()
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		if (CyberwareAPI.hasCapability(p))
 		{
 			return CyberwareAPI.getCapability(p).getHudColor();
@@ -130,7 +132,7 @@ public final class CyberwareAPI
 	 */
 	public static ItemStack writeQualityTag(ItemStack stack, Quality quality)
 	{
-		if (stack == null) return stack;
+		if (stack.isEmpty()) return stack;
 		if (!stack.hasTagCompound())
 		{
 			stack.setTagCompound(new NBTTagCompound());
@@ -141,7 +143,7 @@ public final class CyberwareAPI
 	
 	public static Quality getQualityTag(ItemStack stack)
 	{
-		if (stack == null) return null;
+		if (stack.isEmpty()) return null;
 		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey(QUALITY_TAG))
 		{
 			return null;
@@ -159,7 +161,7 @@ public final class CyberwareAPI
 	 */
 	public static ItemStack sanitize(ItemStack stack)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			if (stack.hasTagCompound() && stack.getTagCompound().hasKey(DATA_TAG))
 			{
@@ -198,10 +200,10 @@ public final class CyberwareAPI
 	
 	public static boolean areCyberwareStacksEqual(ItemStack stack1, ItemStack stack2)
 	{
-		if (stack1 == null || stack2 == null) return false;
+		if (stack1.isEmpty() || stack2.isEmpty()) return false;
 		
-		ItemStack sanitized1 = sanitize(ItemStack.copyItemStack(stack1));
-		ItemStack sanitized2 = sanitize(ItemStack.copyItemStack(stack2));
+		ItemStack sanitized1 = sanitize(stack1.copy());
+		ItemStack sanitized2 = sanitize(stack2.copy());
 		return sanitized1.getItem() == sanitized2.getItem() && sanitized1.getItemDamage() == sanitized2.getItemDamage() && ItemStack.areItemStackTagsEqual(stack1, stack2);
 	}
 	
@@ -215,7 +217,7 @@ public final class CyberwareAPI
 	 */
 	public static void linkCyberware(ItemStack stack, ICyberware link)
 	{
-		if (stack == null) return;
+		if (stack.isEmpty()) return;
 		
 		ItemStack key = new ItemStack(stack.getItem(), 1, stack.getItemDamage());
 		linkedWare.put(key, link);
@@ -246,7 +248,10 @@ public final class CyberwareAPI
 	 */
 	public static boolean isCyberware(ItemStack stack)
 	{
-		return stack != null && (stack.getItem() instanceof ICyberware || getLinkedWare(stack) != null);
+		if (stack != null){
+			return !stack.isEmpty() && (stack.getItem() instanceof ICyberware || getLinkedWare(stack) != null);
+		}
+		return false;
 	}
 	
 	/**
@@ -259,7 +264,7 @@ public final class CyberwareAPI
 	 */
 	public static ICyberware getCyberware(ItemStack stack)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			if (stack.getItem() instanceof ICyberware)
 			{
@@ -283,7 +288,7 @@ public final class CyberwareAPI
 	 */
 	public static boolean canDeconstruct(ItemStack stack)
 	{
-		return stack != null && (stack.getItem() instanceof IDeconstructable) && ((IDeconstructable) stack.getItem()).canDestroy(stack);
+		return !stack.isEmpty() && (stack.getItem() instanceof IDeconstructable) && ((IDeconstructable) stack.getItem()).canDestroy(stack);
 	}
 
 	/**
@@ -293,13 +298,13 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to test
 	 * @return		The components of the item
 	 */
-	public static ItemStack[] getComponents(ItemStack stack)
+	public static NonNullList<ItemStack> getComponents(ItemStack stack)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			if (stack.getItem() instanceof IDeconstructable)
 			{
-				return ((IDeconstructable) stack.getItem()).getComponents(stack).clone();
+				return NNLUtil.copyList(((IDeconstructable)stack.getItem()).getComponents(stack));
 			}
 		}
 		
@@ -308,7 +313,7 @@ public final class CyberwareAPI
 	
 	private static ICyberware getLinkedWare(ItemStack stack)
 	{
-		if (stack == null) return null;
+		if (stack.isEmpty()) return null;
 		
 		ItemStack test = new ItemStack(stack.getItem(), 1, stack.getItemDamage());
 		ICyberware result = getWareFromKey(test);
@@ -410,7 +415,7 @@ public final class CyberwareAPI
 	 */
 	public static ItemStack getCyberware(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return null;
+		if (!hasCapability(targetEntity)) return ItemStack.EMPTY;
 		
 		ICyberwareUserData cyberware = getCapability(targetEntity);
 		return cyberware.getCyberware(stack);
@@ -418,9 +423,9 @@ public final class CyberwareAPI
 	
 	public static void updateData(Entity targetEntity)
 	{
-		if (!targetEntity.worldObj.isRemote)
+		if (!targetEntity.world.isRemote)
 		{
-			WorldServer world = (WorldServer) targetEntity.worldObj;
+			WorldServer world = (WorldServer) targetEntity.world;
 			
 			NBTTagCompound nbt = CyberwareAPI.getCapability(targetEntity).serializeNBT();
 			

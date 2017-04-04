@@ -48,7 +48,7 @@ public class TileEntityBeaconPost extends TileEntity
 	public void setMasterLoc(BlockPos start)
 	{
 		this.master = start;
-		worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(getPos()), worldObj.getBlockState(getPos()), 2);
+		world.notifyBlockUpdate(pos, world.getBlockState(getPos()), world.getBlockState(getPos()), 2);
 		this.markDirty();
 	}
 	
@@ -77,13 +77,13 @@ public class TileEntityBeaconPost extends TileEntity
 						
 						BlockPos newPos = pos.add(x, y, z);
 			
-						IBlockState state = worldObj.getBlockState(newPos);
+						IBlockState state = world.getBlockState(newPos);
 						Block block = state.getBlock();
 						if (block == CyberwareContent.radioPost && state.getValue(BlockBeaconPost.TRANSFORMED) > 0)
 						{
-							TileEntityBeaconPost bp = (TileEntityBeaconPost) worldObj.getTileEntity(newPos);
+							TileEntityBeaconPost bp = (TileEntityBeaconPost) world.getTileEntity(newPos);
 	
-							worldObj.setBlockState(newPos, state.withProperty(BlockBeaconPost.TRANSFORMED, 0), 2);
+							world.setBlockState(newPos, state.withProperty(BlockBeaconPost.TRANSFORMED, 0), 2);
 							
 						}
 					

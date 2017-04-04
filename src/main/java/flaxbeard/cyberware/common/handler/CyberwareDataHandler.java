@@ -16,6 +16,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
@@ -79,7 +80,7 @@ public class CyberwareDataHandler
 		EntityPlayer o = event.getOriginal();
 		if (event.isWasDeath())
 		{
-			if (p.worldObj.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE))
+			if (p.world.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE))
 			{
 				if (CyberwareAPI.hasCapability(o) && CyberwareAPI.hasCapability(o))
 				{
@@ -100,21 +101,24 @@ public class CyberwareDataHandler
 	public void handleCyberzombieDrops(LivingDropsEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		if (e instanceof EntityPlayer && !e.worldObj.isRemote)
+		if (e instanceof EntityPlayer && !e.world.isRemote)
 		{
 			EntityPlayer p = (EntityPlayer) e;
-			if ((p.worldObj.getWorldInfo().getGameRulesInstance().getBoolean(DROP_WARE_GAMERULE) && !p.worldObj.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE)) || (p.worldObj.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE) && shouldDropWare(event.getSource())))
+			if ((p.world.getWorldInfo().getGameRulesInstance().getBoolean(DROP_WARE_GAMERULE) && !p.world.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE)) || (p.world.getWorldInfo().getGameRulesInstance().getBoolean(KEEP_WARE_GAMERULE) && shouldDropWare(event.getSource())))
 			{
 				if (CyberwareAPI.hasCapability(p))
 				{
 					ICyberwareUserData data = CyberwareAPI.getCapability(p);
 					for (EnumSlot slot : EnumSlot.values())
 					{
-						ItemStack[] stacks = data.getInstalledCyberware(slot);
-						ItemStack[] defaults = CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()]).clone();
+						NonNullList<ItemStack> stacks = data.getInstalledCyberware(slot);
+						NonNullList<ItemStack> defaults = NonNullList.create();
+						for (ItemStack s : CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()])){
+							defaults.add(s.copy());
+						}
 						for (ItemStack stack : stacks)
 						{
-							if (stack != null)
+							if (!stack.isEmpty())
 							{
 								ItemStack toDrop = stack.copy();
 								boolean found = false;
@@ -122,9 +126,9 @@ public class CyberwareDataHandler
 								{
 									if (CyberwareAPI.areCyberwareStacksEqual(def, toDrop))
 									{
-										if (toDrop.stackSize > def.stackSize)
+										if (toDrop.getCount() > def.getCount())
 										{
-											toDrop.stackSize -= def.stackSize;
+											toDrop.shrink(def.getCount());
 										}
 										else
 										{
@@ -135,8 +139,8 @@ public class CyberwareDataHandler
 								
 								if (!found)
 								{
-									EntityItem item = new EntityItem(p.worldObj, p.posX, p.posY, p.posZ, toDrop);
-									p.worldObj.spawnEntityInWorld(item);
+									EntityItem item = new EntityItem(p.world, p.posX, p.posY, p.posZ, toDrop);
+									p.world.spawnEntity(item);
 								}
 							}
 						}
@@ -145,7 +149,7 @@ public class CyberwareDataHandler
 				}
 			}
 		}
-		if (!CyberwareConfig.NO_ZOMBIES && e instanceof EntityCyberZombie && ((EntityCyberZombie) e).hasWare && !e.worldObj.isRemote)
+		if (!CyberwareConfig.NO_ZOMBIES && e instanceof EntityCyberZombie && ((EntityCyberZombie) e).hasWare && !e.world.isRemote)
 		{
 			
 		}
@@ -170,7 +174,7 @@ public class CyberwareDataHandler
 			
 			EntityZombie zombie = (EntityZombie) event.getEntityLiving();
 			
-			int tier = TileEntityBeacon.isInRange(zombie.worldObj, zombie.posX, zombie.posY, zombie.posZ);
+			int tier = TileEntityBeacon.isInRange(zombie.world, zombie.posX, zombie.posY, zombie.posZ);
 			if (tier > 0)
 			{
 				float chance = (tier == 2 ? LibConstants.BEACON_CHANCE : (tier == 1 ? LibConstants.BEACON_CHANCE_INTERNAL :  LibConstants.LARGE_BEACON_CHANCE));
@@ -188,7 +192,7 @@ public class CyberwareDataHandler
 				{
 					cyberZombie.setItemStackToSlot(slot, zombie.getItemStackFromSlot(slot));
 				}
-				event.getWorld().spawnEntityInWorld(cyberZombie);
+				event.getWorld().spawnEntity(cyberZombie);
 				zombie.deathTime = 19;
 				zombie.setHealth(0F);
 				return;
@@ -198,9 +202,9 @@ public class CyberwareDataHandler
 		{
 			EntityZombie zom = (EntityZombie) event.getEntityLiving();
 
-			if (!zom.worldObj.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.HEAD) == null && zom.worldObj.rand.nextFloat() < LibConstants.ZOMBIE_SHADES_CHANCE / 100F)
+			if (!zom.world.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmpty() && zom.world.rand.nextFloat() < LibConstants.ZOMBIE_SHADES_CHANCE / 100F)
 			{
-				if (zom.worldObj.rand.nextBoolean())
+				if (zom.world.rand.nextBoolean())
 				{
 					zom.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(CyberwareContent.shades));
 				}
@@ -212,13 +216,13 @@ public class CyberwareDataHandler
 				zom.setDropChance(EntityEquipmentSlot.HEAD, .5F);
 			}
 			
-			float chestRand = zom.worldObj.rand.nextFloat();
+			float chestRand = zom.world.rand.nextFloat();
 			
-			if (!zom.worldObj.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.CHEST) == null && chestRand < LibConstants.ZOMBIE_TRENCH_CHANCE / 100F)
+			if (!zom.world.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty() && chestRand < LibConstants.ZOMBIE_TRENCH_CHANCE / 100F)
 			{
 				
 				ItemStack stack = new ItemStack(CyberwareContent.trenchcoat);
-				int rand = zom.worldObj.rand.nextInt(3);
+				int rand = zom.world.rand.nextInt(3);
 				if (rand == 0)
 				{
 					CyberwareContent.trenchcoat.setColor(stack, 0x664028);
@@ -233,7 +237,7 @@ public class CyberwareDataHandler
 				
 				zom.setDropChance(EntityEquipmentSlot.CHEST, .5F);
 			}
-			else if (!zom.worldObj.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.CHEST) == null && chestRand - (LibConstants.ZOMBIE_TRENCH_CHANCE / 100F) < LibConstants.ZOMBIE_BIKER_CHANCE / 100F)
+			else if (!zom.world.isRemote && zom.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty() && chestRand - (LibConstants.ZOMBIE_TRENCH_CHANCE / 100F) < LibConstants.ZOMBIE_BIKER_CHANCE / 100F)
 			{
 				
 				ItemStack stack = new ItemStack(CyberwareContent.jacket);
@@ -249,12 +253,12 @@ public class CyberwareDataHandler
 	public static void addRandomCyberware(EntityCyberZombie cyberZombie, boolean brute)
 	{	
 		ICyberwareUserData data = CyberwareAPI.getCapability(cyberZombie);
-		List<List<ItemStack>> wares = new ArrayList<List<ItemStack>>();
+		NonNullList<NonNullList<ItemStack>> wares = NonNullList.create();
 		
 		for (EnumSlot slot : EnumSlot.values())
 		{
-			List<ItemStack> toAdd = new ArrayList(Arrays.asList(data.getInstalledCyberware(slot)));
-			toAdd.removeAll(Collections.singleton(null));
+			NonNullList<ItemStack> toAdd = data.getInstalledCyberware(slot);
+			toAdd.removeAll(Collections.singleton(ItemStack.EMPTY));
 			wares.add(toAdd);
 		}
 		
@@ -263,7 +267,7 @@ public class CyberwareDataHandler
 		ItemStack battery = new ItemStack(CyberwareContent.creativeBattery);
 		wares.get(CyberwareContent.creativeBattery.getSlot(battery).ordinal()).add(battery);
 		
-		int numberOfItemsToInstall = ((NumItems) WeightedRandom.getRandomItem(cyberZombie.worldObj.rand, CyberwareContent.numItems)).num;
+		int numberOfItemsToInstall = ((NumItems) WeightedRandom.getRandomItem(cyberZombie.world.rand, CyberwareContent.numItems)).num;
 		if (brute)
 		{
 			numberOfItemsToInstall += LibConstants.MORE_ITEMS_BRUTE;
@@ -279,15 +283,15 @@ public class CyberwareDataHandler
 		for (int i = 0; i < numberOfItemsToInstall; i++)
 		{
 			int tries = 0;
-			ItemStack randomItem = null;
+			ItemStack randomItem = ItemStack.EMPTY;
 			ICyberware randomWare = null;
 			
 			// Ensure we get a unique item
 			do
 			{
-				randomItem = ItemStack.copyItemStack(((ZombieItem) WeightedRandom.getRandomItem(cyberZombie.worldObj.rand, items)).stack);
+				randomItem = ((ZombieItem) WeightedRandom.getRandomItem(cyberZombie.world.rand, items)).stack.copy();
 				randomWare = CyberwareAPI.getCyberware(randomItem);
-				randomItem.stackSize = randomWare.installedStackSize(randomItem);
+				randomItem.setCount(randomWare.installedStackSize(randomItem));
 				tries++;
 			}
 			while (contains(wares.get(randomWare.getSlot(randomItem).ordinal()), randomItem) && tries < 10);
@@ -295,14 +299,14 @@ public class CyberwareDataHandler
 			if (tries < 10)
 			{
 				// Fulfill requirements
-				ItemStack[][] required = randomWare.required(randomItem).clone();
-				for (ItemStack[] requiredCategory : required)
+				NonNullList<NonNullList<ItemStack>> required = randomWare.required(randomItem);
+				for (NonNullList<ItemStack> requiredCategory : required)
 				{
 					boolean found = false;
 					for (ItemStack option : requiredCategory)
 					{
 						ICyberware optionWare = CyberwareAPI.getCyberware(option);
-						option.stackSize = optionWare.installedStackSize(option);
+						option.setCount(optionWare.installedStackSize(option));
 						if (contains(wares.get(optionWare.getSlot(option).ordinal()), option))
 						{
 							found = true;
@@ -312,9 +316,9 @@ public class CyberwareDataHandler
 					
 					if (!found)
 					{
-						ItemStack req = requiredCategory[cyberZombie.worldObj.rand.nextInt(requiredCategory.length)].copy();
+						ItemStack req = requiredCategory.get(cyberZombie.world.rand.nextInt(requiredCategory.size())).copy();
 						ICyberware reqWare = CyberwareAPI.getCyberware(req);
-						req.stackSize = reqWare.installedStackSize(req);
+						req.setCount(reqWare.installedStackSize(req));
 						wares.get(reqWare.getSlot(req).ordinal()).add(req);
 						installed.add(req);
 						i++;
@@ -344,11 +348,11 @@ public class CyberwareDataHandler
 		CyberwareAPI.updateData(cyberZombie);
 	}
 	
-	public static boolean contains(List<ItemStack> items, ItemStack item)
+	public static boolean contains(NonNullList<ItemStack> items, ItemStack item)
 	{
 		for (ItemStack check : items)
 		{			
-			if (check != null && item != null && check.getItem() == item.getItem() && check.getItemDamage() == item.getItemDamage())
+			if (!check.isEmpty() && !item.isEmpty() && check.getItem() == item.getItem() && check.getItemDamage() == item.getItemDamage())
 			{
 				return true;
 			}
@@ -381,7 +385,7 @@ public class CyberwareDataHandler
 		EntityPlayer tracker = event.getEntityPlayer();
 		Entity target = event.getTarget();
 		
-		if (!target.worldObj.isRemote)
+		if (!target.world.isRemote)
 		{
 			if (CyberwareAPI.hasCapability(target))
 			{

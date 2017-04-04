@@ -123,13 +123,13 @@ public class EssentialsMissingHandler
 		}
 		
 		ItemStack legLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
-		if (legLeft != null && !ItemCyberlimb.isPowered(legLeft))
+		if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
 		{
 			numMissingLegs++;
 		}
 		
 		ItemStack legRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
-		if (legRight != null && !ItemCyberlimb.isPowered(legRight))
+		if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
 		{
 			numMissingLegs++;
 		}
@@ -146,7 +146,7 @@ public class EssentialsMissingHandler
 				AxisAlignedBB axisalignedbb = e.getEntityBoundingBox();
 				e.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)e.width, axisalignedbb.minY + (double)e.height, axisalignedbb.minZ + (double)e.width));
 				
-				if (e.worldObj.isRemote)
+				if (e.world.isRemote)
 				{
 					lastClient.put(e.getEntityId(), true);
 				}
@@ -156,14 +156,14 @@ public class EssentialsMissingHandler
 				}
 
 			}
-			else if (last(e.worldObj.isRemote, e))
+			else if (last(e.world.isRemote, e))
 			{
 				e.height = 1.8F;
 				((EntityPlayer) e).eyeHeight = ((EntityPlayer) e).getDefaultEyeHeight();
 				AxisAlignedBB axisalignedbb = e.getEntityBoundingBox();
 				e.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)e.width, axisalignedbb.minY + (double)e.height, axisalignedbb.minZ + (double)e.width));
 				
-				if (e.worldObj.isRemote)
+				if (e.world.isRemote)
 				{
 					lastClient.put(e.getEntityId(), false);
 				}
@@ -179,7 +179,7 @@ public class EssentialsMissingHandler
 
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
+			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			e.getAttributeMap().applyAttributeModifiers(multimap);
 
 			//e.moveEntity(e.lastTickPosX - e.posX, 0, e.lastTickPosZ - e.posZ);
@@ -188,7 +188,7 @@ public class EssentialsMissingHandler
 		{
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
+			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			e.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 		
@@ -216,7 +216,7 @@ public class EssentialsMissingHandler
 			if (getLungsTime(e) >= 20)
 			{
 				timesLungs.put(e.getEntityId(), e.ticksExisted);
-				e.attackEntityFrom(DamageSource.drown, 2F);
+				e.attackEntityFrom(DamageSource.DROWN, 2F);
 			}
 		}
 		else
@@ -267,13 +267,13 @@ public class EssentialsMissingHandler
 			}
 			
 			ItemStack legLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
-			if (legLeft != null && !ItemCyberlimb.isPowered(legLeft))
+			if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
 			{
 				numMissingLegs++;
 			}
 			
 			ItemStack legRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
-			if (legRight != null && !ItemCyberlimb.isPowered(legRight))
+			if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
 			{
 				numMissingLegs++;
 			}
@@ -303,7 +303,7 @@ public class EssentialsMissingHandler
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 		
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && stack != null && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
+		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
 		{
 			EntityPlayer p = (EntityPlayer) e;
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -327,7 +327,7 @@ public class EssentialsMissingHandler
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 		
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && stack != null && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
+		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
 		{
 			EntityPlayer p = (EntityPlayer) e;
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -351,12 +351,12 @@ public class EssentialsMissingHandler
 	@SideOnly(Side.CLIENT)
 	public void overlayPre(ClientTickEvent event)
 	{
-		if (event.phase == Phase.START && Minecraft.getMinecraft() != null && Minecraft.getMinecraft().thePlayer != null)
+		if (event.phase == Phase.START && Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null)
 		{
-			EntityPlayer e = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer e = Minecraft.getMinecraft().player;
 	
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
+			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			e.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
@@ -368,10 +368,10 @@ public class EssentialsMissingHandler
 	
 		if (event.getType() == ElementType.ALL)
 		{
-			EntityPlayer e = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer e = Minecraft.getMinecraft().player;
 			
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
+			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			//e.getAttributeMap().removeAttributeModifiers(multimap);
 			
 			
@@ -421,7 +421,7 @@ public class EssentialsMissingHandler
 			if (!cyberware.hasEssential(EnumSlot.SKIN))
 			{
 		
-				if (!event.getSource().isUnblockable() || event.getSource() == DamageSource.fall)
+				if (!event.getSource().isUnblockable() || event.getSource() == DamageSource.FALL)
 				{
 					event.setAmount(event.getAmount() * 3F);
 				}
@@ -486,14 +486,14 @@ public class EssentialsMissingHandler
 		
 		boolean leftUnpowered = false;
 		ItemStack armLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
-		if (armLeft != null && !ItemCyberlimb.isPowered(armLeft))
+		if (!armLeft.isEmpty() && !ItemCyberlimb.isPowered(armLeft))
 		{
 			leftUnpowered = true;
 		}
 		
 		boolean rightUnpowered = false;
 		ItemStack armRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
-		if (armRight != null && !ItemCyberlimb.isPowered(armRight))
+		if (!armRight.isEmpty() && !ItemCyberlimb.isPowered(armRight))
 		{
 			rightUnpowered = true;
 		}

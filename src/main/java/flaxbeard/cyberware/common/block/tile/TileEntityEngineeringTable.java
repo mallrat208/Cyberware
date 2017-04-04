@@ -17,6 +17,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -44,7 +45,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		@Override
 		public boolean hasCapability(Capability<?> capability, EnumFacing facing)
 		{
-			TileEntity above = worldObj.getTileEntity(pos.add(0, 1, 0));
+			TileEntity above = world.getTileEntity(pos.add(0, 1, 0));
 			if (above != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 			{
 				return above.hasCapability(capability, facing);
@@ -56,7 +57,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		@Override
 		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 		{
-			TileEntity above = worldObj.getTileEntity(pos.add(0, 1, 0));
+			TileEntity above = world.getTileEntity(pos.add(0, 1, 0));
 			if (above != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 			{
 				return above.getCapability(capability, facing);
@@ -80,7 +81,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	    public void setStackInSlot(int slot, ItemStack stack)
 	    {
 			boolean check = false;
-			if (slot == 0 && this.getStackInSlot(0) == null && !worldObj.isRemote)
+			if (slot == 0 && this.getStackInSlot(0).isEmpty() && !world.isRemote)
 			{
 				check = true;
 			}
@@ -89,8 +90,8 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			
 			if (check)
 			{
-				table.worldObj.setBlockState(getPos(), table.worldObj.getBlockState(getPos()), 2);
-				table.worldObj.notifyBlockUpdate(pos, table.worldObj.getBlockState(getPos()), table.worldObj.getBlockState(getPos()), 2);
+				table.world.setBlockState(getPos(), table.world.getBlockState(getPos()), 2);
+				table.world.notifyBlockUpdate(pos, table.world.getBlockState(getPos()), table.world.getBlockState(getPos()), 2);
 			}
 			
 			if (slot >= 2 && slot <= 8)
@@ -105,7 +106,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			if (!isItemValidForSlot(slot, stack)) return stack;
 			
 			boolean check = false;
-			if (slot == 0 && this.getStackInSlot(0) == null && !simulate && !worldObj.isRemote)
+			if (slot == 0 && this.getStackInSlot(0).isEmpty() && !simulate && !world.isRemote)
 			{
 				check = true;
 			}
@@ -114,8 +115,8 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			
 			if (check)
 			{
-				table.worldObj.setBlockState(getPos(), table.worldObj.getBlockState(getPos()), 2);
-				table.worldObj.notifyBlockUpdate(pos, table.worldObj.getBlockState(getPos()), table.worldObj.getBlockState(getPos()), 2);
+				table.world.setBlockState(getPos(), table.world.getBlockState(getPos()), 2);
+				table.world.notifyBlockUpdate(pos, table.world.getBlockState(getPos()), table.world.getBlockState(getPos()), 2);
 			}
 
 			if (slot >= 2 && slot <= 8 && !simulate)
@@ -128,11 +129,11 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
-			if (!canRemoveItem(slot)) return null;
+			if (!canRemoveItem(slot)) return ItemStack.EMPTY;
 			
 
 			ItemStack result = super.extractItem(slot, amount, simulate);
-			if (slot == 9 && result != null && !simulate)
+			if (slot == 9 && !result.isEmpty() && !simulate)
 			{
 
 				table.subtractResources();
@@ -149,7 +150,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		public boolean canRemoveItem(int slot)
 		{
 			if (overrideExtract) return true;
-			if (getStackInSlot(8) != null && (slot >= 2 && slot <= 7)) return false;
+			if (!getStackInSlot(8).isEmpty() && (slot >= 2 && slot <= 7)) return false;
 			if (slot == 1 || slot == 8) return false;
 			return true;
 		}
@@ -172,7 +173,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 					}
 					return false;
 				case 8:
-					return stack != null && stack.getItem() instanceof IBlueprint;
+					return !stack.isEmpty() && stack.getItem() instanceof IBlueprint;
 				case 9:
 					return false;
 				default:
@@ -226,6 +227,11 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			slots.overrideExtract = true;
 			slots.setStackInSlot(slot, stack);
 			slots.overrideExtract = false;
+		}
+
+		@Override
+		public int getSlotLimit(int slot) {
+			return 64;
 		}
 		
 	}
@@ -347,7 +353,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -373,42 +379,42 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	public void updateRecipe()
 	{
 		ItemStack blueprintStack = slots.getStackInSlot(8);
-		if (blueprintStack != null && blueprintStack.getItem() instanceof IBlueprint)
+		if (!blueprintStack.isEmpty() && blueprintStack.getItem() instanceof IBlueprint)
 		{
 			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
-			ItemStack[] toCheck = new ItemStack[6];
+			NonNullList<ItemStack> toCheck = NonNullList.create();
 			for (int i = 0; i < 6; i++)
 			{
-				toCheck[i] = ItemStack.copyItemStack(slots.getStackInSlot(i + 2));
+				toCheck.set(i, slots.getStackInSlot(i + 2).copy());
 			}
-			ItemStack result = ItemStack.copyItemStack(blueprint.getResult(blueprintStack, toCheck));
-			if (result != null)
+			ItemStack result = blueprint.getResult(blueprintStack, toCheck).copy();
+			if (!result.isEmpty())
 			{
-				result.stackSize = 1;
+				result.setCount(1);
 			}
 			this.slots.setStackInSlot(9, result);
 		}
 		else
 		{
-			this.slots.setStackInSlot(9, null);
+			this.slots.setStackInSlot(9, ItemStack.EMPTY);
 		}
 	}
 	
 	public void subtractResources()
 	{
 		ItemStack blueprintStack = slots.getStackInSlot(8);
-		if (blueprintStack != null && blueprintStack.getItem() instanceof IBlueprint)
+		if (!blueprintStack.isEmpty() && blueprintStack.getItem() instanceof IBlueprint)
 		{
 			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
-			ItemStack[] toCheck = new ItemStack[6];
+			NonNullList<ItemStack> toCheck = NonNullList.create();
 			for (int i = 0; i < 6; i++)
 			{
-				toCheck[i] = ItemStack.copyItemStack(slots.getStackInSlot(i + 2));
+				toCheck.set(i,slots.getStackInSlot(i + 2).copy());
 			}
-			ItemStack[] result = blueprint.consumeItems(blueprintStack, toCheck);
+			NonNullList<ItemStack> result = blueprint.consumeItems(blueprintStack, toCheck);
 			for (int i = 0; i < 6; i++)
 			{
-				slots.setStackInSlot(i + 2, result[i]);
+				slots.setStackInSlot(i + 2, result.get(i));
 			}
 			this.updateRecipe();
 		}
@@ -423,29 +429,29 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	{
 		ItemStack toDestroy = slots.getStackInSlot(0);
 		
-		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.stackSize > 0)
+		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.getCount() > 0)
 		{
 			ItemStack paperSlot = slots.getStackInSlot(1);
-			boolean doBlueprint = paperSlot != null && paperSlot.stackSize > 0;
+			boolean doBlueprint = paperSlot != null && paperSlot.getCount() > 0;
 			
-			ItemStack[] components = CyberwareAPI.getComponents(toDestroy).clone();
+			NonNullList<ItemStack> components = CyberwareAPI.getComponents(toDestroy);
 
 			List<ItemStack> random = new ArrayList<ItemStack>();
 			for (ItemStack component : components)
 			{
-				if (component != null)
+				if (!component.isEmpty())
 				{
-					for (int i = 0; i < component.stackSize; i++)
+					for (int i = 0; i < component.getCount(); i++)
 					{
 						ItemStack copy = component.copy();
-						copy.stackSize = 1;
+						copy.setCount(1);
 						random.add(copy);
 					}
 				}
 			}
 			
 			int numToRemove = 1;
-			switch (worldObj.getDifficulty())
+			switch (world.getDifficulty())
 			{
 				case EASY:
 					numToRemove = 1;
@@ -474,13 +480,13 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			numToRemove = Math.min(numToRemove, random.size() - 1);
 			for (int i = 0; i < numToRemove; i++)
 			{
-				random.remove(worldObj.rand.nextInt(random.size()));
+				random.remove(world.rand.nextInt(random.size()));
 			}
 
 			ItemStackHandler handler = new ItemStackHandler(6);
 			for (int i = 0; i < 6; i++)
 			{
-				handler.setStackInSlot(i, ItemStack.copyItemStack(slots.getStackInSlot(i + 2)));
+				handler.setStackInSlot(i, slots.getStackInSlot(i + 2).copy());
 			}
 			boolean canInsert = true;
 			
@@ -492,7 +498,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 				for (int slot = 0; slot < 6; slot++)
 				{
 					left = handler.insertItem(slot, left, false);
-					if (left == null)
+					if (left.isEmpty())
 					{
 						wasAble = true;
 						break;
@@ -514,7 +520,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 				for (int slot = 0; slot < 6; slot++)
 				{
 					left = handler.insertItem(slot, left, false);
-					if (left == null)
+					if (left.isEmpty())
 					{
 						wasAble = true;
 						break;
@@ -532,10 +538,10 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			{
 				if (pkt)
 				{
-					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ScannerSmashPacket(pos.getX(), pos.getY(), pos.getZ()), new TargetPoint(worldObj.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 25));
+					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ScannerSmashPacket(pos.getX(), pos.getY(), pos.getZ()), new TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 25));
 				}
 				
-				if (!worldObj.isRemote)
+				if (!world.isRemote)
 				{
 					float chance = CyberwareConfig.ENGINEERING_CHANCE;
 					if (toDestroy.isItemStackDamageable())
@@ -548,10 +554,10 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 						random.add(blue);
 						
 						ItemStack current = slots.getStackInSlot(1);
-						current.stackSize--;
-						if (current.stackSize <= 0)
+						current.shrink(1);
+						if (current.getCount() <= 0)
 						{
-							current = null;
+							current = ItemStack.EMPTY;
 						}
 						slots.setStackInSlot(1, current);
 					}
@@ -562,10 +568,10 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 						ItemStack dropLeft = drop.copy();
 						for (int slot = 2; slot < 8; slot++)
 						{
-							if (slots.getStackInSlot(slot) != null)
+							if (!slots.getStackInSlot(slot).isEmpty())
 							{
 								dropLeft = slots.insertItem(slot, dropLeft, false);
-								if (dropLeft == null)
+								if (dropLeft.isEmpty())
 								{
 									break;
 								}
@@ -575,7 +581,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 						for (int slot = 2; slot < 8; slot++)
 						{
 							dropLeft = slots.insertItem(slot, dropLeft, false);
-							if (dropLeft == null)
+							if (dropLeft.isEmpty())
 							{
 								break;
 							}
@@ -583,12 +589,12 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 					}
 					
 					ItemStack current = slots.getStackInSlot(0);
-					current.stackSize--;
-					if (current.stackSize <= 0 || current == null)
+					current.shrink(1);
+					if (current.getCount() <= 0 || current.isEmpty())
 					{
-						worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(getPos()), worldObj.getBlockState(getPos()), 2);
+						world.notifyBlockUpdate(pos, world.getBlockState(getPos()), world.getBlockState(getPos()), 2);
 
-						current = null;
+						current = ItemStack.EMPTY;
 					}
 					slots.setStackInSlot(0, current);
 					updateRecipe();
@@ -606,7 +612,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	@Override
 	public void update()
 	{
-		if (worldObj.isBlockPowered(getPos()) || worldObj.isBlockPowered(getPos().add(0, -1, 0)))
+		if (world.isBlockPowered(getPos()) || world.isBlockPowered(getPos().add(0, -1, 0)))
 		{
 			if (time == 0)
 			{
@@ -626,12 +632,12 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		int x = pos.getX();
 		int y = pos.getY();
 		int z = pos.getZ();
-		clickedTime = Minecraft.getMinecraft().thePlayer.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks();
-		worldObj.playSound(x, y, z, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 1F, 1F, false);
-		worldObj.playSound(x, y, z, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1F, .5F, false);
+		clickedTime = Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks();
+		world.playSound(x, y, z, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 1F, 1F, false);
+		world.playSound(x, y, z, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1F, .5F, false);
 		for (int i = 0; i < 10; i++)
 		{
-			worldObj.spawnParticle(EnumParticleTypes.ITEM_CRACK, x + .5F, y, z + .5F, .25F * (worldObj.rand.nextFloat() - .5F), .1F, .25F * (worldObj.rand.nextFloat() - .5F), 
+			world.spawnParticle(EnumParticleTypes.ITEM_CRACK, x + .5F, y, z + .5F, .25F * (world.rand.nextFloat() - .5F), .1F, .25F * (world.rand.nextFloat() - .5F), 
 					new int[] { Item.getIdFromItem(slots.getStackInSlot(0).getItem()) } );
 		}
 	}

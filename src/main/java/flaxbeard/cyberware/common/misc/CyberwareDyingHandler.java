@@ -11,6 +11,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.RecipeSorter;
 
@@ -31,20 +32,20 @@ public class CyberwareDyingHandler implements IRecipe
 	 */
 	public boolean matches(InventoryCrafting inv, World worldIn)
 	{
-		ItemStack itemstack = null;
+		ItemStack itemstack = ItemStack.EMPTY;
 		List<ItemStack> list = Lists.<ItemStack>newArrayList();
 
 		for (int i = 0; i < inv.getSizeInventory(); ++i)
 		{
 			ItemStack itemstack1 = inv.getStackInSlot(i);
 
-			if (itemstack1 != null)
+			if (!itemstack1.isEmpty())
 			{
 				if (itemstack1.getItem() instanceof ItemArmor)
 				{
 					ItemArmor itemarmor = (ItemArmor)itemstack1.getItem();
 
-					if (itemarmor.getArmorMaterial() != CyberwareContent.trenchMat || itemstack != null)
+					if (itemarmor.getArmorMaterial() != CyberwareContent.trenchMat || !itemstack.isEmpty())
 					{
 						return false;
 					}
@@ -63,7 +64,7 @@ public class CyberwareDyingHandler implements IRecipe
 			}
 		}
 
-		return itemstack != null && !list.isEmpty();
+		return !itemstack.isEmpty() && !list.isEmpty();
 	}
 
 	/**
@@ -72,7 +73,7 @@ public class CyberwareDyingHandler implements IRecipe
 	@Nullable
 	public ItemStack getCraftingResult(InventoryCrafting inv)
 	{
-		ItemStack itemstack = null;
+		ItemStack itemstack = ItemStack.EMPTY;
 		int[] aint = new int[3];
 		int i = 0;
 		int j = 0;
@@ -82,19 +83,19 @@ public class CyberwareDyingHandler implements IRecipe
 		{
 			ItemStack itemstack1 = inv.getStackInSlot(k);
 
-			if (itemstack1 != null)
+			if (!itemstack1.isEmpty())
 			{
 				if (itemstack1.getItem() instanceof ItemArmor)
 				{
 					itemarmor = (ItemArmor)itemstack1.getItem();
 
-					if (itemarmor.getArmorMaterial() != CyberwareContent.trenchMat || itemstack != null)
+					if (itemarmor.getArmorMaterial() != CyberwareContent.trenchMat || !itemstack.isEmpty())
 					{
-						return null;
+						return ItemStack.EMPTY;
 					}
 
 					itemstack = itemstack1.copy();
-					itemstack.stackSize = 1;
+					itemstack.setCount(1);
 
 					if (itemarmor.hasColor(itemstack1))
 					{
@@ -113,7 +114,7 @@ public class CyberwareDyingHandler implements IRecipe
 				{
 					if (itemstack1.getItem() != Items.DYE)
 					{
-						return null;
+						return ItemStack.EMPTY;
 					}
 
 					float[] afloat = EntitySheep.getDyeRgb(EnumDyeColor.byDyeDamage(itemstack1.getMetadata()));
@@ -131,7 +132,7 @@ public class CyberwareDyingHandler implements IRecipe
 
 		if (itemarmor == null)
 		{
-			return null;
+			return ItemStack.EMPTY;
 		}
 		else
 		{
@@ -161,17 +162,17 @@ public class CyberwareDyingHandler implements IRecipe
 	@Nullable
 	public ItemStack getRecipeOutput()
 	{
-		return null;
+		return ItemStack.EMPTY;
 	}
 
-	public ItemStack[] getRemainingItems(InventoryCrafting inv)
+	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
 	{
-		ItemStack[] aitemstack = new ItemStack[inv.getSizeInventory()];
+		NonNullList<ItemStack> aitemstack = NonNullList.create();
 
-		for (int i = 0; i < aitemstack.length; ++i)
+		for (int i = 0; i < inv.getSizeInventory(); ++i)
 		{
 			ItemStack itemstack = inv.getStackInSlot(i);
-			aitemstack[i] = net.minecraftforge.common.ForgeHooks.getContainerItem(itemstack);
+			aitemstack.add(net.minecraftforge.common.ForgeHooks.getContainerItem(itemstack));
 		}
 
 		return aitemstack;

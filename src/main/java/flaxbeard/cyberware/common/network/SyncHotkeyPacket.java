@@ -51,7 +51,7 @@ public class SyncHotkeyPacket implements IMessage
 		public IMessage onMessage(SyncHotkeyPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(player.worldObj.provider.getDimension()).addScheduledTask(new DoSync(message.selectedPart, message.key, player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.selectedPart, message.key, player));
 
 			return null;
 		}

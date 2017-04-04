@@ -69,7 +69,7 @@ public class BlockBeaconPost extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "radioPost";
+		String name = "radio_post";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);

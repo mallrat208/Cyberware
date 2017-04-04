@@ -42,7 +42,7 @@ public class TriggerActiveAbilityPacket implements IMessage
 		public IMessage onMessage(TriggerActiveAbilityPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(player.worldObj.provider.getDimension()).addScheduledTask(new DoSync(message.stack, player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.stack, player));
 
 			return null;
 		}

@@ -24,6 +24,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -42,6 +43,7 @@ import flaxbeard.cyberware.client.render.ModelBox;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.block.tile.TileEntitySurgery;
 import flaxbeard.cyberware.common.lib.LibConstants;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
 import flaxbeard.cyberware.common.network.SurgeryRemovePacket;
 
@@ -229,7 +231,7 @@ public class GuiSurgery extends GuiContainer
 	private PageConfiguration target;
 	private PageConfiguration ease;
 	
-	private ItemStack[] indexStacks;
+	private NonNullList<ItemStack> indexStacks;
 	private int[] indexPages;
 	private int[] indexNews;
 
@@ -406,37 +408,37 @@ public class GuiSurgery extends GuiContainer
 			back.visible = true;
 			index.visible = false;
 			
-			indexStacks = new ItemStack[5 * 8];
+			indexStacks = NNLUtil.initListOfSize(40);
 			indexPages = new int[5 * 8];
 			indexNews = new int[5 * 8];
 
 			indexCount = 0;
-			for (int d = 0; d < surgery.slots.getSlots() && indexCount < indexStacks.length; d++)
+			for (int d = 0; d < surgery.slots.getSlots() && indexCount < indexStacks.size(); d++)
 			{
 				ItemStack playerStack = surgery.slotsPlayer.getStackInSlot(d);
 				ItemStack surgeryStack = surgery.slots.getStackInSlot(d);
 				
 				int nu = 0;
-				ItemStack draw = null;
-				if (surgeryStack != null)
+				ItemStack draw = ItemStack.EMPTY;
+				if (!surgeryStack.isEmpty())
 				{
 					draw = surgeryStack.copy();
 					
-					if (playerStack != null)
+					if (!playerStack.isEmpty())
 					{
 						if (CyberwareAPI.areCyberwareStacksEqual(playerStack, surgeryStack))
 						{
-							draw.stackSize += playerStack.stackSize;
+							draw.grow(playerStack.getCount());
 						}
 						else
 						{
-							indexStacks[indexCount] = playerStack.copy();
+							indexStacks.set(indexCount,playerStack.copy());
 							EnumSlot slot = EnumSlot.values()[d / LibConstants.WARE_PER_SLOT];
 							indexPages[indexCount] = slot.getSlotNumber();
 							indexNews[indexCount] = 2;
 							indexCount++;
 							
-							if (indexCount >= indexStacks.length)
+							if (indexCount >= indexStacks.size())
 							{
 								break;
 							}
@@ -444,19 +446,19 @@ public class GuiSurgery extends GuiContainer
 					}
 					nu = 1;
 				}
-				else if (playerStack != null && surgery.discardSlots[d] == false)
+				else if (!playerStack.isEmpty() && surgery.discardSlots[d] == false)
 				{
 					draw = playerStack.copy();
 				}
-				else if (playerStack != null && surgery.discardSlots[d] == true)
+				else if (!playerStack.isEmpty() && surgery.discardSlots[d] == true)
 				{
 					draw = playerStack.copy();
 					nu = 2;
 				}
 				
-				if (draw != null)
+				if (!draw.isEmpty())
 				{
-					indexStacks[indexCount] = draw;
+					indexStacks.set(indexCount, draw);
 					EnumSlot slot = EnumSlot.values()[d / LibConstants.WARE_PER_SLOT];
 					indexPages[indexCount] = slot.getSlotNumber();
 					indexNews[indexCount] = nu;
@@ -651,7 +653,7 @@ public class GuiSurgery extends GuiContainer
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, trans);
 	
 				Slot slot = inventorySlots.inventorySlots.get(surgery.wrongSlot);
-				this.drawTexturedModalRect(i + slot.xDisplayPosition - 5, j + slot.yDisplayPosition - 5, 185, 61, 26, 26);		// Blue slot
+				this.drawTexturedModalRect(i + slot.xPos - 5, j + slot.yPos - 5, 185, 61, 26, 26);		// Blue slot
 				
 			}
 			else
@@ -665,8 +667,8 @@ public class GuiSurgery extends GuiContainer
 		// Draw the less-transparent slot borders
 		for (SlotSurgery pos : visibleSlots)
 		{
-			this.drawTexturedModalRect(i + pos.xDisplayPosition - 1, j + pos.yDisplayPosition - 1, 176, 43, 18, 18);		// Blue slot
-			this.drawTexturedModalRect(i + pos.xDisplayPosition - 1, j + pos.yDisplayPosition - 1 - 26, 176, 18, 18, 25);	// Red 'slot'
+			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1, 176, 43, 18, 18);		// Blue slot
+			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1 - 26, 176, 18, 18, 25);	// Red 'slot'
 		}
 		
 		if (page != index.id)
@@ -708,8 +710,8 @@ public class GuiSurgery extends GuiContainer
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
 		for (SlotSurgery pos : visibleSlots)
 		{
-			this.drawTexturedModalRect(i + pos.xDisplayPosition - 1, j + pos.yDisplayPosition - 1, 176 + 18, 43, 18, 18);		// Blue slot
-			this.drawTexturedModalRect(i + pos.xDisplayPosition - 1, j + pos.yDisplayPosition - 1 - 26, 176 + 18, 18, 18, 18);	// Red 'slot'
+			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1, 176 + 18, 43, 18, 18);		// Blue slot
+			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1 - 26, 176 + 18, 18, 18, 18);	// Red 'slot'
 		}
 		
 		List<String> missingSlots = new ArrayList<String>();
@@ -829,14 +831,14 @@ public class GuiSurgery extends GuiContainer
 		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
 		this.zLevel = 0;
 		
-		World world = Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().theWorld : null;
+		World world = Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().world : null;
 		if (skeleton == null || skeleton.isDead)
 		{
 			skeleton = new EntitySkeleton(world);
 		}
 		else
 		{
-			skeleton.worldObj = world;
+			skeleton.world = world;
 		}
 		
 		if (box == null)
@@ -1013,7 +1015,7 @@ public class GuiSurgery extends GuiContainer
 	
 			scissor(i + 3, j + 3 + (int) (percentageSkele * 125), 170, 125 - (int) (percentageSkele * 125));
 					
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer player = Minecraft.getMinecraft().player;
 			
 			float f = player.renderYawOffset;
 			float f1 = player.rotationYaw;
@@ -1099,7 +1101,7 @@ public class GuiSurgery extends GuiContainer
 	// Taken from GuiContainer
 	private boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY)
 	{
-		return this.isPointInRegion(slotIn.xDisplayPosition, slotIn.yDisplayPosition, 16, 16, mouseX, mouseY);
+		return this.isPointInRegion(slotIn.xPos, slotIn.yPos, 16, 16, mouseX, mouseY);
 	}
 	
 	@Override
@@ -1123,7 +1125,7 @@ public class GuiSurgery extends GuiContainer
 	
 	private float ticksExisted()
 	{
-		return Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().thePlayer != null ? Minecraft.getMinecraft().thePlayer.ticksExisted : 0 : 0;
+		return Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().player != null ? Minecraft.getMinecraft().player.ticksExisted : 0 : 0;
 	}
 	
 	
@@ -1223,7 +1225,7 @@ public class GuiSurgery extends GuiContainer
 		GL11.glTranslatef(0, 0, 900F);
 		if (page == 0 && this.transitionStart == 0)
 		{
-			String s = "_" + Minecraft.getMinecraft().thePlayer.getName().toUpperCase();
+			String s = "_" + Minecraft.getMinecraft().player.getName().toUpperCase();
 			this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 115, 0x1DA9C1);
 		}
 		
@@ -1258,31 +1260,31 @@ public class GuiSurgery extends GuiContainer
 			GL11.glPushMatrix();
 
 			ItemStack stack = pos.getPlayerStack();
-			this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, stack, pos.xDisplayPosition, pos.yDisplayPosition - 26);
+			this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, stack, pos.xPos, pos.yPos - 26);
 			
-			if (stack != null && stack.stackSize > 1)
+			if (!stack.isEmpty() && stack.getCount() > 1)
 			{
 				FontRenderer font = stack.getItem().getFontRenderer(stack);
 				if (font == null) font = fontRendererObj;
 				
-				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xDisplayPosition, pos.yDisplayPosition - 26, Integer.toString(stack.stackSize));
+				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos - 26, Integer.toString(stack.getCount()));
 			}
 
 
-			if (pos.getStack() == null && !pos.slotDiscarded())
+			if (pos.getStack().isEmpty() && !pos.slotDiscarded())
 			{
 				this.itemRender.zLevel = 50;
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GL11.glColorMask(true, true, true, false);
 				
-				this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, pos.getPlayerStack(), pos.xDisplayPosition, pos.yDisplayPosition);
+				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, pos.getPlayerStack(), pos.xPos, pos.yPos);
 				
-				if (stack != null && stack.stackSize > 1)
+				if (!stack.isEmpty() && stack.getCount() > 1)
 				{
 					FontRenderer font = stack.getItem().getFontRenderer(stack);
 					if (font == null) font = fontRendererObj;
 					
-					this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xDisplayPosition, pos.yDisplayPosition, Integer.toString(stack.stackSize));
+					this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos, Integer.toString(stack.getCount()));
 				}
 				
 				GL11.glColorMask(true, true, true, true);
@@ -1293,9 +1295,9 @@ public class GuiSurgery extends GuiContainer
 			{
 				FontRenderer font = stack.getItem().getFontRenderer(stack);
 				if (font == null) font = fontRendererObj;
-				String str = pos.getStack().stackSize == 1 ? "+1" : "+";
-				int width = pos.getStack().stackSize == 1 ? 0 : font.getStringWidth(Integer.toString(pos.getStack().stackSize));
-				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xDisplayPosition - width, pos.yDisplayPosition, str);
+				String str = pos.getStack().getCount() == 1 ? "+1" : "+";
+				int width = pos.getStack().getCount() == 1 ? 0 : font.getStringWidth(Integer.toString(pos.getStack().getCount()));
+				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos - width, pos.yPos, str);
 			}
 			
 			
@@ -1309,7 +1311,7 @@ public class GuiSurgery extends GuiContainer
 			for (int zee = 0; zee < indexCount; zee++)
 			{
 				
-				ItemStack draw = indexStacks[zee];
+				ItemStack draw = indexStacks.get(zee);
 
 
 				int x = (zee % 8) * 20 + 9;
@@ -1318,14 +1320,14 @@ public class GuiSurgery extends GuiContainer
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GL11.glColorMask(true, true, true, false);
 				
-				this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, draw, x, y);
+				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, draw, x, y);
 				
-				if (draw != null && draw.stackSize > 1)
+				if (!draw.isEmpty() && draw.getCount() > 1)
 				{
 					FontRenderer font = draw.getItem().getFontRenderer(draw);
 					if (font == null) font = fontRendererObj;
 					
-					this.itemRender.renderItemOverlayIntoGUI(font, draw, x, y, Integer.toString(draw.stackSize));
+					this.itemRender.renderItemOverlayIntoGUI(font, draw, x, y, Integer.toString(draw.getCount()));
 
 				}
 				
@@ -1418,9 +1420,9 @@ public class GuiSurgery extends GuiContainer
 				
 				if ((slot instanceof SlotSurgery && ((SlotSurgery) slot).slotDiscarded()))
 				{
-					if (((SlotSurgery) slot).getPlayerStack() != null)
+					if (!((SlotSurgery) slot).getPlayerStack().isEmpty())
 					{
-						if (this.mc.thePlayer.inventory.getItemStack() == null)
+						if (this.mc.player.inventory.getItemStack().isEmpty())
 						{
 							add = true;
 						}
@@ -1446,7 +1448,7 @@ public class GuiSurgery extends GuiContainer
 				}
 				else
 				{
-					if (stack != null)
+					if (!stack.isEmpty())
 					{
 						this.renderToolTip(stack, mouseX - i, mouseY - j, ghost ? 1 : 0);
 					}
@@ -1470,7 +1472,7 @@ public class GuiSurgery extends GuiContainer
 				
 				if (this.isPointInRegion(x - 1, y - 1, 18, 18, mouseX, mouseY))
 				{
-					this.renderToolTip(indexStacks[n], mouseX - i, mouseY - j, 2 + indexNews[n]);
+					this.renderToolTip(indexStacks.get(n), mouseX - i, mouseY - j, 2 + indexNews[n]);
 					if (this.mouseDown)
 					{
 						this.parent = index.id;
@@ -1514,7 +1516,7 @@ public class GuiSurgery extends GuiContainer
 		if (slotIn instanceof SlotSurgery)
 		{
 			SlotSurgery surgerySlot = (SlotSurgery) slotIn;
-			if (surgerySlot.getStack() == null && surgerySlot.getPlayerStack() != null && this.mc.thePlayer.inventory.getItemStack() == null)
+			if (surgerySlot.getStack().isEmpty() && !surgerySlot.getPlayerStack().isEmpty() && this.mc.player.inventory.getItemStack().isEmpty())
 			{
 				int number = surgerySlot.slotNumber;
 				
@@ -1561,14 +1563,14 @@ public class GuiSurgery extends GuiContainer
 			
 			if (isSlotAccessible(slotSurgery) && show)
 			{
-				slotSurgery.xDisplayPosition = slotSurgery.savedXPosition;
-				slotSurgery.yDisplayPosition = slotSurgery.savedYPosition;
+				slotSurgery.xPos = slotSurgery.savedXPosition;
+				slotSurgery.yPos = slotSurgery.savedYPosition;
 				visibleSlots.add(slotSurgery);
 			}
 			else
 			{
-				slotSurgery.xDisplayPosition = Integer.MIN_VALUE;
-				slotSurgery.yDisplayPosition = Integer.MIN_VALUE;
+				slotSurgery.xPos = Integer.MIN_VALUE;
+				slotSurgery.yPos = Integer.MIN_VALUE;
 			}
 			
 			slot = i.next();
@@ -1577,7 +1579,7 @@ public class GuiSurgery extends GuiContainer
 
 	protected void renderToolTip(ItemStack stack, int x, int y, int extras)
 	{
-		List<String> list = stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+		List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
 
 		for (int i = 0; i < list.size(); ++i)
 		{

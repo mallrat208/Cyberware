@@ -43,7 +43,7 @@ public class GuiHandler implements IGuiHandler
 			case 5:
 				return new ContainerComponentBox(player.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
 			default:
-				return new ContainerComponentBox(player.inventory, player.inventory.mainInventory[player.inventory.currentItem]);
+				return new ContainerComponentBox(player.inventory, player.inventory.mainInventory.get(player.inventory.currentItem));
 		}
 	}
 
@@ -65,7 +65,7 @@ public class GuiHandler implements IGuiHandler
 			case 5:
 				return new GuiComponentBox(player.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
 			default:
-				return new GuiComponentBox(player.inventory, player.inventory.mainInventory[player.inventory.currentItem]);
+				return new GuiComponentBox(player.inventory, player.inventory.mainInventory.get(player.inventory.currentItem));
 		}
 	}
 

@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common.item;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -12,6 +13,7 @@ import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.lib.LibConstants;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 
 public class ItemLegUpgrade extends ItemCyberware
 {
@@ -24,10 +26,10 @@ public class ItemLegUpgrade extends ItemCyberware
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{		
-		return new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }};
+		return NNLUtil.fromArray(new ItemStack[][] { 
+				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }});
 	}
 	
 	
@@ -81,7 +83,7 @@ public class ItemLegUpgrade extends ItemCyberware
 		EntityLivingBase e = event.getEntityLiving();
 		
 		ItemStack test = new ItemStack(this, 1, 1);
-		if (event.getSource() == DamageSource.fall && event.getAmount() <= 6F && CyberwareAPI.isCyberwareInstalled(e, test))
+		if (event.getSource() == DamageSource.FALL && event.getAmount() <= 6F && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
 			event.setCanceled(true);
 		}

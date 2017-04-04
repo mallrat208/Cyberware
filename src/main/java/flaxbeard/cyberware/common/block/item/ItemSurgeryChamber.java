@@ -27,8 +27,10 @@ public class ItemSurgeryChamber extends Item implements ICyberwareTabItem
 	/**
 	 * Called when a Block is right-clicked with this Item
 	 */
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	@Override
+	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
+		ItemStack stack = playerIn.getHeldItem(hand);
 		if (facing != EnumFacing.UP)
 		{
 			return EnumActionResult.FAIL;
@@ -51,7 +53,7 @@ public class ItemSurgeryChamber extends Item implements ICyberwareTabItem
 				placeDoor(worldIn, pos, enumfacing, this.block);
 				SoundType soundtype = this.block.getSoundType();
 				worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-				--stack.stackSize;
+				stack.shrink(1);
 				return EnumActionResult.SUCCESS;
 			}
 			else
@@ -72,8 +74,8 @@ public class ItemSurgeryChamber extends Item implements ICyberwareTabItem
 		IBlockState iblockstate = door.getDefaultState().withProperty(BlockSurgeryChamber.FACING, facing).withProperty(BlockSurgeryChamber.OPEN, true);
 		worldIn.setBlockState(pos, iblockstate.withProperty(BlockSurgeryChamber.HALF, BlockSurgeryChamber.EnumChamberHalf.LOWER), 2);
 		worldIn.setBlockState(blockpos2, iblockstate.withProperty(BlockSurgeryChamber.HALF, BlockSurgeryChamber.EnumChamberHalf.UPPER), 2);
-		worldIn.notifyNeighborsOfStateChange(pos, door);
-		worldIn.notifyNeighborsOfStateChange(blockpos2, door);
+		worldIn.notifyNeighborsOfStateChange(pos, door, true);
+		worldIn.notifyNeighborsOfStateChange(blockpos2, door, true);
 	}
 
 	@Override

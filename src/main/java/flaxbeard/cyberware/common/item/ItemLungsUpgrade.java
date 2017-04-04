@@ -45,7 +45,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 	{
 		if (event.getType() == ElementType.AIR)
 		{
-			EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer p = Minecraft.getMinecraft().player;
 			if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 0)) && !p.isCreative())
 			{
 				GL11.glPushMatrix();
@@ -73,8 +73,8 @@ public class ItemLungsUpgrade extends ItemCyberware
 						g += .25F;
 						GL11.glColor3f(r, g, b);
 						int drawAir = Math.min(300, air);
-						int full = MathHelper.ceiling_double_int((double)(drawAir - 2) * 10.0D / 300.0D);
-						int partial = MathHelper.ceiling_double_int((double)drawAir * 10.0D / 300.0D) - full;
+						int full = MathHelper.ceil((double)(drawAir - 2) * 10.0D / 300.0D);
+						int partial = MathHelper.ceil((double)drawAir * 10.0D / 300.0D) - full;
 				
 						for (int i = 0; i < full + partial; ++i)
 						{
@@ -126,7 +126,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 				boolean last = getLastOxygen(e);
 
 				int ranks = CyberwareAPI.getCyberwareRank(e, test);
-				test.stackSize = ranks;
+				test.setCount(ranks);
 				boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
 				
 				if (powerUsed)
@@ -167,7 +167,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 1 ? LibConstants.HYPEROXYGENATION_CONSUMPTION * stack.stackSize : 0;
+		return stack.getItemDamage() == 1 ? LibConstants.HYPEROXYGENATION_CONSUMPTION * stack.getCount() : 0;
 	}
 	
 	@Override
@@ -175,7 +175,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 	{
 		if (stack.getItemDamage() == 1)
 		{
-			switch (stack.stackSize)
+			switch (stack.getCount())
 			{
 				case 1:
 					return 2;

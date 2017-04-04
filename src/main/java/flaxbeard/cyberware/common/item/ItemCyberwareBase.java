@@ -9,6 +9,7 @@ import flaxbeard.cyberware.common.CyberwareContent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ItemCyberwareBase extends Item
@@ -43,7 +44,7 @@ public class ItemCyberwareBase extends Item
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, List list)
+	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (subnames.length == 0)
 		{

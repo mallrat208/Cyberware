@@ -60,14 +60,14 @@ public class ItemCybereyes extends ItemCyberware
 		{
 			if (e.ticksExisted % 20 == 0)
 			{
-				boolean powerUsed = CyberwareAPI.getCapability(e).usePower(new ItemStack(this), getPowerConsumption(null));
-				if (e.worldObj.isRemote && e == Minecraft.getMinecraft().thePlayer)
+				boolean powerUsed = CyberwareAPI.getCapability(e).usePower(new ItemStack(this), getPowerConsumption(ItemStack.EMPTY));
+				if (e.world.isRemote && e == Minecraft.getMinecraft().player)
 				{
 					isBlind = !powerUsed;
 				}
 			}
 		}
-		else if (e.worldObj.isRemote && e == Minecraft.getMinecraft().thePlayer)
+		else if (e.world.isRemote && e == Minecraft.getMinecraft().player)
 		{
 			isBlind = false;
 		}
@@ -80,7 +80,7 @@ public class ItemCybereyes extends ItemCyberware
 	{
 		if (event.getType() == ElementType.ALL)
 		{
-			EntityPlayer e = Minecraft.getMinecraft().thePlayer;
+			EntityPlayer e = Minecraft.getMinecraft().player;
 			
 			if (isBlind && !e.isCreative())
 			{

@@ -54,7 +54,7 @@ public class BlockSurgeryChamber extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "surgeryChamber";
+		String name = "surgery_chamber";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);
@@ -87,7 +87,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
 	{
 		EnumFacing face = state.getValue(FACING);
 		boolean open = state.getValue(OPEN);
@@ -134,8 +134,10 @@ public class BlockSurgeryChamber extends BlockContainer
 		}
 	}
 	
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = playerIn.getHeldItem(hand);
 		boolean top = state.getValue(HALF) == EnumChamberHalf.UPPER;
 		if (canOpen(top ? pos : pos.up(), worldIn))
 		{
@@ -189,7 +191,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 	
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
 		if (state.getValue(HALF) == EnumChamberHalf.UPPER)
 		{
@@ -202,7 +204,7 @@ public class BlockSurgeryChamber extends BlockContainer
 			}
 			else if (blockIn != this)
 			{
-				iblockstate.neighborChanged(worldIn, blockpos, blockIn);
+				iblockstate.neighborChanged(worldIn, blockpos, blockIn, fromPos);
 			}
 		}
 		else

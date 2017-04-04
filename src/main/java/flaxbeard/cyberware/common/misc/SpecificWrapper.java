@@ -35,7 +35,7 @@ public class SpecificWrapper implements IItemHandlerModifiable
 			return compose.getStackInSlot(getIndex(slot));
 		}
 
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class SpecificWrapper implements IItemHandlerModifiable
 			return compose.extractItem(getIndex(slot), amount, simulate);
 		}
 
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -72,6 +72,11 @@ public class SpecificWrapper implements IItemHandlerModifiable
 	private boolean checkSlot(int localSlot)
 	{
 		return localSlot < slots.length;
+	}
+
+	@Override
+	public int getSlotLimit(int slot) {
+		return 64;
 	}
 
 }

@@ -73,6 +73,7 @@ import flaxbeard.cyberware.common.item.ItemSwordCyberware;
 import flaxbeard.cyberware.common.item.VanillaWares.SpiderEyeWare;
 import flaxbeard.cyberware.common.misc.BlueprintCraftingHandler;
 import flaxbeard.cyberware.common.misc.CyberwareDyingHandler;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 
 public class CyberwareContent
 {
@@ -158,8 +159,8 @@ public class CyberwareContent
 
 		if (!CyberwareConfig.NO_ZOMBIES)
 		{
-			EntityRegistry.registerModEntity(EntityCyberZombie.class, "cyberzombie", 0, Cyberware.INSTANCE, 80, 3, true);
-			EntityRegistry.registerEgg(EntityCyberZombie.class, 0x6B6B6B, 0x799C65);
+			EntityRegistry.registerModEntity(new ResourceLocation(Cyberware.MODID+":cyberzombie"), EntityCyberZombie.class, "cyberzombie", 0, Cyberware.INSTANCE, 80, 3, true);
+			EntityRegistry.registerEgg(new ResourceLocation(Cyberware.MODID+":cyberzombie"), 0x6B6B6B, 0x799C65);
 			if (Loader.isModLoaded("EnderIO"))
 			{
 				FMLInterModComms.sendMessage("EnderIO", "poweredSpawner:blacklist:add", "cyberware.cyberzombie");
@@ -187,18 +188,18 @@ public class CyberwareContent
 		if (CyberwareConfig.CLOTHES)
 		{
 			shadesMat1 = EnumHelper.addArmorMaterial("SHADES", "cyberware:vanity", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0.0F);
-			shadesMat1.customCraftingMaterial = Item.getItemFromBlock(Blocks.GLASS);
+			shadesMat1.repairMaterial = new ItemStack(Item.getItemFromBlock(Blocks.GLASS),1,OreDictionary.WILDCARD_VALUE);
 			shadesMat2 = EnumHelper.addArmorMaterial("SHADES2", "cyberware:vanity_2", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0.0F);
-			shadesMat2.customCraftingMaterial = Item.getItemFromBlock(Blocks.GLASS);
+			shadesMat2.repairMaterial = new ItemStack(Item.getItemFromBlock(Blocks.GLASS),1,OreDictionary.WILDCARD_VALUE);
 			shades = new ItemArmorCyberware("shades", shadesMat1, 0, EntityEquipmentSlot.HEAD);
 			shades2 = new ItemArmorCyberware("shades2", shadesMat2, 0, EntityEquipmentSlot.HEAD);
 			
 			jacketMat = EnumHelper.addArmorMaterial("JACKET", "cyberware:jacket", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0F);
-			jacketMat.customCraftingMaterial = Items.LEATHER;
+			jacketMat.repairMaterial = new ItemStack(Items.LEATHER,1,OreDictionary.WILDCARD_VALUE);
 			jacket = new ItemArmorCyberware("jacket", jacketMat, 0, EntityEquipmentSlot.CHEST);
 			
 			trenchMat = EnumHelper.addArmorMaterial("TRENCHCOAT", "cyberware:trenchcoat", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0F);
-			trenchMat.customCraftingMaterial = Items.LEATHER;
+			trenchMat.repairMaterial = new ItemStack(Items.LEATHER,1,OreDictionary.WILDCARD_VALUE);
 			trenchcoat = new ItemArmorCyberware("trenchcoat", trenchMat, 0, EntityEquipmentSlot.CHEST);
 		}
 
@@ -215,169 +216,169 @@ public class CyberwareContent
 			katana = new ItemSwordCyberware("katana", katanaMat);
 		}
 		
-		bodyPart = new ItemBodyPart("bodyPart", 
+		bodyPart = new ItemBodyPart("body_part", 
 				new EnumSlot[] { EnumSlot.EYES, EnumSlot.CRANIUM, EnumSlot.HEART, EnumSlot.LUNGS, EnumSlot.LOWER_ORGANS, EnumSlot.SKIN, EnumSlot.MUSCLE, EnumSlot.BONE, EnumSlot.ARM, EnumSlot.ARM, EnumSlot.LEG, EnumSlot.LEG },
-				new String[] { "eyes", "brain", "heart", "lungs", "stomach", "skin", "muscles", "bones", "armLeft", "armRight", "legLeft", "legRight"});
+				new String[] { "eyes", "brain", "heart", "lungs", "stomach", "skin", "muscles", "bones", "arm_left", "arm_right", "leg_left", "leg_right"});
 		
 		
 		cybereyes = new ItemCybereyes("cybereyes", EnumSlot.EYES);
 		cybereyes.setEssenceCost(8); // 0.2.0 Changed from 10
 		cybereyes.setWeights(UNCOMMON);
-		cybereyes.setComponents(new ItemStack[] { new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 2, 7) });
+		cybereyes.setComponents(NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 2, 7) }));
 		
-		cybereyeUpgrades = new ItemCybereyeUpgrade("cybereyeUpgrades", EnumSlot.EYES,
-				new String[] { "nightVision", "underwaterVision", "hudjack", "targeting", "zoom" });
+		cybereyeUpgrades = new ItemCybereyeUpgrade("cybereye_upgrades", EnumSlot.EYES,
+				new String[] { "night_vision", "underwater_vision", "hudjack", "targeting", "zoom" });
 		cybereyeUpgrades.setEssenceCost(2, 2, 1, 1, 1);
 		cybereyeUpgrades.setWeights(UNCOMMON, UNCOMMON, UNCOMMON, UNCOMMON, UNCOMMON);
 		cybereyeUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 2, 5), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 2, 7) },
-				new ItemStack[] { new ItemStack(component, 2, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 2, 5), new ItemStack(component, 4, 7) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 5), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 2, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 5), new ItemStack(component, 4, 7) })
 				);
 		
-		eyeUpgrades = new ItemEyeUpgrade("eyeUpgrades", EnumSlot.EYES,
+		eyeUpgrades = new ItemEyeUpgrade("eye_upgrades", EnumSlot.EYES,
 				new String[] { "hudlens" });
 		eyeUpgrades.setEssenceCost(1);
 		eyeUpgrades.setWeights(VERY_COMMON);
 		eyeUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 2, 7) }
-				);
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 2, 7) }
+				));
 
 		CyberwareAPI.linkCyberware(Items.SPIDER_EYE, new SpiderEyeWare());
 		
-		brainUpgrades = new ItemBrainUpgrade("brainUpgrades", EnumSlot.CRANIUM,
-				new String[] { "corticalStack", "enderJammer", "consciousnessTransmitter", "neuralContextualizer", "matrix", "radio" });
+		brainUpgrades = new ItemBrainUpgrade("brain_upgrades", EnumSlot.CRANIUM,
+				new String[] { "cortical_stack", "ender_jammer", "consciousness_transmitter", "neural_contextualizer", "matrix", "radio" });
 		brainUpgrades.setEssenceCost(3, 10, 2, 2, 8, 2); // TMC 0.2.0 changed from 10
 		brainUpgrades.setWeights(RARE, UNCOMMON, UNCOMMON, COMMON, UNCOMMON, UNCOMMON);
 		brainUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 1, 7), new ItemStack(component, 2, 8) },
-				new ItemStack[] { new ItemStack(component, 1, 2), new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 2, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 6), new ItemStack(component, 3, 7) },
-				new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 6), new ItemStack(component, 3, 7) },
-				new ItemStack[] { new ItemStack(component, 3, 3), new ItemStack(component, 1, 5), new ItemStack(component, 2, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 2), new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 9) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 1, 7), new ItemStack(component, 2, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 2), new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 2, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 6), new ItemStack(component, 3, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 6), new ItemStack(component, 3, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 3), new ItemStack(component, 1, 5), new ItemStack(component, 2, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 2), new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 9) })
 				);
-		expCapsule = new ItemExpCapsule("expCapsule");
+		expCapsule = new ItemExpCapsule("exp_capsule");
 		
 		cyberheart = new ItemCyberheart("cyberheart", EnumSlot.HEART);
 		cyberheart.setEssenceCost(5);
 		cyberheart.setWeights(COMMON);
-		cyberheart.setComponents(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 7) });
+		cyberheart.setComponents(NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 7) }));
 		
-		denseBattery = new ItemDenseBattery("denseBattery", EnumSlot.LOWER_ORGANS);
+		denseBattery = new ItemDenseBattery("dense_battery", EnumSlot.LOWER_ORGANS);
 		denseBattery.setEssenceCost(15);
 		denseBattery.setWeights(RARE);
-		denseBattery.setComponents(new ItemStack[] { new ItemStack(component, 3, 6), new ItemStack(component, 4, 9) });
+		denseBattery.setComponents(NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 6), new ItemStack(component, 4, 9) }));
 
-		creativeBattery = new ItemCreativeBattery("creativeBattery", EnumSlot.LOWER_ORGANS);
+		creativeBattery = new ItemCreativeBattery("creative_battery", EnumSlot.LOWER_ORGANS);
 		creativeBattery.setEssenceCost(0);
 		
-		heartUpgrades = new ItemHeartUpgrade("heartUpgrades", EnumSlot.HEART,
+		heartUpgrades = new ItemHeartUpgrade("heart_upgrades", EnumSlot.HEART,
 				new String[] { "defibrillator", "platelets", "medkit", "coupler" });
 		heartUpgrades.setEssenceCost(10, 5, 15, 10);
 		heartUpgrades.setWeights(COMMON, UNCOMMON, UNCOMMON, VERY_COMMON);
 		heartUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 6), new ItemStack(component, 2, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 1), new ItemStack(component, 1, 8) },
-				new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 6), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 1, 7), new ItemStack(component, 2, 9) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 6), new ItemStack(component, 2, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 1), new ItemStack(component, 1, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 6), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 1, 7), new ItemStack(component, 2, 9) })
 				);
 		
-		lungsUpgrades = new ItemLungsUpgrade("lungsUpgrades", EnumSlot.LUNGS,
+		lungsUpgrades = new ItemLungsUpgrade("lungs_upgrades", EnumSlot.LUNGS,
 				new String[] { "oxygen", "hyperoxygenation" });
 		lungsUpgrades.setEssenceCost(15, 2);
 		lungsUpgrades.setWeights(UNCOMMON, COMMON);
 		lungsUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 2, 8) },
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 8), new ItemStack(component, 1, 9) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 2, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 8), new ItemStack(component, 1, 9) })
 				);
 		
-		lowerOrgansUpgrades = new ItemLowerOrgansUpgrade("lowerOrgansUpgrades", EnumSlot.LOWER_ORGANS,
-				new String[] { "liverFilter", "metabolic", "battery", "adrenaline" });
+		lowerOrgansUpgrades = new ItemLowerOrgansUpgrade("lower_organs_upgrades", EnumSlot.LOWER_ORGANS,
+				new String[] { "liver_filter", "metabolic", "battery", "adrenaline" });
 		lowerOrgansUpgrades.setEssenceCost(5, 5, 10, 5);
 		lowerOrgansUpgrades.setWeights(UNCOMMON, COMMON, VERY_COMMON, UNCOMMON);
 		lowerOrgansUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 2, 8) },
-				new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 3), new ItemStack(component, 1, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 8), new ItemStack(component, 3, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 1) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 2, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 3), new ItemStack(component, 1, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 8), new ItemStack(component, 3, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 1) })
 				);
 		
-		skinUpgrades = new ItemSkinUpgrade("skinUpgrades", EnumSlot.SKIN,
-				new String[] { "solarSkin", "subdermalSpikes", "fakeSkin", "immuno"}); // Solar changed from 15 0.2.0
+		skinUpgrades = new ItemSkinUpgrade("skin_upgrades", EnumSlot.SKIN,
+				new String[] { "solar_skin", "subdermal_spikes", "fake_skin", "immuno"}); // Solar changed from 15 0.2.0
 		skinUpgrades.setEssenceCost(12, 12, 0, -25);
 		skinUpgrades.setWeights(VERY_COMMON, UNCOMMON, UNCOMMON, RARE);
 		skinUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 1, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 9) },
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 3, 4), new ItemStack(component, 2, 5) },
-				new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 2), new ItemStack(component, 1, 7), new ItemStack(component, 1, 8), new ItemStack(component, 1, 9) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 1, 4), new ItemStack(component, 2, 5), new ItemStack(component, 1, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 2, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 3, 4), new ItemStack(component, 2, 5) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 1, 2), new ItemStack(component, 1, 7), new ItemStack(component, 1, 8), new ItemStack(component, 1, 9) })
 				);
 		
-		muscleUpgrades = new ItemMuscleUpgrade("muscleUpgrades", EnumSlot.MUSCLE,
-				new String[] { "wiredReflexes", "muscleReplacements" });
+		muscleUpgrades = new ItemMuscleUpgrade("muscle_upgrades", EnumSlot.MUSCLE,
+				new String[] { "wired_reflexes", "muscle_replacements" });
 		muscleUpgrades.setEssenceCost(5, 15);
 		muscleUpgrades.setWeights(UNCOMMON, RARE);
 		muscleUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 3, 7) },
-				new ItemStack[] { new ItemStack(component, 3, 0), new ItemStack(component, 1, 2), new ItemStack(component, 2, 5) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 3, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 0), new ItemStack(component, 1, 2), new ItemStack(component, 2, 5) })
 				);
 
-		boneUpgrades = new ItemBoneUpgrade("boneUpgrades", EnumSlot.BONE,
+		boneUpgrades = new ItemBoneUpgrade("bone_upgrades", EnumSlot.BONE,
 				new String[] { "bonelacing", "boneflex", "bonebattery" });
 		boneUpgrades.setEssenceCost(3, 5);
 		boneUpgrades.setWeights(UNCOMMON, RARE, UNCOMMON);
 		boneUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 2), new ItemStack(component, 2, 6) },
-				new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 2, 2), new ItemStack(component, 2, 8) },
-				new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 2, 8), new ItemStack(component, 1, 9) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 1), new ItemStack(component, 2, 2), new ItemStack(component, 2, 6) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 1), new ItemStack(component, 2, 2), new ItemStack(component, 2, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 2, 8), new ItemStack(component, 1, 9) })
 				);
 		
-		armUpgrades = new ItemArmUpgrade("armUpgrades", EnumSlot.ARM,
+		armUpgrades = new ItemArmUpgrade("arm_upgrades", EnumSlot.ARM,
 				new String[] { "bow"  });
 		armUpgrades.setEssenceCost(3);
 		armUpgrades.setWeights(RARE);
 		armUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 4) });
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 4) }));
 		
-		handUpgrades = new ItemHandUpgrade("handUpgrades", EnumSlot.HAND,
-				new String[] { "craftHands", "claws", "mining" });
+		handUpgrades = new ItemHandUpgrade("hand_upgrades", EnumSlot.HAND,
+				new String[] { "craft_hands", "claws", "mining" });
 		handUpgrades.setEssenceCost(2, 2, 1);
 		handUpgrades.setWeights(RARE, RARE, RARE);
 		handUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 1, 3), new ItemStack(component, 1, 4) },
-				new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 6), new ItemStack(component, 2, 8) },
-				new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 4), new ItemStack(component, 2, 6)}
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 1, 3), new ItemStack(component, 1, 4) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 6), new ItemStack(component, 2, 8) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 4), new ItemStack(component, 2, 6)})
 				);
 		
-		legUpgrades = new ItemLegUpgrade("legUpgrades", EnumSlot.LEG,
-				new String[] { "jumpBoost", "fallDamage" });
+		legUpgrades = new ItemLegUpgrade("leg_upgrades", EnumSlot.LEG,
+				new String[] { "jump_boost", "fall_damage" });
 		legUpgrades.setEssenceCost(3, 2);
 		legUpgrades.setWeights(RARE, RARE);
 		legUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 2) },
-				new ItemStack[] { new ItemStack(component, 3, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 5) });
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 2) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 5) }));
 		
-		footUpgrades = new ItemFootUpgrade("footUpgrades", EnumSlot.FOOT,
+		footUpgrades = new ItemFootUpgrade("foot_upgrades", EnumSlot.FOOT,
 				new String[] { "spurs", "aqua", "wheels" });
 		footUpgrades.setEssenceCost(1, 2, 3);
 		footUpgrades.setWeights(UNCOMMON, RARE, UNCOMMON);
 		footUpgrades.setComponents(
-				new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 4) },
-				new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 9) },
-				new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 9) });
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 4) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 9) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 9) }));
 
 		cyberlimbs = new ItemCyberlimb("cyberlimbs", 
 				new EnumSlot[] { EnumSlot.ARM, EnumSlot.ARM, EnumSlot.LEG, EnumSlot.LEG },
-				new String[] { "cyberarmLeft", "cyberarmRight", "cyberlegLeft", "cyberlegRight" });
+				new String[] { "cyberarm_left", "cyberarm_right", "cyberleg_left", "cyberleg_right" });
 		cyberlimbs.setEssenceCost(25, 25, 25, 25);
 		cyberlimbs.setComponents(
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) },
-				new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
+				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) })
 				);
 		
 		
@@ -552,7 +553,7 @@ public class CyberwareContent
 		{
 			if (!(target instanceof ZombieItem)) return false;
 			ItemStack stack2 = ((ZombieItem)target).stack;
-			return (stack == stack2 || (stack != null && stack2 != null && stack.getItem() == stack2.getItem() && stack.getItemDamage() == stack2.getItemDamage() && stack.stackSize == stack2.stackSize));
+			return (stack == stack2 || (!stack.isEmpty() && !stack2.isEmpty() && stack.getItem() == stack2.getItem() && stack.getItemDamage() == stack2.getItemDamage() && stack.getCount() == stack2.getCount()));
 		}
 	}
 

@@ -74,13 +74,13 @@ public class CyberwareSyncPacket implements IMessage
 		@Override
 		public Void call() throws Exception
 		{
-			Entity targetEntity = Minecraft.getMinecraft().theWorld.getEntityByID(entityId);
+			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			if (targetEntity != null && CyberwareAPI.hasCapability(targetEntity))
 			{
 				ICyberwareUserData userData = CyberwareAPI.getCapability(targetEntity);
 				userData.deserializeNBT(data);
 				
-				if (targetEntity == Minecraft.getMinecraft().thePlayer)
+				if (targetEntity == Minecraft.getMinecraft().player)
 				{
 					NBTTagCompound comp = userData.getHudData();
 					

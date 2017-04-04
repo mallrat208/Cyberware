@@ -42,7 +42,7 @@ public class SyncHudDataPacket implements IMessage
 		public IMessage onMessage(SyncHudDataPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-			DimensionManager.getWorld(player.worldObj.provider.getDimension()).addScheduledTask(new DoSync(message.comp, player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.comp, player));
 
 			return null;
 		}

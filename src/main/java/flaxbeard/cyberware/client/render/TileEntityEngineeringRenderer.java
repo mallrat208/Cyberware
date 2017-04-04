@@ -26,7 +26,7 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 	{
 		if (te != null)
 		{
-			float ticks = Minecraft.getMinecraft().thePlayer.ticksExisted + partialTicks;
+			float ticks = Minecraft.getMinecraft().player.ticksExisted + partialTicks;
 
 			
 			IBlockState state = te.getWorld().getBlockState(te.getPos());
@@ -37,7 +37,7 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				GL11.glTranslated(x+.5, y+.5, z+.5);
 				GL11.glPushMatrix();
-				float timeElapsed = Math.max(Math.min(22, Minecraft.getMinecraft().thePlayer.ticksExisted + partialTicks - te.clickedTime), 0);
+				float timeElapsed = Math.max(Math.min(22, Minecraft.getMinecraft().player.ticksExisted + partialTicks - te.clickedTime), 0);
 				float amount;
 				if (timeElapsed < 2)
 				{
@@ -59,7 +59,7 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 				GL11.glPopMatrix();
 				
 				ItemStack stack = te.slots.getStackInSlot(0);
-				if (stack != null && showIcon)
+				if (!stack.isEmpty() && showIcon)
 				{
 					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GL11.glPushMatrix();

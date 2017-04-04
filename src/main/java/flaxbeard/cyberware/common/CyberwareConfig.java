@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.world.WorldEvent;
@@ -55,7 +56,7 @@ public class CyberwareConfig
 	
 	private static String[][] defaultStartingItems;
 	private static String[][] startingItems;
-	private static ItemStack[][] startingStacks;
+	private static NonNullList<NonNullList<ItemStack>> startingStacks;
 	
 	public static boolean DEFAULT_DROP = false;
 	public static boolean DEFAULT_KEEP = false;
@@ -82,7 +83,14 @@ public class CyberwareConfig
 		configDirectory = event.getModConfigurationDirectory();
 		config = new Configuration(new File(event.getModConfigurationDirectory(), Cyberware.MODID + ".cfg"));
 		startingItems = defaultStartingItems = new String[EnumSlot.values().length][0];
-		startingStacks = new ItemStack[EnumSlot.values().length][LibConstants.WARE_PER_SLOT];
+		startingStacks = NonNullList.create();
+		for (int i = 0; i < EnumSlot.values().length; i ++){
+			NonNullList<ItemStack> slot = NonNullList.create();
+			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
+				slot.add(ItemStack.EMPTY);
+			}
+			startingStacks.add(slot);
+		}
 		
 		int j = 0;
 		for (int i = 0; i < EnumSlot.values().length; i++)
@@ -91,12 +99,12 @@ public class CyberwareConfig
 			{
 				if (EnumSlot.values()[i].isSided())
 				{
-					defaultStartingItems[i] = new String[] { "cyberware:bodyPart 1 " + j, "cyberware:bodyPart 1 " + (j + 1)  };
+					defaultStartingItems[i] = new String[] { "cyberware:body_part 1 " + j, "cyberware:body_part 1 " + (j + 1)  };
 					j += 2;
 				}
 				else
 				{
-					defaultStartingItems[i] = new String[] { "cyberware:bodyPart 1 " + j };
+					defaultStartingItems[i] = new String[] { "cyberware:body_part 1 " + j };
 					j++;
 				}
 			}
@@ -235,16 +243,16 @@ public class CyberwareConfig
 					throw new RuntimeException("Cyberware configuration error! " + itemEncoded + " will not fit in slot " + slot.getName());
 				}
 				
-				startingStacks[index][i] = stack;
+				startingStacks.get(index).set(i, stack);
 			}
 			
 			index++;
 		}
 	}
 	
-	public static ItemStack[] getStartingItems(EnumSlot slot)
+	public static NonNullList<ItemStack> getStartingItems(EnumSlot slot)
 	{
-		return startingStacks[slot.ordinal()];
+		return startingStacks.get(slot.ordinal());
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -261,7 +269,7 @@ public class CyberwareConfig
 	public void onPlayerLogin(PlayerLoggedInEvent event)
 	{
 		EntityPlayer player = event.player;
-		World world = player.worldObj;
+		World world = player.world;
 		
 		if (!world.isRemote)
 		{

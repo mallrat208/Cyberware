@@ -76,7 +76,7 @@ public class CreativeMenuHandler
 	
 	public static CreativeMenuHandler INSTANCE = new CreativeMenuHandler();
 	
-	private static final ResourceLocation CEX_GUI_TEXTURES = new ResourceLocation(Cyberware.MODID + ":textures/gui/creativeExpansion.png");
+	private static final ResourceLocation CEX_GUI_TEXTURES = new ResourceLocation(Cyberware.MODID + ":textures/gui/creative_expansion.png");
 	private Minecraft mc = Minecraft.getMinecraft();
 	public static int pageSelected = 1;
 	private static CEXButton salvaged;
@@ -147,14 +147,14 @@ public class CreativeMenuHandler
 				
 				int xOffset = 0;
 				boolean hasVisibleEffect = false;
-				for(PotionEffect potioneffect : mc.thePlayer.getActivePotionEffects())
+				for(PotionEffect potioneffect : mc.player.getActivePotionEffects())
 				{
 					Potion potion = potioneffect.getPotion();
 					if(potion.shouldRender(potioneffect)) {
 						hasVisibleEffect = true; break;
 					}
 				}
-				if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+				if (!this.mc.player.getActivePotionEffects().isEmpty() && hasVisibleEffect)
 				{
 					xOffset = 59;
 				}

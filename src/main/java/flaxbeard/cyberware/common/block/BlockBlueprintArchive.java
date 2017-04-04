@@ -43,7 +43,7 @@ public class BlockBlueprintArchive extends BlockContainer
 		setResistance(10.0F);
 		setSoundType(SoundType.METAL);
 		
-		String name = "blueprintArchive";
+		String name = "blueprint_archive";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);
@@ -63,7 +63,7 @@ public class BlockBlueprintArchive extends BlockContainer
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
@@ -134,9 +134,10 @@ public class BlockBlueprintArchive extends BlockContainer
 		return new BlockStateContainer(this, new IProperty[] {FACING});
 	}
 	
-
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		ItemStack heldItem = player.getHeldItem(hand);
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntityBlueprintArchive)
@@ -165,7 +166,7 @@ public class BlockBlueprintArchive extends BlockContainer
 			for (int i = 0; i < scanner.slots.getSlots(); i++)
 			{
 				ItemStack stack = scanner.slots.getStackInSlot(i);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
 				}

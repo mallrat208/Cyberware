@@ -10,7 +10,7 @@ public class EnableDisableHelper
 	
 	public static boolean isEnabled(ItemStack stack)
 	{
-		if (stack == null) return false;
+		if (stack.isEmpty()) return false;
 
 		NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
 		if (!comp.hasKey(ENABLED_STR))

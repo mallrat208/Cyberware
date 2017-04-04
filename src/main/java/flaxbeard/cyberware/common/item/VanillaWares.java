@@ -14,6 +14,7 @@ import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -50,9 +51,9 @@ public class VanillaWares
 		}
 
 		@Override
-		public ItemStack[][] required(ItemStack stack)
+		public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 		{
-			return new ItemStack[0][0];
+			return NonNullList.create();
 		}
 
 		@Override
@@ -92,7 +93,7 @@ public class VanillaWares
 		{
 			if (event.getType() == ElementType.CROSSHAIRS)
 			{
-				EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+				EntityPlayer p = Minecraft.getMinecraft().player;
 				if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(Items.SPIDER_EYE)))
 				{
 					GlStateManager.translate(0, event.getResolution().getScaledHeight() / 5, 0);
@@ -107,7 +108,7 @@ public class VanillaWares
 		{
 			if (event.getType() == ElementType.CROSSHAIRS)
 			{
-				EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+				EntityPlayer p = Minecraft.getMinecraft().player;
 				if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(Items.SPIDER_EYE)))
 				{
 					GlStateManager.translate(0, -event.getResolution().getScaledHeight() / 5, 0);
@@ -121,7 +122,7 @@ public class VanillaWares
 		{
 			if (event.phase == TickEvent.Phase.START)
 			{
-				EntityPlayer e = Minecraft.getMinecraft().thePlayer;
+				EntityPlayer e = Minecraft.getMinecraft().player;
 				
 				if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(Items.SPIDER_EYE)))
 				{

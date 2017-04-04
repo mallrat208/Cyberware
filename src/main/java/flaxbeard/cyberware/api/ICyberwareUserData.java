@@ -5,14 +5,15 @@ import java.util.List;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb.EnumSide;
 
 public interface ICyberwareUserData
 {	
-	public ItemStack[] getInstalledCyberware(EnumSlot slot);
+	public NonNullList<ItemStack> getInstalledCyberware(EnumSlot slot);
 	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, List<ItemStack> cyberware);
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, ItemStack[] cyberware);
+	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, NonNullList<ItemStack> cyberware);
 	public boolean isCyberwareInstalled(ItemStack cyberware);
 	public int getCyberwareRank(ItemStack cyberware);
 	

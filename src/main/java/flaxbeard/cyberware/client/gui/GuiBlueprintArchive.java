@@ -13,7 +13,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntityBlueprintArchive;
 public class GuiBlueprintArchive extends GuiContainer
 {
 	/** The ResourceLocation containing the chest GUI texture. */
-	private static final ResourceLocation ARCHIVE_GUI_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/blueprintArchive.png");
+	private static final ResourceLocation ARCHIVE_GUI_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/blueprint_archive.png");
 	private IInventory playerInventory;
 	private TileEntityBlueprintArchive archive;
 	/** window height is calculated with these values; the more rows, the heigher */

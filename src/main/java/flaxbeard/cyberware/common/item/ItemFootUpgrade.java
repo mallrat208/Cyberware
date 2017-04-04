@@ -9,6 +9,7 @@ import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -19,6 +20,7 @@ import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.lib.LibConstants;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 
 public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 {
@@ -31,12 +33,12 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{
-		if (stack.getItemDamage() != 1) return new ItemStack[0][0];
+		if (stack.getItemDamage() != 1) return NonNullList.create();
 		
-		return new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }};
+		return NNLUtil.fromArray(new ItemStack[][] { 
+				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }});
 	}
 	
 	@SubscribeEvent

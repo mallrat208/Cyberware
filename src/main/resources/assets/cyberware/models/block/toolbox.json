@@ -1,11 +1,11 @@
 {
     "parent": "block/block",
     "textures": {
-        "0": "cyberware:blocks/toolboxBack",
-        "1": "cyberware:blocks/toolboxSide",
-        "2": "cyberware:blocks/toolboxFront",
-        "3": "cyberware:blocks/toolboxTop",
-        "4": "cyberware:blocks/toolboxBottom"
+        "0": "cyberware:blocks/toolbox_back",
+        "1": "cyberware:blocks/toolbox_side",
+        "2": "cyberware:blocks/toolbox_front",
+        "3": "cyberware:blocks/toolbox_top",
+        "4": "cyberware:blocks/toolbox_bottom"
     },
     "elements": [
         {

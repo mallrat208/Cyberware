@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -25,7 +26,7 @@ import org.lwjgl.opengl.GL11;
 import vazkii.botania.api.subtile.ISubTileContainer;
 import vazkii.botania.api.subtile.RadiusDescriptor;
 import vazkii.botania.api.subtile.SubTileEntity;
-import vazkii.botania.client.core.handler.SubTileRadiusRenderHandler;
+import vazkii.botania.client.core.handler.BlockHighlightRenderHandler;
 import vazkii.botania.common.Botania;
 import vazkii.botania.common.core.helper.PlayerHelper;
 import vazkii.botania.common.item.ItemTwigWand;
@@ -37,8 +38,8 @@ import flaxbeard.cyberware.common.item.ItemCyberware;
 public class ItemManaLens extends ItemCyberware
 {
 
-	private static Method renderCircle = ReflectionHelper.findMethod(SubTileRadiusRenderHandler.class, null, new String[] { "renderCircle" }, BlockPos.class, Double.class);
-	private static Method renderRectangle = ReflectionHelper.findMethod(SubTileRadiusRenderHandler.class, null, new String[] { "renderRectangle" }, AxisAlignedBB.class);
+	private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderCircle" }, BlockPos.class, Double.class);
+	private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderRectangle" }, AxisAlignedBB.class);
 
 	public ItemManaLens(String name, EnumSlot slot, String[] subnames)
 	{
@@ -48,14 +49,17 @@ public class ItemManaLens extends ItemCyberware
 	}
 	
 	@Override
-	public ItemStack[][] required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{
 		if (stack.getItemDamage() == 0)
 		{
-			return new ItemStack[0][0];
+			return NonNullList.create();
 		}
 		
-		return new ItemStack[][] { new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) } };
+		NonNullList<NonNullList<ItemStack>> lists = NonNullList.create();
+		NonNullList<ItemStack> l = NonNullList.create();
+		l.add(new ItemStack(CyberwareContent.cybereyes));
+		return lists;
 	}
 
 	
@@ -74,7 +78,7 @@ public class ItemManaLens extends ItemCyberware
 	@SubscribeEvent
 	public void onDrawScreenPost(RenderGameOverlayEvent.Post event)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+		EntityPlayer p = Minecraft.getMinecraft().player;
 		
 		if (hasLensNotMonocle(p))
 		{
@@ -89,12 +93,12 @@ public class ItemManaLens extends ItemCyberware
 		Minecraft mc = Minecraft.getMinecraft();
 		RayTraceResult pos = mc.objectMouseOver;
 
-		if(!hasLensNotMonocle(mc.thePlayer) || pos == null || pos.entityHit != null)
+		if(!hasLensNotMonocle(mc.player) || pos == null || pos.entityHit != null)
 			return;
 		BlockPos bPos = pos.getBlockPos();
 
-		ItemStack stackHeld = PlayerHelper.getFirstHeldItem(mc.thePlayer, ModItems.twigWand);
-		if(stackHeld != null && ItemTwigWand.getBindMode(stackHeld))
+		ItemStack stackHeld = PlayerHelper.getFirstHeldItem(mc.player, ModItems.twigWand);
+		if(!stackHeld.isEmpty() && ItemTwigWand.getBindMode(stackHeld))
 		{
 			BlockPos coords = ItemTwigWand.getBoundTile(stackHeld);
 			if(coords.getY() != -1)
@@ -103,7 +107,7 @@ public class ItemManaLens extends ItemCyberware
 			}
 		}
 
-		TileEntity tile = mc.theWorld.getTileEntity(bPos);
+		TileEntity tile = mc.world.getTileEntity(bPos);
 		if(tile == null || !(tile instanceof ISubTileContainer))
 			return;
 		ISubTileContainer container = (ISubTileContainer) tile;

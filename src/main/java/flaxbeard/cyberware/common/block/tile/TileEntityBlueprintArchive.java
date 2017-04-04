@@ -38,7 +38,7 @@ public class TileEntityBlueprintArchive extends TileEntity
 		
 		public boolean isItemValidForSlot(int slot, ItemStack stack)
 		{
-			if (stack != null && stack.getItem() instanceof IBlueprint) return true;
+			if (!stack.isEmpty() && stack.getItem() instanceof IBlueprint) return true;
 			int[] ids = OreDictionary.getOreIDs(stack);
 			int paperId = OreDictionary.getOreID("paper");
 			for (int id : ids)
@@ -49,7 +49,7 @@ public class TileEntityBlueprintArchive extends TileEntity
 				}
 			}
 			
-			return stack == null;
+			return stack.isEmpty();
 		}
 
 	}
@@ -129,12 +129,12 @@ public class TileEntityBlueprintArchive extends TileEntity
 	
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
 	{
-		return this.hasCustomName() ? customName : "cyberware.container.blueprintArchive";
+		return this.hasCustomName() ? customName : "cyberware.container.blueprint_archive";
 	}
 
 	public boolean hasCustomName()

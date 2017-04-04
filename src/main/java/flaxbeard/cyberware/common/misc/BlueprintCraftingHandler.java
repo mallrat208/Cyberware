@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common.misc;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.RecipeSorter;
 import flaxbeard.cyberware.Cyberware;
@@ -38,11 +39,11 @@ public class BlueprintCraftingHandler implements IRecipe
 	@Override
 	public ItemStack getRecipeOutput()
 	{
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack[] getRemainingItems(InventoryCrafting inv)
+	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
 	{
 		return new BlueprintResult(inv).remaining;
 	}
@@ -50,7 +51,7 @@ public class BlueprintCraftingHandler implements IRecipe
 	private class BlueprintResult
 	{
 		private final boolean canCraft;
-		private final ItemStack[] remaining;
+		private final NonNullList<ItemStack> remaining;
 		private final ItemStack output;
 		
 		private ItemStack ware;
@@ -58,18 +59,18 @@ public class BlueprintCraftingHandler implements IRecipe
 
 		public BlueprintResult(InventoryCrafting inv)
 		{
-			this.ware = null;
+			this.ware = ItemStack.EMPTY;
 			this.canCraft = process(inv);
 			if (canCraft)
 			{
-				remaining = new ItemStack[9];
-				remaining[wareStack] = ItemStack.copyItemStack(ware);
+				remaining = NonNullList.create();
+				remaining.add(ware.copy());
 				output = ItemBlueprint.getBlueprintForItem(ware);
 			}
 			else
 			{
-				remaining = new ItemStack[9];
-				output = null;
+				remaining = NonNullList.create();
+				output = ItemStack.EMPTY;
 			}
 		}
 		
@@ -79,11 +80,11 @@ public class BlueprintCraftingHandler implements IRecipe
 			for (int i = 0; i < inv.getSizeInventory(); i++)
 			{
 				ItemStack stack = inv.getStackInSlot(i);
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					if (stack.getItem() instanceof IDeconstructable)
 					{
-						if (ware == null)
+						if (ware.isEmpty())
 						{
 							ware = stack;
 							wareStack = i;
@@ -114,7 +115,7 @@ public class BlueprintCraftingHandler implements IRecipe
 					
 				}
 			}
-			return ware != null && hasBlankBlueprint;
+			return !ware.isEmpty() && hasBlankBlueprint;
 		}
 	}
 

@@ -8,7 +8,7 @@ public class ItemSurgeryTable extends Item
 {
 	public ItemSurgeryTable()
 	{
-		String name = "surgeryTable";
+		String name = "surgery_table";
 		
 		this.setRegistryName(name);
 		GameRegistry.register(this);

@@ -9,6 +9,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTable;
@@ -63,21 +64,21 @@ public class MiscHandler
 					event.getToolTip().addAll(info);
 				}
 				
-				ItemStack[][] reqs = ware.required(stack);
-				if (reqs.length > 0)
+				NonNullList<NonNullList<ItemStack>> reqs = ware.required(stack);
+				if (reqs.size() > 0)
 				{
 					String joined = "";
-					for (int i = 0; i < reqs.length; i++)
+					for (int i = 0; i < reqs.size(); i++)
 					{
 						String toAdd = "";
 						
-						for (int j = 0; j < reqs[i].length; j++)
+						for (int j = 0; j < reqs.get(i).size(); j++)
 						{
 							if (j != 0)
 							{
-								toAdd += " " + I18n.format("cyberware.tooltip.joinerOr") + " ";
+								toAdd += " " + I18n.format("cyberware.tooltip.joiner_or") + " ";
 							}
-							toAdd += I18n.format(reqs[i][j].getUnlocalizedName() + ".name");
+							toAdd += I18n.format(reqs.get(i).get(j).getUnlocalizedName() + ".name");
 							
 						}
 						
@@ -101,18 +102,18 @@ public class MiscHandler
 			}
 			else
 			{
-				event.getToolTip().add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shiftPrompt"));
+				event.getToolTip().add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shift_prompt"));
 			}
 		}
 		else if (stack.getItem() instanceof IDeconstructable)
 		{
 			if (event.getToolTip().size() > 1)
 			{
-				event.getToolTip().add(1, ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.canDeconstruct"));
+				event.getToolTip().add(1, ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.can_deconstruct"));
 			}
 			else
 			{
-				event.getToolTip().add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.canDeconstruct"));
+				event.getToolTip().add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.can_deconstruct"));
 			}
 		}
 	}
@@ -146,7 +147,7 @@ public class MiscHandler
 			{
 				LootCondition[] lc = new LootCondition[0];
 				LootFunction[] lf = new LootFunction[0];
-				main.addEntry(new LootEntryItem(Item.getItemFromBlock(CyberwareContent.surgeryApparatus), 15, 0, lf, lc, "cyberware:surgeryApparatus"));
+				main.addEntry(new LootEntryItem(Item.getItemFromBlock(CyberwareContent.surgeryApparatus), 15, 0, lf, lc, "cyberware:surgery_apparatus"));
 			}
 		}
 	}

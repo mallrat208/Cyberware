@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.ItemStackHandler;
@@ -48,7 +49,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public void updatePlayerSlots(EntityLivingBase entity)
@@ -72,7 +73,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			{
 				for (int n = 0; n < LibConstants.WARE_PER_SLOT; n++)
 				{
-					ItemStack toPut = ItemStack.copyItemStack(c.getInstalledCyberware(slotType)[n]);
+					ItemStack toPut = c.getInstalledCyberware(slotType).get(n).copy();
 					
 					// If there's a new item, don't set it to discard by default unless it conflicts
 					if (!ItemStack.areItemStacksEqual(toPut, slotsPlayer.getStackInSlot(i * LibConstants.WARE_PER_SLOT + n)))
@@ -103,10 +104,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 						int index = i * LibConstants.WARE_PER_SLOT + n;
 						
 						ItemStack stack = slots.getStackInSlot(index);
-						if (stack != null && !areRequirementsFulfilled(stack, slotType, n))
+						if (!stack.isEmpty() && !areRequirementsFulfilled(stack, slotType, n))
 						{
 							addItemStack(entity, stack);
-							slots.setStackInSlot(index, null);
+							slots.setStackInSlot(index, ItemStack.EMPTY);
 							needToCheck = true;
 						}
 					}
@@ -130,7 +131,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	public boolean doesItemConflict(@Nullable ItemStack stack, EnumSlot slot, int n)
 	{
 		int row = slot.ordinal();
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			for (int i = 0; i < LibConstants.WARE_PER_SLOT; i++)
 			{
@@ -140,22 +141,22 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					ItemStack slotStack = slots.getStackInSlot(index);
 					ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 					
-					ItemStack otherStack = slotStack != null ? slotStack : (discardSlots[index] ? null : playerStack);
+					ItemStack otherStack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
 					
 					// Automatically incompatible with the same item/damage. Doesn't use areCyberwareStacksEqual because items conflict even if different grades.
-					if (otherStack != null && (otherStack.getItem() == stack.getItem() && otherStack.getItemDamage() == stack.getItemDamage()))
+					if (!otherStack.isEmpty() && (otherStack.getItem() == stack.getItem() && otherStack.getItemDamage() == stack.getItemDamage()))
 					{
 						setWrongSlot(index);
 						return true;
 					}
 				
 					// Incompatible if either stack doesn't like the other one
-					if (otherStack != null && CyberwareAPI.getCyberware(otherStack).isIncompatible(otherStack, stack))
+					if (!otherStack.isEmpty() && CyberwareAPI.getCyberware(otherStack).isIncompatible(otherStack, stack))
 					{
 						setWrongSlot(index);
 						return true;
 					}
-					if (otherStack != null && CyberwareAPI.getCyberware(stack).isIncompatible(stack, otherStack))
+					if (!otherStack.isEmpty() && CyberwareAPI.getCyberware(stack).isIncompatible(stack, otherStack))
 					{
 						setWrongSlot(index);
 						return true;
@@ -177,7 +178,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	public void disableDependants(ItemStack stack, EnumSlot slot, int n)
 	{
 		int row = slot.ordinal();
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			for (int i = 0; i < LibConstants.WARE_PER_SLOT; i++)
 			{
@@ -198,10 +199,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	
 	public void enableDependsOn(ItemStack stack, EnumSlot slot, int n)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			ICyberware ware = CyberwareAPI.getCyberware(stack);
-			for (ItemStack[] neededItem : ware.required(stack))
+			for (NonNullList<ItemStack> neededItem : ware.required(stack))
 			{
 				boolean found = false;
 				
@@ -219,7 +220,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 								int index = row * LibConstants.WARE_PER_SLOT + i;
 								ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 								
-								if (playerStack != null && playerStack.getItem() == needed.getItem() && playerStack.getItemDamage() == needed.getItemDamage())
+								if (!playerStack.isEmpty() && playerStack.getItem() == needed.getItem() && playerStack.getItemDamage() == needed.getItemDamage())
 								{
 									found = true;
 									discardSlots[index] = false;
@@ -238,7 +239,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	
 	public boolean canDisableItem(ItemStack stack, EnumSlot slot, int n)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			for (int row = 0; row < EnumSlot.values().length; row++)
 			{
@@ -248,9 +249,9 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					{
 						int index = row * LibConstants.WARE_PER_SLOT + i;
 						ItemStack slotStack = slots.getStackInSlot(index);
-						ItemStack playerStack = null;//slotsPlayer.getStackInSlot(index);
+						ItemStack playerStack = ItemStack.EMPTY;//slotsPlayer.getStackInSlot(index);
 						
-						ItemStack otherStack = slotStack != null ? slotStack : (discardSlots[index] ? null : playerStack);
+						ItemStack otherStack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
 						
 						if (!areRequirementsFulfilled(otherStack, slot, n))
 						{
@@ -266,10 +267,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	
 	public boolean areRequirementsFulfilled(ItemStack stack, EnumSlot slot, int n)
 	{
-		if (stack != null)
+		if (!stack.isEmpty())
 		{
 			ICyberware ware = CyberwareAPI.getCyberware(stack);
-			for (ItemStack[] neededItem : ware.required(stack))
+			for (NonNullList<ItemStack> neededItem : ware.required(stack))
 			{
 				boolean found = false;
 
@@ -287,9 +288,9 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 								ItemStack slotStack = slots.getStackInSlot(index);
 								ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 								
-								ItemStack otherStack = slotStack != null ? slotStack : (discardSlots[index] ? null : playerStack);
+								ItemStack otherStack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
 								
-								if (otherStack != null && otherStack.getItem() == needed.getItem() && otherStack.getItemDamage() == needed.getItemDamage())
+								if (!otherStack.isEmpty() && otherStack.getItem() == needed.getItem() && otherStack.getItemDamage() == needed.getItemDamage())
 								{
 									found = true;
 									break outerLoop;
@@ -384,9 +385,9 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			ItemStack slotStack = slots.getStackInSlot(index);
 			ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 			
-			ItemStack stack = slotStack != null ? slotStack : (discardSlots[index] ? null : playerStack);
+			ItemStack stack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
 
-			if (stack != null)
+			if (!stack.isEmpty())
 			{
 				ICyberware ware = CyberwareAPI.getCyberware(stack);
 				if (ware.isEssential(stack))
@@ -457,10 +458,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				}
 				targetEntity = null;
 				
-				IBlockState state = worldObj.getBlockState(getPos().down());
+				IBlockState state = world.getBlockState(getPos().down());
 				if (state.getBlock() instanceof BlockSurgeryChamber)
 				{
-					((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), worldObj);
+					((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), world);
 				}
 			}
 		}
@@ -476,10 +477,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			targetEntity = null;
 			cooldownTicks = 60;
 			
-			IBlockState state = worldObj.getBlockState(getPos().down());
+			IBlockState state = world.getBlockState(getPos().down());
 			if (state.getBlock() instanceof BlockSurgeryChamber)
 			{
-				((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), worldObj);
+				((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), world);
 			}
 		}
 		
@@ -500,41 +501,44 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		for (int slotIndex = 0; slotIndex < EnumSlot.values().length; slotIndex++)
 		{
 			EnumSlot slot = EnumSlot.values()[slotIndex];
-			ItemStack[] wares = new ItemStack[LibConstants.WARE_PER_SLOT];
+			NonNullList<ItemStack> wares = NonNullList.create();
+			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
+				wares.add(ItemStack.EMPTY);
+			}
 			
 			int c = 0;
 			for (int j = slotIndex * LibConstants.WARE_PER_SLOT; j < (slotIndex + 1) * LibConstants.WARE_PER_SLOT; j++)
 			{
 				ItemStack newStack = slots.getStackInSlot(j);
 
-				ItemStack targetEntityStack = ItemStack.copyItemStack(slotsPlayer.getStackInSlot(j));
-				if (newStack != null && newStack.stackSize > 0)
+				ItemStack targetEntityStack = slotsPlayer.getStackInSlot(j).copy();
+				if (!newStack.isEmpty() && newStack.getCount() > 0)
 				{
 					ItemStack ret = newStack.copy();
 					if (CyberwareAPI.areCyberwareStacksEqual(ret, targetEntityStack))
 					{
 						int maxSize = CyberwareAPI.getCyberware(ret).installedStackSize(ret);
 
-						if (ret.stackSize < maxSize)
+						if (ret.getCount() < maxSize)
 						{
-							int numToShift = Math.min(maxSize - ret.stackSize, targetEntityStack.stackSize);
-							targetEntityStack.stackSize -= numToShift;
-							ret.stackSize += numToShift;
+							int numToShift = Math.min(maxSize - ret.getCount(), targetEntityStack.getCount());
+							targetEntityStack.shrink(numToShift);
+							ret.grow(numToShift);
 						}
 					}
 
-					if (targetEntityStack != null && targetEntityStack.stackSize > 0)
+					if (!targetEntityStack.isEmpty() && targetEntityStack.getCount() > 0)
 					{
 						targetEntityStack = CyberwareAPI.sanitize(targetEntityStack);
 
 						addItemStack(targetEntity, targetEntityStack);
 					}
 					
-					wares[c] = ret;
+					wares.set(c,ret);
 
 					c++;
 				}
-				else if (targetEntityStack != null && targetEntityStack.stackSize > 0)
+				else if (!targetEntityStack.isEmpty() && targetEntityStack.getCount() > 0)
 				{
 					if (discardSlots[j])
 					{				
@@ -545,12 +549,12 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					}
 					else
 					{
-						wares[c] = slotsPlayer.getStackInSlot(j).copy();
+						wares.set(c,slotsPlayer.getStackInSlot(j).copy());
 						c++;
 					}
 				}
 			}
-			if (!worldObj.isRemote)
+			if (!world.isRemote)
 			{
 				cyberware.setInstalledCyberware(targetEntity, slot, wares);
 			}
@@ -559,7 +563,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		cyberware.setEssence(essence);
 		cyberware.updateCapacity();
 		cyberware.setImmune();
-		if (!worldObj.isRemote)
+		if (!world.isRemote)
 		{
 			CyberwareAPI.updateData(targetEntity);
 		}
@@ -577,11 +581,11 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			flag = !player.inventory.addItemStackToInventory(stack);
 		}
 
-		if (flag && !worldObj.isRemote)
+		if (flag && !world.isRemote)
 		{
 
-			EntityItem item = new EntityItem(worldObj, getPos().getX() + .5F, getPos().getY() - 2F, getPos().getZ() + .5F, stack);
-			worldObj.spawnEntityInWorld(item);
+			EntityItem item = new EntityItem(world, getPos().getX() + .5F, getPos().getY() - 2F, getPos().getZ() + .5F, stack);
+			world.spawnEntity(item);
 		}
 	}
 
@@ -592,12 +596,12 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 
 	public void notifyChange()
 	{
-		boolean opened = worldObj.getBlockState(getPos().down()).getValue(BlockSurgeryChamber.OPEN);
+		boolean opened = world.getBlockState(getPos().down()).getValue(BlockSurgeryChamber.OPEN);
 
 		if (!opened)
 		{
 			BlockPos p = getPos();
-			List<EntityLivingBase> entities = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.getX(), p.getY() - 2F, p.getZ(), p.getX() + 1F, p.getY(), p.getZ() + 1F));
+			List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.getX(), p.getY() - 2F, p.getZ(), p.getX() + 1F, p.getY(), p.getZ() + 1F));
 			if (entities.size() == 1)
 			{
 				this.inProgress = true;
@@ -627,20 +631,20 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				ItemStack slotStack = slots.getStackInSlot(index);
 				ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 				
-				ItemStack stack = slotStack != null ? slotStack : (discardSlots[index] ? null : playerStack);
+				ItemStack stack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
 				
-				if (stack != null)
+				if (!stack.isEmpty())
 				{
 					
 					ItemStack ret = stack.copy();
-					if (slotStack != null && ret != null && playerStack != null && CyberwareAPI.areCyberwareStacksEqual(playerStack, ret))
+					if (!slotStack.isEmpty() && !ret.isEmpty() && !playerStack.isEmpty() && CyberwareAPI.areCyberwareStacksEqual(playerStack, ret))
 					{
 						int maxSize = CyberwareAPI.getCyberware(ret).installedStackSize(ret);
 
-						if (ret.stackSize < maxSize)
+						if (ret.getCount() < maxSize)
 						{
-							int numToShift = Math.min(maxSize - ret.stackSize, playerStack.stackSize);
-							ret.stackSize += numToShift;
+							int numToShift = Math.min(maxSize - ret.getCount(), playerStack.getCount());
+							ret.grow(numToShift);
 						}
 					}
 					ICyberware ware = CyberwareAPI.getCyberware(ret);

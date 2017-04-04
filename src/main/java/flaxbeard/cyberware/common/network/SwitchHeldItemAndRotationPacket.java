@@ -74,7 +74,7 @@ public class SwitchHeldItemAndRotationPacket implements IMessage
 		@Override
 		public Void call() throws Exception
 		{
-			Entity targetEntity = Minecraft.getMinecraft().theWorld.getEntityByID(entityId);
+			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			
 			if (targetEntity != null)
 			{
@@ -83,7 +83,7 @@ public class SwitchHeldItemAndRotationPacket implements IMessage
 				if (attackerId != -1)
 				{
 					((EntityPlayer) targetEntity).closeScreen();
-					Entity facingEntity = Minecraft.getMinecraft().theWorld.getEntityByID(attackerId);
+					Entity facingEntity = Minecraft.getMinecraft().world.getEntityByID(attackerId);
 					
 					if (facingEntity != null)
 					{
@@ -112,7 +112,7 @@ public class SwitchHeldItemAndRotationPacket implements IMessage
 				d1 = (entityIn.getEntityBoundingBox().minY + entityIn.getEntityBoundingBox().maxY) / 2.0D - (player.posY + (double)player.getEyeHeight());
 			}
 
-			double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+			double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 			float f = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 			float f1 = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
 			player.rotationPitch = f1;

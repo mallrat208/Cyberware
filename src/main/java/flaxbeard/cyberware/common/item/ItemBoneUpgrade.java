@@ -37,7 +37,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 		{
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.stackSize, 0));
+			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
 			entity.getAttributeMap().applyAttributeModifiers(multimap);
 		}
 	}
@@ -50,7 +50,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 			//System.out.println("REMOVED0");
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			
-			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.stackSize, 0));
+			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
 			entity.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
@@ -79,7 +79,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 1)))
 		{
 
-			if (event.getSource() == DamageSource.fall)
+			if (event.getSource() == DamageSource.FALL)
 			{
 				event.setAmount(event.getAmount() * .3333F);
 			}
@@ -95,7 +95,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 	
 	public int getCapacity(ItemStack wareStack)
 	{
-		return wareStack.getItemDamage() == 2 ? LibConstants.BONE_BATTERY_CAPACITY * wareStack.stackSize : 0;
+		return wareStack.getItemDamage() == 2 ? LibConstants.BONE_BATTERY_CAPACITY * wareStack.getCount() : 0;
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 	{
 		if (stack.getItemDamage() == 0)
 		{
-			switch (stack.stackSize)
+			switch (stack.getCount())
 			{
 				case 1:
 					return 3;
@@ -126,7 +126,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 		}
 		if (stack.getItemDamage() == 2)
 		{
-			switch (stack.stackSize)
+			switch (stack.getCount())
 			{
 				case 1:
 					return 2;
