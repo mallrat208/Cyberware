@@ -17,6 +17,8 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.energy.EnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.Optional;
 import cofh.api.energy.IEnergyReceiver;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -24,7 +26,7 @@ import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareConfig;
 
 @Optional.Interface(iface = "cofh.api.energy.IEnergyReceiver", modid = "CoFHAPI|energy")
-public class TileEntityCharger extends TileEntity implements ITickable, IEnergyReceiver
+public class TileEntityCharger extends TileEntity implements ITickable, IEnergyReceiver, IEnergyStorage
 {
 	private PowerContainer container = new PowerContainer();
 	
@@ -113,7 +115,6 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 				{
 					if (!world.isRemote)
 					{
-						System.out.println(container.getStoredPower());
 						container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
 					}
 					data.addPower(20, null);
@@ -164,4 +165,40 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 	{
 		return (int) this.container.givePower(maxReceive, simulate);
 	}
+
+    @Override
+    public int receiveEnergy(int maxReceive, boolean simulate)
+    {
+        return (int)container.givePower(maxReceive, simulate);
+    }
+
+    @Override
+    public int extractEnergy(int maxExtract, boolean simulate)
+    {
+        return (int)container.takePower(maxExtract, simulate);
+    }
+
+    @Override
+    public int getEnergyStored()
+    {
+        return (int)container.getStoredPower();
+    }
+
+    @Override
+    public int getMaxEnergyStored()
+    {
+        return (int)container.getCapacity();
+    }
+
+    @Override
+    public boolean canExtract()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canReceive()
+    {
+        return true;
+    }
 }

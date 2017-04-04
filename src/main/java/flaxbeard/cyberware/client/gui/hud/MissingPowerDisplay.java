@@ -39,7 +39,7 @@ public class MissingPowerDisplay extends HudElementBase
 	
 	public MissingPowerDisplay()
 	{
-		super("cyberware:missingPower");
+		super("cyberware:missing_power");
 		setDefaultX(-15);
 		setDefaultY(35);
 		setWidth(16 + 20);

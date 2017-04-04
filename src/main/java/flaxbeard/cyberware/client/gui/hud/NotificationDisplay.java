@@ -231,7 +231,7 @@ public class NotificationDisplay extends HudElementBase
 				ClientUtils.drawTexturedModalRect(x, y + 1, 13, 39, 15, 14);
 				GlStateManager.popMatrix();
 				
-				String v = tier == 1 ? I18n.format("cyberware.gui.radioInternal") : Integer.toString(tier - 1);
+				String v = tier == 1 ? I18n.format("cyberware.gui.radio_internal") : Integer.toString(tier - 1);
 				FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 				fr.drawStringWithShadow(v, x + 15 - fr.getStringWidth(v), y + 9, 0xFFFFFF);
 			}

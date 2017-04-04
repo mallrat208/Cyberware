@@ -283,7 +283,7 @@ public class GuiHudConfiguration extends GuiScreen
 		if (resetHover)
 		{
 			List<String> l = new ArrayList<String>();
-			l.add(I18n.format("cyberware.gui.resetHud"));
+			l.add(I18n.format("cyberware.gui.reset_hud"));
 			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
 			
 			if (clicked)
@@ -295,7 +295,7 @@ public class GuiHudConfiguration extends GuiScreen
 		if (leftRightHover)
 		{
 			List<String> l = new ArrayList<String>();
-			l.add(I18n.format(right ? "cyberware.gui.stickRight" : "cyberware.gui.stickLeft"));
+			l.add(I18n.format(right ? "cyberware.gui.stick_right" : "cyberware.gui.stick_left"));
 			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
 			
 			if (clicked)
