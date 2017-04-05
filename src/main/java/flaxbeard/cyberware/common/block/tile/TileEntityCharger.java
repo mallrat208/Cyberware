@@ -7,6 +7,7 @@ import net.darkhax.tesla.api.ITeslaHolder;
 import net.darkhax.tesla.api.ITeslaProducer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -111,13 +112,13 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 				
 				ICyberwareUserData data = CyberwareAPI.getCapability(entity);
 				
-				if(!data.isAtCapacity(null, 20) && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER))
+				if(!data.isAtCapacity(ItemStack.EMPTY, 20) && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER))
 				{
 					if (!world.isRemote)
 					{
 						container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
 					}
-					data.addPower(20, null);
+					data.addPower(20, ItemStack.EMPTY);
 					
 					if (entity.ticksExisted % 5 == 0)
 					{
