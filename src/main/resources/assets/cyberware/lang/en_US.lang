@@ -315,7 +315,7 @@ cyberware.commands.clear_cyberware.usage=Usage: /clearcyberware [player]
 cyberware.commands.clear_cyberware.success=Cleared the Cyberware of %1$s
 
 # ENTITIES
-entity.cyberware.cyberzombie.name=Cyberzombie
+entity.cyberzombie.name=Cyberzombie
 
 # SCANNER SAYINGS
 # FOR TRANSLATORS - YOU CAN HAVE AS MANY OR FEW OF THESE AS YOU WANT, BUT YOU NEED AT LEAST ONE

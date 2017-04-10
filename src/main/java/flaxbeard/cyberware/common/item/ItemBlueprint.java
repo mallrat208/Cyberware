@@ -67,12 +67,12 @@ public class ItemBlueprint extends Item implements IBlueprint
 				}
 				else
 				{
-					tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shiftPrompt"));
+					tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shift_prompt"));
 					return;
 				}
 			}
 		}
-		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.craftBlueprint"));
+		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.craft_blueprint"));
 	}
 	
 	@Override
@@ -123,7 +123,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
 				if (!blueprintItem.isEmpty())
 				{
-					return I18n.format("item.cyberware.blueprint.notBlank.name", blueprintItem.getDisplayName()).trim();
+					return I18n.format("item.cyberware.blueprint.not_blank.name", blueprintItem.getDisplayName()).trim();
 				}
 			}
 		}
@@ -186,7 +186,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 					NonNullList<ItemStack> newCrafting = NonNullList.create();
 					for (int c = 0; c < craftingItems.size(); c++)
 					{
-						newCrafting.set(c,craftingItems.get(c));
+						newCrafting.add(craftingItems.get(c));
 					}
 					for (int i = 0; i < requiredItems.size(); i++)
 					{

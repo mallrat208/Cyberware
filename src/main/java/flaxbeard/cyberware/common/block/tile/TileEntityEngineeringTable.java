@@ -385,7 +385,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			NonNullList<ItemStack> toCheck = NonNullList.create();
 			for (int i = 0; i < 6; i++)
 			{
-				toCheck.set(i, slots.getStackInSlot(i + 2).copy());
+				toCheck.add(slots.getStackInSlot(i + 2).copy());
 			}
 			ItemStack result = blueprint.getResult(blueprintStack, toCheck).copy();
 			if (!result.isEmpty())
@@ -409,7 +409,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			NonNullList<ItemStack> toCheck = NonNullList.create();
 			for (int i = 0; i < 6; i++)
 			{
-				toCheck.set(i,slots.getStackInSlot(i + 2).copy());
+				toCheck.add(slots.getStackInSlot(i + 2).copy());
 			}
 			NonNullList<ItemStack> result = blueprint.consumeItems(blueprintStack, toCheck);
 			for (int i = 0; i < 6; i++)
