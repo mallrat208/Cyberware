@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
@@ -42,7 +44,6 @@ import flaxbeard.cyberware.common.network.DodgePacket;
 
 public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 {
-
 	public ItemBrainUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
@@ -295,7 +296,9 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 						event.setCanceled(true);
 						e.hurtResistantTime = e.maxHurtResistantTime;
 						e.hurtTime = e.maxHurtTime = 10;
-						ReflectionHelper.setPrivateValue(EntityLivingBase.class, e, 9999F, 46);
+						
+						//Field: EntityLivingBase#lastDamage
+						ReflectionHelper.setPrivateValue(EntityLivingBase.class, e, 9999F, 47);
 						
 						CyberwarePacketHandler.INSTANCE.sendToAllAround(new DodgePacket(e.getEntityId()), new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 50));
 					}
