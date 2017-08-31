@@ -108,7 +108,8 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			if (event.getSource() instanceof EntityDamageSource && !(event.getSource() instanceof EntityDamageSourceIndirect))
 			{
 				EntityDamageSource source = (EntityDamageSource) event.getSource();
-				Entity attacker = source.getEntity();
+				//Entity attacker = source.getEntity();
+				Entity attacker = source.getTrueSource();
 				int lastAttacked = ReflectionHelper.getPrivateValue(CombatTracker.class, p.getCombatTracker(), 2);
 				
 				if (p.ticksExisted - lastAttacked > 120)
@@ -192,7 +193,8 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			{
 				if (!e.isInWater() && e.onGround && e.moveForward > 0)
 				{
-					e.moveRelative(0F, .5F, 0.075F);
+					//e.moveRelative(0F, .5F, 0.075F);
+					e.moveRelative(0F, .5F, 0.075F, 0.0F);
 				}
 				
 				if (!last)

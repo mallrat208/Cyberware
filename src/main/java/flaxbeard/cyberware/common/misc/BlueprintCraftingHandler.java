@@ -4,6 +4,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.RecipeSorter;
 import flaxbeard.cyberware.Cyberware;
@@ -18,6 +19,38 @@ public class BlueprintCraftingHandler implements IRecipe
 		RecipeSorter.register(Cyberware.MODID + ":blueprintCrafting", BlueprintCraftingHandler.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
 	}
 
+	private IRecipe realRecipe;
+
+	public BlueprintCraftingHandler()
+	{
+		this.realRecipe = this;
+	}
+
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return new ResourceLocation(Cyberware.MODID, "blueprintCrafting");
+		//return this.realRecipe.getRegistryName();
+	}
+
+	@Override
+	public boolean canFit(int width, int height)
+	{
+		return true;
+	}
+
+	@Override
+	public IRecipe setRegistryName(ResourceLocation name)
+	{
+		return this.realRecipe.setRegistryName(name);
+	}
+
+	@Override
+	public Class<IRecipe> getRegistryType()
+	{
+		return this.realRecipe.getRegistryType();
+	}
+
 	@Override
 	public boolean matches(InventoryCrafting inv, World worldIn)
 	{
@@ -30,11 +63,11 @@ public class BlueprintCraftingHandler implements IRecipe
 		return new BlueprintResult(inv).output;
 	}
 
-	@Override
-	public int getRecipeSize()
-	{
-		return 0;
-	}
+	//@Override
+	//public int getRecipeSize()
+	//{
+	//	return 0;
+	//}
 
 	@Override
 	public ItemStack getRecipeOutput()

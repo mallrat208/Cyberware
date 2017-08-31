@@ -43,7 +43,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/player_rusty_robot.png");
 
 	@Override
-	protected ResourceLocation getEntityTexture(AbstractClientPlayer entity)
+	public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
 	{
 		return doRusty ? roboRust : doRobo ? robo :
 			doMuscles ? muscles : super.getEntityTexture(entity);
@@ -282,7 +282,8 @@ public class RenderPlayerCyberware extends RenderPlayer
 
 		if (clientPlayer.isSpectator())
 		{
-			modelplayer.setInvisible(false);
+			//modelplayer.setInvisible(false);
+			modelplayer.setVisible(true);
 			modelplayer.bipedHead.showModel = true;
 			modelplayer.bipedHeadwear.showModel = true;
 		}
@@ -290,7 +291,8 @@ public class RenderPlayerCyberware extends RenderPlayer
 		{
 			ItemStack itemstack = clientPlayer.getHeldItemMainhand();
 			ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
-			modelplayer.setInvisible(true);
+			//modelplayer.setInvisible(true);
+			modelplayer.setVisible(false);
 			modelplayer.bipedHeadwear.showModel = modelplayer.bipedHead.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.HAT);
 			modelplayer.bipedBodyWear.showModel = modelplayer.bipedBody.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
 			modelplayer.bipedLeftLegwear.showModel = modelplayer.bipedLeftLeg.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);

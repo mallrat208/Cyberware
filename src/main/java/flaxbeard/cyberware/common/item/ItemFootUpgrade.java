@@ -88,7 +88,8 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 			{
 				if (e.moveForward > 0)
 				{
-					e.moveRelative(0F, numLegs * 0.4F, 0.075F);
+					//e.moveRelative(0F, numLegs * 0.4F, 0.075F);
+					e.moveRelative(0F, numLegs * 0.4F, 0.075F, 0.0F);
 				}
 			}
 			

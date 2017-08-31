@@ -10,6 +10,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ItemCyberwareBase extends Item
@@ -19,7 +20,7 @@ public class ItemCyberwareBase extends Item
 	public ItemCyberwareBase(String name, String... subnames)
 	{
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
         
 		this.setCreativeTab(Cyberware.creativeTab);
@@ -44,7 +45,7 @@ public class ItemCyberwareBase extends Item
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (subnames.length == 0)
 		{

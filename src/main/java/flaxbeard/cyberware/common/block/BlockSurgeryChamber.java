@@ -31,6 +31,7 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -57,11 +58,11 @@ public class BlockSurgeryChamber extends BlockContainer
 		String name = "surgery_chamber";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 
 		ib = new ItemSurgeryChamber(this);
 		ib.setRegistryName(name);
-		GameRegistry.register(ib);
+		ForgeRegistries.ITEMS.register(ib);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 		ib.setUnlocalizedName(Cyberware.MODID + "." + name);

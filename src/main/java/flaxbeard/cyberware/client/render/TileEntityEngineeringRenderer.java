@@ -22,7 +22,7 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 	private static String texture = "cyberware:textures/models/engineering.png";
 
 	@Override
-	public void renderTileEntityAt(TileEntityEngineeringTable te, double x, double y, double z, float partialTicks, int destroyStage)
+	public void render(TileEntityEngineeringTable te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te != null)
 		{

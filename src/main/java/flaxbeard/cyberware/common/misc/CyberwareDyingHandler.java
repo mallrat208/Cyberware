@@ -12,6 +12,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.RecipeSorter;
 
@@ -24,12 +25,45 @@ public class CyberwareDyingHandler implements IRecipe
 {
 	static
 	{
-		RecipeSorter.register(Cyberware.MODID + ":dying", CyberwareDyingHandler.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
+		RecipeSorter.register(Cyberware.MODID + ":Cyberware.MODID + \":dying\"", CyberwareDyingHandler.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
+	}
+
+	private IRecipe realRecipe;
+
+	public CyberwareDyingHandler()
+	{
+		this.realRecipe = this;
+	}
+
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return new ResourceLocation(Cyberware.MODID, "dying");
+		//return this.realRecipe.getRegistryName();
+	}
+
+	@Override
+	public boolean canFit(int width, int height)
+	{
+		return true;
+	}
+
+	@Override
+	public IRecipe setRegistryName(ResourceLocation name)
+	{
+		return this.realRecipe.setRegistryName(name);
+	}
+
+	@Override
+	public Class<IRecipe> getRegistryType()
+	{
+		return this.realRecipe.getRegistryType();
 	}
 
 	/**
 	 * Used to check if a recipe matches current crafting inventory
 	 */
+	@Override
 	public boolean matches(InventoryCrafting inv, World worldIn)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;

@@ -61,7 +61,7 @@ public class MissingPowerDisplay extends HudElementBase
 			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
 	
 			
-			FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		
 			RenderItem ir = Minecraft.getMinecraft().getRenderItem();
 			List<ItemStack> stacks = isConfigOpen ? exampleStacks : data.getPowerOutages();

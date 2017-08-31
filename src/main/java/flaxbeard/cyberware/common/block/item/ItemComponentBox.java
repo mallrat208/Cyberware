@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
 
 public class ItemComponentBox extends ItemBlockCyberware
 {
@@ -60,7 +63,7 @@ public class ItemComponentBox extends ItemBlockCyberware
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced)
 	{
 		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.componentBox"));
 		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.componentBox2"));

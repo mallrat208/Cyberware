@@ -223,7 +223,8 @@ public class HudHandler
 					if (!done)
 					{
 						String s = I18n.format("cyberware.gui.open_menu", KeyBinds.menu.getDisplayName());
-						FontRenderer fr = mc.fontRendererObj;
+						//FontRenderer fr = mc.fontRendererObj;
+						FontRenderer fr = mc.fontRenderer;
 						fr.drawStringWithShadow(s, sr.getScaledWidth() - fr.getStringWidth(s) - 5, 5, CyberwareAPI.getHUDColorHex());
 					}
 				}

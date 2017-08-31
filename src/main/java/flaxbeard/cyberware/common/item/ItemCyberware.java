@@ -103,7 +103,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (subnames.length == 0)
 		{

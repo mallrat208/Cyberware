@@ -65,9 +65,11 @@ public class CyberwareDataHandler
 	}
 	
 	@SubscribeEvent
-	public void attachCyberwareData(AttachCapabilitiesEvent.Entity event)
+	//public void attachCyberwareData(AttachCapabilitiesEvent.Entity event)
+	public void attachCyberwareData(AttachCapabilitiesEvent<Entity> event)
 	{
-		if (event.getEntity() instanceof EntityPlayer)
+		//if (event.getEntity() instanceof EntityPlayer)
+		if (event.getObject() instanceof EntityPlayer)
 		{
 			event.addCapability(CyberwareUserDataImpl.Provider.NAME, new CyberwareUserDataImpl.Provider());
 		}

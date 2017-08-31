@@ -21,7 +21,7 @@ public class TileEntityScannerRenderer extends TileEntitySpecialRenderer<TileEnt
 	private static String texture = "cyberware:textures/models/scanner.png";
 
 	@Override
-	public void renderTileEntityAt(TileEntityScanner te, double x, double y, double z, float partialTicks, int destroyStage)
+	public void render(TileEntityScanner te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te != null)
 		{

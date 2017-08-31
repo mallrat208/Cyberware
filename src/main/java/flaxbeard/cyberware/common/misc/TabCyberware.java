@@ -64,8 +64,9 @@ public class TabCyberware extends CreativeTabs
 					if (item instanceof ICyberwareTabItem)
 					{
 						NonNullList<ItemStack> tempList = NonNullList.create();	
-						item.getSubItems(item, this, tempList);
-						
+						//item.getSubItems(item, this, tempList);
+						item.getSubItems(this, tempList);
+
 						for (ItemStack stack : tempList)
 						{
 							if (!stack.isEmpty())
@@ -85,7 +86,8 @@ public class TabCyberware extends CreativeTabs
 					}
 					else
 					{
-						item.getSubItems(item, this, unsorted);
+						//item.getSubItems(item, this, unsorted);
+						item.getSubItems(this, unsorted);
 					}
 				}
 			}
@@ -105,7 +107,8 @@ public class TabCyberware extends CreativeTabs
 
 		if (this.getRelevantEnchantmentTypes() != null)
 		{
-			this.addEnchantmentBooksToList(list, this.getRelevantEnchantmentTypes());
+			//this.addEnchantmentBooksToList(list, this.getRelevantEnchantmentTypes());
+			//this.ad(list, this.getRelevantEnchantmentTypes());
 		}
 	}
 }

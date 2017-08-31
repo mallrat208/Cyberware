@@ -24,6 +24,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareConfig;
@@ -46,11 +47,11 @@ public class BlockBlueprintArchive extends BlockContainer
 		String name = "blueprint_archive";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 
 		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.blueprintArchive");
 		ib.setRegistryName(name);
-		GameRegistry.register(ib);
+		ForgeRegistries.ITEMS.register(ib);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 

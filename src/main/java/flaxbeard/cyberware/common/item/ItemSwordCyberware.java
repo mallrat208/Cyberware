@@ -5,6 +5,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.item.IDeconstructable;
@@ -19,7 +20,7 @@ public class ItemSwordCyberware extends ItemSword implements IDeconstructable
 		super(material);
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
         
 		this.setCreativeTab(Cyberware.creativeTab);

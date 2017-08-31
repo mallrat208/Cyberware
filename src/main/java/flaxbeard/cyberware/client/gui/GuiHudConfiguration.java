@@ -114,13 +114,13 @@ public class GuiHudConfiguration extends GuiScreen
 			
 			List<String> l = new ArrayList<String>();
 			l.add(dragging.getX() + ", " + dragging.getY());
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 		}
 		else if (hoveredElement != null)
 		{
 			List<String> l = new ArrayList<String>();
 			l.add(hoveredElement.getX() + ", " + hoveredElement.getY());
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 		}
 		
 		
@@ -260,7 +260,7 @@ public class GuiHudConfiguration extends GuiScreen
 		{
 			List<String> l = new ArrayList<String>();
 			l.add(I18n.format(down ? "cyberware.gui.stickDown" : "cyberware.gui.stickUp"));
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 			
 			if (clicked)
 			{
@@ -272,7 +272,7 @@ public class GuiHudConfiguration extends GuiScreen
 		{
 			List<String> l = new ArrayList<String>();
 			l.add(I18n.format(hidden ? "cyberware.gui.show" : "cyberware.gui.hide"));
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 			
 			if (clicked)
 			{
@@ -284,7 +284,7 @@ public class GuiHudConfiguration extends GuiScreen
 		{
 			List<String> l = new ArrayList<String>();
 			l.add(I18n.format("cyberware.gui.reset_hud"));
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 			
 			if (clicked)
 			{
@@ -296,7 +296,7 @@ public class GuiHudConfiguration extends GuiScreen
 		{
 			List<String> l = new ArrayList<String>();
 			l.add(I18n.format(right ? "cyberware.gui.stick_right" : "cyberware.gui.stick_left"));
-			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRendererObj);
+			ClientUtils.drawHoveringText(this, l, mouseX, mouseY, mc.fontRenderer);
 			
 			if (clicked)
 			{

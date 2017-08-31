@@ -41,7 +41,8 @@ public class TriggerActiveAbilityPacket implements IMessage
 		@Override
 		public IMessage onMessage(TriggerActiveAbilityPacket message, MessageContext ctx)
 		{
-			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+			//EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+			EntityPlayerMP player = ctx.getServerHandler().player;
 			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.stack, player));
 
 			return null;

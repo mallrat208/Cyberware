@@ -18,6 +18,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -84,7 +85,7 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);
@@ -227,11 +228,12 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
 		if (this.getArmorMaterial() == CyberwareContent.trenchMat)
 		{
-			super.getSubItems(item, tab, list);
+			//super.getSubItems(item, tab, list);
+			super.getSubItems(tab, list);
 			ItemStack brown = new ItemStack(this);
 			this.setColor(brown, 0x664028);
 			list.add(brown);
@@ -241,7 +243,8 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		}
 		else
 		{
-			super.getSubItems(item, tab, list);
+			//super.getSubItems(item, tab, list);
+			super.getSubItems(tab, list);
 		}
 	}
 }

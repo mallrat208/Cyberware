@@ -150,7 +150,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 				}
 				
 				Random random = e.getRNG();
-				Entity attacker = ((EntityDamageSource) event.getSource()).getSourceOfDamage();
+				Entity attacker = ((EntityDamageSource) event.getSource()).getTrueSource();
 				int level = 2;
 				if (EnchantmentThorns.shouldHit(3, random))
 				{
