@@ -79,8 +79,9 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-
-		list.add(new ItemStack(this, 1, 1));
+		if (this.isInCreativeTab(tab)) {
+			list.add(new ItemStack(this, 1, 1));
+		}
 	}
 	
 	public static ItemStack getBlueprintForItem(ItemStack stack)

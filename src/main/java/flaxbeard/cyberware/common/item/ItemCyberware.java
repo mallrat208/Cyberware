@@ -105,13 +105,15 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-		if (subnames.length == 0)
-		{
-			list.add(new ItemStack(this));
-		}
-		for (int i = 0; i < subnames.length; i++)
-		{
-			list.add(new ItemStack(this, 1, i));
+		if (this.isInCreativeTab(tab)) {
+			if (subnames.length == 0)
+			{
+				list.add(new ItemStack(this));
+			}
+			for (int i = 0; i < subnames.length; i++)
+			{
+				list.add(new ItemStack(this, 1, i));
+			}
 		}
 	}
 

@@ -230,21 +230,23 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-		if (this.getArmorMaterial() == CyberwareContent.trenchMat)
-		{
-			//super.getSubItems(item, tab, list);
-			super.getSubItems(tab, list);
-			ItemStack brown = new ItemStack(this);
-			this.setColor(brown, 0x664028);
-			list.add(brown);
-			ItemStack white = new ItemStack(this);
-			this.setColor(white, 0xEAEAEA);
-			list.add(white);
-		}
-		else
-		{
-			//super.getSubItems(item, tab, list);
-			super.getSubItems(tab, list);
+		if (this.isInCreativeTab(tab)) {
+			if (this.getArmorMaterial() == CyberwareContent.trenchMat)
+			{
+				//super.getSubItems(item, tab, list);
+				super.getSubItems(tab, list);
+				ItemStack brown = new ItemStack(this);
+				this.setColor(brown, 0x664028);
+				list.add(brown);
+				ItemStack white = new ItemStack(this);
+				this.setColor(white, 0xEAEAEA);
+				list.add(white);
+			}
+			else
+			{
+				//super.getSubItems(item, tab, list);
+				super.getSubItems(tab, list);
+			}
 		}
 	}
 }

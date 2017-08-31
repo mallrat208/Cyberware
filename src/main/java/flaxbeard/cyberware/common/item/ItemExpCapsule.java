@@ -41,11 +41,13 @@ public class ItemExpCapsule extends Item
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-		ItemStack stack = new ItemStack(this);
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("xp", 100);
-		stack.setTagCompound(compound);
-		list.add(stack);
+		if (this.isInCreativeTab(tab)) {
+			ItemStack stack = new ItemStack(this);
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setInteger("xp", 100);
+			stack.setTagCompound(compound);
+			list.add(stack);
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
