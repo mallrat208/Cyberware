@@ -162,7 +162,7 @@ public class CyberwareContent
 		{
 			EntityRegistry.registerModEntity(new ResourceLocation(Cyberware.MODID+":cyberzombie"), EntityCyberZombie.class, "cyberzombie", 0, Cyberware.INSTANCE, 80, 3, true);
 			EntityRegistry.registerEgg(new ResourceLocation(Cyberware.MODID+":cyberzombie"), 0x6B6B6B, 0x799C65);
-			if (Loader.isModLoaded("EnderIO"))
+			if (Loader.isModLoaded("enderio"))
 			{
 				FMLInterModComms.sendMessage("EnderIO", "poweredSpawner:blacklist:add", "cyberware.cyberzombie");
 			}
@@ -492,12 +492,12 @@ public class CyberwareContent
 					);
 		}
 		
-		if (Loader.isModLoaded("Botania"))
+		if (Loader.isModLoaded("botania"))
 		{
 			BotaniaIntegration.preInit();
 		}
 		
-		if (Loader.isModLoaded("ToughAsNails"))
+		if (Loader.isModLoaded("toughasnails"))
 		{
 			ToughAsNailsIntegration.preInit();
 		}
