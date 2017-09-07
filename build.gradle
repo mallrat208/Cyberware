@@ -34,7 +34,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.12.1-14.22.0.2463"
+    version = "1.12.1-14.22.0.2474"
     runDir = "run"
 
     replace "@VERSION@", project.version
@@ -57,7 +57,7 @@ jar {
 dependencies {
     compile files(
         'Baubles.jar',
-        //'Botania.jar',
+        'Botania.jar',
         'TaN.jar'
     )
     // you may put jars on which you depend on in ./libs
