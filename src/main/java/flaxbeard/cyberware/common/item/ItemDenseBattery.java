@@ -25,7 +25,7 @@ public class ItemDenseBattery extends ItemCyberware implements ISpecialBattery
 	@Override
 	public int add(ItemStack battery, ItemStack power, int amount, boolean simulate)
 	{
-		if (power == null)
+		if (power.isEmpty())
 		{
 			int amountToAdd = Math.min(getCapacity(battery) - getStoredEnergy(battery), amount);
 			if (!simulate)
