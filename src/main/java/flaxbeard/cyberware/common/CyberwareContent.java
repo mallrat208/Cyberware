@@ -488,12 +488,12 @@ public class CyberwareContent
 					));
 		}
 		
-		if (Loader.isModLoaded("Botania"))
+		if (Loader.isModLoaded("botania"))
 		{
 			BotaniaIntegration.preInit();
 		}
 		
-		if (Loader.isModLoaded("ToughAsNails"))
+		if (Loader.isModLoaded("toughasnails"))
 		{
 			ToughAsNailsIntegration.preInit();
 		}
