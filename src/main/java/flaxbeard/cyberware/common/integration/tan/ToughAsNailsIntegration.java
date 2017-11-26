@@ -12,7 +12,7 @@ public class ToughAsNailsIntegration
 
 	public static void preInit()
 	{
-		sweat = new ItemToughAsNailsUpgrade("toughAsNailsUpgrades",
+		sweat = new ItemToughAsNailsUpgrade("tough_as_nails_upgrades",
 				new EnumSlot[] { EnumSlot.SKIN, EnumSlot.SKIN },
 				new String[] { "sweat", "blubber" });
 		sweat.setEssenceCost(7, 14);
