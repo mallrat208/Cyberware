@@ -147,8 +147,8 @@ public class EntityCyberZombie extends EntityZombie
 	protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier)
 	{
 		super.dropEquipment(wasRecentlyHit, lootingModifier);
-		
-		if (CyberwareConfig.KATANA && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana)
+
+		if (CyberwareConfig.KATANA && !CyberwareConfig.NO_CLOTHES && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana)
 		{
 			
 			ItemStack itemstack = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).copy();
@@ -216,8 +216,7 @@ public class EntityCyberZombie extends EntityZombie
 	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty)
 	{
 		super.setEquipmentBasedOnDifficulty(difficulty);
-		
-		if (CyberwareConfig.KATANA && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD)
+		if (CyberwareConfig.KATANA && !CyberwareConfig.NO_CLOTHES && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD)
 		{
 			this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(CyberwareContent.katana));
 			this.setDropChance(EntityEquipmentSlot.MAINHAND, 0F);
