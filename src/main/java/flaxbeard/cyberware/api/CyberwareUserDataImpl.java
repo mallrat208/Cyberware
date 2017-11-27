@@ -41,6 +41,10 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	private boolean[] missingEssentials = new boolean[EnumSlot.values().length * 2];
 	
 	private int storedPower = 0;
+	private int prod = 0;
+	private int lastProd = 0;
+	private int cons = 0;
+	private int lastCons = 0;
 	private int powerCap = 0;
 	private Map<ItemStack, Integer> powerBuffer = new HashMap<ItemStack, Integer>();
 	private Map<ItemStack, Integer> powerBufferLast = new HashMap<ItemStack, Integer>();
@@ -229,6 +233,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			amountAlready = powerBuffer.get(stack);
 		}
 		powerBuffer.put(stack, amount + amountAlready);
+		prod += amount;
 		//}
 		//storedPower = Math.min(powerCap, storedPower + amount);
 	}
@@ -276,6 +281,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 			return false;
 		}
+		cons += amount;
 		
 		int getPowerBufferLast = addMap(powerBufferLast);
 		//System.out.println("BEFORE: " + getPowerBufferLast + " " + amount);
@@ -764,6 +770,11 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		powerBuffer = new HashMap<ItemStack, Integer>();
 		this.isImmune = false;
 
+		lastCons = cons;
+		lastProd = prod;
+
+		prod = 0;
+		cons = 0;
 	}
 
 	@Override
@@ -899,5 +910,17 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	public float[] getHudColor()
 	{
 		return hudColorFloat;
+	}
+
+	@Override
+	public int getProduction()
+	{
+		return lastProd;
+	}
+
+	@Override
+	public int getConsumption()
+	{
+		return lastCons;
 	}
 }
