@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.block.tile.TileEntitySurgery;
@@ -31,7 +32,7 @@ public class BlockSurgeryTable extends BlockBed
 		String name = "surgeryTable";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 

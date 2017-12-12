@@ -15,6 +15,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,7 +27,7 @@ public class ItemNeuropozyne extends Item
 	public ItemNeuropozyne(String name)
 	{
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);

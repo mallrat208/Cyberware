@@ -16,6 +16,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -36,11 +37,11 @@ public class BlockSurgery extends BlockContainer
 		String name = "surgery";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 
 		ItemBlock ib = new ItemBlockCyberware(this);
 		ib.setRegistryName(name);
-		GameRegistry.register(ib);
+		ForgeRegistries.ITEMS.register(ib);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 

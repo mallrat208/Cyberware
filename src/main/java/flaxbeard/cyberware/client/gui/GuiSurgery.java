@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.player.EntityPlayer;
@@ -67,9 +68,9 @@ public class GuiSurgery extends GuiContainer
 			this.z3 = z3;
 			this.visible = false;
 		}
-		
+
 		@Override
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{
@@ -77,7 +78,7 @@ public class GuiSurgery extends GuiContainer
 				GL11.glEnable(GL11.GL_BLEND);
 				
 				float trans = 0.4F;
-				if (mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + buttonSize && mouseY < this.yPosition + buttonSize)
+				if (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + buttonSize && mouseY < this.y + buttonSize)
 				{
 					trans = 0.6F;
 				}
@@ -103,7 +104,7 @@ public class GuiSurgery extends GuiContainer
 		}
 		
 		@Override
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{
@@ -151,18 +152,18 @@ public class GuiSurgery extends GuiContainer
 				GL11.glPushMatrix();
 				GL11.glEnable(GL11.GL_BLEND);
 				float trans = 0.4F;
-				boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 				if (flag) trans = 0.6F;
 				
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 				mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
 
 	
-				this.drawTexturedModalRect(this.xPosition, this.yPosition, type.left + type.width, type.top, type.width, type.height);
+				this.drawTexturedModalRect(this.x, this.y, type.left + type.width, type.top, type.width, type.height);
 				
 				
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans / 2F);
-				this.drawTexturedModalRect(this.xPosition, this.yPosition, type.left, type.top, type.width, type.height);
+				this.drawTexturedModalRect(this.x, this.y, type.left, type.top, type.width, type.height);
 
 				GL11.glPopMatrix();
 			}
@@ -621,8 +622,8 @@ public class GuiSurgery extends GuiContainer
 			list[n].xPos = (i + (sin * scale * list[n].x3 * 0.065F) + (cos * scale * (list[n].z3) * 0.065F) + (this.xSize / 2) - 2.0F) - (list[n].buttonSize / 2F);
 			list[n].yPos = -upDown * (cos * scale * list[n].x3 * 0.065F) + upDown * (sin * scale * (list[n].z3) * 0.065F) +
 					(j + 2 - yOffset  + 0.065F * scale * list[n].y3  + (130 / 2)) - (list[n].buttonSize / 2F);
-			list[n].xPosition = Math.round(list[n].xPos);
-			list[n].yPosition = Math.round(list[n].yPos);
+			list[n].x = Math.round(list[n].xPos);
+			list[n].y = Math.round(list[n].yPos);
 
 		}
 	}
@@ -1226,19 +1227,19 @@ public class GuiSurgery extends GuiContainer
 		if (page == 0 && this.transitionStart == 0)
 		{
 			String s = "_" + Minecraft.getMinecraft().player.getName().toUpperCase();
-			this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 115, 0x1DA9C1);
+			this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 115, 0x1DA9C1);
 		}
 		
 		if (page == 9)
 		{
 			String s = I18n.format("cyberware.gui.installed");
-			this.fontRendererObj.drawString(s, 8, 9, 0x1DA9C1);
+			this.fontRenderer.drawString(s, 8, 9, 0x1DA9C1);
 		}
 		
 		if (page != index.id)
 		{
 			String s = surgery.essence + " / " + surgery.maxEssence;
-			this.fontRendererObj.drawString(s, 18, 6, 0x1DA9C1);
+			this.fontRenderer.drawString(s, 18, 6, 0x1DA9C1);
 		}
 		
 		GL11.glPopMatrix();
@@ -1265,7 +1266,7 @@ public class GuiSurgery extends GuiContainer
 			if (!stack.isEmpty() && stack.getCount() > 1)
 			{
 				FontRenderer font = stack.getItem().getFontRenderer(stack);
-				if (font == null) font = fontRendererObj;
+				if (font == null) font = fontRenderer;
 				
 				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos - 26, Integer.toString(stack.getCount()));
 			}
@@ -1282,7 +1283,7 @@ public class GuiSurgery extends GuiContainer
 				if (!stack.isEmpty() && stack.getCount() > 1)
 				{
 					FontRenderer font = stack.getItem().getFontRenderer(stack);
-					if (font == null) font = fontRendererObj;
+					if (font == null) font = fontRenderer;
 					
 					this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos, Integer.toString(stack.getCount()));
 				}
@@ -1294,7 +1295,7 @@ public class GuiSurgery extends GuiContainer
 			else if (CyberwareAPI.areCyberwareStacksEqual(stack, pos.getStack()))
 			{
 				FontRenderer font = stack.getItem().getFontRenderer(stack);
-				if (font == null) font = fontRendererObj;
+				if (font == null) font = fontRenderer;
 				String str = pos.getStack().getCount() == 1 ? "+1" : "+";
 				int width = pos.getStack().getCount() == 1 ? 0 : font.getStringWidth(Integer.toString(pos.getStack().getCount()));
 				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos - width, pos.yPos, str);
@@ -1325,14 +1326,14 @@ public class GuiSurgery extends GuiContainer
 				if (!draw.isEmpty() && draw.getCount() > 1)
 				{
 					FontRenderer font = draw.getItem().getFontRenderer(draw);
-					if (font == null) font = fontRendererObj;
+					if (font == null) font = fontRenderer;
 					
 					this.itemRender.renderItemOverlayIntoGUI(font, draw, x, y, Integer.toString(draw.getCount()));
 
 				}
 				
 				FontRenderer font = draw.getItem().getFontRenderer(draw);
-				if (font == null) font = fontRendererObj;
+				if (font == null) font = fontRenderer;
 				int nu = indexNews[zee];
 				if (nu == 1)
 				{
@@ -1444,7 +1445,7 @@ public class GuiSurgery extends GuiContainer
 				{
 					List<String> l = new ArrayList<String>();
 					l.add(I18n.format("cyberware.gui.add", I18n.format(stack.getUnlocalizedName() + ".name")));
-					this.drawHoveringText(l, mouseX - i, mouseY - j, fontRendererObj);
+					this.drawHoveringText(l, mouseX - i, mouseY - j, fontRenderer);
 				}
 				else
 				{
@@ -1459,7 +1460,7 @@ public class GuiSurgery extends GuiContainer
 			{			
 				if (this.isPointInRegion(this.xSize - 23, 20, 16, 16, mouseX, mouseY))
 				{
-					this.drawHoveringText(missingSlots, mouseX - i, mouseY - j, fontRendererObj);
+					this.drawHoveringText(missingSlots, mouseX - i, mouseY - j, fontRenderer);
 				}
 			}
 		}
@@ -1488,11 +1489,11 @@ public class GuiSurgery extends GuiContainer
 		
 		if (page != 0 && this.isPointInRegion(this.xSize - 25, 5, back.width, back.height, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.back") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.back") } ), mouseX - i, mouseY - j, fontRenderer);
 		}
 		else if (page == 0 && this.isPointInRegion(this.xSize - 22, 5, index.width, index.height, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.index") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.index") } ), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
 		GL11.glDisable(GL11.GL_BLEND);
@@ -1579,7 +1580,9 @@ public class GuiSurgery extends GuiContainer
 
 	protected void renderToolTip(ItemStack stack, int x, int y, int extras)
 	{
-		List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
+		// TODO: ITooltipFlag
+		//List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
+		List<String> list = stack.getTooltip(this.mc.player, ITooltipFlag.TooltipFlags.ADVANCED);
 
 		for (int i = 0; i < list.size(); ++i)
 		{
@@ -1612,7 +1615,7 @@ public class GuiSurgery extends GuiContainer
 		}
 
 		FontRenderer font = stack.getItem().getFontRenderer(stack);
-		this.drawHoveringText(list, x, y, (font == null ? fontRendererObj : font));
+		this.drawHoveringText(list, x, y, (font == null ? fontRenderer : font));
 	}
 	
 }

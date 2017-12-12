@@ -41,7 +41,7 @@ public class SyncHudDataPacket implements IMessage
 		@Override
 		public IMessage onMessage(SyncHudDataPacket message, MessageContext ctx)
 		{
-			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+			EntityPlayerMP player = ctx.getServerHandler().player;
 			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.comp, player));
 
 			return null;

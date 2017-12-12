@@ -46,7 +46,7 @@ public class PowerDisplay extends HudElementBase
 			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
 	
 			
-			FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			
 			if (p.ticksExisted % 20 == 0)
 			{

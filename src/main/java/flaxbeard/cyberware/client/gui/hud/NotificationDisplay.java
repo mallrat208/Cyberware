@@ -232,7 +232,7 @@ public class NotificationDisplay extends HudElementBase
 				GlStateManager.popMatrix();
 				
 				String v = tier == 1 ? I18n.format("cyberware.gui.radio_internal") : Integer.toString(tier - 1);
-				FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+				FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 				fr.drawStringWithShadow(v, x + 15 - fr.getStringWidth(v), y + 9, 0xFFFFFF);
 			}
 			else

@@ -17,7 +17,7 @@ public class TileEntityBeaconLargeRenderer extends TileEntitySpecialRenderer<Til
 	private static String texture2 = "cyberware:textures/models/radio_base.png";
 
 	@Override
-	public void renderTileEntityAt(TileEntityBeaconPostMaster te, double x, double y, double z, float partialTicks, int destroyStage)
+	public void render(TileEntityBeaconPostMaster te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te != null)
 		{

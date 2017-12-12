@@ -64,7 +64,7 @@ public class GuiCyberwareMenu extends GuiScreen
 	{
 		super.initGui();
 		int numRows = ((colorOptions.length + ROW_SIZE - 1) / ROW_SIZE);
-		hex = new GuiTextField(2, this.fontRendererObj, this.width / 2 - 70, this.height / 2 - 100 + (30 * numRows), 140, 20);
+		hex = new GuiTextField(2, this.fontRenderer, this.width / 2 - 70, this.height / 2 - 100 + (30 * numRows), 140, 20);
 		String s = Integer.toHexString(CyberwareAPI.getHUDColorHex()).toUpperCase();
 		while (s.length() < 6)
 		{
@@ -230,10 +230,10 @@ public class GuiCyberwareMenu extends GuiScreen
 			GlStateManager.enableTexture2D();
 			GlStateManager.popMatrix();
 			float scale = piePieces > 8F ? (piePieces > 16F ? .5F : 1F) : 2F;
-			boolean unicode = this.fontRendererObj.getUnicodeFlag();
+			boolean unicode = this.fontRenderer.getUnicodeFlag();
 			if (scale < 1.0F)
 			{
-				this.fontRendererObj.setUnicodeFlag(true);
+				this.fontRenderer.setUnicodeFlag(true);
 			}
 			float itemRadiusBase = innerRadiusBase + (radiusBase - innerRadiusBase) / 2F;
 			
@@ -246,7 +246,7 @@ public class GuiCyberwareMenu extends GuiScreen
 				double radians = ((rotation) / 180F) * Math.PI;
 				float offset = (16 / 2F) * scale;
 				int boundKey = HotkeyHelper.getHotkey(stack);
-				float yOffset = boundKey == -1 ? (this.fontRendererObj.FONT_HEIGHT / 2F) : 0;
+				float yOffset = boundKey == -1 ? (this.fontRenderer.FONT_HEIGHT / 2F) : 0;
 				float xS = centerX + ((float) Math.cos(radians) * itemRadius);
 				float yS = centerY + ((float) Math.sin(radians) * itemRadius);
 				GlStateManager.pushMatrix();
@@ -261,10 +261,10 @@ public class GuiCyberwareMenu extends GuiScreen
 					{
 						GlStateManager.pushMatrix();
 						String str = "__";
-						int i = this.fontRendererObj.getStringWidth(str);
+						int i = this.fontRenderer.getStringWidth(str);
 			
 						GlStateManager.translate(xS - i / 2F, yS + offset, 0);
-						this.fontRendererObj.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
+						this.fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 						GlStateManager.popMatrix();
 					}
 				}
@@ -286,33 +286,33 @@ public class GuiCyberwareMenu extends GuiScreen
 					{
 						str = Keyboard.getKeyName(boundKey);
 					}
-					int i = this.fontRendererObj.getStringWidth(str);
+					int i = this.fontRenderer.getStringWidth(str);
 		
 					GlStateManager.translate(xS - i / 2F, yS + offset, 0);
-					this.fontRendererObj.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
+					this.fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 					GlStateManager.popMatrix();
 				}
 				
 				GlStateManager.pushMatrix();
 				String str = I18n.format(((IMenuItem) stack.getItem()).getUnlocalizedLabel(stack));
-				int i = this.fontRendererObj.getStringWidth(str);
+				int i = this.fontRenderer.getStringWidth(str);
 	
-				GlStateManager.translate(xS - i / 2F, yS - offset + yOffset - this.fontRendererObj.FONT_HEIGHT, 0);
-				this.fontRendererObj.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
+				GlStateManager.translate(xS - i / 2F, yS - offset + yOffset - this.fontRenderer.FONT_HEIGHT, 0);
+				this.fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 				GlStateManager.popMatrix();
 	
 			}
 			
 			
 			
-			this.fontRendererObj.setUnicodeFlag(unicode);
+			this.fontRenderer.setUnicodeFlag(unicode);
 	
 			if (this.selectedPart >= 0)
 			{
 				GlStateManager.pushMatrix();
 				String str = data.getActiveItems().get(selectedPart).getDisplayName();
-				GlStateManager.translate(((width - fontRendererObj.getStringWidth(str)) / 2F), (height / 2F) - 30 - radiusBase, 0F);
-				this.fontRendererObj.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
+				GlStateManager.translate(((width - fontRenderer.getStringWidth(str)) / 2F), (height / 2F) - 30 - radiusBase, 0F);
+				this.fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 				GlStateManager.popMatrix();
 			}
 		}
@@ -325,15 +325,15 @@ public class GuiCyberwareMenu extends GuiScreen
 
 		if (this.isPointInRegion(sx + 1 * 2, sy, 6 * 2, 8 * 2, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.keybind.0"), I18n.format("cyberware.gui.keybind.1"), I18n.format("cyberware.gui.keybind.2"), I18n.format("cyberware.gui.keybind.3"), I18n.format("cyberware.gui.keybind.4") } ), mouseX, mouseY, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.keybind.0"), I18n.format("cyberware.gui.keybind.1"), I18n.format("cyberware.gui.keybind.2"), I18n.format("cyberware.gui.keybind.3"), I18n.format("cyberware.gui.keybind.4") } ), mouseX, mouseY, fontRenderer);
 		}
 		else if (this.isPointInRegion(sx, sy + 9 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_hud_config") } ), mouseX, mouseY, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_hud_config") } ), mouseX, mouseY, fontRenderer);
 		}
 		else if (this.isPointInRegion(sx, sy + 18 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_color_change") } ), mouseX, mouseY, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.open_color_change") } ), mouseX, mouseY, fontRenderer);
 		}
 
 		GlStateManager.popMatrix();

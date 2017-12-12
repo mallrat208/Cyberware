@@ -39,7 +39,7 @@ public class UpdateHudColorPacket implements IMessage
 		@Override
 		public IMessage onMessage(UpdateHudColorPacket message, MessageContext ctx)
 		{
-			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+			EntityPlayerMP player = ctx.getServerHandler().player;
 			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.color, player));
 
 			return null;

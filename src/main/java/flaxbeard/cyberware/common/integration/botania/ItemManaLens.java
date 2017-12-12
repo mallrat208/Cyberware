@@ -35,11 +35,15 @@ import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberware;
 
+
 public class ItemManaLens extends ItemCyberware
 {
+	//private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderCircle" }, BlockPos.class, Double.class);
+	//private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderRectangle" }, AxisAlignedBB.class);
 
-	private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderCircle" }, BlockPos.class, Double.class);
-	private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderRectangle" }, AxisAlignedBB.class);
+	private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, "renderCircle", BlockPos.class, Double.class);
+	private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, "renderRectangle", AxisAlignedBB.class);
+
 
 	public ItemManaLens(String name, EnumSlot slot, String[] subnames)
 	{

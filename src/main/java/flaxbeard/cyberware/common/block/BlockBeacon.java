@@ -22,6 +22,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -44,11 +45,11 @@ public class BlockBeacon extends BlockContainer
 		String name = "beacon";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 
 		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.beacon");
 		ib.setRegistryName(name);
-		GameRegistry.register(ib);
+		ForgeRegistries.ITEMS.register(ib);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 
@@ -165,13 +166,15 @@ public class BlockBeacon extends BlockContainer
 	@Override
 	public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
 	{
-		return super.canPlaceBlockAt(worldIn, pos) && worldIn.getBlockState(pos.down()).isFullyOpaque();
+		//return super.canPlaceBlockAt(worldIn, pos) && worldIn.getBlockState(pos.down()).isFullyOpaque();
+		return super.canPlaceBlockAt(worldIn, pos) && worldIn.getBlockState(pos.down()).isFullBlock();
 	}
 	
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
-		if (!worldIn.getBlockState(pos.down()).isFullyOpaque())
+		//if (!worldIn.getBlockState(pos.down()).isFullyOpaque())
+		if (!worldIn.getBlockState(pos.down()).isFullBlock())
 		{
 			this.dropBlockAsItem(worldIn, pos, state, 0);
 			worldIn.setBlockToAir(pos);

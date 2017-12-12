@@ -30,6 +30,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -51,11 +52,11 @@ public class BlockComponentBox extends BlockContainer
 		String name = "component_box";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.BLOCKS.register(this);
 
 		ib = new ItemComponentBox(this);
 		ib.setRegistryName(name);
-		GameRegistry.register(ib);
+		ForgeRegistries.ITEMS.register(ib);
 		
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 

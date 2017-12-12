@@ -49,7 +49,7 @@ public class GuiPacket implements IMessage
 		@Override
 		public IMessage onMessage(GuiPacket message, MessageContext ctx)
 		{
-			EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+			EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
 			DimensionManager.getWorld(serverPlayer.world.provider.getDimension()).addScheduledTask(new DoSync(ctx, message.guid, message.x, message.y, message.z));
 
 
@@ -78,7 +78,7 @@ public class GuiPacket implements IMessage
 		@Override
 		public void run()
 		{
-			EntityPlayerMP serverPlayer = context.getServerHandler().playerEntity;
+			EntityPlayerMP serverPlayer = context.getServerHandler().player;
 			serverPlayer.openGui(Cyberware.INSTANCE, guid, serverPlayer.world, x, y, z);
 			
 			

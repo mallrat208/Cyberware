@@ -15,6 +15,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,7 +27,7 @@ public class ItemExpCapsule extends Item
 	public ItemExpCapsule(String name)
 	{
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);
@@ -38,13 +39,15 @@ public class ItemExpCapsule extends Item
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-		ItemStack stack = new ItemStack(this);
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("xp", 100);
-		stack.setTagCompound(compound);
-		list.add(stack);
+		if (this.isInCreativeTab(tab)) {
+			ItemStack stack = new ItemStack(this);
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setInteger("xp", 100);
+			stack.setTagCompound(compound);
+			list.add(stack);
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)

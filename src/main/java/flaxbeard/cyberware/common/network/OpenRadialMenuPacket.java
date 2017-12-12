@@ -27,7 +27,7 @@ public class OpenRadialMenuPacket implements IMessage
 		@Override
 		public IMessage onMessage(OpenRadialMenuPacket message, MessageContext ctx)
 		{
-			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+			EntityPlayerMP player = ctx.getServerHandler().player;
 			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(player));
 
 			return null;

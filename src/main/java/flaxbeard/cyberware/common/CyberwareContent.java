@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import flaxbeard.cyberware.common.handler.RecipeHandler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.monster.EntityZombie;
@@ -161,7 +162,7 @@ public class CyberwareContent
 		{
 			EntityRegistry.registerModEntity(new ResourceLocation(Cyberware.MODID+":cyberzombie"), EntityCyberZombie.class, "cyberzombie", 0, Cyberware.INSTANCE, 80, 3, true);
 			EntityRegistry.registerEgg(new ResourceLocation(Cyberware.MODID+":cyberzombie"), 0x6B6B6B, 0x799C65);
-			if (Loader.isModLoaded("EnderIO"))
+			if (Loader.isModLoaded("enderio"))
 			{
 				FMLInterModComms.sendMessage("EnderIO", "poweredSpawner:blacklist:add", "cyberware.cyberzombie");
 			}
@@ -395,105 +396,108 @@ public class CyberwareContent
 
 		
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(surgeryChamber.ib),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(surgeryChamber.ib),
 				"III",
 				"IBI",
 				"IDI",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('B'), "blockIron", Character.valueOf('D'), new ItemStack(Items.IRON_DOOR)
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(charger),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(charger),
 				"IFI",
 				"IRI",
 				"III",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('R'), "blockRedstone", Character.valueOf('F'), new ItemStack(Blocks.IRON_BARS)
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(scanner),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(scanner),
 				"IEI",
 				"IDI",
 				"III",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('D'), "gemDiamond", Character.valueOf('E'), new ItemStack(cybereyes, 1, OreDictionary.WILDCARD_VALUE)
-				));
+				);
 		
 		ItemStack salvagedEye = new ItemStack(cybereyes);
 		salvagedEye = cybereyes.setQuality(salvagedEye, CyberwareAPI.QUALITY_SCAVENGED);
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(scanner),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(scanner),
 				"IEI",
 				"IDI",
 				"III",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('D'), "gemDiamond", Character.valueOf('E'), salvagedEye
-				));
+				);
 		
-		GameRegistry.addRecipe(new BlueprintCraftingHandler());
-		GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(Items.PAPER),
+		//GameRegistry.addRecipe(new BlueprintCraftingHandler());
+		RecipeHandler.addRecipe(new BlueprintCraftingHandler());
+
+		RecipeHandler.addShapelessOreRecipe(new ItemStack(Items.PAPER),
 				new ItemStack(blueprint, 1, OreDictionary.WILDCARD_VALUE)
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(engineering.ib),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(engineering.ib),
 				" PI",
 				"III",
 				"ICI",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('P'), new ItemStack(Blocks.PISTON), Character.valueOf('C'), new ItemStack(Blocks.CRAFTING_TABLE)
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blueprintArchive),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(blueprintArchive),
 				"PPP",
 				"AAA",
 				"PPP",
 				Character.valueOf('P'), "ingotIron", Character.valueOf('A'), "paper"
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(componentBox),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(componentBox),
 				" O ",
 				"ICI",
 				" I ",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('C'), "chestWood", Character.valueOf('O'), new ItemStack(component, 1, OreDictionary.WILDCARD_VALUE)
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(radio),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(radio),
 				"F  ",
 				"III",
 				"ICI",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('F'), fiber.copy(),
 				Character.valueOf('C'), circuit.copy()
-				));
+				);
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(radioLarge),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(radioLarge),
 				"IEI",
 				"PRP",
 				"ICI",
 				Character.valueOf('I'), "ingotIron", Character.valueOf('R'), new ItemStack(radio), Character.valueOf('E'), new ItemStack(Items.ENDER_EYE),
 				Character.valueOf('P'), reinforcement.copy(), Character.valueOf('C'), circuit.copy()
-				));
+				);
 		
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(radioPost, 6),
+		RecipeHandler.addShapedOreRecipe(new ItemStack(radioPost, 6),
 				"B B",
 				"BFB",
 				"BPB",
 				Character.valueOf('B'), new ItemStack(Blocks.IRON_BARS), Character.valueOf('P'), plating.copy(),
 				Character.valueOf('F'), fiber.copy()
-				));
+				);
 		
-		GameRegistry.addRecipe(new CyberwareDyingHandler());
-		
+		//GameRegistry.addRecipe(new CyberwareDyingHandler());
+		RecipeHandler.addRecipe(new CyberwareDyingHandler());
+
 		if (CyberwareConfig.SURGERY_CRAFTING)
 		{
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(surgeryApparatus),
+			RecipeHandler.addShapedOreRecipe(new ItemStack(surgeryApparatus),
 					"III",
 					"IRI",
 					"PSA",
 					Character.valueOf('I'), "ingotIron", Character.valueOf('R'), "blockRedstone", Character.valueOf('P'), new ItemStack(Items.DIAMOND_PICKAXE), Character.valueOf('S'), new ItemStack(Items.DIAMOND_SWORD), Character.valueOf('A'), new ItemStack(Items.DIAMOND_AXE)
-					));
+					);
 		}
 		
-		if (Loader.isModLoaded("Botania"))
+		if (Loader.isModLoaded("botania"))
 		{
 			BotaniaIntegration.preInit();
 		}
 		
-		if (Loader.isModLoaded("ToughAsNails"))
+		if (Loader.isModLoaded("toughasnails"))
 		{
 			ToughAsNailsIntegration.preInit();
 		}

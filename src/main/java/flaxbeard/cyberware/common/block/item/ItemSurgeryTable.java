@@ -1,8 +1,10 @@
 package flaxbeard.cyberware.common.block.item;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
+import net.minecraftforge.registries.ForgeRegistry;
 
 public class ItemSurgeryTable extends Item
 {
@@ -11,7 +13,7 @@ public class ItemSurgeryTable extends Item
 		String name = "surgery_table";
 		
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
         this.setMaxDamage(0);
         

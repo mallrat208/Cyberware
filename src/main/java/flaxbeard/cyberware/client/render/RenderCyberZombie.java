@@ -62,11 +62,13 @@ public class RenderCyberZombie extends RenderZombie
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.czRenderer.getMainModel().render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-			i = entitylivingbaseIn.getBrightnessForRender(partialTicks);
+			//i = entitylivingbaseIn.getBrightnessForRender(partialTicks);
+			i = entitylivingbaseIn.getBrightnessForRender();
 			j = i % 65536;
 			k = i / 65536;
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
-			this.czRenderer.setLightmap(entitylivingbaseIn, partialTicks);
+			//this.czRenderer.setLightmap(entitylivingbaseIn, partialTicks);
+			this.czRenderer.setLightmap(entitylivingbaseIn);
 			GlStateManager.disableBlend();
 			GlStateManager.enableAlpha();
 		}

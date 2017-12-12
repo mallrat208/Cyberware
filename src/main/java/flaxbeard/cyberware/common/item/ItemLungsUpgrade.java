@@ -131,7 +131,8 @@ public class ItemLungsUpgrade extends ItemCyberware
 				
 				if (powerUsed)
 				{
-					e.moveRelative(0F, .2F * ranks, 0.075F);
+					//e.moveRelative(0F, .2F * ranks, 0.075F);
+					e.moveRelative(0F, .2F * ranks, 0.075F, 0.0F);
 				}
 				
 				lastOxygen.put(e.getEntityId(), powerUsed);

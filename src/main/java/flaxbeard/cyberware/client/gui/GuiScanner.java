@@ -48,7 +48,7 @@ public class GuiScanner extends GuiContainer
 		//GL11.glColor4f(1.0F, 1.0F, 1.0F, 1F);
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
-		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
+		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
 		
 
 		if (!scanner.slots.getStackInSlot(0).isEmpty() && scanner.slots.getStackInSlot(0).getCount() > 0 && (scanner.slots.getStackInSlot(2).isEmpty() || scanner.slots.getStackInSlot(2).getCount() == 0))
@@ -71,12 +71,12 @@ public class GuiScanner extends GuiContainer
 			}
 			String baseMessage = I18n.format("cyberware.gui.scanner_saying." + messageNum);
 			String message = baseMessage + dots[dotsNum];
-			this.fontRendererObj.drawString(message, 6, 20, 0x1F6D7C);
+			this.fontRenderer.drawString(message, 6, 20, 0x1F6D7C);
 
 		}
 		
 		String s = this.scanner.getDisplayName().getUnformattedText();
-		this.fontRendererObj.drawString(s, 6, 7, 0x1DA9C1);
+		this.fontRenderer.drawString(s, 6, 7, 0x1DA9C1);
 		
 		
 		float chance = 0F;
@@ -91,7 +91,7 @@ public class GuiScanner extends GuiContainer
 		}
 		String num = Float.toString(Math.round(chance * 100F) / 100F) + "%";
 		s = I18n.format("cyberware.gui.percent", num);
-		this.fontRendererObj.drawString(s, this.xSize - 6 - fontRendererObj.getStringWidth(s), 7, 0x1DA9C1);
+		this.fontRenderer.drawString(s, this.xSize - 6 - fontRenderer.getStringWidth(s), 7, 0x1DA9C1);
 		
 		
 		int progress = (int) Math.ceil(scanner.getProgress() * 162);
@@ -109,11 +109,11 @@ public class GuiScanner extends GuiContainer
 
 		if (this.isPointInRegion(35, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_scan") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_scan") } ), mouseX - i, mouseY - j, fontRenderer);
 		}
 		if (this.isPointInRegion(15, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(1).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
 		if (scanner.ticks > 0)
@@ -123,7 +123,7 @@ public class GuiScanner extends GuiContainer
 				int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
 				int seconds = (ticksLeft % 1200) / 20;
 				int minutes = (ticksLeft / 1200);
-				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.time_left", minutes, seconds) } ), mouseX - i, mouseY - j, fontRendererObj);
+				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.time_left", minutes, seconds) } ), mouseX - i, mouseY - j, fontRenderer);
 			}
 		}
 	}

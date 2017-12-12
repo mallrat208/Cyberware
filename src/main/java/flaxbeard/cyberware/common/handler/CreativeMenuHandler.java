@@ -42,8 +42,8 @@ public class CreativeMenuHandler
 		{
 			super(p_i46316_1_, p_i46316_2_, p_i46316_3, 21, 21, "");
 			this.offset = offset;
-			this.baseX = this.xPosition;
-			this.baseY = this.yPosition;
+			this.baseX = this.x;
+			this.baseY = this.y;
 		}
 	
 
@@ -53,7 +53,7 @@ public class CreativeMenuHandler
 			{
 				float trans = 0.4F;
 				boolean down = Mouse.isButtonDown(0);
-				boolean flag = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			
 				
 				mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
@@ -69,7 +69,7 @@ public class CreativeMenuHandler
 				}
 				
 				j += offset * (isDown ? 18 : 23);
-				this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, 18, 18);
+				this.drawTexturedModalRect(this.x, this.y, i, j, 18, 18);
 			}
 		}
 	}
@@ -117,12 +117,12 @@ public class CreativeMenuHandler
 			GuiContainerCreative gui = (GuiContainerCreative) event.getGui();
 			int i = (gui.width - 136) / 2;
 			int j = (gui.height - 195) / 2;
-			if (isPointInRegion(i, j, salvaged.xPosition - i, 29 + 8, 18, 18, mouseX, mouseY))
+			if (isPointInRegion(i, j, salvaged.x - i, 29 + 8, 18, 18, mouseX, mouseY))
 			{
 				ClientUtils.drawHoveringText(gui, Arrays.asList(new String[] { I18n.format(CyberwareAPI.QUALITY_SCAVENGED.getUnlocalizedName()) } ), mouseX, mouseY, mc.getRenderManager().getFontRenderer());
 			}
 			
-			if (isPointInRegion(i, j, manufactured.xPosition - i, 29 + 8 + 23, 18, 18, mouseX, mouseY))
+			if (isPointInRegion(i, j, manufactured.x - i, 29 + 8 + 23, 18, 18, mouseX, mouseY))
 			{
 				ClientUtils.drawHoveringText(gui, Arrays.asList(new String[] { I18n.format(CyberwareAPI.QUALITY_MANUFACTURED.getUnlocalizedName()) } ), mouseX, mouseY, mc.getRenderManager().getFontRenderer());
 			}
@@ -158,8 +158,8 @@ public class CreativeMenuHandler
 				{
 					xOffset = 59;
 				}
-				salvaged.xPosition = salvaged.baseX + xOffset;
-				manufactured.xPosition = manufactured.baseX + xOffset;
+				salvaged.x = salvaged.baseX + xOffset;
+				manufactured.x = manufactured.baseX + xOffset;
 
 				
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -192,10 +192,14 @@ public class CreativeMenuHandler
 			{
 				pageSelected = manufactured.offset;
 			}
-			Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class, gui, new String[] { "setCurrentCreativeTab", "func_147050_b" }, CreativeTabs.class);
+
+			// TODO: Reflection
+			/**
+			//Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class, gui, new String[] { "setCurrentCreativeTab", "func_147050_b" }, CreativeTabs.class);
+			//Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class, gui, new String[] { "setCurrentCreativeTab", "func_147050_b" }, CreativeTabs.class);
 			try
 			{
-				tab.invoke(gui, Cyberware.creativeTab);
+				//tab.invoke(gui, Cyberware.creativeTab);
 			}
 			catch (IllegalAccessException e)
 			{
@@ -211,7 +215,7 @@ public class CreativeMenuHandler
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			} **/
 		}
 	}
 

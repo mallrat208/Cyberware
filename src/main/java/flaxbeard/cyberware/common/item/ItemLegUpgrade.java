@@ -56,18 +56,18 @@ public class ItemLegUpgrade extends ItemCyberware
 				if (e.isSneaking())
 				{
 					Vec3d vector = e.getLook(0.5F);
-					double total = Math.abs(vector.zCoord + vector.xCoord);
+					double total = Math.abs(vector.z + vector.x);
 					double jump = 0;
 					if (jump >= 1)
 					{
 						jump = (jump + 2D) / 4D;
 					}
 
-					double y = vector.yCoord < total ? total : vector.yCoord;
+					double y = vector.y < total ? total : vector.y;
 
 					e.motionY += (numLegs * ((jump + 1) * y)) / 3F;
-					e.motionZ += (jump + 1) * vector.zCoord * numLegs;
-					e.motionX += (jump + 1) * vector.xCoord * numLegs;
+					e.motionZ += (jump + 1) * vector.z * numLegs;
+					e.motionX += (jump + 1) * vector.x * numLegs;
 				}
 				else
 				{

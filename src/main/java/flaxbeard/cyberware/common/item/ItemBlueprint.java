@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -28,7 +29,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public ItemBlueprint(String name)
 	{
 		this.setRegistryName(name);
-		GameRegistry.register(this);
+		ForgeRegistries.ITEMS.register(this);
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);
@@ -76,10 +77,11 @@ public class ItemBlueprint extends Item implements IBlueprint
 	}
 	
 	@Override
-	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
 	{
-
-		list.add(new ItemStack(this, 1, 1));
+		if (this.isInCreativeTab(tab)) {
+			list.add(new ItemStack(this, 1, 1));
+		}
 	}
 	
 	public static ItemStack getBlueprintForItem(ItemStack stack)
