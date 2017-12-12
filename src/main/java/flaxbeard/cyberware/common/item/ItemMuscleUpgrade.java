@@ -150,7 +150,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 						}
 					}
 					
-					if (loc != -1)
+					if (loc != -1 && attacker != null)
 					{
 						//System.out.println("LOC " + loc);
 
@@ -209,7 +209,9 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		}
 		else
 		{
-			lastBoostStrength.put(e.getEntityId(), true);
+			this.onRemoved(e, test);
+			lastBoostStrength.remove(e.getEntityId());
+			//lastBoostStrength.put(e.getEntityId(), true);
 		}
 		
 		test = new ItemStack(this, 1, 0);
