@@ -5,6 +5,7 @@ import java.util.List;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -21,6 +22,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
+
+import javax.annotation.Nullable;
 
 public class ItemExpCapsule extends Item
 {
@@ -77,9 +80,10 @@ public class ItemExpCapsule extends Item
 		
 		return new ActionResult(EnumActionResult.SUCCESS, stack);
 	}
-	
+
+	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		int xp = 0;
 		if (stack.hasTagCompound())

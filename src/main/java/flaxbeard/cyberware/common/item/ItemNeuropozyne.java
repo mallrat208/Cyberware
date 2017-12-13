@@ -5,6 +5,7 @@ import java.util.List;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -22,40 +23,44 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
 
+import javax.annotation.Nullable;
+
 public class ItemNeuropozyne extends Item
 {
-	public ItemNeuropozyne(String name)
-	{
-		this.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
-		
-		this.setCreativeTab(Cyberware.creativeTab);
-				
-		this.setMaxDamage(0);
+    public ItemNeuropozyne(String name)
+    {
+        this.setRegistryName(name);
+        ForgeRegistries.ITEMS.register(this);
+        this.setUnlocalizedName(Cyberware.MODID + "." + name);
 
-		CyberwareContent.items.add(this);
-	}
-	
-	
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldIn, EntityPlayer playerIn, EnumHand hand)
-	{
-		if (!playerIn.capabilities.isCreativeMode)
-		{
-			stack.shrink(1);
-		}
-		
-		playerIn.addPotionEffect(new PotionEffect(CyberwareContent.neuropozyneEffect, 24000, 0, false, false));
+        this.setCreativeTab(Cyberware.creativeTab);
 
-		return new ActionResult(EnumActionResult.SUCCESS, stack);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
-	{
+        this.setMaxDamage(0);
 
-		String neuropozyne = I18n.format("cyberware.tooltip.neuropozyne");
+        CyberwareContent.items.add(this);
+    }
 
-		tooltip.add(ChatFormatting.BLUE + neuropozyne);
-	}
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+    {
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (!player.capabilities.isCreativeMode)
+        {
+            stack.shrink(1);
+        }
+
+        player.addPotionEffect(new PotionEffect(CyberwareContent.neuropozyneEffect, 24000, 0, false, false));
+
+        return new ActionResult(EnumActionResult.SUCCESS, stack);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    {
+        String neuropozyne = I18n.format("cyberware.tooltip.neuropozyne");
+
+        tooltip.add(ChatFormatting.BLUE + neuropozyne);
+    }
 }
