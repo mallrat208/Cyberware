@@ -1,0 +1,29 @@
+// ***************************************************************************** //
+// Robotic Parts/Cyberware 1.12 Change Log
+//
+// Download Mod: https://minecraft.curseforge.com/projects/roboticparts
+// Original Mod: https://minecraft.curseforge.com/projects/cyberware
+// Source Code: https://github.com/An-Sar/Cyberware
+// Report Issues: https://github.com/An-Sar/Cyberware/issues
+// GamePlay Wiki: https://github.com/Flaxbeard/Cyberware/wiki/Getting-Started
+// Cyberware Discord: https://discord.gg/mnSNSF9
+//
+// ***************************************************************************** //
+
+// ***************************************************************************** //
+//  1.12
+// ***************************************************************************** //
+0.2.10.2
+- mallrat208: Merge Changes made to the official source after the 1.11 port, https://github.com/An-Sar/Cyberware/pull/8
+- Fix Tough As Nails Item Names (closes #7)
+- Fix Neuropanzyne being unusable (closes #6)
+- Fix ItemStack null check that prevented Dense Battery from charging (closes #5)
+- Fix Redstone Flux support (closes #4)
+- Fix Tooltips for certain items
+
+0.2.10.1
+- initial port from 1.11
+
+// ***************************************************************************** //
+//  ..
+// ***************************************************************************** //
