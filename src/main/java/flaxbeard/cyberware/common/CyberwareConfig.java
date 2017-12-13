@@ -43,6 +43,7 @@ public class CyberwareConfig
 	public static int ZOMBIE_MIN_PACK = 1;
 	public static int ZOMBIE_MAX_PACK = 1;
 	public static boolean NO_ZOMBIES = false;
+	public static boolean NO_CLOTHES = false;
 	
 	public static int HUDR = 76;
 	public static int HUDG = 255;
@@ -60,6 +61,8 @@ public class CyberwareConfig
 	
 	public static boolean DEFAULT_DROP = false;
 	public static boolean DEFAULT_KEEP = false;
+
+	public static float DROP_CHANCE = 100F;
 
 	public static boolean KATANA = true;
 	public static boolean CLOTHES = true;
@@ -137,6 +140,7 @@ public class CyberwareConfig
 		ZOMBIE_MIN_PACK = config.getInt("Minimum Cyberzombie pack size", C_MOBS, ZOMBIE_MIN_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 1, Witch = 1");
 		ZOMBIE_MAX_PACK = config.getInt("Maximum Cyberzombie pack size", C_MOBS, ZOMBIE_MAX_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 4, Witch = 1");
 
+		NO_CLOTHES = config.getBoolean("Prevent mobs from spawning with Cyberware clothing", C_MOBS, NO_CLOTHES, "");
 		DROP_RARITY = config.getFloat("Percent chance a Cyberzombie drops an item", C_MOBS, DROP_RARITY, 0F, 100F, "");
 		
 		SURGERY_CRAFTING = config.getBoolean("Enable crafting recipe for Robosurgeon", C_OTHER, SURGERY_CRAFTING, "Normally only found in Nether fortresses");
@@ -147,6 +151,8 @@ public class CyberwareConfig
 		
 		DEFAULT_DROP = config.getBoolean("Default for gamerule cyberware_dropCyberware", C_GAMERULES, DEFAULT_DROP, "Determines if players drop their Cyberware on death. Does not change settings on existing worlds, use /gamerule for that. Overridden if cyberware_keepCyberware is true");
 		DEFAULT_KEEP = config.getBoolean("Default for gamerule cyberware_keepCyberware", C_GAMERULES, DEFAULT_KEEP, "Determines if players keep their Cyberware between lives. Does not change settings on existing worlds, use /gamerule for that.");
+
+		DROP_CHANCE = config.getFloat("Chance of successful drop", C_GAMERULES, DROP_CHANCE, 0F, 100F, "If dropCyberware enabled, chance for a piece of Cyberware to successfuly drop instead of being destroyed.");
 
 		ENGINEERING_CHANCE = config.getFloat("Chance of blueprint from Engineering Table", C_MACHINES, ENGINEERING_CHANCE, 0, 100F, "");
 		SCANNER_CHANCE = config.getFloat("Chance of blueprint from Scanner", C_MACHINES, SCANNER_CHANCE, 0, 100F, "");
