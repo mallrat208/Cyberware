@@ -18,15 +18,16 @@ import flaxbeard.cyberware.Cyberware;
 public class PotionNeuropozyne extends Potion
 {
 	private static final ResourceLocation resource = new ResourceLocation(Cyberware.MODID + ":textures/gui/potions.png");
-	private final int iconIndex = 0;
+	private int iconIndex = 0;
 	
-	public PotionNeuropozyne(String name, boolean isBadEffectIn, int liquidColorIn)
+	public PotionNeuropozyne(String name, boolean isBadEffectIn, int liquidColorIn, int iconIndex)
 	{
 		super(isBadEffectIn, liquidColorIn);
 		this.setPotionName("cyberware.potion." + name);
 		this.setRegistryName(new ResourceLocation(Cyberware.MODID, name));
 		//GameRegistry.register(this, new ResourceLocation(Cyberware.MODID, name));
 		ForgeRegistries.POTIONS.register(this);
+		this.iconIndex = iconIndex;
 	}
 	
 	@Override

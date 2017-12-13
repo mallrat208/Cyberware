@@ -138,11 +138,12 @@ public class CyberwareDataHandler
 										}
 									}
 								}
-								
-								if (!found)
+
+								if (!found && p.world.rand.nextFloat() < CyberwareConfig.DROP_CHANCE / 100F)
 								{
+
 									EntityItem item = new EntityItem(p.world, p.posX, p.posY, p.posZ, toDrop);
-									p.world.spawnEntity(item);
+									event.getDrops().add(item);
 								}
 							}
 						}
@@ -200,7 +201,7 @@ public class CyberwareDataHandler
 				return;
 			}
 		}
-		if (event.getEntityLiving() instanceof EntityZombie && CyberwareConfig.CLOTHES && !(event.getEntityLiving() instanceof EntityPigZombie))
+		if (event.getEntityLiving() instanceof EntityZombie && CyberwareConfig.CLOTHES && !CyberwareConfig.NO_CLOTHES && !(event.getEntityLiving() instanceof EntityPigZombie))
 		{
 			EntityZombie zom = (EntityZombie) event.getEntityLiving();
 

@@ -190,6 +190,7 @@ cyberware.tooltip.joiner_or=or
 
 cyberware.tooltip.neuropozyne=Anti-Rejection (20:00)
 cyberware.potion.neuropozyne=Anti-Rejection
+cyberware.potion.rejection=Aug Rejection
 
 cyberware.tooltip.component_box=Shift-click to place or pick up
 cyberware.tooltip.component_box2=Accessible by Engineering Table if nearby or in inventory
