@@ -1,70 +1,151 @@
-
-// For those who want the bleeding edge
+// ***************************************************************************** //
+// build.gradle
+// for versioning see gradle.properties
+//
+// ***************************************************************************** //
 buildscript {
+
     repositories {
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        maven { url = "http://files.minecraftforge.net/maven" }
     }
+
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
+
 }
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-/*
-// for people who want stable - not yet functional for MC 1.8.8 - we require the forgegradle 2.1 snapshot
-plugins {
-    id "net.minecraftforge.gradle.forge" version "2.0.2"
+// ***************************************************************************** //
+//  Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+// ***************************************************************************** //
+repositories {
+
+    maven {
+        name = "darkhax"
+        url = 'http://maven.epoxide.xyz'
+    }
+
+    maven {
+        name = "JitPack"
+        url = 'https://jitpack.io'
+    }
+
+    maven {
+        name = "jei"
+        url = "http://dvs1.progwml6.com/files/maven"
+    }
+
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "modmaven.k-4u.nl"
+    }
+
+    maven {
+        name "CraftTweaker"
+        url "http://maven.blamejared.com/"
+    }
+
+    //maven {
+    //    name = "mobius"
+    //    url = "http://mobiusstrip.eu/maven"
+    //}
+
+    //maven {
+    //    name = "applecore"
+    //    url = "http://www.ryanliptak.com/maven/"
+    //}
+
+    //maven {
+    //    name = "tesla"
+    //    url = "http://maven.epoxide.xyz"
+    //}
+
+    //maven {
+    //    name = "chickenbones"
+    //    url = "http://chickenbones.net/maven/"
+    //}
+
+    //maven {
+    //    name = "TehNut"
+    //    url = "http://tehnut.info/maven/"
+    //}
+
+    maven {
+        name = "ic2"
+        url = "http://maven.ic2.player.to/"
+    }
+
+    //maven {
+    //    name = "Modmuss50"
+    //    url = "http://maven.modmuss50.me/"
+    //}
+
+    //ivy {
+    //    name = "CraftTweaker"
+    //    artifactPattern "https://addons-origin.cursecdn.com/files/2392/421/[module]-[revision](-[classifier]).[ext]"
+    //}
+
+    //maven {
+    //    name = "PrimalCore"
+    //    url = "https://maven.nmd.so"
+    //}
 }
-*/
 
-version = "alpha-0.2.9"
-group= "flaxbeard.cyberware" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "cyberware"
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+//apply plugin: 'git'
+//apply plugin: 'java'
 
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8 // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+configurations {
+    deployerJars
+}
+
+// http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = "${mod_group}"
+version = "${mc_version}-${mod_version}" + buildNumber()
+archivesBaseName = "${mod_name}"
 
 minecraft {
-    version = "1.12.1-14.22.0.2474"
+    //version = "1.12.1-14.22.0.2450"
+    //version = config.mc_version + "-" + config.forge_version + "-" + config.forge_suffix
+    version = "${mc_version}" + "-" + "${forge_version}"
     runDir = "run"
 
-    replace "@VERSION@", project.version
-    
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20170624"
+    //mappings = "snapshot_20160312"
+    mappings = "${mcp_mappings}"
+
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    // JEI
+    useDepAts = true
+
+    // Replace
+    //replace '1.0.0.0', project.forge_version
+    replace '@MOD_VERSION@', "${mod_version}" + buildNumber()
+    replace '@MOD_SIGNATURE@', project.findProperty('mod_signature')
+    replaceIn 'Cyberware.java'
 }
-
-
-jar {
-    archiveName = "${baseName}-1.12.1-${version}.jar"
-}
-
 
 dependencies {
-    compile files(
-        'Baubles.jar',
-        'Botania.jar',
-        'TaN.jar'
-    )
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
-      
+
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
     //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
@@ -79,37 +160,139 @@ dependencies {
 
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // http://www.gradle.org/docs/current/userguide/ddependency_management.html
 
-}
+    // SSH
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
 
-repositories {
-    maven { url 'http://maven.epoxide.xyz' }
-    maven { url 'http://dvs1.progwml6.com/files/maven' }
-}
-dependencies {
+    // PrimalCore
+    //deobfCompile "nmd.primal.core:PrimalCore:${primal_version}:dev"
+    //runtime "nmd.primal.core:PrimalCore:${primal_version}"
+
+    // JEI
+    //  https://github.com/mezz/JustEnoughItems
+    //  http://minecraft.curseforge.com/projects/just-enough-items-jei/files
+    //  <MINECRAFT-VERSION> and <JEI-VERSION> can be found on CurseForge, check the file name of the version you want.
+    //
+    // compile against the JEI API
+    // http://dvs1.progwml6.com/files/maven/mezz/jei/jei_1.11.2/4.3.3.266/jei_1.11.2-4.3.3.266-api.jar
+    deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}:api"
+    // at runtime, use the full JEI jar
+    //runtime "mezz.jei:jei_${mc_version}:${jei_version}"
+
+    // CraftTweaker
+    //compile "CraftTweaker2:CraftTweaker2-MC1120-Main:${craftweaker_version}"
+
+    // Baubles
+    //compile "com.github.azanor:baubles:-SNAPSHOT"
+
+    // APPLECORE
+    // https://github.com/squeek502/AppleCore/wiki
+    //deobfCompile "applecore:AppleCore:${mc_version}-${apple_version}:deobf"
+    //deobfCompile "applecore:AppleCore:${mc_version}-${apple_version}:api"
+
+    // WAILA/HWYLA
+    //compile "mcp.mobius.waila:Waila:${config.waila_version}_${config.mc_version}:dev"
+    //compile "mcp.mobius.waila:Hwyla:+"
+
+    // TESLA
+    // https://github.com/Darkhax-Minecraft/Tesla/blob/master/README.md
+    //compile "net.darkhax.tesla:Tesla:${config.tesla_version}"
+
+    // IC2
+    // http://maven.ic2.player.to/net/industrial-craft/industrialcraft-2/2.7.9-ex111/industrialcraft-2-2.7.9-ex111-api.jar
+    //deobfCompile "net.industrial-craft:industrialcraft-2:${ic2_version}-ex112:api"
+
+    // ToughAsNails
+    compile "com.github.glitchfiend.biomesoplenty:ToughAsNails:${tan_version}:api"
+
+    // BiomesOPlenty
+    //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
+
+    // DarkHax
     compile "net.darkhax.tesla:Tesla-1.12:1.0.61"
-    deobfCompile "mezz.jei:jei_1.12.1:4.7+"
+
+    // Compile Included JARs
+    compile files(
+            'Baubles.jar',
+            'Botania.jar',
+            'TaN.jar'
+    )
 }
 
-processResources
-{
+processResources {
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property "version", "${mod_version}"
+    inputs.property "build", "${mod_build}"
+    inputs.property "mcversion", "${mc_version}"
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version':"${mod_version}", 'build':"${mod_build}", 'mcversion':"${mc_version}"
     }
-        
-    // copy everything else, thats not the mcmod.info
+
+    // copy everything else, not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-
-
 }
+
+idea { module { inheritOutputDirs = true } }
+
+jar {
+    exclude "**/TODO.txt"
+    exclude "**/update-dist.json"
+}
+
+task devJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
+//task deobfJar(type: Jar) {
+//    from sourceSets.main.output
+//    manifest commonManifest
+//    classifier = 'deobf'
+//}
+
+task apiJar(type: Jar) {
+    from(sourceSets.main.allJava) {
+        include 'flaxbeard/cyberware/api/**'
+    }
+    from (sourceSets.main.output) {
+        //include 'LICENSE.txt'
+        include 'flaxbeard/cyberware/api/**'
+    }
+    classifier = 'api'
+}
+
+artifacts {
+    archives devJar
+    archives apiJar
+}
+
+def buildNumber() {
+    return (project.mod_build!="" && project.mod_build!="0") ? '.' + project.mod_build : ""
+}
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    // Skip the task if our secret data isn't available
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    // findProperty allows us to reference the property without it existing
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+build.dependsOn signJar
+
+// ***************************************************************************** //
+//  ..
+// ***************************************************************************** //

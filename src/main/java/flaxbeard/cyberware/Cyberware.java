@@ -14,11 +14,11 @@ import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.misc.CommandClearCyberware;
 import flaxbeard.cyberware.common.misc.TabCyberware;
 
-@Mod(modid = Cyberware.MODID, version = Cyberware.VERSION)
+@Mod(modid = Cyberware.MODID, version = Cyberware.VERSION, certificateFingerprint = "@MOD_SIGNATURE@")
 public class Cyberware
 {
 	public static final String MODID = "cyberware";
-	public static final String VERSION = "@VERSION@";
+	public static final String VERSION = "@MOD_VERSION@";
 	
 	@Instance(MODID)
 	public static Cyberware INSTANCE;
