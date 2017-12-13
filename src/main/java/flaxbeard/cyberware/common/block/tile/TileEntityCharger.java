@@ -26,7 +26,7 @@ import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareConfig;
 
-@Optional.Interface(iface = "cofh.api.energy.IEnergyReceiver", modid = "CoFHAPI|energy")
+@Optional.Interface(iface = "cofh.redstoneflux.api.IEnergyReceiver", modid = "redstoneflux")
 public class TileEntityCharger extends TileEntity implements ITickable, IEnergyReceiver, IEnergyStorage
 {
 	private PowerContainer container = new PowerContainer();

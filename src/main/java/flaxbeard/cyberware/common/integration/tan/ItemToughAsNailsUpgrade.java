@@ -12,8 +12,8 @@ import toughasnails.api.stat.capability.ITemperature;
 import toughasnails.api.stat.capability.IThirst;
 import toughasnails.api.temperature.TemperatureHelper;
 import toughasnails.api.thirst.ThirstHelper;
-import toughasnails.config.SyncedConfigHandler;
-import toughasnails.temperature.TemperatureHandler;
+//import toughasnails.config.SyncedConfigHandler;
+//import toughasnails.temperature.TemperatureHandler;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.common.item.ItemCyberware;
@@ -47,6 +47,7 @@ public class ItemToughAsNailsUpgrade extends ItemCyberware
 				addExhaustion(thirstData, 0.008F);
 			
 				boolean cooling = false;
+				// TODO: look at reworking this to use the TAN API
 				if (tempData instanceof TemperatureHandler)
 				{
 					// If the player is cooling, sweat speeds the change, otherwise it slows it
@@ -73,6 +74,7 @@ public class ItemToughAsNailsUpgrade extends ItemCyberware
 			ITemperature tempData = TemperatureHelper.getTemperatureData(p);
 
 			boolean heating = false;
+			// TODO: look at reworking this to use the TAN API
 			if (tempData instanceof TemperatureHandler)
 			{
 				// If the player is heating, blubber speeds the change, otherwise it slows it

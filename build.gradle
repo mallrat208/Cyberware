@@ -24,11 +24,6 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 repositories {
 
     maven {
-        name = "darkhax"
-        url = 'http://maven.epoxide.xyz'
-    }
-
-    maven {
         name = "JitPack"
         url = 'https://jitpack.io'
     }
@@ -45,9 +40,19 @@ repositories {
     }
 
     maven {
-        name "CraftTweaker"
-        url "http://maven.blamejared.com/"
+        name = "CoFH Maven"
+        url = "http://maven.covers1624.net"
     }
+
+    maven {
+        name = "DarkHax"
+        url = 'http://maven.epoxide.xyz'
+    }
+
+    //maven {
+    //    name "CraftTweaker"
+    //    url "http://maven.blamejared.com/"
+    //}
 
     //maven {
     //    name = "mobius"
@@ -74,10 +79,10 @@ repositories {
     //    url = "http://tehnut.info/maven/"
     //}
 
-    maven {
-        name = "ic2"
-        url = "http://maven.ic2.player.to/"
-    }
+    //maven {
+    //    name = "ic2"
+    //    url = "http://maven.ic2.player.to/"
+    //}
 
     //maven {
     //    name = "Modmuss50"
@@ -184,7 +189,7 @@ dependencies {
     //compile "CraftTweaker2:CraftTweaker2-MC1120-Main:${craftweaker_version}"
 
     // Baubles
-    //compile "com.github.azanor:baubles:-SNAPSHOT"
+    compile "com.github.azanor:baubles:-SNAPSHOT"
 
     // APPLECORE
     // https://github.com/squeek502/AppleCore/wiki
@@ -212,9 +217,12 @@ dependencies {
     // DarkHax
     compile "net.darkhax.tesla:Tesla-1.12:1.0.61"
 
+    // RF
+    deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
+
     // Compile Included JARs
     compile files(
-            'Baubles.jar',
+            //'Baubles.jar',
             'Botania.jar',
             'TaN.jar'
     )
