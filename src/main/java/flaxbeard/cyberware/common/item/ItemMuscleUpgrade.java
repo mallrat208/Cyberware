@@ -211,7 +211,9 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		}
 		else
 		{
-			lastBoostStrength.put(e.getEntityId(), true);
+			this.onRemoved(e, test);
+
+			lastBoostStrength.remove(e.getEntityId());
 		}
 		
 		test = new ItemStack(this, 1, 0);
@@ -307,10 +309,16 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		return EnableDisableHelper.isEnabled(stack) ? f : null;
 	}
-	
+
 	@Override
 	public boolean isEssential(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0;		
+		return stack.getItemDamage() == 1;
+	}
+
+	@Override
+	public boolean isIncompatible(ItemStack stack, ItemStack other)
+	{
+		return stack.getItemDamage() == 1 && CyberwareAPI.getCyberware(other).isEssential(other);
 	}
 }
