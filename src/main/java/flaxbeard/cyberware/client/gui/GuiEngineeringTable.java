@@ -36,9 +36,9 @@ public class GuiEngineeringTable extends GuiContainer
 		{
 			super(p_i46316_1_, p_i46316_2_, p_i46316_3, 21, 21, "");
 		}
-	
 
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+		@Override
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{
@@ -71,8 +71,9 @@ public class GuiEngineeringTable extends GuiContainer
 			super(p_i46316_1_, p_i46316_2_, p_i46316_3_, 23, 13, "");
 			this.isForward = p_i46316_4_;
 		}
-	
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+
+		@Override
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{
