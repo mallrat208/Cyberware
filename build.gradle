@@ -223,7 +223,7 @@ dependencies {
     // Compile Included JARs
     compile files(
             //'Baubles.jar',
-            'Botania.jar',
+            //'Botania.jar',
             'TaN.jar'
     )
 }
