@@ -8,6 +8,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +27,7 @@ import flaxbeard.cyberware.api.item.IBlueprint;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.misc.NNLUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemBlueprint extends Item implements IBlueprint
@@ -228,5 +230,39 @@ public class ItemBlueprint extends Item implements IBlueprint
 			}
 		}
 		throw new IllegalStateException("Consuming items when items shouldn't be consumed!");
+	}
+
+	@Override
+	public NonNullList<ItemStack> getRequirementsForDisplay(ItemStack stack)
+	{
+		if(stack.hasTagCompound())
+		{
+			NBTTagCompound comp = stack.getTagCompound();
+			if(comp.hasKey("blueprintItem"))
+			{
+				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
+				if(blueprintItem!=ItemStack.EMPTY && CyberwareAPI.canDeconstruct(blueprintItem))
+				{
+					return CyberwareAPI.getComponents(blueprintItem);
+				}
+			}
+		}
+
+		return NonNullList.create();
+	}
+
+	@Override
+	public ItemStack getIconForDisplay(ItemStack stack)
+	{
+		if (stack.hasTagCompound())
+		{
+			NBTTagCompound comp = stack.getTagCompound();
+			if (comp.hasKey("blueprintItem"))
+			{
+				return new ItemStack(comp.getCompoundTag("blueprintItem"));
+			}
+		}
+
+		return ItemStack.EMPTY;
 	}
 }

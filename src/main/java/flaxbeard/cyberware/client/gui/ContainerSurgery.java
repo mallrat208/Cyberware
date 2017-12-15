@@ -94,7 +94,7 @@ public class ContainerSurgery extends Container
 			ItemStack playerStack = getPlayerStack();
 			//if (!stack.isEmpty() && !playerStack.isEmpty() && stack.getit) return false;
 			if (!getPlayerStack().isEmpty() && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
-			if (!(!stack.isEmpty() && stack.getItem() != null && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
+			if (!(!stack.isEmpty() && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
 			
 			if (CyberwareAPI.areCyberwareStacksEqual(stack, playerStack))
 			{

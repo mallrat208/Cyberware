@@ -1352,7 +1352,7 @@ public class GuiSurgery extends GuiContainer
 		}
 		
 		
-		List<String> missingSlots = new ArrayList<String>();
+		List<String> missingSlots = new ArrayList<>();
 
 		if (page != index.id)
 		{
@@ -1415,7 +1415,7 @@ public class GuiSurgery extends GuiContainer
 				// Otherwise, see if a blue slot is hovered and a ghost item carries over
 				ghost = true;
 				slot = getSlotAtPosition(mouseX, mouseY);
-				if (slot != null && (slot.getStack() != null))
+				if (slot != null && (!slot.getStack().isEmpty()))
 				{
 					slot = null;
 				}
@@ -1505,7 +1505,6 @@ public class GuiSurgery extends GuiContainer
 
 		
 	}
-
 
 	@Override
 	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type)
