@@ -15,8 +15,9 @@
 // ***************************************************************************** //
 0.2.10.2
 - Disable Botania integration for now
-- mallrat208: Merge fixes for GUIs
-- mallrat208: Merge Changes made to the official source after the 1.11 port, https://github.com/An-Sar/Cyberware/pull/8
+- mallrat208: Merge Blueprint, Engineering Table, Power Usage Readout, and Player Essence (PR #12)
+- mallrat208: Merge fixes for GUIs, (PR #11)
+- mallrat208: Merge Changes made to the (PR #8)
 - Fix Tough As Nails Item Names (closes #7)
 - Fix Neuropanzyne being unusable (closes #6)
 - Fix ItemStack null check that prevented Dense Battery from charging (closes #5)
