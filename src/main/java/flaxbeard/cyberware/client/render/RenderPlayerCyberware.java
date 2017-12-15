@@ -1,7 +1,5 @@
 package flaxbeard.cyberware.client.render;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -62,10 +60,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderRightArm(clientPlayer);
 		
-		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1)) && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1)) && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT && clientPlayer.getHeldItemMainhand().isEmpty()
+		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
+				&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))
+				&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT && clientPlayer.getHeldItemMainhand().isEmpty()
 				&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 
 			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
@@ -76,7 +76,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			claws.claw1.rotateAngleX = 0.00F;
 			claws.claw1.setRotationPoint(-5.0F, -5.0F + (7F * percent), 0.0F);
 			claws.claw1.render(0.0625F);
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 	}
 
@@ -91,7 +91,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT && clientPlayer.getHeldItemMainhand().isEmpty()
 			&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 
 			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
@@ -102,7 +102,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			claws.claw1.rotateAngleX = 0.00F;
 			claws.claw1.setRotationPoint(-5.0F, -5.0F + (7F * percent), 0.0F);
 			claws.claw1.render(0.0625F);
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 	}
 
@@ -283,7 +283,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		if (clientPlayer.isSpectator())
 		{
 			//modelplayer.setInvisible(false);
-			modelplayer.setVisible(true);
+			modelplayer.setVisible(false);
 			modelplayer.bipedHead.showModel = true;
 			modelplayer.bipedHeadwear.showModel = true;
 		}
@@ -292,7 +292,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			ItemStack itemstack = clientPlayer.getHeldItemMainhand();
 			ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
 			//modelplayer.setInvisible(true);
-			modelplayer.setVisible(false);
+			modelplayer.setVisible(true);
 			modelplayer.bipedHeadwear.showModel = modelplayer.bipedHead.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.HAT);
 			modelplayer.bipedBodyWear.showModel = modelplayer.bipedBody.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
 			modelplayer.bipedLeftLegwear.showModel = modelplayer.bipedLeftLeg.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);

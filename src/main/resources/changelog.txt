@@ -14,11 +14,14 @@
 //  1.12
 // ***************************************************************************** //
 0.2.10.2
+- Disable Botania integration for now
+- mallrat208: Merge fixes for GUIs
 - mallrat208: Merge Changes made to the official source after the 1.11 port, https://github.com/An-Sar/Cyberware/pull/8
 - Fix Tough As Nails Item Names (closes #7)
 - Fix Neuropanzyne being unusable (closes #6)
 - Fix ItemStack null check that prevented Dense Battery from charging (closes #5)
 - Fix Redstone Flux support (closes #4)
+- Fix Player Rendering issue (closes #3)
 - Fix Tooltips for certain items
 
 0.2.10.1

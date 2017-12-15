@@ -256,7 +256,7 @@ public final class CyberwareAPI
 	 */
 	public static boolean isCyberware(ItemStack stack)
 	{
-		if (!stack.isEmpty()){
+		if (stack != null){
 			return !stack.isEmpty() && (stack.getItem() instanceof ICyberware || getLinkedWare(stack) != null);
 		}
 		return false;
