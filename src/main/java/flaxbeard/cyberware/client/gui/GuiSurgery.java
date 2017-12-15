@@ -141,11 +141,12 @@ public class GuiSurgery extends GuiContainer
 			super(p_i46316_1_, p_i46316_2_, p_i46316_3_, type.width, type.height, "");
 			this.type = type;
 		}
-	
+
 		/**
 		 * Draws this button to the screen.
 		 */
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+		@Override
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{

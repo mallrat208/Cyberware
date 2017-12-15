@@ -45,9 +45,9 @@ public class CreativeMenuHandler
 			this.baseX = this.x;
 			this.baseY = this.y;
 		}
-	
 
-		public void drawButton(Minecraft mc, int mouseX, int mouseY)
+		@Override
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
 			if (this.visible)
 			{
@@ -194,12 +194,10 @@ public class CreativeMenuHandler
 			}
 
 			// TODO: Reflection
-			/**
-			//Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class, gui, new String[] { "setCurrentCreativeTab", "func_147050_b" }, CreativeTabs.class);
-			//Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class, gui, new String[] { "setCurrentCreativeTab", "func_147050_b" }, CreativeTabs.class);
+			Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", null, CreativeTabs.class);
 			try
 			{
-				//tab.invoke(gui, Cyberware.creativeTab);
+				tab.invoke(gui, Cyberware.creativeTab);
 			}
 			catch (IllegalAccessException e)
 			{
@@ -215,7 +213,7 @@ public class CreativeMenuHandler
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} **/
+			}
 		}
 	}
 
