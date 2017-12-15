@@ -83,7 +83,7 @@ public final class CyberwareAPI
 	/**
 	 * Sets the HUD color for the Hudjack, radial menu, and other AR HUD elements
 	 * 
-	 * @param color	A hexadecimal representation of the desired color
+	 * @param hexVal	A hexadecimal representation of the desired color
 	 */
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(int hexVal)
@@ -248,7 +248,7 @@ public final class CyberwareAPI
 	 */
 	public static boolean isCyberware(ItemStack stack)
 	{
-		if (!stack.isEmpty()){
+		if (stack != null){
 			return !stack.isEmpty() && (stack.getItem() instanceof ICyberware || getLinkedWare(stack) != null);
 		}
 		return false;
