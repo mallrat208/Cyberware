@@ -66,6 +66,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				lastEntity = entity.getEntityId();
 			}
 			ICyberwareUserData c = CyberwareAPI.getCapability(entity);
+			this.maxEssence = c.getMaxTolerance(entity);
 			
 			// Update slotsPlayer with the items in the player's body
 			int i = 0;
@@ -120,6 +121,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		else
 		{
 			slotsPlayer = new ItemStackHandler(120);
+			this.maxEssence = CyberwareConfig.ESSENCE;
 			for (EnumSlot slotType : EnumSlot.values())
 			{
 				updateEssential(slotType);
@@ -560,7 +562,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			}
 			cyberware.setHasEssential(slot, !isEssentialMissing[slotIndex * 2], !isEssentialMissing[slotIndex * 2 + 1]);
 		}
-		cyberware.setEssence(essence);
+		cyberware.setTolerance(targetEntity, essence);
 		cyberware.updateCapacity();
 		cyberware.setImmune();
 		if (!world.isRemote)
@@ -619,7 +621,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 
 	public void updateEssence()
 	{
-		this.maxEssence = this.essence = CyberwareConfig.ESSENCE; // TODO
+		this.essence = this.maxEssence;
 		boolean hasConsume = false;
 		boolean hasProduce = false;
 		

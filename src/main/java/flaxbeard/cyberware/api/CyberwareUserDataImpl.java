@@ -50,6 +50,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	private Map<ItemStack, Integer> powerBufferLast = new HashMap<ItemStack, Integer>();
 	private NonNullList<ItemStack> outOfPower = NonNullList.create();
 	private List<Integer> outOfPowerTimes = new ArrayList<Integer>();
+	private int missingEssence = 0;
 	private NonNullList<ItemStack> specialBatteries = NonNullList.create();
 	private int essence = 0;
 	private int maxEssence = 0;
@@ -88,7 +89,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 				}
 			}
 		}
-		essence = maxEssence = CyberwareConfig.ESSENCE;
+		missingEssence = 0;
 		for (int i = 0; i < wares.size(); i++)
 		{
 			NonNullList<ItemStack> wareSlot = NonNullList.create();
@@ -592,7 +593,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		compound.setTag("powerBufferLast", writeMap(this.powerBufferLast));
 		compound.setInteger("powerCap", this.powerCap);
 		compound.setInteger("storedPower", this.storedPower);
-		compound.setInteger("essence", essence);
+		compound.setInteger("missingEssence", missingEssence);
 		compound.setTag("hud", hudData);
 		compound.setInteger("color", hudColor);
 		compound.setBoolean("hasOpenedRadialMenu", hasOpenedRadialMenu);
@@ -648,7 +649,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		powerBufferLast = readMap((NBTTagList) tag.getTag("powerBufferLast"));
 
 		storedPower = tag.getInteger("storedPower");
-		essence = tag.getInteger("essence");
+		if (tag.hasKey("essence"))
+		{
+			missingEssence = getMaxEssence() - tag.getInteger("essence");
+		}
+		else
+		{
+			missingEssence = tag.getInteger("missingEssence");
+		}
 		hudData = tag.getCompoundTag("hud");
 		hasOpenedRadialMenu = tag.getBoolean("hasOpenedRadialMenu");
 		NBTTagList essentialList = (NBTTagList) tag.getTag("discard");
@@ -787,12 +795,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	private boolean isImmune = false;
 
 	@Override
+	@Deprecated
 	public int getEssence()
 	{
-		return essence;
+		return getMaxEssence() - missingEssence;
 	}
 	
 	@Override
+	@Deprecated
 	public int getMaxEssence()
 	{
 		return CyberwareConfig.ESSENCE;
@@ -800,10 +810,31 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 
 	@Override
+	@Deprecated
 	public void setEssence(int e)
 	{
-		essence = e;
+		missingEssence = getMaxEssence() - e;
 	}
+
+	@Override
+	public int getMaxTolerance(EntityLivingBase e)
+	{
+		return (int)e.getAttributeMap().getAttributeInstance(CyberwareAPI.TOLERANCE_ATTR).getAttributeValue();
+	}
+
+	@Override
+	public int getTolerance(EntityLivingBase e)
+	{
+		return getMaxTolerance(e) - missingEssence;
+	}
+
+	@Override
+	public void setTolerance(EntityLivingBase e, int amt)
+	{
+		missingEssence = getMaxTolerance(e) - amt;
+	}
+
+
 
 	@Override
 	public int getNumActiveItems()

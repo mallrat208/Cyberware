@@ -98,8 +98,8 @@ public class EssentialsMissingHandler
 		{
 			e.attackEntityFrom(brainless, Integer.MAX_VALUE);
 		}
-		
-		if (cyberware.getEssence() < CyberwareConfig.CRITICAL_ESSENCE && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
+
+		if (cyberware.getTolerance(e) < CyberwareConfig.CRITICAL_ESSENCE && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
 		{
 			e.addPotionEffect(new PotionEffect(CyberwareContent.rejectionEffect, 110, 0, true, false));
 			e.attackEntityFrom(lowessence, 2F);
@@ -107,8 +107,8 @@ public class EssentialsMissingHandler
 					
 		int numMissingLegs = 0;
 		int numMissingLegsVisible = 0;
-		
-		if (cyberware.getEssence() <= 0)
+
+		if (cyberware.getTolerance(e) <= 0)
 		{
 			e.attackEntityFrom(noessence, Integer.MAX_VALUE);
 		}

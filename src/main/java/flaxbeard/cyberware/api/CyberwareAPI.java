@@ -6,8 +6,11 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -52,7 +55,12 @@ public final class CyberwareAPI
 
 	@CapabilityInject(ICyberwareUserData.class)
 	public static final Capability<ICyberwareUserData> CYBERWARE_CAPABILITY = null;
-	
+
+	/**
+	 * Maximum Tolerance, per-player
+	 */
+ 	public static final IAttribute TOLERANCE_ATTR = new RangedAttribute(null, "cyberware.tolerance", CyberwareConfig.ESSENCE, 0.0f, Double.MAX_VALUE).setDescription("Tolerance").setShouldWatch(true);
+
 	public static Map<ItemStack, ICyberware> linkedWare = new HashMap<ItemStack, ICyberware>();
 	
 	
@@ -83,7 +91,7 @@ public final class CyberwareAPI
 	/**
 	 * Sets the HUD color for the Hudjack, radial menu, and other AR HUD elements
 	 * 
-	 * @param color	A hexadecimal representation of the desired color
+	 * @param hexVal A hexadecimal representation of the desired color
 	 */
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(int hexVal)
