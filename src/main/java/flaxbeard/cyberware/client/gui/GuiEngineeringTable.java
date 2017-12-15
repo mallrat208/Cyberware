@@ -1,15 +1,21 @@
 package flaxbeard.cyberware.client.gui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import flaxbeard.cyberware.api.item.IBlueprint;
+import flaxbeard.cyberware.client.ShaderUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -134,6 +140,12 @@ public class GuiEngineeringTable extends GuiContainer
 		}
 	}
 
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		this.renderHoveredToolTip(mouseX, mouseY);
+	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
@@ -225,7 +237,90 @@ public class GuiEngineeringTable extends GuiContainer
 		{
 			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.blueprint") } ), mouseX - i, mouseY - j, fontRenderer);
 		}
-		
+
+		GlStateManager.pushMatrix();
+		ShaderUtil.alpha(0.35F);
+		ItemStack blueprintStack = engineering.slots.getStackInSlot(8);
+		if (blueprintStack != ItemStack.EMPTY && blueprintStack.getItem() instanceof IBlueprint)
+		{
+			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
+			NonNullList<ItemStack> nnlReq = blueprint.getRequirementsForDisplay(blueprintStack);
+			ItemStack[] requiredItems = nnlReq.toArray(new ItemStack[nnlReq.size()]);
+
+			for (int h = 0; h < requiredItems.length; h++)
+			{
+				requiredItems[h] = requiredItems[h].copy();
+			}
+			if (requiredItems.length!=0)
+			{
+				for (int h = 0; h < requiredItems.length; h++)
+				{
+					for (int k = 2; k < 8; k++)
+					{
+						ItemStack required = requiredItems[h];
+						ItemStack crafting = engineering.slots.getStackInSlot(k);
+						if (crafting != ItemStack.EMPTY && required != ItemStack.EMPTY)
+						{
+							if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting))))
+							{
+								requiredItems[h].setCount(Math.max(0, requiredItems[h].getCount() - crafting.getCount()));
+							}
+						}
+					}
+				}
+
+				List<ItemStack> toRender = new ArrayList<ItemStack>();
+				for (int h = 0; h < requiredItems.length; h++)
+				{
+					ItemStack required = requiredItems[h];
+					if (required.getCount() > 0)
+					{
+						toRender.add(required);
+					}
+				}
+
+				int index = 0;
+				for (int k = 2; k < 8 && index < toRender.size(); k++)
+				{
+					if (engineering.slots.getStackInSlot(k) == ItemStack.EMPTY)
+					{
+						this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2));
+
+						FontRenderer font = toRender.get(index).getItem().getFontRenderer(toRender.get(index));
+						if (font == null) font = fontRenderer;
+
+						this.itemRender.renderItemOverlayIntoGUI(font, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2), "+" + Integer.toString(toRender.get(index).getCount()));
+
+						index++;
+					}
+				}
+			}
+		}
+		ShaderUtil.releaseShader();
+		GlStateManager.popMatrix();
+
+		if (this.archive() != null)
+		{
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0, 0, 100F);
+
+			TileEntityBlueprintArchive archive = archive();
+			for (int h = 0; h < archive.slots.getSlots(); h++)
+			{
+				ItemStack item = archive.slots.getStackInSlot(h);
+
+				if (item != ItemStack.EMPTY && item.getItem() instanceof IBlueprint)
+				{
+					IBlueprint blueprint = (IBlueprint) item.getItem();
+					ItemStack prod = blueprint.getIconForDisplay(item);
+					this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, prod, offset + 181 + 18 * (h % 3), 22 + 18 * (h / 3));
+				}
+			}
+
+
+			GlStateManager.popMatrix();
+		}
+
 	}
 
 	@Override

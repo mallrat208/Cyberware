@@ -121,7 +121,6 @@ public class BlueprintCraftingHandler implements IRecipe
 						{
 							ware = stack;
 							wareStack = i;
-							break;
 						}
 						else
 						{

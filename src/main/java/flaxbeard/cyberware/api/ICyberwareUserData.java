@@ -32,16 +32,15 @@ public interface ICyberwareUserData
 	public float getPercentFull();
 	public int getCapacity();
 	public int getStoredPower();
+	public int getProduction();
+ 	public int getConsumption();
 	public boolean usePower(ItemStack stack, int amount);
 	public List<ItemStack> getPowerOutages();
 	public List<Integer> getPowerOutageTimes();
 	public void setImmune();
 	public boolean usePower(ItemStack stack, int amount, boolean isPassive);
 	public boolean hasEssential(EnumSlot slot, EnumSide side);
-	public int getEssence();
-	public void setEssence(int e);
 	public void resetWare(EntityLivingBase e);
-	public int getMaxEssence();
 	public int getNumActiveItems();
 	public List<ItemStack> getActiveItems();
 	public void removeHotkey(int i);
@@ -57,4 +56,14 @@ public interface ICyberwareUserData
 	public void setHudColor(float[] color);
 	public int getHudColorHex();
 	public float[] getHudColor();
+	public int getMaxTolerance(EntityLivingBase e);
+	public void setTolerance(EntityLivingBase e, int amnt);
+	public int getTolerance(EntityLivingBase e);
+
+	@Deprecated
+	public int getEssence();
+	@Deprecated
+	public void setEssence(int e);
+	@Deprecated
+	public int getMaxEssence();
 }

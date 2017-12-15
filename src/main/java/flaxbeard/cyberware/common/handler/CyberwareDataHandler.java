@@ -21,6 +21,7 @@ import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -49,6 +50,16 @@ public class CyberwareDataHandler
 	public static final CyberwareDataHandler INSTANCE = new CyberwareDataHandler();
 	public static final String KEEP_WARE_GAMERULE = "cyberware_keepCyberware";
 	public static final String DROP_WARE_GAMERULE = "cyberware_dropCyberware";
+
+	@SubscribeEvent
+ 	public void onEntityConstructed(EntityEvent.EntityConstructing event)
+ 	{
+		if (event.getEntity() instanceof EntityLivingBase)
+		{
+			EntityLivingBase living = (EntityLivingBase) event.getEntity();
+			living.getAttributeMap().registerAttribute(CyberwareAPI.TOLERANCE_ATTR);
+		}
+	}
 
 	@SubscribeEvent
 	public void worldLoad(WorldEvent.Load event)

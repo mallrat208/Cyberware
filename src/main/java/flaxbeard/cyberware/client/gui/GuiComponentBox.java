@@ -46,6 +46,13 @@ public class GuiComponentBox extends GuiContainer
 		this.name = itemStack.getDisplayName();
 	}
 
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		this.renderHoveredToolTip(mouseX, mouseY);
+	}
+
 	/**
 	 * Draw the foreground layer for the GuiContainer (everything in front of the items)
 	 */
