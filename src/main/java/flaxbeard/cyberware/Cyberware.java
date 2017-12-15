@@ -5,10 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
 import flaxbeard.cyberware.common.CommonProxy;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.misc.CommandClearCyberware;
@@ -46,12 +43,17 @@ public class Cyberware
 	}
 	
 	public static CreativeTabs creativeTab = new TabCyberware(MODID);
-	
-	
+
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
 	{
 		event.registerServerCommand(new CommandClearCyberware());
 	}
 
+	@Mod.EventHandler
+	public void onFingerprintViolation(FMLFingerprintViolationEvent event)
+	{
+		// TODO: add a proper logger?
+		System.out.println("[Cyberware] Invalid fingerprint detected");
+	}
 }
