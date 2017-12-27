@@ -194,7 +194,7 @@ public class CreativeMenuHandler
 			}
 
 			// TODO: Reflection
-			Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", null, CreativeTabs.class);
+			Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", "func_147050_b", CreativeTabs.class);
 			try
 			{
 				tab.invoke(gui, Cyberware.creativeTab);
