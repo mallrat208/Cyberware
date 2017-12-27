@@ -175,8 +175,8 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		}
 	}
 	
-	private Map<Integer, Boolean> lastBoostSpeed = new HashMap<Integer, Boolean>();
-	private Map<Integer, Boolean> lastBoostStrength = new HashMap<Integer, Boolean>();
+	private Map<UUID, Boolean> lastBoostSpeed = new HashMap<UUID, Boolean>();
+	private Map<UUID, Boolean> lastBoostStrength = new HashMap<UUID, Boolean>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -196,24 +196,21 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 					//e.moveRelative(0F, .5F, 0.075F);
 					e.moveRelative(0F, .5F, 0.075F, 0.0F);
 				}
-				
-				if (!last)
-				{
-					this.onAdded(e, test);
-				}
+
+				this.onAdded(e, test);
+
 			}
-			else if (last)
+			else
 			{
 				this.onRemoved(e, test);
 			}
 			
-			lastBoostStrength.put(e.getEntityId(), powerUsed);
+			lastBoostStrength.put(e.getUniqueID(), powerUsed);
 		}
 		else
 		{
 			this.onRemoved(e, test);
-
-			lastBoostStrength.remove(e.getEntityId());
+			lastBoostStrength.remove(e.getUniqueID());
 		}
 		
 		test = new ItemStack(this, 1, 0);
@@ -230,33 +227,31 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 				this.onRemoved(e, test);
 			}
 			
-			lastBoostSpeed.put(e.getEntityId(), powerUsed);
+			lastBoostSpeed.put(e.getUniqueID(), powerUsed);
 		}
 		else 
 		{
-
 			this.onRemoved(e, test);
-			
-			lastBoostSpeed.remove(e.getEntityId());
+			lastBoostSpeed.remove(e.getUniqueID());
 		}
 	}
 	
 	private boolean getLastBoostStrength(EntityLivingBase e)
 	{
-		if (!lastBoostStrength.containsKey(e.getEntityId()))
+		if (!lastBoostStrength.containsKey(e.getUniqueID()))
 		{
-			lastBoostStrength.put(e.getEntityId(), true);
+			lastBoostStrength.put(e.getUniqueID(), true);
 		}
-		return lastBoostStrength.get(e.getEntityId());
+		return lastBoostStrength.get(e.getUniqueID());
 	}
 	
 	private boolean getLastBoostSpeed(EntityLivingBase e)
 	{
-		if (!lastBoostSpeed.containsKey(e.getEntityId()))
+		if (!lastBoostSpeed.containsKey(e.getUniqueID()))
 		{
-			lastBoostSpeed.put(e.getEntityId(), true);
+			lastBoostSpeed.put(e.getUniqueID(), true);
 		}
-		return lastBoostSpeed.get(e.getEntityId());
+		return lastBoostSpeed.get(e.getUniqueID());
 	}
 	
 	@Override
