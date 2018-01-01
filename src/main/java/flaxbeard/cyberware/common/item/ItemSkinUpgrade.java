@@ -1,9 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import net.minecraft.enchantment.EnchantmentThorns;
 import net.minecraft.entity.Entity;
@@ -53,8 +50,8 @@ public class ItemSkinUpgrade extends ItemCyberware
 		}
 	}
 	
-	private Map<Integer, Boolean> lastImmuno = new HashMap<Integer, Boolean>();
-	private static Map<Integer, Collection<PotionEffect>> potions = new HashMap<Integer, Collection<PotionEffect>>();
+	private Map<UUID, Boolean> lastImmuno = new HashMap<UUID, Boolean>();
+	private static Map<UUID, Collection<PotionEffect>> potions = new HashMap<UUID, Collection<PotionEffect>>();
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
@@ -97,22 +94,24 @@ public class ItemSkinUpgrade extends ItemCyberware
 					}
 				}
 			}
-			potions.put(e.getEntityId(), e.getActivePotionEffects());
+
+			lastImmuno.put(e.getUniqueID(),powerUsed);
+			potions.put(e.getUniqueID(), e.getActivePotionEffects());
 		}
 		else
 		{
-			lastImmuno.remove(e.getEntityId());
-			potions.remove(e.getEntityId());
+			lastImmuno.remove(e.getUniqueID());
+			potions.remove(e.getUniqueID());
 		}
 	}
 	
 	private boolean lastImmuno(EntityLivingBase e)
 	{
-		if (!lastImmuno.containsKey(e.getEntityId()))
+		if (!lastImmuno.containsKey(e.getUniqueID()))
 		{
-			lastImmuno.put(e.getEntityId(), true);
+			lastImmuno.put(e.getUniqueID(), true);
 		}
-		return lastImmuno.get(e.getEntityId());
+		return lastImmuno.get(e.getUniqueID());
 	}
 	
 	@Override
