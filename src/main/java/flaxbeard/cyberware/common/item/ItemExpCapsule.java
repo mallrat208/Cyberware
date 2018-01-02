@@ -58,14 +58,12 @@ public class ItemExpCapsule extends Item
 	{
 		return true;
 	}
-	
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldIn, EntityPlayer playerIn, EnumHand hand)
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer playerIn, EnumHand hand)
 	{
-		if (!playerIn.capabilities.isCreativeMode)
-		{
-			stack.shrink(1);
-		}
-		
+		ItemStack stack = playerIn.getHeldItem(hand);
+
 		int xp = 0;
 		if (stack.hasTagCompound())
 		{
@@ -75,9 +73,14 @@ public class ItemExpCapsule extends Item
 				xp = c.getInteger("xp");
 			}
 		}
-		
+
+		if (!playerIn.capabilities.isCreativeMode)
+		{
+			stack.shrink(1);
+		}
+
 		playerIn.addExperience(xp);
-		
+
 		return new ActionResult(EnumActionResult.SUCCESS, stack);
 	}
 

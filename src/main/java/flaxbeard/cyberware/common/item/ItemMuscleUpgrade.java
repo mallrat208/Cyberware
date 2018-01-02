@@ -100,6 +100,9 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		EntityLivingBase e = event.getEntityLiving();
 
+		if (e == null)
+			return;
+
 		ItemStack test = new ItemStack(this, 1, 0);
 		int rank = CyberwareAPI.getCyberwareRank(e, test);
 		if (!event.isCanceled() && e instanceof EntityPlayer && (rank > 1) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && getLastBoostSpeed(e))
@@ -182,7 +185,10 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		ItemStack test = new ItemStack(this, 1, 1);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{

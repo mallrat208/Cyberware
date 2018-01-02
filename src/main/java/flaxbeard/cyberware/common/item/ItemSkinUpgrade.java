@@ -40,6 +40,10 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
+
+        if (e == null)
+            return;
+
 		ItemStack test = new ItemStack(this, 1, 0);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
@@ -57,7 +61,10 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+		if (e == null)
+			return;
+
 		ItemStack test = new ItemStack(this, 1, 3);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{

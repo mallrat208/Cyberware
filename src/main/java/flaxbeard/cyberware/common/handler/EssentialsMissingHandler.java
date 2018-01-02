@@ -73,7 +73,10 @@ public class EssentialsMissingHandler
 	public void triggerCyberwareEvent(LivingUpdateEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+		if (e == null)
+			return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			CyberwareUpdateEvent event2 = new CyberwareUpdateEvent(e);
@@ -85,7 +88,9 @@ public class EssentialsMissingHandler
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+		if (e == null)
+			return;
 
 		ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
 		
@@ -252,8 +257,11 @@ public class EssentialsMissingHandler
 	@SubscribeEvent
 	public void handleJump(LivingJumpEvent event)
 	{
-			EntityLivingBase e = event.getEntityLiving();
-		
+	    EntityLivingBase e = event.getEntityLiving();
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -305,7 +313,10 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
-		
+
+        if (e == null)
+            return;
+
 		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
 		{
 			EntityPlayer p = (EntityPlayer) e;
@@ -329,7 +340,10 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase e = event.getEntityLiving();
 		ItemStack stack = event.getItem();
-		
+
+        if (e == null)
+            return;
+
 		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
 		{
 			EntityPlayer p = (EntityPlayer) e;
@@ -357,7 +371,10 @@ public class EssentialsMissingHandler
 		if (event.phase == Phase.START && Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null)
 		{
 			EntityPlayer e = Minecraft.getMinecraft().player;
-	
+
+            if (e == null)
+                return;
+
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			e.getAttributeMap().removeAttributeModifiers(multimap);
@@ -368,11 +385,13 @@ public class EssentialsMissingHandler
 	@SideOnly(Side.CLIENT)
 	public void overlayPre(RenderGameOverlayEvent.Pre event)
 	{
-	
 		if (event.getType() == ElementType.ALL)
 		{
 			EntityPlayer e = Minecraft.getMinecraft().player;
-			
+
+            if (e == null)
+                return;
+
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			//e.getAttributeMap().removeAttributeModifiers(multimap);
@@ -420,7 +439,10 @@ public class EssentialsMissingHandler
 	public void handleMissingSkin(LivingHurtEvent event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -440,7 +462,10 @@ public class EssentialsMissingHandler
 	public void handleEntityInteract(PlayerInteractEvent.EntityInteract event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -452,7 +477,10 @@ public class EssentialsMissingHandler
 	public void handleLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -464,7 +492,10 @@ public class EssentialsMissingHandler
 	public void handleRightClickBlock(PlayerInteractEvent.RightClickBlock event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
@@ -476,7 +507,10 @@ public class EssentialsMissingHandler
 	public void handleRightClickItem(PlayerInteractEvent.RightClickItem event)
 	{
 		EntityLivingBase e = event.getEntityLiving();
-		
+
+        if (e == null)
+            return;
+
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
