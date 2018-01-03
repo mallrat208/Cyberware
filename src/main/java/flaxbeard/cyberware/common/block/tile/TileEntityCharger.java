@@ -19,6 +19,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.Optional;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -84,6 +85,9 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 		{
 			return (T) this.container;
 		}
+		
+		if(capability ==CapabilityEnergy.ENERGY)
+			return (T) this;
 			
 		return super.getCapability(capability, facing);
 	}
@@ -91,7 +95,7 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
 	{
-		if (capability == TESLA_CONSUMER || capability == TESLA_PRODUCER || capability == TESLA_HOLDER)
+		if (capability == TESLA_CONSUMER || capability == TESLA_PRODUCER || capability == TESLA_HOLDER || capability == CapabilityEnergy.ENERGY)
 		{
 			return true;
 		}
