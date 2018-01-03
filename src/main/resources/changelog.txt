@@ -13,6 +13,9 @@
 // ***************************************************************************** //
 //  1.12
 // ***************************************************************************** //
+0.2.10.5
+- Merge Mallrat PR fix for #17
+
 0.2.10.4
 - Merge Mallrat PR fix for #14 (testing)
 - Add additional null checks to cyberware events for #14 (testing)
