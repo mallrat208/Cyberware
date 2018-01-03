@@ -86,7 +86,7 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 			return (T) this.container;
 		}
 		
-		if(capability ==CapabilityEnergy.ENERGY)
+		if(capability == CapabilityEnergy.ENERGY)
 			return (T) this;
 			
 		return super.getCapability(capability, facing);
