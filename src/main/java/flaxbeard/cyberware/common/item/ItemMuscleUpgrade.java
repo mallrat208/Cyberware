@@ -192,8 +192,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		ItemStack test = new ItemStack(this, 1, 1);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			boolean last = getLastBoostStrength(e);
-
+			Boolean last = getLastBoostStrength(e);
 			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
 			if (powerUsed)
 			{
@@ -222,7 +221,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		test = new ItemStack(this, 1, 0);
 		if (CyberwareAPI.isCyberwareInstalled(e, test) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
 		{
-			boolean last = getLastBoostSpeed(e);
+			Boolean last = getLastBoostSpeed(e);
 			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
 			if (powerUsed)
 			{
@@ -246,7 +245,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		if (!lastBoostStrength.containsKey(e.getUniqueID()))
 		{
-			lastBoostStrength.put(e.getUniqueID(), true);
+			lastBoostStrength.put(e.getUniqueID(), Boolean.TRUE);
 		}
 		return lastBoostStrength.get(e.getUniqueID());
 	}
@@ -255,7 +254,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		if (!lastBoostSpeed.containsKey(e.getUniqueID()))
 		{
-			lastBoostSpeed.put(e.getUniqueID(), true);
+			lastBoostSpeed.put(e.getUniqueID(), Boolean.TRUE);
 		}
 		return lastBoostSpeed.get(e.getUniqueID());
 	}

@@ -68,7 +68,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ItemStack test = new ItemStack(this, 1, 3);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			boolean last = lastImmuno(e);
+			Boolean last = lastImmuno(e);
 			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
 			
 			if (!powerUsed && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
@@ -76,9 +76,9 @@ public class ItemSkinUpgrade extends ItemCyberware
 				e.attackEntityFrom(EssentialsMissingHandler.lowessence, 2F);
 			}
 			
-			if (potions.containsKey(e.getEntityId()))
+			if (potions.containsKey(e.getUniqueID()))
 			{
-				Collection<PotionEffect> potionsLastActive = potions.get(e.getEntityId());
+				Collection<PotionEffect> potionsLastActive = potions.get(e.getUniqueID());
 				Collection<PotionEffect> currentEffects = e.getActivePotionEffects();
 				for (PotionEffect cE : currentEffects)
 				{
@@ -116,7 +116,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 	{
 		if (!lastImmuno.containsKey(e.getUniqueID()))
 		{
-			lastImmuno.put(e.getUniqueID(), true);
+			lastImmuno.put(e.getUniqueID(), Boolean.TRUE);
 		}
 		return lastImmuno.get(e.getUniqueID());
 	}

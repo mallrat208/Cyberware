@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -151,9 +152,9 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 		}
 	}
 	
-	private static Map<Integer, Boolean> isContextWorking = new HashMap<Integer, Boolean>();
-	private static Map<Integer, Boolean> isMatrixWorking = new HashMap<Integer, Boolean>();
-	private static Map<Integer, Boolean> isRadioWorking = new HashMap<Integer, Boolean>();
+	private static Map<UUID, Boolean> isContextWorking = new HashMap<UUID, Boolean>();
+	private static Map<UUID, Boolean> isMatrixWorking = new HashMap<UUID, Boolean>();
+	private static Map<UUID, Boolean> isRadioWorking = new HashMap<UUID, Boolean>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -163,51 +164,51 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 		ItemStack test = new ItemStack(this, 1, 3);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
 		{
-			isContextWorking.put(e.getEntityId(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
+			isContextWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
 		}
 		
 		test = new ItemStack(this, 1, 4);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			isMatrixWorking.put(e.getEntityId(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
+			isMatrixWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
 		}
 		
 		test = new ItemStack(this, 1, 5);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
 		{
-			isRadioWorking.put(e.getEntityId(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
+			isRadioWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
 		}
 		
 	}
 	
 	private boolean isRadioWorking(EntityLivingBase e)
 	{
-		if (!isRadioWorking.containsKey(e.getEntityId()))
+		if (!isRadioWorking.containsKey(e.getUniqueID()))
 		{
-			isRadioWorking.put(e.getEntityId(), false);
+			isRadioWorking.put(e.getUniqueID(), Boolean.FALSE);
 		}
 		
-		return isRadioWorking.get(e.getEntityId());
+		return isRadioWorking.get(e.getUniqueID());
 	}
 	
 	private boolean isContextWorking(EntityLivingBase e)
 	{
-		if (!isContextWorking.containsKey(e.getEntityId()))
+		if (!isContextWorking.containsKey(e.getUniqueID()))
 		{
-			isContextWorking.put(e.getEntityId(), false);
+			isContextWorking.put(e.getUniqueID(), Boolean.FALSE);
 		}
 		
-		return isContextWorking.get(e.getEntityId());
+		return isContextWorking.get(e.getUniqueID());
 	}
 	
 	private boolean isMatrixWorking(EntityLivingBase e)
 	{
-		if (!isMatrixWorking.containsKey(e.getEntityId()))
+		if (!isMatrixWorking.containsKey(e.getUniqueID()))
 		{
-			isMatrixWorking.put(e.getEntityId(), false);
+			isMatrixWorking.put(e.getUniqueID(), Boolean.FALSE);
 		}
 		
-		return isMatrixWorking.get(e.getEntityId());
+		return isMatrixWorking.get(e.getUniqueID());
 	}
 	
 	public boolean isToolEffective(ItemStack tool, IBlockState state)

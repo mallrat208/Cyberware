@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.item;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -94,7 +95,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 		}
 	}
 	
-	private Map<Integer, Boolean> lastOxygen = new HashMap<Integer, Boolean>();
+	private Map<UUID, Boolean> lastOxygen = new HashMap<UUID, Boolean>();
 	
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -123,7 +124,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 		{
 			if ((e.isSprinting() || e instanceof EntityMob) && !e.isInWater() && e.onGround)
 			{
-				boolean last = getLastOxygen(e);
+				Boolean last = getLastOxygen(e);
 
 				int ranks = CyberwareAPI.getCyberwareRank(e, test);
 				test.setCount(ranks);
@@ -135,18 +136,18 @@ public class ItemLungsUpgrade extends ItemCyberware
 					e.moveRelative(0F, .2F * ranks, 0.075F, 0.0F);
 				}
 				
-				lastOxygen.put(e.getEntityId(), powerUsed);
+				lastOxygen.put(e.getUniqueID(), powerUsed);
 			}
 		}
 	}
 	
 	private boolean getLastOxygen(EntityLivingBase e)
 	{
-		if (!lastOxygen.containsKey(e.getEntityId()))
+		if (!lastOxygen.containsKey(e.getUniqueID()))
 		{
-			lastOxygen.put(e.getEntityId(), true);
+			lastOxygen.put(e.getUniqueID(), Boolean.TRUE);
 		}
-		return lastOxygen.get(e.getEntityId());
+		return lastOxygen.get(e.getUniqueID());
 	}
 	
 	@Override
