@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import flaxbeard.cyberware.common.item.ItemBrainUpgrade;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -182,7 +183,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		{
 			if (CyberwareAPI.hasCapability(entity))
 			{
-				if (CyberwareAPI.isCyberwareInstalled(entity, test))
+				if (CyberwareAPI.isCyberwareInstalled(entity, test) && ItemBrainUpgrade.isRadioWorking(entity))
 				{
 					if (EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entity, test)))
 					{

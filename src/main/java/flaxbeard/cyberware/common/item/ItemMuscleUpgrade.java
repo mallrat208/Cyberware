@@ -1,7 +1,7 @@
 package flaxbeard.cyberware.common.item;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.entity.Entity;
@@ -105,7 +105,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 
 		ItemStack test = new ItemStack(this, 1, 0);
 		int rank = CyberwareAPI.getCyberwareRank(e, test);
-		if (!event.isCanceled() && e instanceof EntityPlayer && (rank > 1) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && getLastBoostSpeed(e))
+		if (!event.isCanceled() && e instanceof EntityPlayer && (rank > 1) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && lastBoostStrength.contains(e.getUniqueID()))
 		{
 			EntityPlayer p = (EntityPlayer) e;
 			if (event.getSource() instanceof EntityDamageSource && !(event.getSource() instanceof EntityDamageSourceIndirect))
@@ -178,8 +178,8 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		}
 	}
 	
-	private Map<UUID, Boolean> lastBoostSpeed = new HashMap<UUID, Boolean>();
-	private Map<UUID, Boolean> lastBoostStrength = new HashMap<UUID, Boolean>();
+	private Set<UUID> lastBoostSpeed = new HashSet<>();
+	private Set<UUID> lastBoostStrength = new HashSet<>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -192,14 +192,13 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		ItemStack test = new ItemStack(this, 1, 1);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			Boolean last = getLastBoostStrength(e);
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
+			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastBoostStrength.contains(e.getUniqueID());
 			if (powerUsed)
 			{
 				if (!e.isInWater() && e.onGround && e.moveForward > 0)
 				{
 					//e.moveRelative(0F, .5F, 0.075F);
-					e.moveRelative(0F, .5F, 0.075F, 0.0F);
+					e.moveRelative(0F, 0.0F,.5F, 0.075F);
 				}
 
 				this.onAdded(e, test);
@@ -210,7 +209,10 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 				this.onRemoved(e, test);
 			}
 			
-			lastBoostStrength.put(e.getUniqueID(), powerUsed);
+			if(powerUsed)
+				lastBoostStrength.add(e.getUniqueID());
+			else
+				lastBoostStrength.remove(e.getUniqueID());
 		}
 		else
 		{
@@ -221,8 +223,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		test = new ItemStack(this, 1, 0);
 		if (CyberwareAPI.isCyberwareInstalled(e, test) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
 		{
-			Boolean last = getLastBoostSpeed(e);
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
+			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastBoostSpeed.contains(e.getUniqueID());
 			if (powerUsed)
 			{
 				this.onAdded(e, test);
@@ -232,31 +233,16 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 				this.onRemoved(e, test);
 			}
 			
-			lastBoostSpeed.put(e.getUniqueID(), powerUsed);
+			if(powerUsed)
+				lastBoostSpeed.add(e.getUniqueID());
+			else
+				lastBoostSpeed.remove(e.getUniqueID());
 		}
 		else 
 		{
 			this.onRemoved(e, test);
 			lastBoostSpeed.remove(e.getUniqueID());
 		}
-	}
-	
-	private boolean getLastBoostStrength(EntityLivingBase e)
-	{
-		if (!lastBoostStrength.containsKey(e.getUniqueID()))
-		{
-			lastBoostStrength.put(e.getUniqueID(), Boolean.TRUE);
-		}
-		return lastBoostStrength.get(e.getUniqueID());
-	}
-	
-	private boolean getLastBoostSpeed(EntityLivingBase e)
-	{
-		if (!lastBoostSpeed.containsKey(e.getUniqueID()))
-		{
-			lastBoostSpeed.put(e.getUniqueID(), Boolean.TRUE);
-		}
-		return lastBoostSpeed.get(e.getUniqueID());
 	}
 	
 	@Override

@@ -54,7 +54,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		}
 	}
 	
-	private Map<UUID, Boolean> lastImmuno = new HashMap<UUID, Boolean>();
+	private Set<UUID> lastImmuno = new HashSet<>();
 	private static Map<UUID, Collection<PotionEffect>> potions = new HashMap<UUID, Collection<PotionEffect>>();
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
@@ -68,8 +68,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ItemStack test = new ItemStack(this, 1, 3);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			Boolean last = lastImmuno(e);
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
+			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastImmuno.contains(e.getUniqueID());
 			
 			if (!powerUsed && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
 			{
@@ -101,8 +100,12 @@ public class ItemSkinUpgrade extends ItemCyberware
 					}
 				}
 			}
-
-			lastImmuno.put(e.getUniqueID(),powerUsed);
+			
+			if(powerUsed)
+				lastImmuno.add(e.getUniqueID());
+			else
+				lastImmuno.remove(e.getUniqueID());
+			
 			potions.put(e.getUniqueID(), e.getActivePotionEffects());
 		}
 		else
@@ -110,15 +113,6 @@ public class ItemSkinUpgrade extends ItemCyberware
 			lastImmuno.remove(e.getUniqueID());
 			potions.remove(e.getUniqueID());
 		}
-	}
-	
-	private boolean lastImmuno(EntityLivingBase e)
-	{
-		if (!lastImmuno.containsKey(e.getUniqueID()))
-		{
-			lastImmuno.put(e.getUniqueID(), Boolean.TRUE);
-		}
-		return lastImmuno.get(e.getUniqueID());
 	}
 	
 	@Override

@@ -18,7 +18,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -133,7 +132,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 				if (powerUsed)
 				{
 					//e.moveRelative(0F, .2F * ranks, 0.075F);
-					e.moveRelative(0F, .2F * ranks, 0.075F, 0.0F);
+					e.moveRelative(0F, 0.0F, .2F * ranks, 0.075F);
 				}
 				
 				lastOxygen.put(e.getUniqueID(), powerUsed);

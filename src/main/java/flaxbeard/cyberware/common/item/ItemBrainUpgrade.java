@@ -181,7 +181,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 		
 	}
 	
-	private boolean isRadioWorking(EntityLivingBase e)
+	public static boolean isRadioWorking(EntityLivingBase e)
 	{
 		if (!isRadioWorking.containsKey(e.getUniqueID()))
 		{
