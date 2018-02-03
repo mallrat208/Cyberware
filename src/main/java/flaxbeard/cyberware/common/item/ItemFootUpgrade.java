@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.item;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -60,9 +61,9 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 	}
 
 	
-	private Map<Integer, Boolean> lastAqua = new HashMap<Integer, Boolean>();
-	private Map<Integer, Integer> lastWheels = new HashMap<Integer, Integer>();
-	private Map<Integer, Float> stepAssist = new HashMap<Integer, Float>();
+	private Map<UUID, Boolean> lastAqua = new HashMap<UUID, Boolean>();
+	private Map<UUID, Integer> lastWheels = new HashMap<UUID, Integer>();
+	private Map<UUID, Float> stepAssist = new HashMap<UUID, Float>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -81,7 +82,7 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 			{
 				numLegs++;
 			}
-			boolean last = getLastAqua(e);
+			Boolean last = getLastAqua(e);
 
 			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
 			if (powerUsed)
@@ -93,78 +94,78 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 				}
 			}
 			
-			lastAqua.put(e.getEntityId(), powerUsed);
+			lastAqua.put(e.getUniqueID(), powerUsed);
 		}
 		else
 		{
-			lastAqua.put(e.getEntityId(), true);
+			lastAqua.put(e.getUniqueID(), true);
 		}
 		
 		test = new ItemStack(this, 1, 2);
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			boolean last = getLastWheels(e) > 0;
+			Boolean last = getLastWheels(e) > 0;
 
 			boolean powerUsed = EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && (e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last);
 			if (powerUsed)
 			{
-				if (!stepAssist.containsKey(e.getEntityId()))
+				if (!stepAssist.containsKey(e.getUniqueID()))
 				{
-					stepAssist.put(e.getEntityId(), Math.max(e.stepHeight, .6F));
+					stepAssist.put(e.getUniqueID(), Math.max(e.stepHeight, .6F));
 				}
 				e.stepHeight = 1F;
 				
-				lastWheels.put(e.getEntityId(), 10);
+				lastWheels.put(e.getUniqueID(), 10);
 
 
 			}
-			else if (stepAssist.containsKey(e.getEntityId()) && last)
+			else if (stepAssist.containsKey(e.getUniqueID()) && last)
 			{
 
-				e.stepHeight = stepAssist.get(e.getEntityId());
+				e.stepHeight = stepAssist.get(e.getUniqueID());
 				
-				lastWheels.put(e.getEntityId(), getLastWheels(e) - 1);
+				lastWheels.put(e.getUniqueID(), getLastWheels(e) - 1);
 			}
 			else
 			{
-				lastWheels.put(e.getEntityId(), 0);
+				lastWheels.put(e.getUniqueID(), 0);
 			}
 		
 			
 		}
-		else if (stepAssist.containsKey(e.getEntityId()))
+		else if (stepAssist.containsKey(e.getUniqueID()))
 		{
 
-			e.stepHeight = stepAssist.get(e.getEntityId());
+			e.stepHeight = stepAssist.get(e.getUniqueID());
 			
 			int glw = getLastWheels(e) - 1;
 			
 			if (glw == 0)
 			{
-				stepAssist.remove(e.getEntityId());
+				stepAssist.remove(e.getUniqueID());
 			}
 
-			lastWheels.put(e.getEntityId(), glw);
+			lastWheels.put(e.getUniqueID(), glw);
 
 		}
 	}
 	
 	private boolean getLastAqua(EntityLivingBase e)
 	{
-		if (!lastAqua.containsKey(e.getEntityId()))
+		if (!lastAqua.containsKey(e.getUniqueID()))
 		{
-			lastAqua.put(e.getEntityId(), true);
+			lastAqua.put(e.getUniqueID(), Boolean.TRUE);
 		}
-		return lastAqua.get(e.getEntityId());
+		return lastAqua.get(e.getUniqueID());
 	}
 	
 	private int getLastWheels(EntityLivingBase e)
 	{
-		if (!lastWheels.containsKey(e.getEntityId()))
+		if (!lastWheels.containsKey(e.getUniqueID()))
 		{
-			lastWheels.put(e.getEntityId(), 10);
+			lastWheels.put(e.getUniqueID(), 10);
 		}
-		return lastWheels.get(e.getEntityId());
+		return lastWheels.get(e.getUniqueID());
 	}
 	
 	@Override

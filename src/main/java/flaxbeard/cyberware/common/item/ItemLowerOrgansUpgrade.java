@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,7 +34,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 
 	}
 	
-	private static Map<Integer, Collection<PotionEffect>> potions = new HashMap<Integer, Collection<PotionEffect>>();
+	private static Map<UUID, Collection<PotionEffect>> potions = new HashMap<UUID, Collection<PotionEffect>>();
 
 	@SubscribeEvent
 	public void handleEatFoodTick(LivingEntityUseItemEvent.Tick event)
@@ -48,7 +49,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 			
 			if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 0)))
 			{
-				potions.put(p.getEntityId(), new ArrayList<PotionEffect>(p.getActivePotionEffects()));
+				potions.put(p.getUniqueID(), new ArrayList<PotionEffect>(p.getActivePotionEffects()));
 
 			}
 		}

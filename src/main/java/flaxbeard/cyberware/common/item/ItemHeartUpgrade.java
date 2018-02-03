@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.item;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
@@ -93,7 +94,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 	}
 	
-	private static Map<Integer, Integer> timesPlatelets = new HashMap<Integer, Integer>();
+	private static Map<UUID, Integer> timesPlatelets = new HashMap<UUID, Integer>();
 
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -104,14 +105,14 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ItemStack test = new ItemStack(this, 1, 2);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			isStemWorking.put(e.getEntityId(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
+			isStemWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
 		}
 		
 		
 		test = new ItemStack(this, 1, 1);
 		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			isPlateletWorking.put(e.getEntityId(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
+			isPlateletWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
 		}
 		if (e != null && isPlateletWorking(e) && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
@@ -120,20 +121,20 @@ public class ItemHeartUpgrade extends ItemCyberware
 				int t = getPlateletTime(e);
 				if (t >= 40)
 				{
-					timesPlatelets.put(e.getEntityId(), e.ticksExisted);
+					timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
 					e.heal(1);
 				}
 			}
 			else
 			{
-				timesPlatelets.put(e.getEntityId(), e.ticksExisted);
+				timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
 			}
 		}
 		else
 		{
-			if (timesPlatelets.containsKey(e.getEntityId()))
+			if (timesPlatelets.containsKey(e.getUniqueID()))
 			{
-				timesPlatelets.remove(e.getEntityId());
+				timesPlatelets.remove(e.getUniqueID());
 			}
 		}
 		
@@ -142,14 +143,14 @@ public class ItemHeartUpgrade extends ItemCyberware
 			if (isStemWorking(e))
 			{
 				int t = getMedkitTime(e);
-				if (t >= 100 && damageMedkit.get(e.getEntityId()) > 0F)
+				if (t >= 100 && damageMedkit.get(e.getUniqueID()) > 0F)
 				{
 					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(0, (float) e.posX, (float) e.posY + e.height / 2F, (float) e.posZ), 
 							new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
 
-					e.heal(damageMedkit.get(e.getEntityId()));
-					timesMedkit.put(e.getEntityId(), 0);
-					damageMedkit.put(e.getEntityId(), 0F);
+					e.heal(damageMedkit.get(e.getUniqueID()));
+					timesMedkit.put(e.getUniqueID(), 0);
+					damageMedkit.put(e.getUniqueID(), 0F);
 				}
 			}
 
@@ -164,35 +165,35 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 	}
 	
-	private static Map<Integer, Boolean> isPlateletWorking = new HashMap<Integer, Boolean>();
+	private static Map<UUID, Boolean> isPlateletWorking = new HashMap<UUID, Boolean>();
 	
 	private boolean isPlateletWorking(EntityLivingBase e)
 	{
-		if (!isPlateletWorking.containsKey(e.getEntityId()))
+		if (!isPlateletWorking.containsKey(e.getUniqueID()))
 		{
-			isPlateletWorking.put(e.getEntityId(), false);
+			isPlateletWorking.put(e.getUniqueID(), false);
 			return false;
 		}
 		
-		return isPlateletWorking.get(e.getEntityId());
+		return isPlateletWorking.get(e.getUniqueID());
 	}
 	
-	private static Map<Integer, Boolean> isStemWorking = new HashMap<Integer, Boolean>();
+	private static Map<UUID, Boolean> isStemWorking = new HashMap<UUID, Boolean>();
 	
 	private boolean isStemWorking(EntityLivingBase e)
 	{
-		if (!isStemWorking.containsKey(e.getEntityId()))
+		if (!isStemWorking.containsKey(e.getUniqueID()))
 		{
-			isStemWorking.put(e.getEntityId(), false);
+			isStemWorking.put(e.getUniqueID(), false);
 			return false;
 		}
 		
-		return isStemWorking.get(e.getEntityId());
+		return isStemWorking.get(e.getUniqueID());
 	}
 	
 	
-	private static Map<Integer, Integer> timesMedkit = new HashMap<Integer, Integer>();
-	private static Map<Integer, Float> damageMedkit = new HashMap<Integer, Float>();
+	private static Map<UUID, Integer> timesMedkit = new HashMap<UUID, Integer>();
+	private static Map<UUID, Float> damageMedkit = new HashMap<UUID, Float>();
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleHurt(LivingHurtEvent event)
@@ -207,8 +208,8 @@ public class ItemHeartUpgrade extends ItemCyberware
 			damageAmount = applyPotionDamageCalculations(e, damageSrc, damageAmount);
 			damageAmount = Math.max(damageAmount - e.getAbsorptionAmount(), 0.0F);
 			
-			damageMedkit.put(e.getEntityId(), damageAmount);
-			timesMedkit.put(e.getEntityId(), e.ticksExisted);
+			damageMedkit.put(e.getUniqueID(), damageAmount);
+			timesMedkit.put(e.getUniqueID(), e.ticksExisted);
 		}
 	}
 	
@@ -262,12 +263,12 @@ public class ItemHeartUpgrade extends ItemCyberware
 	{
 		if (e != null)
 		{
-			if (!timesPlatelets.containsKey(e.getEntityId()))
+			if (!timesPlatelets.containsKey(e.getUniqueID()))
 			{
-				timesPlatelets.put(e.getEntityId(), e.ticksExisted);
+				timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
 				return 0;
 			}
-			return e.ticksExisted - timesPlatelets.get(e.getEntityId());
+			return e.ticksExisted - timesPlatelets.get(e.getUniqueID());
 		}
 		return 0;
 	}
@@ -276,13 +277,13 @@ public class ItemHeartUpgrade extends ItemCyberware
 	{
 		if (e != null)
 		{
-			if (!timesMedkit.containsKey(e.getEntityId()))
+			if (!timesMedkit.containsKey(e.getUniqueID()))
 			{
-				timesMedkit.put(e.getEntityId(), e.ticksExisted);
-				damageMedkit.put(e.getEntityId(), 0F);
+				timesMedkit.put(e.getUniqueID(), e.ticksExisted);
+				damageMedkit.put(e.getUniqueID(), 0F);
 				return 0;
 			}
-			return e.ticksExisted - timesMedkit.get(e.getEntityId());
+			return e.ticksExisted - timesMedkit.get(e.getUniqueID());
 		}
 		return 0;
 	}
