@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.client.render;
 
+import flaxbeard.cyberware.api.render.ISpecialArmRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -23,27 +24,29 @@ import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.client.gui.GuiSurgery;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemHandUpgrade;
+import net.minecraftforge.common.ISpecialArmor;
 
 public class RenderPlayerCyberware extends RenderPlayer
 {
 
 	public boolean doMuscles = false;
-	public boolean doRobo = false;
-	public boolean doRusty = false;
-
+	public boolean doCustom = false;
+	public boolean canHoldItems = true;
+	public ResourceLocation texture = robo;
+	
 	public RenderPlayerCyberware(RenderManager renderManager, boolean arms)
 	{
 		super(renderManager, arms);
 	}
 
 	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID + ":textures/models/player_muscles.png");
-	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID + ":textures/models/player_robot.png");
-	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/player_rusty_robot.png");
+	public static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID + ":textures/models/player_robot.png");
+	public static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/player_rusty_robot.png");
 
 	@Override
 	public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
 	{
-		return doRusty ? roboRust : doRobo ? robo :
+		return doCustom ? texture : doMuscles ? muscles :
 			doMuscles ? muscles : super.getEntityTexture(entity);
 	}
 	
@@ -59,6 +62,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderRightArm(clientPlayer);
+		
+		if (mainModel instanceof ISpecialArmRenderer)
+		{
+			((ISpecialArmRenderer)mainModel).postRenderArm(EnumHandSide.RIGHT);
+		}
 		
 		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
 				&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))
@@ -86,6 +94,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderLeftArm(clientPlayer);
 		
+		if (mainModel instanceof ISpecialArmRenderer)
+		{
+			((ISpecialArmRenderer)mainModel).postRenderArm(EnumHandSide.LEFT);
+		}
+		
 		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
 			&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))
 			&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT && clientPlayer.getHeldItemMainhand().isEmpty()
@@ -108,7 +121,18 @@ public class RenderPlayerCyberware extends RenderPlayer
 
 	public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
+		boolean bla = this.getMainModel().bipedLeftArm.isHidden;
+		boolean bra = this.getMainModel().bipedRightArm.isHidden;
+		boolean bll = this.getMainModel().bipedLeftLeg.isHidden;
+		boolean brl = this.getMainModel().bipedRightLeg.isHidden;
+		
 		if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderPlayerEvent.Pre(entity, this, partialTicks, x, y, z))) return;
+		
+		this.getMainModel().bipedLeftArm.isHidden |= bla;
+		this.getMainModel().bipedRightArm.isHidden |= bra;
+		this.getMainModel().bipedLeftLeg.isHidden |= bll;
+		this.getMainModel().bipedRightLeg.isHidden |= brl;
+		
 		if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
 		{
 			double d0 = y;
@@ -142,13 +166,23 @@ public class RenderPlayerCyberware extends RenderPlayer
 		ItemStack heldItem = entity.getHeldItemMainhand();
 		ItemStack offHand = entity.getHeldItemOffhand();
 
-		if (this.doRobo)
+		if (this.doCustom)
 		{
-			entity.inventory.armorInventory.set(0,ItemStack.EMPTY);	
-			entity.inventory.armorInventory.set(1,ItemStack.EMPTY);
-			entity.inventory.mainInventory.set(entity.inventory.currentItem,ItemStack.EMPTY);
-			entity.inventory.offHandInventory.set(0,ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(0, ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(1, ItemStack.EMPTY);
 		}
+		
+		if (entity.getPrimaryHand() == EnumHandSide.RIGHT)
+		{
+			if (getMainModel().bipedRightArm.isHidden || !canHoldItems) entity.inventory.mainInventory.set(entity.inventory.currentItem, ItemStack.EMPTY);
+			if (getMainModel().bipedLeftArm.isHidden || !canHoldItems) entity.inventory.offHandInventory.set(0, ItemStack.EMPTY);
+		}
+		else
+		{
+			if (getMainModel().bipedLeftArm.isHidden || !canHoldItems) entity.inventory.mainInventory.set(entity.inventory.currentItem, ItemStack.EMPTY);
+			if (getMainModel().bipedRightArm.isHidden || !canHoldItems) entity.inventory.offHandInventory.set(0, ItemStack.EMPTY);
+		}
+		
 		try
 		{
 			float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);

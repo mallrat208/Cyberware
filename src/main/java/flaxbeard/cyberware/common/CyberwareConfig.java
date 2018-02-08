@@ -2,6 +2,8 @@ package flaxbeard.cyberware.common;
 
 import java.io.File;
 
+import flaxbeard.cyberware.common.item.ItemCyberware;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.NumberInvalidException;
@@ -80,13 +82,13 @@ public class CyberwareConfig
 	private static final String C_MACHINES = "Machines";
 	private static final String C_ESSENCE = "Essence";
 	private static final String C_GAMERULES = "Gamerules";
-
+	
 	public static void preInit(FMLPreInitializationEvent event)
 	{
 		configDirectory = event.getModConfigurationDirectory();
 		config = new Configuration(new File(event.getModConfigurationDirectory(), Cyberware.MODID + ".cfg"));
 		startingItems = defaultStartingItems = new String[EnumSlot.values().length][0];
-		startingStacks = NonNullList.create();
+		startingStacks =NonNullList.create();
 		for (int i = 0; i < EnumSlot.values().length; i ++){
 			NonNullList<ItemStack> slot = NonNullList.create();
 			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
@@ -100,10 +102,26 @@ public class CyberwareConfig
 		{
 			if (EnumSlot.values()[i].hasEssential())
 			{
-				if (EnumSlot.values()[i].isSided())
+				if (i >= 8)
 				{
-					defaultStartingItems[i] = new String[] { "cyberware:body_part 1 " + j, "cyberware:body_part 1 " + (j + 1)  };
-					j += 2;
+					switch (i)
+					{
+						case 8:
+							defaultStartingItems[i] = new String[] { "cyberware:body_part 1 9" };
+							break;
+						case 10:
+							defaultStartingItems[i] = new String[] { "cyberware:body_part 1 11" };
+							break;
+						case 12:
+							defaultStartingItems[i] = new String[] { "cyberware:body_part 1 8" };
+							break;
+						case 14:
+							defaultStartingItems[i] = new String[] { "cyberware:body_part 1 10" };
+							break;
+						default:
+							defaultStartingItems[i] = new String[0];
+					}
+					
 				}
 				else
 				{
@@ -116,6 +134,7 @@ public class CyberwareConfig
 				defaultStartingItems[i] = new String[0];
 			}
 		}
+		
 		loadConfig();
 		
 		config.load();
@@ -244,12 +263,13 @@ public class CyberwareConfig
 				{
 					throw new RuntimeException("Cyberware configuration error! " + itemName + " is not a valid piece of cyberware!");
 				}
-				if ((CyberwareAPI.getCyberware(stack)).getSlot(stack) != slot)
+				if (!(CyberwareAPI.getCyberware(stack)).canFitInSlot(stack, slot))
 				{
 					throw new RuntimeException("Cyberware configuration error! " + itemEncoded + " will not fit in slot " + slot.getName());
 				}
 				
 				startingStacks.get(index).set(i, stack);
+				
 			}
 			
 			index++;

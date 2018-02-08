@@ -3,7 +3,9 @@ package flaxbeard.cyberware.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import flaxbeard.cyberware.common.entity.EntityThrownBlock;
 import flaxbeard.cyberware.common.handler.RecipeHandler;
+import flaxbeard.cyberware.common.item.*;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.monster.EntityZombie;
@@ -45,32 +47,6 @@ import flaxbeard.cyberware.common.effect.PotionNeuropozyne;
 import flaxbeard.cyberware.common.entity.EntityCyberZombie;
 import flaxbeard.cyberware.common.integration.botania.BotaniaIntegration;
 import flaxbeard.cyberware.common.integration.tan.ToughAsNailsIntegration;
-import flaxbeard.cyberware.common.item.ItemArmUpgrade;
-import flaxbeard.cyberware.common.item.ItemArmorCyberware;
-import flaxbeard.cyberware.common.item.ItemBlueprint;
-import flaxbeard.cyberware.common.item.ItemBodyPart;
-import flaxbeard.cyberware.common.item.ItemBoneUpgrade;
-import flaxbeard.cyberware.common.item.ItemBrainUpgrade;
-import flaxbeard.cyberware.common.item.ItemCreativeBattery;
-import flaxbeard.cyberware.common.item.ItemCybereyeUpgrade;
-import flaxbeard.cyberware.common.item.ItemCybereyes;
-import flaxbeard.cyberware.common.item.ItemCyberheart;
-import flaxbeard.cyberware.common.item.ItemCyberlimb;
-import flaxbeard.cyberware.common.item.ItemCyberware;
-import flaxbeard.cyberware.common.item.ItemCyberwareBase;
-import flaxbeard.cyberware.common.item.ItemDenseBattery;
-import flaxbeard.cyberware.common.item.ItemExpCapsule;
-import flaxbeard.cyberware.common.item.ItemEyeUpgrade;
-import flaxbeard.cyberware.common.item.ItemFootUpgrade;
-import flaxbeard.cyberware.common.item.ItemHandUpgrade;
-import flaxbeard.cyberware.common.item.ItemHeartUpgrade;
-import flaxbeard.cyberware.common.item.ItemLegUpgrade;
-import flaxbeard.cyberware.common.item.ItemLowerOrgansUpgrade;
-import flaxbeard.cyberware.common.item.ItemLungsUpgrade;
-import flaxbeard.cyberware.common.item.ItemMuscleUpgrade;
-import flaxbeard.cyberware.common.item.ItemNeuropozyne;
-import flaxbeard.cyberware.common.item.ItemSkinUpgrade;
-import flaxbeard.cyberware.common.item.ItemSwordCyberware;
 import flaxbeard.cyberware.common.item.VanillaWares.SpiderEyeWare;
 import flaxbeard.cyberware.common.misc.BlueprintCraftingHandler;
 import flaxbeard.cyberware.common.misc.CyberwareDyingHandler;
@@ -109,6 +85,8 @@ public class CyberwareContent
 	public static Item katana;
 
 	public static Item bodyPart;
+	public static ItemCyberware prosthetics;
+	
 	public static ItemCyberware cybereyes;
 	public static ItemCyberware cybereyeUpgrades;
 	public static ItemCyberware eyeUpgrades;
@@ -127,7 +105,10 @@ public class CyberwareContent
 	public static ItemCyberware handUpgrades;
 	public static ItemCyberware legUpgrades;
 	public static ItemCyberware footUpgrades;
+	
 	public static ItemCyberware cyberlimbs;
+	public static ItemCyberware toolArms;
+	
 	public static ItemCyberware creativeBattery;
 	
 	public static Item component;
@@ -168,6 +149,8 @@ public class CyberwareContent
 				FMLInterModComms.sendMessage("EnderIO", "poweredSpawner:blacklist:add", "cyberware.cyberzombie");
 			}
 		}
+		
+		EntityRegistry.registerModEntity(new ResourceLocation(Cyberware.MODID,"thrown_block"), EntityThrownBlock.class, "thrown_block", 2, Cyberware.INSTANCE, 80, 3, true );
 		
 		neuropozyneEffect = new PotionNeuropozyne("neuropozyne", false, 0x47453d, 0);
 		rejectionEffect = new PotionNeuropozyne("rejection", true, 0xFF0000, 1);
@@ -219,8 +202,8 @@ public class CyberwareContent
 			katana = new ItemSwordCyberware("katana", katanaMat);
 		}
 		
-		bodyPart = new ItemBodyPart("body_part", 
-				new EnumSlot[] { EnumSlot.EYES, EnumSlot.CRANIUM, EnumSlot.HEART, EnumSlot.LUNGS, EnumSlot.LOWER_ORGANS, EnumSlot.SKIN, EnumSlot.MUSCLE, EnumSlot.BONE, EnumSlot.ARM, EnumSlot.ARM, EnumSlot.LEG, EnumSlot.LEG },
+		bodyPart = new ItemBodyPart("body_part",
+				new EnumSlot[] { EnumSlot.EYES, EnumSlot.CRANIUM, EnumSlot.HEART, EnumSlot.LUNGS, EnumSlot.LOWER_ORGANS, EnumSlot.SKIN, EnumSlot.MUSCLE, EnumSlot.BONE, EnumSlot.ARM_LEFT, EnumSlot.ARM, EnumSlot.LEG_LEFT, EnumSlot.LEG },
 				new String[] { "eyes", "brain", "heart", "lungs", "stomach", "skin", "muscles", "bones", "arm_left", "arm_right", "leg_left", "leg_right"});
 		
 		
@@ -339,14 +322,14 @@ public class CyberwareContent
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 1), new ItemStack(component, 2, 8), new ItemStack(component, 1, 9) })
 				);
 		
-		armUpgrades = new ItemArmUpgrade("arm_upgrades", EnumSlot.ARM,
+		armUpgrades = new ItemArmUpgrade("arm_upgrades", new EnumSlot[]{EnumSlot.ARM, EnumSlot.ARM_LEFT},
 				new String[] { "bow"  });
 		armUpgrades.setEssenceCost(3);
 		armUpgrades.setWeights(RARE);
 		armUpgrades.setComponents(
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 4) }));
 		
-		handUpgrades = new ItemHandUpgrade("hand_upgrades", EnumSlot.HAND,
+		handUpgrades = new ItemHandUpgrade("hand_upgrades", new EnumSlot[]{EnumSlot.HAND,EnumSlot.HAND_LEFT},
 				new String[] { "craft_hands", "claws", "mining" });
 		handUpgrades.setEssenceCost(2, 2, 1);
 		handUpgrades.setWeights(RARE, RARE, RARE);
@@ -356,7 +339,7 @@ public class CyberwareContent
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 1, 2), new ItemStack(component, 1, 4), new ItemStack(component, 2, 6)})
 				);
 		
-		legUpgrades = new ItemLegUpgrade("leg_upgrades", EnumSlot.LEG,
+		legUpgrades = new ItemLegUpgrade("leg_upgrades", new EnumSlot[] {EnumSlot.LEG, EnumSlot.LEG_LEFT},
 				new String[] { "jump_boost", "fall_damage" });
 		legUpgrades.setEssenceCost(3, 2);
 		legUpgrades.setWeights(RARE, RARE);
@@ -364,7 +347,7 @@ public class CyberwareContent
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 2) }),
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 3, 2), new ItemStack(component, 1, 4), new ItemStack(component, 1, 5) }));
 		
-		footUpgrades = new ItemFootUpgrade("foot_upgrades", EnumSlot.FOOT,
+		footUpgrades = new ItemFootUpgrade("foot_upgrades", new EnumSlot[]{EnumSlot.FOOT, EnumSlot.FOOT_LEFT},
 				new String[] { "spurs", "aqua", "wheels" });
 		footUpgrades.setEssenceCost(1, 2, 3);
 		footUpgrades.setWeights(UNCOMMON, RARE, UNCOMMON);
@@ -374,7 +357,7 @@ public class CyberwareContent
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 2, 0), new ItemStack(component, 2, 9) }));
 
 		cyberlimbs = new ItemCyberlimb("cyberlimbs", 
-				new EnumSlot[] { EnumSlot.ARM, EnumSlot.ARM, EnumSlot.LEG, EnumSlot.LEG },
+				new EnumSlot[] { EnumSlot.ARM_LEFT, EnumSlot.ARM, EnumSlot.LEG_LEFT, EnumSlot.LEG },
 				new String[] { "cyberarm_left", "cyberarm_right", "cyberleg_left", "cyberleg_right" });
 		cyberlimbs.setEssenceCost(25, 25, 25, 25);
 		cyberlimbs.setComponents(
@@ -383,6 +366,11 @@ public class CyberwareContent
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) })
 				);
+		
+		toolArms = new ItemCyberarmTool("tool_arms",
+				new EnumSlot[] { EnumSlot.ARM_LEFT, EnumSlot.ARM, EnumSlot.ARM_LEFT, EnumSlot.ARM, EnumSlot.ARM_LEFT, EnumSlot.ARM },
+				new String[] { "drill_left", "drill_right", "saw_left", "saw_right", "lifter_left", "lifter_right" });
+		toolArms.setEssenceCost(25, 25, 25, 25, 25, 25);
 		
 		
 		ItemStack actuator = new ItemStack(component, 1, 0);

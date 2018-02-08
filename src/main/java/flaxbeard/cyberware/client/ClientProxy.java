@@ -3,6 +3,8 @@ package flaxbeard.cyberware.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import flaxbeard.cyberware.client.render.RenderThrownBlock;
+import flaxbeard.cyberware.common.entity.EntityThrownBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -58,7 +60,10 @@ public class ClientProxy extends CommonProxy
 		}
 
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySurgeryChamber.class, new TileEntitySurgeryChamberRenderer());
+		
 		RenderingRegistry.registerEntityRenderingHandler(EntityCyberZombie.class, RenderCyberZombie::new);
+		RenderingRegistry.registerEntityRenderingHandler(EntityThrownBlock.class, RenderThrownBlock::new);
+		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityScanner.class, new TileEntityScannerRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEngineeringTable.class, new TileEntityEngineeringRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconPostMaster.class, new TileEntityBeaconLargeRenderer());

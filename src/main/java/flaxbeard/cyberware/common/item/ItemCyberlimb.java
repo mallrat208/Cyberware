@@ -3,6 +3,8 @@ package flaxbeard.cyberware.common.item;
 import java.util.HashSet;
 import java.util.Set;
 
+import flaxbeard.cyberware.api.item.ILimbReplacement;
+import flaxbeard.cyberware.client.render.RenderPlayerCyberware;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,6 +12,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -20,8 +23,10 @@ import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.item.ICyberware;
 import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb;
 import flaxbeard.cyberware.common.lib.LibConstants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
+public class ItemCyberlimb extends ItemCyberware implements ISidedLimb, ILimbReplacement
 {
 	
 	public ItemCyberlimb(String name, EnumSlot[] slots, String[] subnames)
@@ -42,11 +47,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	{
 		ICyberware ware = CyberwareAPI.getCyberware(other);
 		
-		if (ware instanceof ISidedLimb)
-		{
-			return ware.isEssential(other) && ((ISidedLimb) ware).getSide(other) == this.getSide(stack);
-		}
-		return false;
+		return ware.isEssential(other);
 	}
 	
 	@Override
@@ -133,5 +134,44 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	public int getPowerConsumption(ItemStack stack)
 	{
 		return LibConstants.LIMB_CONSUMPTION;
+	}
+	
+	@Override
+	public boolean isLimbActive(ItemStack stack)
+	{
+		NBTTagCompound data = CyberwareAPI.getCyberwareNBT(stack);
+		if(!data.hasKey("active"))
+		{
+			data.setBoolean("active", true);
+		}
+		
+		return data.getBoolean("active");
+	}
+	
+	@Override
+	public ResourceLocation getTexture(ItemStack stack)
+	{
+		if (getQuality(stack) == CyberwareAPI.QUALITY_MANUFACTURED)
+		{
+			return RenderPlayerCyberware.robo;
+		}
+		else
+		{
+			return RenderPlayerCyberware.roboRust;
+		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public Object getModel(ItemStack itemStack, boolean wideArms, Object baseWide, Object baseSkiiny, EntityPlayer player)
+	{
+		if(wideArms)
+		{
+			return baseWide;
+		}
+		else
+		{
+			return baseSkiiny;
+		}
 	}
 }

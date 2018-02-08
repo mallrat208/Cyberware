@@ -2,6 +2,7 @@ package flaxbeard.cyberware.client.gui;
 
 import javax.annotation.Nullable;
 
+import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -23,8 +24,9 @@ public class ContainerSurgery extends Container
 		public final EnumSlot slot;
 		private final int index;
 		private IItemHandler playerItems;
+		private int takesEssential;
 
-		public SlotSurgery(IItemHandler itemHandler, IItemHandler playerItems, int index, int xPosition, int yPosition, EnumSlot slot)
+		public SlotSurgery(IItemHandler itemHandler, IItemHandler playerItems, int index, int xPosition, int yPosition, EnumSlot slot, int takesEssential)
 		{
 			super(itemHandler, index, xPosition, yPosition);
 			
@@ -33,6 +35,7 @@ public class ContainerSurgery extends Container
 			this.slot = slot;
 			this.index = index;
 			this.playerItems = playerItems;
+			this.takesEssential = takesEssential;
 		}
 		
 		public ItemStack getPlayerStack()
@@ -94,7 +97,7 @@ public class ContainerSurgery extends Container
 			ItemStack playerStack = getPlayerStack();
 			//if (!stack.isEmpty() && !playerStack.isEmpty() && stack.getit) return false;
 			if (!getPlayerStack().isEmpty() && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
-			if (!(!stack.isEmpty() && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
+			if (!(!stack.isEmpty() && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).canFitInSlot(stack, this.slot) && (takesEssential == 0 || CyberwareAPI.getCyberware(stack).isEssential(stack)) && (takesEssential == 0 || takesEssential == 2 || !slot.isSided() || ((ISidedLimb)CyberwareAPI.getCyberware(stack)).getSide(stack).ordinal() == takesEssential))) return false;
 			
 			if (CyberwareAPI.areCyberwareStacksEqual(stack, playerStack))
 			{
@@ -104,6 +107,15 @@ public class ContainerSurgery extends Container
 			
 			
 			return !doesItemConflict(stack) && areRequirementsFulfilled(stack);
+		}
+		
+		private boolean conatins(EnumSlot[] slots, EnumSlot slot)
+		{
+			for (EnumSlot check : slots)
+			{
+				if (check == slot) return true;
+			}
+			return false;
 		}
 		
 		public boolean doesItemConflict(@Nullable ItemStack stack)
@@ -146,12 +158,35 @@ public class ContainerSurgery extends Container
 		{
 			for (int n = 0; n < 8; n++)
 			{
-				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 9 + 20 * n, 109, slot));
-				c++;
+				if (slot.hasEssential())
+				{
+					if (slot.isSided())
+					{
+						if(n==1)
+						{
+							this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 10+7*20+4, 109, slot, 1));
+							c++;
+						}
+						else
+						{
+							this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 6+20*n+(n>1 ? 4-20:0), 109, slot, n<2 ? n: 0));
+							c++;
+						}
+					}
+					else
+					{
+						this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 8 + 20 * n + (n > 0 ? 4 : 0), 109, slot, n == 0 ? 2 : 0));
+						c++;
+					}
+				}
+				else
+				{
+					this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 8 + 20 * n, 109, slot, 0));
+				}
 			}
 			for (int n = 0; n < LibConstants.WARE_PER_SLOT - 8; n++)
 			{
-				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, Integer.MIN_VALUE, Integer.MIN_VALUE, slot));
+				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, Integer.MIN_VALUE, Integer.MIN_VALUE, slot, 0));
 				c++;
 			}
 			row++;

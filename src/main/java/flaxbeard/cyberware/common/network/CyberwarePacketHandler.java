@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.common.network;
 
+import flaxbeard.cyberware.common.network.ShootBlockPacket.ShootBlockPacketHandler;
+import flaxbeard.cyberware.common.network.ToggleCyberarmPacket.ToggleCyberarmPacketHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -47,6 +49,9 @@ public class CyberwarePacketHandler
 		INSTANCE.registerMessage(OpenRadialMenuPacketHandler.class, OpenRadialMenuPacket.class, 12, Side.SERVER);
 		INSTANCE.registerMessage(UpdateHudColorPacketHandler.class, UpdateHudColorPacket.class, 13, Side.SERVER);
 		INSTANCE.registerMessage(UpdateConfigPacketHandler.class, UpdateConfigPacket.class, 14, Side.CLIENT);
+		//INSTANCE.registerMessage(ProgressionSyncPacketHandler.class, ProgressionSyncPacket.class, 15, Side.CLIENT);
+		INSTANCE.registerMessage(ToggleCyberarmPacketHandler.class, ToggleCyberarmPacket.class, 16, Side.SERVER);
+		INSTANCE.registerMessage(ShootBlockPacketHandler.class, ShootBlockPacket.class, 17, Side.SERVER);
 
 	}
 }

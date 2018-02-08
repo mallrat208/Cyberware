@@ -13,9 +13,9 @@ import flaxbeard.cyberware.common.CyberwareContent;
 public class ItemArmUpgrade extends ItemCyberware
 {
 
-	public ItemArmUpgrade(String name, EnumSlot slot, String[] subnames)
+	public ItemArmUpgrade(String name, EnumSlot[] slots, String[] subnames)
 	{
-		super(name, slot, subnames);
+		super(name, new EnumSlot[][] {slots}, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
 
 	}

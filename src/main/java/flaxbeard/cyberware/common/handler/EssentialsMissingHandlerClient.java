@@ -1,8 +1,14 @@
 package flaxbeard.cyberware.common.handler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.base.MoreObjects;
+
+import flaxbeard.cyberware.api.item.ILimbReplacement;
+import flaxbeard.cyberware.common.item.ItemCyberarmTool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -20,6 +26,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -32,8 +40,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import com.google.common.base.Objects;
-
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
@@ -42,7 +48,6 @@ import flaxbeard.cyberware.client.render.RenderCyberlimbHand;
 import flaxbeard.cyberware.client.render.RenderPlayerCyberware;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.CyberwareContent;
-import flaxbeard.cyberware.common.item.ItemCyberlimb;
 
 import javax.annotation.Nullable;
 
@@ -58,6 +63,9 @@ public class EssentialsMissingHandlerClient
 	@SideOnly(Side.CLIENT)
 	public static final RenderPlayerCyberware renderF = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), false);
 	
+	private static float lastPingTime = 0F;
+	private static float totalPing = 0F;
+	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void handleMissingSkin(RenderPlayerEvent.Pre event)
@@ -72,11 +80,10 @@ public class EssentialsMissingHandlerClient
 			boolean hasLeftArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.LEFT);
 			boolean hasRightArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.RIGHT);
 			
-			boolean robotLeftArm = cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
-			boolean robotRightArm = cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
-			boolean robotLeftLeg = cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
-			boolean robotRightLeg = cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
-
+			ItemStack leftArm = cyberware.getLimb(EnumSlot.ARM, EnumSide.LEFT);
+			ItemStack rightArm = cyberware.getLimb(EnumSlot.ARM, EnumSide.RIGHT);
+			ItemStack leftLeg = cyberware.getLimb(EnumSlot.LEG, EnumSide.LEFT);
+			ItemStack rightLeg = cyberware.getLimb(EnumSlot.LEG, EnumSide.RIGHT);
 			
 			if (!(event.getRenderer() instanceof RenderPlayerCyberware))
 			{
@@ -96,7 +103,6 @@ public class EssentialsMissingHandlerClient
 						renderF.doMuscles = true;
 					}
 				}
-				
 
 				boolean lower = false;
 				if (!hasRightLeg && !hasLeftLeg)
@@ -109,22 +115,14 @@ public class EssentialsMissingHandlerClient
 					lower = true;
 				}
 				
-
-
-				
-				if (!hasRightLeg || !hasLeftLeg || !hasRightArm || !hasLeftArm || robotLeftArm || robotRightArm || robotLeftLeg || robotRightLeg)
+				if (!hasRightLeg || !hasLeftLeg || !hasRightArm || !hasLeftArm || !leftArm.isEmpty() || !rightArm.isEmpty() || !leftLeg.isEmpty() || !rightLeg.isEmpty())
 				{
 					event.setCanceled(true);
-
-					boolean leftArmRusty = robotLeftArm && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightArmRusty = robotRightArm && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean leftLegRusty = robotLeftLeg && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 2))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 3))) == CyberwareAPI.QUALITY_SCAVENGED;
-
+					
 					if (bigArms)
 					{
 						renderT.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), p.rotationYaw, event.getPartialRenderTick());
-
+						
 					}
 					else
 					{
@@ -134,65 +132,58 @@ public class EssentialsMissingHandlerClient
 					if (!cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.skinUpgrades, 1, 2)))
 					{
 						
-						ModelPlayer mp = renderF.getMainModel();
+						Set<Tuple<ResourceLocation, Tuple<ModelPlayer, Boolean>>> setups = new HashSet<>();
+						Tuple<ResourceLocation, Tuple<ModelPlayer, Boolean>>[] individualStups = new Tuple[4];
+						ItemStack[] limbs = new ItemStack[] {leftArm, rightArm, leftLeg, rightLeg};
 						
-						if (bigArms)
-						{
-							mp = renderT.getMainModel();
-						}
-						mp.bipedBody.isHidden = true;
-						mp.bipedHead.isHidden = true;
 						
-						// Manufactured 'ware pass
-						mp.bipedLeftArm.isHidden = !(robotLeftArm && !leftArmRusty);
-						mp.bipedRightArm.isHidden = !(robotRightArm && !rightArmRusty);
-						mp.bipedLeftLeg.isHidden = !(robotLeftLeg && !leftLegRusty);
-						mp.bipedRightLeg.isHidden = !(robotRightLeg && !rightLegRusty);
-						
-						if (bigArms)
+						for (int i = 0; i < limbs.length; i++)
 						{
-							renderT.doRobo = true;
-							renderT.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), p.rotationYaw, event.getPartialRenderTick());
-							renderT.doRobo = false;
-						}
-						else
-						{
-							renderF.doRobo = true;
-							renderF.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), p.rotationYaw, event.getPartialRenderTick());
-							renderF.doRobo = false;
+							if (!limbs[i].isEmpty())
+							{
+								ILimbReplacement lr = ((ILimbReplacement) CyberwareAPI.getCyberware(limbs[i]));
+								individualStups[i] = new Tuple<>(lr.getTexture(limbs[i]),
+										new Tuple<>(
+												(ModelPlayer)lr.getModel(limbs[i], !bigArms, renderF.getMainModel(), renderT.getMainModel(), p),
+												lr.canHoldItem(limbs[i])));
+								
+								setups.add(individualStups[i]);
+							}
 						}
 						
-						// Rusty 'ware pass
-						mp.bipedLeftArm.isHidden = !leftArmRusty;
-						mp.bipedRightArm.isHidden = !rightArmRusty;
-						mp.bipedLeftLeg.isHidden = !leftLegRusty;
-						mp.bipedRightLeg.isHidden = !rightLegRusty;
-						
-						if (bigArms)
+						for (Tuple<ResourceLocation, Tuple<ModelPlayer, Boolean>> setup : setups)
 						{
-							renderT.doRobo = true;
-							renderT.doRusty = true;
-							renderT.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), p.rotationYaw, event.getPartialRenderTick());
-							renderT.doRobo = false;
-							renderT.doRusty = false;
+							ModelPlayer temp = renderF.getMainModel();
+							
+							ModelPlayer mp = setup.getSecond().getFirst();
+							
+							renderF.setMainModel(mp);
+							
+							mp.bipedBody.isHidden = true;
+							mp.bipedHead.isHidden = true;
+							
+							mp.bipedLeftArm.isHidden = !setup.equals(individualStups[0]);
+							mp.bipedRightArm.isHidden = !setup.equals(individualStups[1]);
+							mp.bipedLeftLeg.isHidden = !setup.equals(individualStups[2]);
+							mp.bipedRightLeg.isHidden = !setup.equals(individualStups[3]);
+							
+							renderF.doCustom = true;
+							renderF.canHoldItems = setup.getSecond().getSecond();
+							renderF.texture = setup.getFirst();
+							renderF.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - ( lower ? (11F / 16F) : 0),event.getZ(), p.rotationYaw, event.getPartialRenderTick());
+							renderF.doCustom = false;
+							renderF.canHoldItems = true;
+							
+							mp.bipedBody.isHidden = false;
+							mp.bipedHead.isHidden = false;
+							mp.bipedLeftArm.isHidden = false;
+							mp.bipedRightArm.isHidden = false;
+							mp.bipedLeftLeg.isHidden = false;
+							mp.bipedRightLeg.isHidden = false;
+							
+							renderF.setMainModel(temp);
 						}
-						else
-						{
-							renderF.doRusty = true;
-							renderF.doRobo = true;
-							renderF.doRender((AbstractClientPlayer) p, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), p.rotationYaw, event.getPartialRenderTick());
-							renderF.doRobo = false;
-							renderF.doRusty = false;
-						}
-						
-						mp.bipedBody.isHidden = false;
-						mp.bipedHead.isHidden = false;
-						mp.bipedLeftArm.isHidden = false;
-						mp.bipedRightArm.isHidden = false;
-						mp.bipedLeftLeg.isHidden = false;
-						mp.bipedRightLeg.isHidden = false;
 					}
-				
 				}
 				else if (noSkin)
 				{
@@ -220,16 +211,13 @@ public class EssentialsMissingHandlerClient
 			}
 			
 			RenderPlayer renderer = event.getRenderer();
-
 			
-
-
-			if (!hasLeftLeg)
+			if (!hasLeftLeg || (!leftLeg.isEmpty() && (!(renderer instanceof RenderPlayerCyberware) || !((RenderPlayerCyberware) renderer).doCustom)))
 			{
 				renderer.getMainModel().bipedLeftLeg.isHidden = true;
 			}
 			
-			if (!hasRightLeg)
+			if (!hasRightLeg || (!rightLeg.isEmpty() && (!(renderer instanceof RenderPlayerCyberware) || !((RenderPlayerCyberware) renderer).doCustom)))
 			{
 				renderer.getMainModel().bipedRightLeg.isHidden = true;
 			}
@@ -238,47 +226,24 @@ public class EssentialsMissingHandlerClient
 			if (!hasLeftArm)
 			{
 				renderer.getMainModel().bipedLeftArm.isHidden = true;
-				
-				// Hide the main or offhand item if no arm there
-				if (!mainHand.containsKey(p.getEntityId()))
-				{
-					mainHand.put(p.getEntityId(), p.getHeldItemMainhand());
-					offHand.put(p.getEntityId(), p.getHeldItemOffhand());
-				}
-				if (mc.gameSettings.mainHand == EnumHandSide.LEFT)
-				{
-					p.inventory.mainInventory.set(p.inventory.currentItem,ItemStack.EMPTY);
-				}
-				else
-				{
-					p.inventory.offHandInventory.set(0, ItemStack.EMPTY);
-				}
+			}
+			else if (!leftArm.isEmpty() && (!(renderer instanceof RenderPlayerCyberware) || !((RenderPlayerCyberware) renderer).doCustom))
+			{
+				renderer.getMainModel().bipedLeftArm.isHidden = true;
 			}
 			
 			if (!hasRightArm)
 			{
 				renderer.getMainModel().bipedRightArm.isHidden = true;
-				
-				// Hide the main or offhand item if no arm there
-				if (!mainHand.containsKey(p.getEntityId()))
-				{
-					mainHand.put(p.getEntityId(), p.getHeldItemMainhand());
-					offHand.put(p.getEntityId(), p.getHeldItemOffhand());
-				}
-				if (mc.gameSettings.mainHand == EnumHandSide.RIGHT)
-				{
-					p.inventory.mainInventory.set(p.inventory.currentItem,ItemStack.EMPTY);
-				}
-				else
-				{
-					p.inventory.offHandInventory.set(0, ItemStack.EMPTY);
-				}
+			}
+			else if (!rightArm.isEmpty() && (!(renderer instanceof RenderPlayerCyberware) || !((RenderPlayerCyberware) renderer).doCustom))
+			{
+				renderer.getMainModel().bipedRightArm.isHidden = true;
 			}
 			
-
 			
-
-
+			
+			
 		}
 	}
 	
@@ -315,40 +280,14 @@ public class EssentialsMissingHandlerClient
 					p.inventory.armorInventory.set(0,shoes.get(p.getEntityId()));
 					shoes.remove(p.getEntityId());
 				}
-	
-				if (!cyberware.hasEssential(EnumSlot.ARM, EnumSide.LEFT))
-				{
-					event.getRenderer().getMainModel().bipedLeftArm.isHidden = false;
-					if (mainHand.containsKey(p.getEntityId()))
-					{
-						p.inventory.mainInventory.set(p.inventory.currentItem,mainHand.get(p.getEntityId()));
-						p.inventory.offHandInventory.set(0,offHand.get(p.getEntityId()));
-						mainHand.remove(p.getEntityId());
-						offHand.remove(p.getEntityId());
-					}
-				}
-				
-	
-				if (!cyberware.hasEssential(EnumSlot.ARM, EnumSide.RIGHT))
-				{
-					event.getRenderer().getMainModel().bipedRightArm.isHidden = false;
-					if (mainHand.containsKey(p.getEntityId()))
-					{
-						p.inventory.mainInventory.set(p.inventory.currentItem,mainHand.get(p.getEntityId()));
-						p.inventory.offHandInventory.set(0,offHand.get(p.getEntityId()));
-						mainHand.remove(p.getEntityId());
-						offHand.remove(p.getEntityId());
-					}
-				}
-	
 			}
 		}
 	}
 	
 	private static boolean missingArm = false;
 	private static boolean missingSecondArm = false;
-	private static boolean hasRoboLeft = false;
-	private static boolean hasRoboRight = false;
+	private static boolean hasReplacementLeft = false;
+	private static boolean hasReplacementRight = false;
 	private static EnumHandSide oldHand;
 	
 	@SubscribeEvent(priority=EventPriority.LOWEST)
@@ -358,54 +297,79 @@ public class EssentialsMissingHandlerClient
 		
 		if (e != null && e == Minecraft.getMinecraft().player)
 		{
+			EntityPlayer p = (EntityPlayer) e;
+			
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
 			GameSettings settings = Minecraft.getMinecraft().gameSettings;
+			
 			boolean stillMissingArm = false;
 			boolean stillMissingSecondArm = false;
 			
-			boolean leftUnpowered = false;
-			ItemStack armLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
-			if (!armLeft.isEmpty() && !ItemCyberlimb.isPowered(armLeft))
+			boolean leftInactive = false;
+			boolean leftBad = false;
+			ItemStack armLeft = cyberware.getLimb(EnumSlot.ARM, EnumSide.LEFT);
+			if (!armLeft.isEmpty() && !((ILimbReplacement)CyberwareAPI.getCyberware(armLeft)).isLimbActive(armLeft))
 			{
-				leftUnpowered = true;
+				leftInactive = true;
 			}
 			
-			boolean rightUnpowered = false;
-			ItemStack armRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
-			if (!armRight.isEmpty() && !ItemCyberlimb.isPowered(armRight))
+			if (!armLeft.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armLeft)).canHoldItem(armLeft))
 			{
-				rightUnpowered = true;
+				leftBad = true;
 			}
 			
+			boolean rightInactive = false;
+			boolean rightBad = false;
+			ItemStack armRight = cyberware.getLimb(EnumSlot.ARM, EnumSide.RIGHT);
+			if (!armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).isLimbActive(armRight))
+			{
+				rightInactive = true;
+			}
+			
+			if (!armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).canHoldItem(armRight))
+			{
+				rightBad = true;
+			}
 			
 			boolean hasSkin = cyberware.isCyberwareInstalled(new ItemStack(CyberwareContent.skinUpgrades, 1, 2));
-			hasRoboLeft = !armLeft.isEmpty() && !hasSkin;
-			hasRoboRight = !armRight.isEmpty() && !hasSkin;
-			boolean hasRightArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.RIGHT) && !rightUnpowered;
-			boolean hasLeftArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.LEFT) && !leftUnpowered;
+			hasReplacementLeft= !armLeft.isEmpty() && !hasSkin;
+			hasReplacementRight= !armRight.isEmpty() && !hasSkin;
+			boolean hasRightArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.RIGHT) && !rightInactive;
+			boolean hasLeftArm = cyberware.hasEssential(EnumSlot.ARM, EnumSide.LEFT) && !leftInactive;
+			
+			if (hasRightArm && leftBad)
+			{
+				hasLeftArm = false;
+			}
+			
+			if (hasLeftArm && rightBad)
+			{
+				hasRightArm = false;
+			}
 			
 			if (!hasRightArm)
 			{
-				if (settings.mainHand != EnumHandSide.LEFT)
+				if(hasLeftArm && settings.mainHand != EnumHandSide.LEFT)
 				{
 					oldHand = settings.mainHand;
 					settings.mainHand = EnumHandSide.LEFT;
 					settings.sendSettingsToServer();
 				}
-
-				if (!missingArm)
+				
+				if(!missingArm)
 				{
 					missingArm = true;
 				}
+				
 				stillMissingArm = true;
-
-
+				
 				if (!hasLeftArm)
 				{
 					if (!missingSecondArm)
 					{
 						missingSecondArm = true;
 					}
+					
 					stillMissingSecondArm = true;
 				}
 
@@ -437,7 +401,7 @@ public class EssentialsMissingHandlerClient
 
 			}
 
-			if (!stillMissingArm && oldHand != null)
+			if (!stillMissingArm && missingArm && oldHand != null)
 			{
 				missingArm = false;
 				settings.mainHand = oldHand;
@@ -457,7 +421,7 @@ public class EssentialsMissingHandlerClient
 	@SubscribeEvent
 	public void handleRenderHand(RenderHandEvent event)
 	{
-		if (CyberwareConfig.RENDER && !(FMLClientHandler.instance().hasOptifine()) && (missingArm || missingSecondArm || hasRoboLeft || hasRoboRight))
+		if (CyberwareConfig.RENDER && !(FMLClientHandler.instance().hasOptifine()))
 		{
 			float partialTicks = event.getPartialTicks();
 			EntityRenderer er = mc.entityRenderer;
@@ -478,66 +442,143 @@ public class EssentialsMissingHandlerClient
 	public static <T> T firstNonNull(@Nullable T first, @Nullable T second) {
 		return first != null ? first : checkNotNull(second);
 	}
-
+	
+	private boolean wasHittingBlock = false;
+	
 	private void renderItemInFirstPerson(float partialTicks)
 	{
 		ItemRenderer ir = mc.getItemRenderer();
-		AbstractClientPlayer abstractclientplayer = mc.player;
-		float f = abstractclientplayer.getSwingProgress(partialTicks);
-
-		//EnumHand enumhand = (EnumHand)Objects.firstNonNull(abstractclientplayer.swingingHand, EnumHand.MAIN_HAND);
-		EnumHand enumhand = firstNonNull(abstractclientplayer.swingingHand, EnumHand.MAIN_HAND);
-
-		float f1 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
-		float f2 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
+		AbstractClientPlayer player = mc.player;
+		float f = player.getSwingProgress(partialTicks);
+		EnumHand enumhand = MoreObjects.firstNonNull(player.swingingHand, EnumHand.MAIN_HAND);
+		float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+		float f2 = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks;
 		boolean flag = true;
 		boolean flag1 = true;
-
-		if (abstractclientplayer.isHandActive())
+		
+		if (player.isHandActive())
 		{
-			ItemStack itemstack = abstractclientplayer.getActiveItemStack();
-
+			ItemStack itemstack = player.getActiveItemStack();
+			
 			if (!itemstack.isEmpty() && itemstack.getItem() == Items.BOW) //Forge: Data watcher can desync and cause this to NPE...
 			{
-				EnumHand enumhand1 = abstractclientplayer.getActiveHand();
+				EnumHand enumhand1 = player.getActiveHand();
 				flag = enumhand1 == EnumHand.MAIN_HAND;
 				flag1 = !flag;
 			}
 		}
-
+		
 		rotateArroundXAndY(f1, f2);
 		setLightmap();
 		rotateArm(partialTicks);
 		GlStateManager.enableRescaleNormal();
-
+		
 		ItemStack itemStackMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 3);
 		ItemStack itemStackOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 4);
 		float equippedProgressMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 5);
 		float prevEquippedProgressMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 6);
 		float equippedProgressOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 7);
 		float prevEquippedProgressOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, ir, 8);
-
+		
 		RenderCyberlimbHand.INSTANCE.itemStackMainHand = itemStackMainHand;
 		RenderCyberlimbHand.INSTANCE.itemStackOffHand = itemStackOffHand;
-
-		if (flag && !missingSecondArm)
+		
+		boolean bigArms = player.getSkinType().equals("default");
+		
+		ICyberwareUserData cyberware = CyberwareAPI.getCapability(player);
+		ItemStack leftArm = cyberware.getLimb(EnumSlot.ARM, EnumSide.LEFT);
+		ResourceLocation leftTexture = RenderPlayerCyberware.robo;
+		ModelPlayer leftModel = renderF.getMainModel();
+		if (CyberwareAPI.isCyberware(leftArm))
 		{
-			float f3 = enumhand == EnumHand.MAIN_HAND ? f : 0.0F;
-			float f5 = 1.0F - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * partialTicks);
-			RenderCyberlimbHand.INSTANCE.leftRobot = hasRoboLeft;
-			RenderCyberlimbHand.INSTANCE.rightRobot = hasRoboRight;
-			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, f1, EnumHand.MAIN_HAND, f3, itemStackMainHand, f5);
+			ILimbReplacement lr = ((ILimbReplacement) CyberwareAPI.getCyberware(leftArm));
+			leftTexture = lr.getTexture(leftArm);
+			leftModel = (ModelPlayer) lr.getModel(leftArm, bigArms, renderF.getMainModel(), renderT.getMainModel(), player);
 		}
-
+		
+		ItemStack rightArm = cyberware.getLimb(EnumSlot.ARM, EnumSide.RIGHT);
+		ResourceLocation rightTexture = RenderPlayerCyberware.robo;
+		ModelPlayer rightModel = renderF.getMainModel();
+		if (CyberwareAPI.isCyberware(rightArm))
+		{
+			ILimbReplacement lr = ((ILimbReplacement) CyberwareAPI.getCyberware(rightArm));
+			rightTexture = lr.getTexture(rightArm);
+			rightModel = (ModelPlayer) lr.getModel(rightArm, bigArms, renderF.getMainModel(), renderT.getMainModel(), player);
+		}
+		
+		ItemStack mainHand = player.getPrimaryHand() == EnumHandSide.RIGHT ? rightArm : leftArm;
+		ItemStack offHand = player.getPrimaryHand() == EnumHandSide.RIGHT ? leftArm : rightArm;
+		
+		ModelPlayer tempF = renderF.getMainModel();
+		renderF.setMainModel(rightModel);
+		renderF.texture = rightTexture;
+		ModelPlayer tempT = renderT.getMainModel();
+		renderT.setMainModel(leftModel);
+		renderT.texture = leftTexture;
+		RenderCyberlimbHand.INSTANCE.leftReplacement= hasReplacementLeft;
+		RenderCyberlimbHand.INSTANCE.rightReplacement= hasReplacementRight;
+		
+		
+		boolean fg = !(!offHand.isEmpty()&& ((ILimbReplacement) CyberwareAPI.getCyberware(offHand)).showAsOffHandIfMainhandEmpty(offHand));
+		if (!mainHand.isEmpty() && CyberwareAPI.getCyberware(mainHand) instanceof ItemCyberarmTool)
+		{
+			if (!wasHittingBlock && Minecraft.getMinecraft().playerController != null)
+			{
+				if (Minecraft.getMinecraft().playerController.getIsHittingBlock())
+				{
+					wasHittingBlock = true;
+				}
+			}
+			
+			float f4 = fg ? (wasHittingBlock ? 0 : f) : 0;
+			
+			if (f == 0)
+			{
+				wasHittingBlock = false;
+			}
+			float change = fg ? (float) Math.sin(f * Math.PI * 2f) * 0.05F : 0;
+			float f5 = 1.0F - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * partialTicks);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(player, partialTicks, f1, EnumHand.MAIN_HAND, f4, null, f5 + change, true);
+		}
+		else if (flag && !missingSecondArm)
+		{
+			float f3 = enumhand == EnumHand.MAIN_HAND && fg ? f : 0.0F;
+			float f5 = 1.0F - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * partialTicks);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(player, partialTicks, f1, EnumHand.MAIN_HAND, f3, itemStackMainHand, f5);
+		}
+		
 		if (flag1 && !missingArm)
 		{
 			float f4 = enumhand == EnumHand.OFF_HAND ? f : 0.0F;
 			float f6 = 1.0F - (prevEquippedProgressOffHand + (equippedProgressOffHand - prevEquippedProgressOffHand) * partialTicks);
-			RenderCyberlimbHand.INSTANCE.leftRobot = hasRoboLeft;
-			RenderCyberlimbHand.INSTANCE.rightRobot = hasRoboRight;
-			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, f1, EnumHand.OFF_HAND, f4, itemStackOffHand, f6);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(player, partialTicks, f1, EnumHand.OFF_HAND, f4, itemStackOffHand, f6);
 		}
-
+		else if (!offHand.isEmpty() &&
+				((ILimbReplacement) CyberwareAPI.getCyberware(offHand)).showAsOffHandIfMainhandEmpty(offHand))
+		{
+			if (!wasHittingBlock && Minecraft.getMinecraft().playerController != null)
+			{
+				if (Minecraft.getMinecraft().playerController.getIsHittingBlock())
+				{
+					wasHittingBlock = true;
+				}
+			}
+			
+			float f4 = wasHittingBlock ? 0 : f;
+			
+			if (f == 0)
+			{
+				wasHittingBlock = false;
+			}
+			
+			float change = (float) Math.sin(f * Math.PI * 2f) * 0.10F;
+			float f5 = 1.0F - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * partialTicks);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(player, partialTicks, f1, EnumHand.OFF_HAND, f4, null, f5 + change, true);
+		}
+		
+		renderF.setMainModel(tempF);
+		renderT.setMainModel(tempT);
+		
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 	}
@@ -554,8 +595,8 @@ public class EssentialsMissingHandlerClient
 	
 	private void setLightmap()
 	{
-		AbstractClientPlayer abstractclientplayer = this.mc.player;
-		int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
+		AbstractClientPlayer abstractclientplayer = mc.player;
+		int i = mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
 		float f = (float)(i & 65535);
 		float f1 = (float)(i >> 16);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
@@ -563,7 +604,7 @@ public class EssentialsMissingHandlerClient
 
 	private void rotateArm(float p_187458_1_)
 	{
-		EntityPlayerSP entityplayersp = this.mc.player;
+		EntityPlayerSP entityplayersp = mc.player;
 		float f = entityplayersp.prevRenderArmPitch + (entityplayersp.renderArmPitch - entityplayersp.prevRenderArmPitch) * p_187458_1_;
 		float f1 = entityplayersp.prevRenderArmYaw + (entityplayersp.renderArmYaw - entityplayersp.prevRenderArmYaw) * p_187458_1_;
 		GlStateManager.rotate((entityplayersp.rotationPitch - f) * 0.1F, 1.0F, 0.0F, 0.0F);

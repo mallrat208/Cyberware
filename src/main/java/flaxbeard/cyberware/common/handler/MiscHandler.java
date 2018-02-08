@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.handler;
 
 import java.util.List;
 
+import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
@@ -92,7 +93,25 @@ public class MiscHandler
 					event.getToolTip().add(ChatFormatting.AQUA + I18n.format("cyberware.tooltip.requires") + " "
 							+ joined);
 				}
-				event.getToolTip().add(ChatFormatting.RED + I18n.format("cyberware.slot." + ware.getSlot(stack).getName()));
+				
+				EnumSlot[] slots = ware.getSlots(stack);
+				if(slots.length>0)
+				{
+					String toAdd = "";
+					
+					for (int i = 0; i < slots.length; i++)
+					{
+						toAdd += I18n.format("cyberware.slot." + slots[i].getName());
+						
+						if(i != slots.length-1)
+							toAdd += " " + I18n.format("cyberware.tooltip.joiner_or") + " ";
+					}
+					
+					
+					
+					event.getToolTip().add(ChatFormatting.RED + I18n.format(toAdd));
+				}
+				
 				
 				
 				if (quality != null)

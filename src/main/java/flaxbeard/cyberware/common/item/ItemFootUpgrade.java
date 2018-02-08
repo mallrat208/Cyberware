@@ -26,9 +26,9 @@ import flaxbeard.cyberware.common.misc.NNLUtil;
 public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 {
 
-    public ItemFootUpgrade(String name, EnumSlot slot, String[] subnames)
+    public ItemFootUpgrade(String name, EnumSlot[] slot, String[] subnames)
     {
-        super(name, slot, subnames);
+        super(name, new EnumSlot[][] { slot }, subnames);
         MinecraftForge.EVENT_BUS.register(this);
 
     }
@@ -74,11 +74,11 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
         if (CyberwareAPI.isCyberwareInstalled(e, test) && e.isInWater() && !e.onGround)
         {
             int numLegs = 0;
-            if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 2)))
+            if (CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.FOOT))
             {
                 numLegs++;
             }
-            if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 3)))
+            if (CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.FOOT_LEFT))
             {
                 numLegs++;
             }

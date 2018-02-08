@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import flaxbeard.cyberware.api.item.ILimbReplacement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
@@ -25,6 +26,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -130,14 +132,14 @@ public class EssentialsMissingHandler
 
 		}
 		
-		ItemStack legLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
-		if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
+		ItemStack legLeft = cyberware.getLimb(EnumSlot.LEG, EnumSide.LEFT);
+		if (!legLeft.isEmpty() && !((ILimbReplacement)legLeft.getItem()).isLimbActive(legLeft))
 		{
 			numMissingLegs++;
 		}
 		
-		ItemStack legRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
-		if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
+		ItemStack legRight = cyberware.getLimb(EnumSlot.LEG, EnumSide.RIGHT);
+		if (!legRight.isEmpty() && !((ILimbReplacement)legRight.getItem()).isLimbActive(legRight))
 		{
 			numMissingLegs++;
 		}
@@ -372,9 +374,6 @@ public class EssentialsMissingHandler
 		{
 			EntityPlayer e = Minecraft.getMinecraft().player;
 
-            if (e == null)
-                return;
-
 			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
 			e.getAttributeMap().removeAttributeModifiers(multimap);
@@ -469,7 +468,7 @@ public class EssentialsMissingHandler
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware, 2);
 		}
 	}
 	
@@ -484,7 +483,19 @@ public class EssentialsMissingHandler
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware, 2);
+		}
+	}
+	
+	@SubscribeEvent
+	public void handleLeftClickEntity(AttackEntityEvent event)
+	{
+		EntityLivingBase e = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(e))
+		{
+			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+			processEvent(event, EnumHand.MAIN_HAND, event.getEntityPlayer(), cyberware, 2);
 		}
 	}
 	
@@ -499,7 +510,7 @@ public class EssentialsMissingHandler
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware, 2);
 		}
 	}
 	
@@ -514,38 +525,83 @@ public class EssentialsMissingHandler
 		if (CyberwareAPI.hasCapability(e))
 		{
 			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			
+			if (!canUseItem(event.getHand(), event.getEntityPlayer(), cyberware))
+			{
+				event.setCanceled(true);
+			}
+			
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware, 1);
 		}
 	}
-
-	private void processEvent(Event event, EnumHand hand, EntityPlayer p, ICyberwareUserData cyberware)
+	
+	private void processEvent(Event event, EnumHand hand, EntityPlayer p, ICyberwareUserData cyberware, int check)
 	{
 		EnumHandSide mainHand = p.getPrimaryHand();
 		EnumHandSide offHand = ((mainHand == EnumHandSide.LEFT) ? EnumHandSide.RIGHT : EnumHandSide.LEFT);
 		EnumSide correspondingMainHand = ((mainHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
 		EnumSide correspondingOffHand = ((offHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
 		
-		boolean leftUnpowered = false;
-		ItemStack armLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
-		if (!armLeft.isEmpty() && !ItemCyberlimb.isPowered(armLeft))
+		boolean leftInactive = false;
+		boolean rightInactive = false;
+		
+		ItemStack armLeft = cyberware.getLimb(EnumSlot.ARM, EnumSide.LEFT);
+		ItemStack armRight = cyberware.getLimb(EnumSlot.ARM, EnumSide.RIGHT);
+		if (check == 0)
 		{
-			leftUnpowered = true;
+			leftInactive = !armLeft.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armLeft)).isLimbActive(armLeft);
+			rightInactive = !armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).isLimbActive(armRight);
+		}
+		else if (check == 1)
+		{
+			leftInactive = !armLeft.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armLeft)).canInteract(armLeft);
+			rightInactive = !armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).canInteract(armRight);
+		}
+		else if (check == 2)
+		{
+			leftInactive = !armLeft.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armLeft)).canMine(armLeft);
+			rightInactive = !armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).canMine(armRight);
 		}
 		
-		boolean rightUnpowered = false;
-		ItemStack armRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
-		if (!armRight.isEmpty() && !ItemCyberlimb.isPowered(armRight))
-		{
-			rightUnpowered = true;
-		}
-
-		if (hand == EnumHand.MAIN_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingMainHand) || leftUnpowered))
+		boolean mainHandUnpowered = (correspondingMainHand == EnumSide.RIGHT) ?  rightInactive : leftInactive;
+		boolean offHandUnpowered = (correspondingMainHand == EnumSide.RIGHT) ?  leftInactive : rightInactive;
+		
+		if (hand == EnumHand.MAIN_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingMainHand) || mainHandUnpowered))
 		{
 			event.setCanceled(true);
 		}
-		else if (hand == EnumHand.OFF_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingOffHand) || rightUnpowered))
+		else if (hand == EnumHand.OFF_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingOffHand) || offHandUnpowered))
 		{
 			event.setCanceled(true);
 		}
+	}
+	
+	private boolean canUseItem(EnumHand hand, EntityPlayer p, ICyberwareUserData cyberware)
+	{
+		EnumHandSide mainHand = p.getPrimaryHand();
+		EnumHandSide offHand = ((mainHand == EnumHandSide.LEFT) ? EnumHandSide.RIGHT : EnumHandSide.LEFT);
+		EnumSide correspondingMainHand = ((mainHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
+		EnumSide correspondingOffHand = ((offHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
+		
+		boolean leftInactive = false;
+		boolean rightInactive = false;
+		
+		ItemStack armLeft = cyberware.getLimb(EnumSlot.ARM, EnumSide.LEFT);
+		ItemStack armRight = cyberware.getLimb(EnumSlot.ARM, EnumSide.RIGHT);
+		leftInactive = !armLeft.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armLeft)).canHoldItem(armLeft);
+		rightInactive = !armRight.isEmpty() && !((ILimbReplacement) CyberwareAPI.getCyberware(armRight)).canHoldItem(armRight);
+		
+		boolean mainHandUnpowered = (correspondingMainHand == EnumSide.RIGHT) ?  rightInactive : leftInactive;
+		boolean offHandUnpowered = (correspondingMainHand == EnumSide.RIGHT) ?  leftInactive : rightInactive;
+		
+		if (hand == EnumHand.MAIN_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingMainHand) || mainHandUnpowered))
+		{
+			return false;
+		}
+		else if (hand == EnumHand.OFF_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingOffHand) || offHandUnpowered))
+		{
+			return false;
+		}
+		return true;
 	}
 }

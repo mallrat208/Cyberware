@@ -24,19 +24,32 @@ import flaxbeard.cyberware.common.CyberwareContent.ZombieItem;
 
 public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyberwareTabItem, IDeconstructable
 {
-	private EnumSlot[] slots;
+	public EnumSlot[][] slots;
 	private int[] essence;
 	private NonNullList<NonNullList<ItemStack>> components;
 	
-	public ItemCyberware(String name, EnumSlot[] slots, String[] subnames)
-	{		
+	public ItemCyberware(String name, EnumSlot[][] slots, String[] subnames)
+	{
 		super(name, subnames);
 		
 		this.slots = slots;
-		
 		this.essence = new int[subnames.length + 1];
 		this.components = NonNullList.create();
 
+	}
+	
+	public ItemCyberware(String name, EnumSlot[] slots, String[] subnames)
+	{
+		super(name, subnames);
+		
+		this.slots = new EnumSlot[slots.length][0];
+		for (int i = 0; i < slots.length; i++)
+		{
+			this.slots[i] = new EnumSlot[] {slots[i]};
+		}
+		
+		this.essence = new int[subnames.length + 1];
+		this.components = NonNullList.create();
 	}
 	
 	public ItemCyberware(String name, EnumSlot slot, String[] subnames)
@@ -119,7 +132,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 
 
 	@Override
-	public EnumSlot getSlot(ItemStack stack)
+	public EnumSlot[] getSlots(ItemStack stack)
 	{
 		return slots[Math.min(slots.length - 1, stack.getItemDamage())];
 	}
@@ -315,7 +328,12 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public EnumCategory getCategory(ItemStack stack)
 	{
-		return EnumCategory.values()[this.getSlot(stack).ordinal()];
+		EnumSlot slot = this.getFirstSlot(stack);
+		if (slot == EnumSlot.ARM_LEFT) slot = EnumSlot.ARM;
+		if (slot == EnumSlot.LEG_LEFT) slot = EnumSlot.LEG;
+		if (slot == EnumSlot.HAND_LEFT) slot = EnumSlot.HAND;
+		if (slot == EnumSlot.FOOT_LEFT) slot = EnumSlot.FOOT;
+		return EnumCategory.values()[slot.ordinal() + 3];
 	}
 
 	@Override

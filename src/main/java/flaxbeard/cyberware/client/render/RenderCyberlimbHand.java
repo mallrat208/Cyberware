@@ -35,15 +35,20 @@ public class RenderCyberlimbHand
 
 	public static RenderCyberlimbHand INSTANCE = new RenderCyberlimbHand();
 	
-	public void renderItemInFirstPerson(AbstractClientPlayer p_187457_1_, float p_187457_2_, float p_187457_3_, EnumHand p_187457_4_, float p_187457_5_, @Nullable ItemStack p_187457_6_, float p_187457_7_)
+	public void renderItemInFirstPerson(AbstractClientPlayer abstractClientPlayer, float p_187457_2_, float p_187457_3_, EnumHand enumHand, float p_187457_5_, @Nullable ItemStack p_187457_6_, float p_187457_7_)
 	{
-		boolean flag = p_187457_4_ == EnumHand.MAIN_HAND;
-		EnumHandSide enumhandside = flag ? p_187457_1_.getPrimaryHand() : p_187457_1_.getPrimaryHand().opposite();
+		this.renderItemInFirstPerson(abstractClientPlayer, p_187457_2_, p_187457_3_, enumHand, p_187457_5_, p_187457_6_, p_187457_7_, enumHand == EnumHand.MAIN_HAND);
+	}
+	
+	public void renderItemInFirstPerson(AbstractClientPlayer abstractClientPlayer, float p_187457_2_, float p_187457_3_, EnumHand enumHand, float p_187457_5_, @Nullable ItemStack p_187457_6_, float p_187457_7_, boolean forceShow)
+	{
+		boolean flag = forceShow;
+		EnumHandSide enumhandside = enumHand == EnumHand.MAIN_HAND ? abstractClientPlayer.getPrimaryHand() : abstractClientPlayer.getPrimaryHand().opposite();
 		GlStateManager.pushMatrix();
 
-		if (p_187457_6_.isEmpty())
+		if (p_187457_6_ == null || p_187457_6_.isEmpty())
 		{
-			if (flag && !p_187457_1_.isInvisible())
+			if (flag && !abstractClientPlayer.isInvisible())
 			{
 				
 				this.renderArmFirstPerson(p_187457_7_, p_187457_5_, enumhandside);
@@ -62,11 +67,11 @@ public class RenderCyberlimbHand
 		}
 		else
 		{
-			boolean flag1 = enumhandside == EnumHandSide.RIGHT;
+			boolean rightHanded = enumhandside == EnumHandSide.RIGHT;
 
-			if (p_187457_1_.isHandActive() && p_187457_1_.getItemInUseCount() > 0 && p_187457_1_.getActiveHand() == p_187457_4_)
+			if (abstractClientPlayer.isHandActive() && abstractClientPlayer.getItemInUseCount() > 0 && abstractClientPlayer.getActiveHand() == enumHand)
 			{
-				int j = flag1 ? 1 : -1;
+				int j = rightHanded ? 1 : -1;
 
 				switch (p_187457_6_.getItemUseAction())
 				{
@@ -114,13 +119,13 @@ public class RenderCyberlimbHand
 				float f = -0.4F * MathHelper.sin(MathHelper.sqrt(p_187457_5_) * (float)Math.PI);
 				float f1 = 0.2F * MathHelper.sin(MathHelper.sqrt(p_187457_5_) * ((float)Math.PI * 2F));
 				float f2 = -0.2F * MathHelper.sin(p_187457_5_ * (float)Math.PI);
-				int i = flag1 ? 1 : -1;
+				int i = rightHanded ? 1 : -1;
 				GlStateManager.translate((float)i * f, f1, f2);
 				this.transformSideFirstPerson(enumhandside, p_187457_7_);
 				this.transformFirstPerson(enumhandside, p_187457_5_);
 			}
 
-			this.renderItemSide(p_187457_1_, p_187457_6_, flag1 ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag1);
+			this.renderItemSide(abstractClientPlayer, p_187457_6_, rightHanded ? ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !rightHanded);
 		}
 
 		GlStateManager.popMatrix();
@@ -317,19 +322,19 @@ public class RenderCyberlimbHand
 		}
 	}
 	
-	private void renderArm(EnumHandSide p_187455_1_)
+	private void renderArm(EnumHandSide enumHandSide)
 	{
 		this.mc.getTextureManager().bindTexture(this.mc.player.getLocationSkin());
-		Render<AbstractClientPlayer> render = getEntityRenderObject(this.mc.player, p_187455_1_);
+		Render<AbstractClientPlayer> render = getEntityRenderObject(this.mc.player, enumHandSide);
 		RenderPlayer renderplayer = (RenderPlayer)render;
 		GlStateManager.pushMatrix();
-		float f = p_187455_1_ == EnumHandSide.RIGHT ? 1.0F : -1.0F;
+		float f = enumHandSide == EnumHandSide.RIGHT ? 1.0F : -1.0F;
 		GlStateManager.rotate(92.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.rotate(45.0F, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate(f * -41.0F, 0.0F, 0.0F, 1.0F);
 		GlStateManager.translate(f * 0.3F, -1.1F, 0.45F);
 
-		if (p_187455_1_ == EnumHandSide.RIGHT)
+		if (enumHandSide == EnumHandSide.RIGHT)
 		{
 			renderplayer.renderRightArm(this.mc.player);
 		}
@@ -341,21 +346,21 @@ public class RenderCyberlimbHand
 		GlStateManager.popMatrix();
 	}
 	
-	public boolean leftRobot = false;
-	public boolean rightRobot = false;
+	public boolean leftReplacement= false;
+	public boolean rightReplacement= false;
 	
 	private RenderPlayer getEntityRenderObject(AbstractClientPlayer p, EnumHandSide side)
 	{
 		if (side == EnumHandSide.RIGHT)
 		{
-			if (rightRobot)
+			if (rightReplacement)
 			{
 				return EssentialsMissingHandlerClient.renderF;
 			}
 		}
 		else
 		{
-			if (leftRobot)
+			if (leftReplacement)
 			{
 				return EssentialsMissingHandlerClient.renderF;
 			}

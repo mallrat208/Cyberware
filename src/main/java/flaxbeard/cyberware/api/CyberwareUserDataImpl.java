@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb;
+import flaxbeard.cyberware.api.item.ILimbReplacement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,6 +68,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	public CyberwareUserDataImpl()
 	{
 		hudData = new NBTTagCompound();
+		
 		for (int i = 0; i < EnumSlot.values().length; i ++){
 			NonNullList<ItemStack> wareSlot = NonNullList.create();
 			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
@@ -99,7 +102,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 			wares.set(i,wareSlot);
 		}
-		this.missingEssentials =  new boolean[EnumSlot.values().length * 2];
+		this.missingEssentials =  new boolean[EnumSlot.values().length];
 		this.updateCapacity();
 	}
 	
@@ -389,20 +392,34 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public boolean hasEssential(EnumSlot slot)
 	{
-		return !missingEssentials[slot.ordinal() * 2];
+		return !missingEssentials[slot.ordinal()];
 	}
 	
 	@Override
+	@Deprecated
 	public boolean hasEssential(EnumSlot slot, EnumSide side)
 	{
-		return !missingEssentials[slot.ordinal() * 2 + (side == EnumSide.LEFT ? 0 : 1)];
+		if (slot == EnumSlot.ARM && side == EnumSide.LEFT) slot = EnumSlot.ARM_LEFT;
+		if (slot == EnumSlot.LEG && side == EnumSide.LEFT) slot = EnumSlot.LEG_LEFT;
+		
+		return !missingEssentials[slot.ordinal()];
 	}
 	
 	@Override
 	public void setHasEssential(EnumSlot slot, boolean hasLeft, boolean hasRight)
 	{
-		missingEssentials[slot.ordinal() * 2] = !hasLeft;
-		missingEssentials[slot.ordinal() * 2 + 1] = !hasRight;
+		missingEssentials[slot.ordinal() * 2] = !hasRight;
+		
+		if (slot == EnumSlot.ARM) slot = EnumSlot.ARM_LEFT;
+		if (slot == EnumSlot.LEG) slot = EnumSlot.LEG_LEFT;
+		
+		missingEssentials[slot.ordinal()] = !hasLeft;
+	}
+	
+	@Override
+	public void setHasEssential(EnumSlot slot, boolean hasEssential)
+	{
+		missingEssentials[slot.ordinal()] = !hasEssential;
 	}
 
 	@Override
@@ -416,6 +433,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			cyberware.add(ItemStack.EMPTY);
 		}
+		
 		setInstalledCyberware(entity, slot, cyberware);
 	}
 	
@@ -536,27 +554,49 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public int getCyberwareRank(ItemStack cyberware)
 	{
-		ItemStack cw = getCyberware(cyberware);
+		int count = 0;
+		EnumSlot[] slots = CyberwareAPI.getCyberware(cyberware).getSlots(cyberware);
 		
-		if (!cw.isEmpty())
+		for (EnumSlot slot : slots)
 		{
-			return cw.getCount();
+			ItemStack cw = getCyberwareInSlot(cyberware, slot);
+			
+			if (!cw.isEmpty())
+				count += cw.getCount();
 		}
 		
-		return 0;
+		return count;
 	}
 	
 	@Override
 	public ItemStack getCyberware(ItemStack cyberware)
 	{
-		NonNullList<ItemStack> slotItems = getInstalledCyberware(CyberwareAPI.getCyberware(cyberware).getSlot(cyberware));
-		for (ItemStack item : slotItems)
+		EnumSlot[] slots = CyberwareAPI.getCyberware(cyberware).getSlots(cyberware);
+		
+		for (EnumSlot slot : slots)
 		{
-			if (!item.isEmpty() && item.getItem() == cyberware.getItem() && item.getItemDamage() == cyberware.getItemDamage())
+			ItemStack res = getCyberwareInSlot(cyberware, slot);
+			if (!res.isEmpty())
+			{
+				return res;
+			}
+		}
+		
+		return ItemStack.EMPTY;
+	}
+	
+	public ItemStack getCyberwareInSlot(ItemStack cyberware, EnumSlot slot)
+	{
+		NonNullList<ItemStack> slotItems = getInstalledCyberware(slot);
+		
+		for(ItemStack item : slotItems)
+		{
+			if(!item.isEmpty() && item.getItem() == cyberware.getItem() && item.getItemDamage() == cyberware.getItemDamage())
 			{
 				return item;
 			}
 		}
+		
 		return ItemStack.EMPTY;
 	}
 	
@@ -660,7 +700,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		hudData = tag.getCompoundTag("hud");
 		hasOpenedRadialMenu = tag.getBoolean("hasOpenedRadialMenu");
 		NBTTagList essentialList = (NBTTagList) tag.getTag("discard");
-		for (int i = 0; i < essentialList.tagCount(); i++)
+		for (int i = 0; i < essentialList.tagCount() && i < missingEssentials.length; i++)
 		{
 			this.missingEssentials[i] = ((NBTTagByte) essentialList.get(i)).getByte() > 0;
 		}
@@ -942,6 +982,30 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	public float[] getHudColor()
 	{
 		return hudColorFloat;
+	}
+	
+	@Override
+	public ItemStack getLimb(EnumSlot slot, EnumSide side)
+	{
+		NonNullList<ItemStack> slotItems = getInstalledCyberware(slot);
+		
+		for (ItemStack item: slotItems)
+		{
+			if(!item.isEmpty())
+			{
+				ICyberware ware = CyberwareAPI.getCyberware(item);
+				
+				if (ware instanceof ISidedLimb && ware instanceof ILimbReplacement)
+				{
+					if(((ISidedLimb)ware).getSide(item) == side)
+					{
+						return item;
+					}
+				}
+			}
+		}
+		
+		return ItemStack.EMPTY;
 	}
 
 	@Override

@@ -13,14 +13,12 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 
 public interface ICyberware
 {
-	public EnumSlot getSlot(ItemStack stack);
 	public int installedStackSize(ItemStack stack);
 	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack);
 	public boolean isIncompatible(ItemStack stack, ItemStack comparison);
 	boolean isEssential(ItemStack stack);
 	public List<String> getInfo(ItemStack stack);
 	public int getCapacity(ItemStack wareStack);
-	
 	
 	/**
 	 * Returns a Quality object representing the quality of this stack - all
@@ -33,8 +31,54 @@ public interface ICyberware
 	 */
 	public Quality getQuality(ItemStack stack);
 	
+	/**
+	 * Sets the Quality tag of this ItemStack to the specified Quality and
+	 * returns the changed ItemStack. If the ItemStack cannot contain the
+	 * Quality, returns the passed ItemStack
+	 * @param stack
+	 * @param quality
+	 * @return
+	 */
 	public ItemStack setQuality(ItemStack stack, Quality quality);
+	
+	/**
+	 * Whether or not this piece of Cyberware can handle the given Quality
+	 * @param stack
+	 * @param quality
+	 * @return
+	 */
 	public boolean canHoldQuality(ItemStack stack, Quality quality);
+	
+	/**
+	 * Returns an array of EnumSlots representing the areas of the body in which
+	 * this piece of Cyberware can be installed. See EnumSlot below
+	 * @param stack
+	 * @return
+	 */
+	default EnumSlot[] getSlots(ItemStack stack)
+	{
+		return new EnumSlot[] { getSlot(stack) };
+	}
+	
+	default EnumSlot getFirstSlot(ItemStack stack)
+	{
+		return getSlots(stack)[0];
+	}
+	
+	default boolean canFitInSlot(ItemStack stack, EnumSlot slot)
+	{
+		for (EnumSlot check : getSlots(stack))
+		{
+			if (check == slot) return true;
+		}
+		return false;
+	}
+	
+	@Deprecated
+	default EnumSlot getSlot(ItemStack stack)
+	{
+		return getFirstSlot(stack);
+	}
 
 	public class Quality
 	{
@@ -93,10 +137,14 @@ public interface ICyberware
 		SKIN(18, "skin"),
 		MUSCLE(19, "muscle"),
 		BONE(20, "bone"),
-		ARM(21, "arm", true, true),
-		HAND(22, "hand", true, false),
-		LEG(23, "leg", true, true),
-		FOOT(24, "foot", true, false);
+		ARM(21, "arm_right"),
+		HAND(22, "hand_right", false, false),
+		LEG(23, "leg_right"),
+		FOOT(24, "foot_right", false, false),
+		ARM_LEFT(25, "arm_left"),
+		HAND_LEFT(26, "hand_left", false, false),
+		LEG_LEFT(27, "leg_left"),
+		FOOT_LEFT(28, "foot_left", false, false);
 		
 		private final int slotNumber;
 		private final String name;
@@ -107,7 +155,7 @@ public interface ICyberware
 		{
 			this.slotNumber = slot;
 			this.name = name;
-			this.sidedSlot = sidedSlot;
+			this.sidedSlot = false;
 			this.hasEssential = hasEssential;
 		}
 		
@@ -152,8 +200,10 @@ public interface ICyberware
 	public void onAdded(EntityLivingBase entity, ItemStack stack);
 	public void onRemoved(EntityLivingBase entity, ItemStack stack);
 
+	@Deprecated
 	public interface ISidedLimb
 	{
+		@Deprecated
 		public EnumSide getSide(ItemStack stack);
 		
 		public enum EnumSide
@@ -164,4 +214,9 @@ public interface ICyberware
 	}
 
 	public int getEssenceCost(ItemStack stack);
+	
+	default String getUnlocalizedOrigin(ItemStack stack)
+	{
+		return "cyberware.gui.tablet.catalog.sort.other";
+	}
 }

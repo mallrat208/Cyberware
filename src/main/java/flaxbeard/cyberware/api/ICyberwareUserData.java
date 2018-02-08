@@ -12,6 +12,9 @@ import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb.EnumSide;
 public interface ICyberwareUserData
 {	
 	public NonNullList<ItemStack> getInstalledCyberware(EnumSlot slot);
+	
+	void setHasEssential(EnumSlot slot, boolean hasEssential);
+	
 	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, List<ItemStack> cyberware);
 	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, NonNullList<ItemStack> cyberware);
 	public boolean isCyberwareInstalled(ItemStack cyberware);
@@ -24,6 +27,7 @@ public interface ICyberwareUserData
 	public boolean hasEssential(EnumSlot slot);
 	public void setHasEssential(EnumSlot slot, boolean hasLeft, boolean hasRight);
 	public ItemStack getCyberware(ItemStack cyberware);
+	public ItemStack getCyberwareInSlot(ItemStack cyberware, EnumSlot slot);
 	public void updateCapacity();
 	public void resetBuffer();
 	public void addPower(int amount, ItemStack inputter);
@@ -59,6 +63,7 @@ public interface ICyberwareUserData
 	public int getMaxTolerance(EntityLivingBase e);
 	public void setTolerance(EntityLivingBase e, int amnt);
 	public int getTolerance(EntityLivingBase e);
+	public ItemStack getLimb(EnumSlot limb, EnumSide side);
 
 	@Deprecated
 	public int getEssence();

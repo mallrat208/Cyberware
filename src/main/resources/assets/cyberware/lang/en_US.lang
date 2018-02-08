@@ -113,33 +113,40 @@ item.cyberware.trenchcoat.name=Trenchcoat
 itemGroup.cyberware=Cyberware
 
 cyberware.slot.eyes=Eyes Slot
-cyberware.gui.missing_essential.eyes=Missing eyes, will cause Blindness
+cyberware.gui.missingEssential.eyes=2Missing eyes, will cause Blindness
 cyberware.slot.cranium=Cranium Slot
-cyberware.gui.missing_essential.cranium=Missing brain, will cause death
+cyberware.gui.missingEssential.cranium=Missing brain, will cause death
 cyberware.slot.heart=Heart Slot
-cyberware.gui.missing_essential.heart=Missing heart, will cause death
+cyberware.gui.missingEssential.heart=Missing heart, will cause death
 cyberware.slot.lungs=Lungs Slot
-cyberware.gui.missing_essential.lungs=Missing lungs, will cause death
+cyberware.gui.missingEssential.lungs=Missing lungs, will cause death
 cyberware.slot.lower_organs=Lower Organs Slot
-cyberware.gui.missing_essential.lower_organs=Missing stomach, will be unable to eat
+cyberware.gui.missingEssential.lowerOrgans=Missing stomach, will be unable to eat
 cyberware.slot.skin=Skin Slot
-cyberware.gui.missing_essential.skin=Missing skin, damage will hurt more
+cyberware.gui.missingEssential.skin=Missing skin, damage will hurt more
 cyberware.slot.muscle=Muscle Slot
-cyberware.gui.missing_essential.muscle=Missing muscles, will cause death
+cyberware.gui.missingEssential.muscle=Missing muscles, will cause death
 cyberware.slot.bone=Bone Slot
-cyberware.gui.missing_essential.bone=Missing bones, will cause death
-cyberware.slot.arm=Arm Slot
-cyberware.gui.missing_essential.arm.left=Missing left arm, will be unusable
-cyberware.gui.missing_essential.arm.right=Missing right arm, will be unusable
+cyberware.gui.missingEssential.bone=Missing bones, will cause death
+cyberware.slot.arm_left=Left Arm Slot
+cyberware.slot.arm_right=Arm Slot, Right
+cyberware.gui.missingEssential.arm_left=Missing left arm, will be unusable
+cyberware.gui.missingEssential.arm_right=Missing right arm, will be unusable
 cyberware.slot.hand=Hand Slot
-cyberware.gui.missing_essential.hand.left=Missing left hand, will be unusable
-cyberware.gui.missing_essential.hand.right=Missing right hand, will be unusable
+cyberware.slot.hand_left=Hand Slot, Left
+cyberware.slot.hand_right=Hand Slot, Right
+cyberware.gui.missingEssential.hand_left=Missing left hand, will be unusable
+cyberware.gui.missingEssential.hand_right=Missing right hand, will be unusable
 cyberware.slot.leg=Leg Slot
-cyberware.gui.missing_essential.leg.left=Missing left leg, will be unusable
-cyberware.gui.missing_essential.leg.right=Missing right leg, will be unusable
+cyberware.slot.leg_left=Leg Slot, Left
+cyberware.slot.leg_right=Leg Slot, Right
+cyberware.gui.missingEssential.leg_left=Missing left leg, will be unusable
+cyberware.gui.missingEssential.leg_right=Missing right leg, will be unusable
 cyberware.slot.foot=Feet Slot
-cyberware.gui.missing_essential.foot.left=Missing left foot, will be unusable
-cyberware.gui.missing_essential.foot.right=Missing right foot, will be unusable
+cyberware.slot.foot_left=Feet Slot, Left
+cyberware.slot.foot_right=Feet Slot, Right
+cyberware.gui.missingEssential.foot_left=Missing left foot, will be unusable
+cyberware.gui.missingEssential.foot_right=Missing right foot, will be unusable
 
 cyberware.gui.no_essence=No tolerance, will cause death
 cyberware.gui.critical_essence=Low tolerance, will cause rejection
@@ -317,6 +324,7 @@ cyberware.commands.clear_cyberware.success=Cleared the Cyberware of %1$s
 
 # ENTITIES
 entity.cyberzombie.name=Cyberzombie
+entity.cyberware.bytebug.name=Bytebug
 
 # SCANNER SAYINGS
 # FOR TRANSLATORS - YOU CAN HAVE AS MANY OR FEW OF THESE AS YOU WANT, BUT YOU NEED AT LEAST ONE
@@ -395,6 +403,8 @@ cyberware.gui.scanner_saying.65=Commencing Spatial Simulation
 cyberware.gui.scanner_saying.66=Instantiating Child Elements
 cyberware.gui.scanner_saying.67=Wiping System32
 cyberware.gui.scanner_saying.68=Remembering Lycaon
+
+
 
 
 # MISC

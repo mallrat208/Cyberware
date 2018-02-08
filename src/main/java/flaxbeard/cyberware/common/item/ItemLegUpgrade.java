@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
+import flaxbeard.cyberware.Cyberware;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
@@ -18,9 +19,9 @@ import flaxbeard.cyberware.common.misc.NNLUtil;
 public class ItemLegUpgrade extends ItemCyberware
 {
 
-	public ItemLegUpgrade(String name, EnumSlot slot, String[] subnames)
+	public ItemLegUpgrade(String name, EnumSlot[] slot, String[] subnames)
 	{
-		super(name, slot, subnames);
+		super(name, new EnumSlot[][] { slot }, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
 
 	}
@@ -42,11 +43,11 @@ public class ItemLegUpgrade extends ItemCyberware
 		if (CyberwareAPI.isCyberwareInstalled(e, test))
 		{
 			int numLegs = 0;
-			if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 2)))
+			if (CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.LEG))
 			{
 				numLegs++;
 			}
-			if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 3)))
+			if (CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.LEG_LEFT))
 			{
 				numLegs++;
 			}
@@ -83,11 +84,25 @@ public class ItemLegUpgrade extends ItemCyberware
 		EntityLivingBase e = event.getEntityLiving();
 		
 		ItemStack test = new ItemStack(this, 1, 1);
-		if (event.getSource() == DamageSource.FALL && event.getAmount() <= 6F && CyberwareAPI.isCyberwareInstalled(e, test))
+		if (event.getSource() == DamageSource.FALL && event.getAmount() <= 8F && CyberwareAPI.isCyberwareInstalled(e, test))
 		{
-			event.setCanceled(true);
+			if (event.getAmount() <= 6F)
+			{
+				event.setCanceled(true);
+			}
+			else
+			{
+				if(CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.LEG))
+				{
+					if(CyberwareAPI.isCyberwareInstalledInSlot(e, test, EnumSlot.LEG_LEFT))
+					{
+						event.setCanceled(true);
+					}
+				}
+			}
 		}
 	}
+	
 
 	@Override
 	public int getPowerConsumption(ItemStack stack)

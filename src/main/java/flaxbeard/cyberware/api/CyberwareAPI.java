@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -393,6 +394,25 @@ public final class CyberwareAPI
 		
 		ICyberwareUserData cyberware = getCapability(targetEntity);
 		return cyberware.isCyberwareInstalled(stack);
+	}
+	
+	/**
+	 * A shortcut method for event handlers and the like to quickly tell if an entity
+	 * has a piece of Cyberware installed. Can handle null entites and entities without
+	 * ICyberwareUserData.
+	 *
+	 * @param targetEntity	The entity you want to check
+	 * @param stack			The Cyberware you want to check for
+	 * @param slot			the slot to check in
+	 * @return				If the entity has the Cyberware
+	 */
+	public static boolean isCyberwareInstalledInSlot(@Nullable Entity targetEntity, ItemStack stack, EnumSlot slot)
+	{
+		if (!hasCapability(targetEntity)) return false;
+		
+		ICyberwareUserData cyberware = getCapability(targetEntity);
+		
+		return !cyberware.getCyberwareInSlot(stack, slot).isEmpty();
 	}
 	
 	/**
