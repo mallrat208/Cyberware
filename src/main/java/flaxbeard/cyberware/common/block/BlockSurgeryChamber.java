@@ -60,7 +60,7 @@ public class BlockSurgeryChamber extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ib = new ItemSurgeryChamber(this);
+		ib = new ItemSurgeryChamber(this,"cyberware.tooltip.surgery_chamber.0","cyberware.tooltip.surgery_chamber.1");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		

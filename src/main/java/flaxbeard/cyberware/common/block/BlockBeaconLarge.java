@@ -52,7 +52,7 @@ public class BlockBeaconLarge extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.beaconLarge");
+		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.beacon_large");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		

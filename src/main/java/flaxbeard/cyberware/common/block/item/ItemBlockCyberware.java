@@ -46,7 +46,7 @@ public class ItemBlockCyberware extends ItemBlock implements ICyberwareTabItem
 		{
 			for (String str : tt)
 			{
-				tooltip.add(ChatFormatting.DARK_GRAY + I18n.format(str));
+				tooltip.add(ChatFormatting.GRAY + I18n.format(str));
 			}
 		}
 	}

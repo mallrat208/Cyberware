@@ -65,8 +65,8 @@ public class ItemComponentBox extends ItemBlockCyberware
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced)
 	{
-		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.componentBox"));
-		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.componentBox2"));
+		tooltip.add(ChatFormatting.GRAY + I18n.format("cyberware.tooltip.component_box"));
+		tooltip.add(ChatFormatting.GRAY + I18n.format("cyberware.tooltip.component_box2"));
 	}
 	
 }

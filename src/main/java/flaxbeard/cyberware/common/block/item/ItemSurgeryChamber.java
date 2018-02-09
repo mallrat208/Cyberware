@@ -1,8 +1,11 @@
 package flaxbeard.cyberware.common.block.item;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,14 +17,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import flaxbeard.cyberware.api.item.ICyberwareTabItem;
 import flaxbeard.cyberware.common.block.BlockSurgeryChamber;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class ItemSurgeryChamber extends Item implements ICyberwareTabItem
 {
 	private Block block;
+	private String[] tt;
 
-	public ItemSurgeryChamber(Block block)
+	public ItemSurgeryChamber(Block block, String... tooltip)
 	{
 		this.block = block;
+		this.tt = tooltip;
 	}
 
 	/**
@@ -76,6 +86,19 @@ public class ItemSurgeryChamber extends Item implements ICyberwareTabItem
 		worldIn.setBlockState(blockpos2, iblockstate.withProperty(BlockSurgeryChamber.HALF, BlockSurgeryChamber.EnumChamberHalf.UPPER), 2);
 		worldIn.notifyNeighborsOfStateChange(pos, door, true);
 		worldIn.notifyNeighborsOfStateChange(blockpos2, door, true);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag advanced)
+	{
+		if (this.tt != null)
+		{
+			for (String str : tt)
+			{
+				tooltip.add(ChatFormatting.GRAY + I18n.format(str));
+			}
+		}
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class BlockCharger extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ItemBlock ib = new ItemBlockCyberware(this);
+		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.charger.0","cyberware.tooltip.charger.1");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
