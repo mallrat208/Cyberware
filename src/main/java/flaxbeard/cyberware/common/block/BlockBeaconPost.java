@@ -77,9 +77,9 @@ public class BlockBeaconPost extends BlockContainer
 		
 
 		ItemBlock ib = new ItemBlockCyberware(this,
-				"cyberware.tooltip.beaconPost.0",
-				"cyberware.tooltip.beaconPost.1",
-				"cyberware.tooltip.beaconPost.2");
+				"cyberware.tooltip.beacon_post.0",
+				"cyberware.tooltip.beacon_post.1",
+				"cyberware.tooltip.beacon_post.2");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		

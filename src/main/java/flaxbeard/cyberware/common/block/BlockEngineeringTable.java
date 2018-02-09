@@ -57,7 +57,7 @@ public class BlockEngineeringTable extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ib = new ItemEngineeringTable(this);
+		ib = new ItemEngineeringTable(this, "cyberware.tooltip.engineering_table");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		

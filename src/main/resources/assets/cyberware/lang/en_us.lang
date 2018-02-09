@@ -201,7 +201,16 @@ cyberware.tooltip.beacon_large=Increases Cyberzombie spawns nearby
 cyberware.tooltip.beacon_post.0=To construct:
 cyberware.tooltip.beacon_post.1=6 layers of 1 component, centered over
 cyberware.tooltip.beacon_post.2=4 layers of 3x3 components
-
+cyberware.tooltip.blueprint_archive.0=Stores Cyberware Blueprints
+cyberware.tooltip.blueprint_archive.1=Acessible by Engineering Table if nearby
+cyberware.tooltip.surgery.0=Used to set what Cyberware to install or remove
+cyberware.tooltip.surgery.1=Place on top of a Surgery Chamber to function
+cyberware.tooltip.surgery_chamber.0=Performs Operations for the Robosurgeon
+cyberware.tooltip.surgery_chamber.1=Right-Click when inside to activate
+cyberware.tooltip.charger.0=Charges Entities with Cyberware
+cyberware.tooltip.charger.1=Accepts Forge Energy, Redstone Flux, and Tesla
+cyberware.tooltip.engineering_table=Used to dismantle and create Cyberware
+cyberware.tooltip.scanner=Analyzes Cyberware to create Blueprints
 
 
 cyberware.tooltip.blueprint=Creates %1$s

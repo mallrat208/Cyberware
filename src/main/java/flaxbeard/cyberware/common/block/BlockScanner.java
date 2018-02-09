@@ -42,7 +42,7 @@ public class BlockScanner extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ItemBlock ib = new ItemBlockCyberware(this);
+		ItemBlock ib = new ItemBlockCyberware(this,"cyberware.tooltip.scanner");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		

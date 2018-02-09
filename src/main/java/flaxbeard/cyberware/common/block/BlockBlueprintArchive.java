@@ -49,7 +49,7 @@ public class BlockBlueprintArchive extends BlockContainer
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.blueprintArchive");
+		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.blueprint_archive.0","cyberware.tooltip.blueprint_archive.1");
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
