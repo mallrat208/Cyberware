@@ -13,6 +13,10 @@
 // ***************************************************************************** //
 //  1.12
 // ***************************************************************************** //
+0.2.10.8
+- Localization and Hud Prompt Fixes
+- Merge PR: Updated Tooltips includes fix for An-Sar/Cyberware#27 #28
+
 0.2.10.7
 - Fix Aquatic Propulsion Augment, closes #26
 
