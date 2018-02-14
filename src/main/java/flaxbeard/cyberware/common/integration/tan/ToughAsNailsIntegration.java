@@ -1,10 +1,13 @@
 package flaxbeard.cyberware.common.integration.tan;
 
+import flaxbeard.cyberware.common.integration.tan.CyberwareModifier.Type;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberware;
+
+import static toughasnails.api.temperature.TemperatureHelper.registerTemperatureModifier;
 
 public class ToughAsNailsIntegration
 {
@@ -12,6 +15,9 @@ public class ToughAsNailsIntegration
 
 	public static void preInit()
 	{
+		registerTemperatureModifier(new CyberwareModifier(Type.BLUBBER));
+		registerTemperatureModifier(new CyberwareModifier(Type.SWEAT));
+		
 		sweat = new ItemToughAsNailsUpgrade("tough_as_nails_upgrades",
 				new EnumSlot[] { EnumSlot.SKIN, EnumSlot.SKIN },
 				new String[] { "sweat", "blubber" });

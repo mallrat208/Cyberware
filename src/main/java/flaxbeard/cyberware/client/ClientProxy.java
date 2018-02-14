@@ -81,7 +81,8 @@ public class ClientProxy extends CommonProxy
 		{
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor()
 			{
-				public int getColorFromItemstack(ItemStack stack, int tintIndex)
+				@Override
+				public int colorMultiplier(ItemStack stack, int tintIndex)
 				{
 					return tintIndex > 0 ? -1 : ((ItemArmorCyberware)stack.getItem()).getColor(stack);
 				}
