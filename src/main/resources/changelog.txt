@@ -13,6 +13,9 @@
 // ***************************************************************************** //
 //  1.12
 // ***************************************************************************** //
+0.2.10.9
+- Merge PR: Fix for Tough As Nails Integration #32, fixes for #20 #31
+
 0.2.10.8
 - Localization and Hud Prompt Fixes
 - Merge PR: Updated Tooltips includes fix for An-Sar/Cyberware#27 #28
