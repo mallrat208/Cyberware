@@ -376,7 +376,7 @@ public class CyberwareContent
 		cyberlimbs = new ItemCyberlimb("cyberlimbs", 
 				new EnumSlot[] { EnumSlot.ARM, EnumSlot.ARM, EnumSlot.LEG, EnumSlot.LEG },
 				new String[] { "cyberarm_left", "cyberarm_right", "cyberleg_left", "cyberleg_right" });
-		cyberlimbs.setEssenceCost(25, 25, 25, 25);
+		cyberlimbs.setEssenceCost(15, 15, 15, 15);
 		cyberlimbs.setComponents(
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
 				NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 4, 0), new ItemStack(component, 2, 2), new ItemStack(component, 2, 4), new ItemStack(component, 1, 5), new ItemStack(component, 1, 7) }),
