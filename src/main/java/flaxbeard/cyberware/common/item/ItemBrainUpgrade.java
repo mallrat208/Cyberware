@@ -76,7 +76,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 			List<EntityLivingBase> test = te.world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(te.posX - range, te.posY - range, te.posZ - range, te.posX + te.width + range, te.posY + te.height + range, te.posZ + te.width + range));
 			for (EntityLivingBase e : test)
 			{
-				if (te.getDistanceToEntity(e) <= range)
+				if (te.getDistance(e) <= range)
 				{
 					if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 1)))
 					{

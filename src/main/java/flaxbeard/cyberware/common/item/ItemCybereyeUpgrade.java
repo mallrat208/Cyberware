@@ -76,7 +76,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 				List<EntityLivingBase> test = p.world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.posX - range, p.posY - range, p.posZ - range, p.posX + p.width + range, p.posY + p.height + range, p.posZ + p.width + range));
 				for (EntityLivingBase e : test)
 				{
-					if (p.getDistanceToEntity(e) <= range && e != p && !e.isGlowing())
+					if (p.getDistance(e) <= range && e != p && !e.isGlowing())
 					{
 
 						e.setGlowing(true);

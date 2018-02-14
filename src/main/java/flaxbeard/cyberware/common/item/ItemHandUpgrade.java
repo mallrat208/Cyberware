@@ -200,7 +200,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 		if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand().isEmpty())
 		{
 			ItemStack pick = new ItemStack(Items.STONE_PICKAXE);
-			event.setNewSpeed(event.getNewSpeed() * pick.getStrVsBlock(p.world.getBlockState(event.getPos())));
+			event.setNewSpeed(event.getNewSpeed() * pick.getDestroySpeed(p.world.getBlockState(event.getPos())));
 		}
 	}
 	

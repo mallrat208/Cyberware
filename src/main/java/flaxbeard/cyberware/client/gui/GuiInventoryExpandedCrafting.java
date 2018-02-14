@@ -38,7 +38,7 @@ public class GuiInventoryExpandedCrafting extends GuiInventory
 		int i = this.guiLeft;
 		int j = this.guiTop;
 		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
-		drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.player);
+		drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.player, partialTicks);
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class GuiInventoryExpandedCrafting extends GuiInventory
         this.oldMouseY = (float)mouseY;
     }
 
-	public static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent)
+	public static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent, float partialTicks)
 	{
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
@@ -74,7 +74,7 @@ public class GuiInventoryExpandedCrafting extends GuiInventory
 		RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 		rendermanager.setPlayerViewY(180.0F);
 		rendermanager.setRenderShadow(false);
-		rendermanager.doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+		rendermanager.renderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks, false);
 		rendermanager.setRenderShadow(true);
 		ent.renderYawOffset = f;
 		ent.rotationYaw = f1;

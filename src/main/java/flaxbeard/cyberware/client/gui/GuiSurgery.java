@@ -29,6 +29,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
@@ -1012,7 +1013,7 @@ public class GuiSurgery extends GuiContainer
 			
 			scissor(i + 3, j + 3, 170, (int) (percentageSkele * 125));
 			
-			renderEntity(skeleton, i + (this.xSize / 2) + ease.x, j + 110 + ease.y, ease.scale, endRotate);
+			renderEntity(skeleton, i + (this.xSize / 2) + ease.x, j + 110 + ease.y, ease.scale, endRotate, partialTicks);
 	
 	
 			scissor(i + 3, j + 3 + (int) (percentageSkele * 125), 170, 125 - (int) (percentageSkele * 125));
@@ -1031,7 +1032,7 @@ public class GuiSurgery extends GuiContainer
 			float sp = player.swingProgress;
 			player.swingProgress = 0F;
 		  
-			renderEntity(player, i + (this.xSize / 2) + ease.x, j + 115 + (ease.y) * (60F / 63F), ease.scale * (57F / 50F), ease.rotation  + (float) (5F * Math.sin((time) / 25F)));
+			renderEntity(player, i + (this.xSize / 2) + ease.x, j + 115 + (ease.y) * (60F / 63F), ease.scale * (57F / 50F), ease.rotation  + (float) (5F * Math.sin((time) / 25F)), partialTicks);
 			
 			player.swingProgress = sp;
 			player.renderYawOffset = f;
@@ -1157,7 +1158,7 @@ public class GuiSurgery extends GuiContainer
 		return -endValue / 2 * ((--elapsed) * (elapsed - 2) - 1) + startValue;
 	}
 	
-	public void renderEntity(Entity entity, float x, float y, float scale, float rotation)
+	public void renderEntity(Entity entity, float x, float y, float scale, float rotation, float partialTicks)
 	{
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
@@ -1167,7 +1168,7 @@ public class GuiSurgery extends GuiContainer
 		GlStateManager.rotate(rotation, 0.0F, 1.0F, 0.0F);
 		RenderHelper.enableStandardItemLighting();
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
-		Minecraft.getMinecraft().getRenderManager().doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+		Minecraft.getMinecraft().getRenderManager().renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 		GlStateManager.popMatrix();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();

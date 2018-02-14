@@ -70,6 +70,9 @@ public class CyberwareConfig
 	
 	public static int TESLA_PER_POWER = 1;
 	
+	public static boolean INT_TOUGH_AS_NAILS = true;
+	public static boolean INT_BOTANIA = true;
+	
 	public static Configuration config;
 	
 	public static File configDirectory;
@@ -80,6 +83,8 @@ public class CyberwareConfig
 	private static final String C_MACHINES = "Machines";
 	private static final String C_ESSENCE = "Essence";
 	private static final String C_GAMERULES = "Gamerules";
+	private static final String C_INTEGRATION = "Integration";
+
 
 	public static void preInit(FMLPreInitializationEvent event)
 	{
@@ -168,6 +173,9 @@ public class CyberwareConfig
 
 		HUDJACK_FLOAT = config.getFloat("Amount hudjack HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDJACK_FLOAT, 0F, 100F, "");
 		HUDLENS_FLOAT = config.getFloat("Amount hudlens HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDLENS_FLOAT, 0F, 100F, "");
+		
+		INT_TOUGH_AS_NAILS = config.getBoolean("Enable Tough As Nails Integration if the mod is Loaded", C_INTEGRATION, INT_TOUGH_AS_NAILS, "Requires Tough as Nails" );
+		INT_BOTANIA = config.getBoolean("Enable Botania Integration if the mod is Loaded", C_INTEGRATION, INT_BOTANIA, "Requires Botania");
 
 		config.save();
 	}

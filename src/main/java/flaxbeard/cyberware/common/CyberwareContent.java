@@ -211,8 +211,8 @@ public class CyberwareContent
 			katanaMat = EnumHelper.addToolMaterial("KATANA", 
 					ToolMaterial.IRON.getHarvestLevel(), 
 					ToolMaterial.IRON.getMaxUses(), 
-					ToolMaterial.IRON.getEfficiencyOnProperMaterial(), 
-					ToolMaterial.IRON.getDamageVsEntity(), 
+					ToolMaterial.IRON.getEfficiency(),
+					ToolMaterial.IRON.getAttackDamage(),
 					ToolMaterial.IRON.getEnchantability());
 			katanaMat.setRepairItem(new ItemStack(component, 1, 4));
 			
@@ -494,12 +494,12 @@ public class CyberwareContent
 					);
 		}
 		
-		if (Loader.isModLoaded("botania"))
+		if (CyberwareConfig.INT_BOTANIA && Loader.isModLoaded("botania"))
 		{
 			BotaniaIntegration.preInit();
 		}
 		
-		if (Loader.isModLoaded("toughasnails"))
+		if (CyberwareConfig.INT_TOUGH_AS_NAILS && Loader.isModLoaded("toughasnails"))
 		{
 			ToughAsNailsIntegration.preInit();
 		}
