@@ -15,6 +15,9 @@
 // ***************************************************************************** //
 0.2.10.9
 - Merge PR: Fix for Tough As Nails Integration #32, fixes for #20 #31
+- Add Config mining level config for the Reinforced Fist, default is now iron level (see #29)
+- Add Menu support for the Ender Jammer, allowing it to be disabled (see #29)
+- Reduce tolerance cost of cyberlimbs from 25 to 15 (see #29)
 
 0.2.10.8
 - Localization and Hud Prompt Fixes
