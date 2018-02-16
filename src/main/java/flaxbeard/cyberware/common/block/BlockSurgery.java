@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.block;
 
 import javax.annotation.Nullable;
 
+import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -72,24 +73,13 @@ public class BlockSurgery extends BlockContainer
 		if (tileentity instanceof TileEntitySurgery)
 		{
 			TileEntitySurgery surgery = (TileEntitySurgery) tileentity;
-			/*if (player.isSneaking())
-			{
-				if (CyberwareAPI.hasCapability(player))
-				{
-					surgery.targetEntity = player;
-					surgery.processUpdate();
-					surgery.targetEntity = null;
-					
-				}
-				
-			}
-			else
-			{*/
-
-				surgery.updatePlayerSlots(player);
-				player.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
-			//}
 			
+			
+			//Ensure the Base Tolerance Attribute has been updated for any Config Changes
+			player.getEntityAttribute(CyberwareAPI.TOLERANCE_ATTR).setBaseValue(CyberwareConfig.ESSENCE);
+
+			surgery.updatePlayerSlots(player);
+			player.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
 		}
 		
 		return true;
