@@ -13,6 +13,9 @@
 // ***************************************************************************** //
 //  1.12
 // ***************************************************************************** //
+0.2.10.10
+- Merge PR: Adjust Player Tolerance on activating Robosurgeon #34
+
 0.2.10.9
 - Merge PR: Fix for Tough As Nails Integration #32, fixes for #20 #31
 - Add Config mining level config for the Reinforced Fist, default is now iron level (see #29)
