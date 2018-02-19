@@ -161,7 +161,7 @@ public class VanillaWares
 
 		private String[] getDesciption(ItemStack stack)
 		{
-			return I18n.format("cyberware.tooltip.spiderEye").split("\\\\n");
+			return I18n.format("cyberware.tooltip.spider_eye").split("\\\\n");
 		}
 
 		@Override
