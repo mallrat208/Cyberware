@@ -72,6 +72,7 @@ public class CyberwareConfig
 
     public static int FIST_MINING_LEVEL = 2;
 
+    public static boolean INT_ENDER_IO = true;
     public static boolean INT_TOUGH_AS_NAILS = true;
     public static boolean INT_BOTANIA = true;
 
@@ -174,6 +175,7 @@ public class CyberwareConfig
         HUDJACK_FLOAT = config.getFloat("Amount hudjack HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDJACK_FLOAT, 0F, 100F, "");
         HUDLENS_FLOAT = config.getFloat("Amount hudlens HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDLENS_FLOAT, 0F, 100F, "");
 
+        INT_ENDER_IO = config.getBoolean("Enable EnderIO Integration if the mod is Loaded", C_INTEGRATION, INT_ENDER_IO, "Requires EnderIO" );
         INT_TOUGH_AS_NAILS = config.getBoolean("Enable Tough As Nails Integration if the mod is Loaded", C_INTEGRATION, INT_TOUGH_AS_NAILS, "Requires Tough as Nails" );
         INT_BOTANIA = config.getBoolean("Enable Botania Integration if the mod is Loaded", C_INTEGRATION, INT_BOTANIA, "Requires Botania");
 

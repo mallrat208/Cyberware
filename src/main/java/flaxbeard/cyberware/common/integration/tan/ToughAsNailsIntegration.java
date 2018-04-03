@@ -11,6 +11,7 @@ import static toughasnails.api.temperature.TemperatureHelper.registerTemperature
 
 public class ToughAsNailsIntegration
 {
+    public static final String MOD_ID = "toughasnails";
 	public static ItemCyberware sweat;
 
 	public static void preInit()
