@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import flaxbeard.cyberware.client.gui.ContainerFineManipulators;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -7,13 +8,12 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import flaxbeard.cyberware.client.gui.ContainerBlueprintArchive;
 import flaxbeard.cyberware.client.gui.ContainerComponentBox;
 import flaxbeard.cyberware.client.gui.ContainerEngineeringTable;
-import flaxbeard.cyberware.client.gui.ContainerPlayerExpandedCrafting;
 import flaxbeard.cyberware.client.gui.ContainerScanner;
 import flaxbeard.cyberware.client.gui.ContainerSurgery;
 import flaxbeard.cyberware.client.gui.GuiBlueprintArchive;
 import flaxbeard.cyberware.client.gui.GuiComponentBox;
 import flaxbeard.cyberware.client.gui.GuiEngineeringTable;
-import flaxbeard.cyberware.client.gui.GuiInventoryExpandedCrafting;
+import flaxbeard.cyberware.client.gui.GuiFineManipulators;
 import flaxbeard.cyberware.client.gui.GuiScanner;
 import flaxbeard.cyberware.client.gui.GuiSurgery;
 import flaxbeard.cyberware.common.block.tile.TileEntityBlueprintArchive;
@@ -33,7 +33,7 @@ public class GuiHandler implements IGuiHandler
 			case 0:
 				return new ContainerSurgery(player.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
 			case 1:
-				return new ContainerPlayerExpandedCrafting(player.inventory, false, player);
+				return new ContainerFineManipulators(player.inventory, true, player);
 			case 2:
 				return new ContainerEngineeringTable(player.getCachedUniqueIdString(), player.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
 			case 3:
@@ -55,7 +55,7 @@ public class GuiHandler implements IGuiHandler
 			case 0:
 				return new GuiSurgery(player.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
 			case 1:
-				return new GuiInventoryExpandedCrafting(player);
+				return new GuiFineManipulators(player, new ContainerFineManipulators(player.inventory, false, player));
 			case 2:
 				return new GuiEngineeringTable(player.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
 			case 3:
