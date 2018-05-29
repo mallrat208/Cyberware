@@ -3,6 +3,9 @@ package flaxbeard.cyberware.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import flaxbeard.cyberware.client.gui.InventoryTabFineManipulators;
+import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
+import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -88,7 +91,6 @@ public class ClientProxy extends CommonProxy
 				}
 			}, new Item[] { CyberwareContent.trenchcoat });
 		}
-		
 	}
 	
 	
@@ -98,6 +100,15 @@ public class ClientProxy extends CommonProxy
 	public void postInit()
 	{
 		super.postInit();
+		
+		MinecraftForge.EVENT_BUS.register(new TabRegistry());
+		
+		if (TabRegistry.getTabList().size() == 0)
+		{
+			TabRegistry.registerTab(new InventoryTabVanilla());
+		}
+		
+		TabRegistry.registerTab(new InventoryTabFineManipulators());
 	}
 	
 	private void registerRenders(Block block)
@@ -188,5 +199,4 @@ public class ClientProxy extends CommonProxy
 	{
 		return targetEntity == Minecraft.getMinecraft().player;
 	}
-
 }
