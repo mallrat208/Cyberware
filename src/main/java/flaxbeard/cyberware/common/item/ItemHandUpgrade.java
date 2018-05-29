@@ -57,22 +57,6 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
                 new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 0), new ItemStack(CyberwareContent.cyberlimbs, 1, 1) }});
     }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    public void handleOpenInv(GuiOpenEvent event)
-    {
-        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null && event.getGui() != null && event.getGui().getClass() == GuiInventory.class && !Minecraft.getMinecraft().player.isCreative())
-        {
-            if (CyberwareAPI.isCyberwareInstalled(Minecraft.getMinecraft().player, new ItemStack(this, 1, 0)))
-            {
-                event.setCanceled(true);
-
-                Minecraft.getMinecraft().player.openGui(Cyberware.INSTANCE, 1, Minecraft.getMinecraft().player.world, 0, 0, 0);
-                CyberwarePacketHandler.INSTANCE.sendToServer(new GuiPacket(1, 0, 0, 0));
-            }
-        }
-    }
-
     @Override
     public boolean isIncompatible(ItemStack stack, ItemStack other)
     {
