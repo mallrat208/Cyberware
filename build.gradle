@@ -209,7 +209,7 @@ dependencies {
     //deobfCompile "net.industrial-craft:industrialcraft-2:${ic2_version}-ex112:api"
 
     // ToughAsNails
-    compile "com.github.glitchfiend.biomesoplenty:ToughAsNails:${tan_version}:api"
+    //compile "com.github.glitchfiend.biomesoplenty:ToughAsNails:${tan_version}:api"
 
     // BiomesOPlenty
     //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
@@ -224,7 +224,7 @@ dependencies {
     compile files(
             //'Baubles.jar',
             //'Botania.jar',
-            'TaN.jar'
+            //'TaN.jar'
     )
 }
 
