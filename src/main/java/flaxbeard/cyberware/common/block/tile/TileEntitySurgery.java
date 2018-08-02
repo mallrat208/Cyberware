@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import flaxbeard.cyberware.api.CyberwareSurgeryEvent;
-import flaxbeard.cyberware.api.CyberwareSurgeryEvent.Post;
-import flaxbeard.cyberware.api.CyberwareSurgeryEvent.Pre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -21,7 +18,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemStackHandler;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -575,9 +571,6 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		}
 		slots = new ItemStackHandler(120);
 		
-		CyberwareSurgeryEvent.Post postSurveryEvent = new CyberwareSurgeryEvent.Post(targetEntity);
-		MinecraftForge.EVENT_BUS.post(postSurveryEvent);
-		
 	}
 
 	private void addItemStack(EntityLivingBase entity, ItemStack stack)
@@ -613,23 +606,9 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.getX(), p.getY() - 2F, p.getZ(), p.getX() + 1F, p.getY(), p.getZ() + 1F));
 			if (entities.size() == 1)
 			{
-				EntityLivingBase entityLiving = entities.get(0);
-				CyberwareSurgeryEvent.Pre preSurgeryEvent = new CyberwareSurgeryEvent.Pre(entityLiving);
-				
-				if(!MinecraftForge.EVENT_BUS.post(preSurgeryEvent))
-				{
-					this.inProgress=true;
-					this.progressTicks=0;
-					this.targetEntity=entityLiving;
-				}
-				else
-				{
-					IBlockState state = world.getBlockState(getPos().down());
-					if (state.getBlock() instanceof BlockSurgeryChamber)
-					{
-						((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), world);
-					}
-				}
+				this.inProgress = true;
+				this.progressTicks = 0;
+				this.targetEntity = entities.get(0);
 			}
 		}
 	}
