@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import flaxbeard.cyberware.api.CyberwareSurgeryEvent;
+import flaxbeard.cyberware.api.CyberwareSurgeryEvent.Post;
+import flaxbeard.cyberware.api.CyberwareSurgeryEvent.Pre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -18,6 +21,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemStackHandler;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
@@ -46,7 +50,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	public int lastEntity = -1;
 	public int cooldownTicks = 0;
 	public boolean missingPower = false;
-
+	
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
 		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
@@ -86,7 +90,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 						}
 					}
 					slotsPlayer.setStackInSlot(i * LibConstants.WARE_PER_SLOT + n, toPut);
-
+					
 				}
 				updateEssential(slotType);
 				i++;
@@ -151,7 +155,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 						setWrongSlot(index);
 						return true;
 					}
-				
+					
 					// Incompatible if either stack doesn't like the other one
 					if (!otherStack.isEmpty() && CyberwareAPI.getCyberware(otherStack).isIncompatible(otherStack, stack))
 					{
@@ -166,7 +170,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				}
 			}
 		}
-
+		
 		
 		return false;
 	}
@@ -211,7 +215,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				outerLoop:
 				for (ItemStack needed : neededItem)
 				{
-	
+					
 					
 					for (int row = 0; row < EnumSlot.values().length; row++)
 					{
@@ -234,7 +238,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					
 				}
 				if (!found) System.out.println("BADDDD!!!!!!!!!");
-
+				
 			}
 		}
 	}
@@ -275,7 +279,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			for (NonNullList<ItemStack> neededItem : ware.required(stack))
 			{
 				boolean found = false;
-
+				
 				outerLoop:
 				for (ItemStack needed : neededItem)
 				{
@@ -303,7 +307,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					
 				}
 				if (!found) return false;
-
+				
 			}
 		}
 		
@@ -341,7 +345,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	{
 		
 		compound = super.writeToNBT(compound);
-	
+		
 		compound.setInteger("essence", essence);
 		compound.setInteger("maxEssence", maxEssence);
 		compound.setInteger("lastEntity", lastEntity);
@@ -356,7 +360,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			list.appendTag(new NBTTagByte((byte) (this.discardSlots[i] ? 1 : 0)));
 		}
 		compound.setTag("discard", list);
-
+		
 		return compound;
 	}
 	
@@ -376,7 +380,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			this.isEssentialMissing[slot.ordinal() * 2 + 1] = false;
 		}
 	}
-
+	
 	private byte isEssential(EnumSlot slot)
 	{
 		byte r = 0;
@@ -388,7 +392,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			ItemStack playerStack = slotsPlayer.getStackInSlot(index);
 			
 			ItemStack stack = !slotStack.isEmpty() ? slotStack : (discardSlots[index] ? ItemStack.EMPTY : playerStack);
-
+			
 			if (!stack.isEmpty())
 			{
 				ICyberware ware = CyberwareAPI.getCyberware(stack);
@@ -415,7 +419,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		}
 		return r;
 	}
-
+	
 	@Override
 	public void update()
 	{
@@ -469,7 +473,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		}
 		else if (inProgress)
 		{
-
+			
 			if (Cyberware.proxy.workingOnPlayer(targetEntity))
 			{
 				workingOnPlayer = false;
@@ -491,13 +495,13 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			cooldownTicks--;
 		}
 	}
-
+	
 	public void processUpdate()
 	{
 		updatePlayerSlots(targetEntity);
 		
 		BlockPos p = getPos();
-
+		
 		ICyberwareUserData cyberware = CyberwareAPI.getCapability(targetEntity);
 		
 		for (int slotIndex = 0; slotIndex < EnumSlot.values().length; slotIndex++)
@@ -512,7 +516,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			for (int j = slotIndex * LibConstants.WARE_PER_SLOT; j < (slotIndex + 1) * LibConstants.WARE_PER_SLOT; j++)
 			{
 				ItemStack newStack = slots.getStackInSlot(j);
-
+				
 				ItemStack targetEntityStack = slotsPlayer.getStackInSlot(j).copy();
 				if (!newStack.isEmpty() && newStack.getCount() > 0)
 				{
@@ -520,7 +524,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					if (CyberwareAPI.areCyberwareStacksEqual(ret, targetEntityStack))
 					{
 						int maxSize = CyberwareAPI.getCyberware(ret).installedStackSize(ret);
-
+						
 						if (ret.getCount() < maxSize)
 						{
 							int numToShift = Math.min(maxSize - ret.getCount(), targetEntityStack.getCount());
@@ -528,24 +532,24 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 							ret.grow(numToShift);
 						}
 					}
-
+					
 					if (!targetEntityStack.isEmpty() && targetEntityStack.getCount() > 0)
 					{
 						targetEntityStack = CyberwareAPI.sanitize(targetEntityStack);
-
+						
 						addItemStack(targetEntity, targetEntityStack);
 					}
 					
 					wares.set(c,ret);
-
+					
 					c++;
 				}
 				else if (!targetEntityStack.isEmpty() && targetEntityStack.getCount() > 0)
 				{
 					if (discardSlots[j])
-					{				
+					{
 						targetEntityStack = CyberwareAPI.sanitize(targetEntityStack);
-
+						
 						addItemStack(targetEntity, targetEntityStack);
 						
 					}
@@ -571,8 +575,11 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		}
 		slots = new ItemStackHandler(120);
 		
+		CyberwareSurgeryEvent.Post postSurveryEvent = new CyberwareSurgeryEvent.Post(targetEntity);
+		MinecraftForge.EVENT_BUS.post(postSurveryEvent);
+		
 	}
-
+	
 	private void addItemStack(EntityLivingBase entity, ItemStack stack)
 	{
 		boolean flag = true;
@@ -582,33 +589,47 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			EntityPlayer player = ((EntityPlayer) entity);
 			flag = !player.inventory.addItemStackToInventory(stack);
 		}
-
+		
 		if (flag && !world.isRemote)
 		{
-
+			
 			EntityItem item = new EntityItem(world, getPos().getX() + .5F, getPos().getY() - 2F, getPos().getZ() + .5F, stack);
 			world.spawnEntity(item);
 		}
 	}
-
+	
 	public boolean canOpen()
 	{
 		return !inProgress && cooldownTicks <= 0;
 	}
-
+	
 	public void notifyChange()
 	{
 		boolean opened = world.getBlockState(getPos().down()).getValue(BlockSurgeryChamber.OPEN);
-
+		
 		if (!opened)
 		{
 			BlockPos p = getPos();
 			List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(p.getX(), p.getY() - 2F, p.getZ(), p.getX() + 1F, p.getY(), p.getZ() + 1F));
 			if (entities.size() == 1)
 			{
-				this.inProgress = true;
-				this.progressTicks = 0;
-				this.targetEntity = entities.get(0);
+				EntityLivingBase entityLiving = entities.get(0);
+				CyberwareSurgeryEvent.Pre preSurgeryEvent = new CyberwareSurgeryEvent.Pre(entityLiving);
+				
+				if(!MinecraftForge.EVENT_BUS.post(preSurgeryEvent))
+				{
+					this.inProgress=true;
+					this.progressTicks=0;
+					this.targetEntity=entityLiving;
+				}
+				else
+				{
+					IBlockState state = world.getBlockState(getPos().down());
+					if (state.getBlock() instanceof BlockSurgeryChamber)
+					{
+						((BlockSurgeryChamber) state.getBlock()).toggleDoor(true, state, getPos().down(), world);
+					}
+				}
 			}
 		}
 	}
@@ -618,7 +639,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	public int progressTicks = 0;
 	public static boolean workingOnPlayer = false;
 	public static int playerProgressTicks = 0;
-
+	
 	public void updateEssence()
 	{
 		this.essence = this.maxEssence;
@@ -642,7 +663,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					if (!slotStack.isEmpty() && !ret.isEmpty() && !playerStack.isEmpty() && CyberwareAPI.areCyberwareStacksEqual(playerStack, ret))
 					{
 						int maxSize = CyberwareAPI.getCyberware(ret).installedStackSize(ret);
-
+						
 						if (ret.getCount() < maxSize)
 						{
 							int numToShift = Math.min(maxSize - ret.getCount(), playerStack.getCount());
@@ -650,7 +671,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 						}
 					}
 					ICyberware ware = CyberwareAPI.getCyberware(ret);
-
+					
 					this.essence -= ware.getEssenceCost(ret);
 					
 					if (ware instanceof ItemCyberware && ((ItemCyberware) ware).getPowerConsumption(ret) > 0)
@@ -661,7 +682,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					{
 						hasProduce = true;
 					}
-						
+					
 				}
 			}
 		}
