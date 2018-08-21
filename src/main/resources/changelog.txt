@@ -13,6 +13,12 @@
 // ***************************************************************************** //
 //  1.12
 // ***************************************************************************** //
+0.2.10.14
+- Update Forge
+- Update TESLA
+- Update RedStone Flux
+- Fix ItemBrainUpgrade reflection crash (closes #65)
+
 0.2.10.13
 - Merge PR: Added CyberwareSurgeryEvent
 
