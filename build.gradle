@@ -217,11 +217,12 @@ dependencies {
 
     // Matter Overdrive 
     deobfCompile 'matteroverdrive:MatterOverdrive-1.12.2:0.7.1.0:universal'
-    
-    deobfCompile ("com.enderio:EnderIO:${enderio_version}") {
-        transitive = false
-    }
-    deobfCompile "com.enderio.core:EnderCore:${endercore_version}"
+
+    compileOnly "com.enderio.core:EnderCore:${mc_version}-${endercore_version}:core"
+    deobfCompile "com.enderio:EnderIO:${mc_version}-${enderio_version}"
+    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
+    //Given we are only compiling EnderCore we also need a reference to auto save
+    compile "info.loenwind.autosave:AutoSave:${mc_version}-1.0.10"
     
     // ToughAsNails
     deobfCompile "tough-as-nails:ToughAsNails-1.12.2:3.1.0.140:universal"
