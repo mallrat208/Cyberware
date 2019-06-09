@@ -75,6 +75,7 @@ public class CyberwareConfig
     public static boolean INT_ENDER_IO = true;
     public static boolean INT_TOUGH_AS_NAILS = true;
     public static boolean INT_BOTANIA = true;
+    public static boolean INT_MATTER_OVERDRIVE = true;
 
     public static Configuration config;
 
@@ -178,6 +179,7 @@ public class CyberwareConfig
         INT_ENDER_IO = config.getBoolean("Enable EnderIO Integration if the mod is Loaded", C_INTEGRATION, INT_ENDER_IO, "Requires EnderIO" );
         INT_TOUGH_AS_NAILS = config.getBoolean("Enable Tough As Nails Integration if the mod is Loaded", C_INTEGRATION, INT_TOUGH_AS_NAILS, "Requires Tough as Nails" );
         INT_BOTANIA = config.getBoolean("Enable Botania Integration if the mod is Loaded", C_INTEGRATION, INT_BOTANIA, "Requires Botania");
+        INT_MATTER_OVERDRIVE = config.getBoolean("Enable Matter Overdrive Integration if the mod is Loaded", C_INTEGRATION, INT_MATTER_OVERDRIVE, "Requires Matter Overdrive");
 
         FIST_MINING_LEVEL = config.getInt("Configure the mining level for the reinforced fist", C_OTHER, FIST_MINING_LEVEL, 1, 3, "");
 

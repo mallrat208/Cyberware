@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.api;
 
+import flaxbeard.cyberware.common.CyberwareConfig;
+import flaxbeard.cyberware.common.integration.CyberwareMatterOverdriveCheck;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -32,7 +34,7 @@ public class CyberwareSurgeryEvent extends EntityEvent
 		}
 
 		private boolean isAndroid(EntityLivingBase entity){
-			if (Loader.isModLoaded("matteroverdrive") && entity instanceof EntityPlayer){
+			if (CyberwareConfig.INT_MATTER_OVERDRIVE && Loader.isModLoaded("matteroverdrive") && entity instanceof EntityPlayer){
 				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entity);
 			}
 			return false;

@@ -1,4 +1,4 @@
-package flaxbeard.cyberware.api;
+package flaxbeard.cyberware.common.integration;
 
 import matteroverdrive.entity.android_player.AndroidPlayer;
 import matteroverdrive.entity.player.MOPlayerCapabilityProvider;
