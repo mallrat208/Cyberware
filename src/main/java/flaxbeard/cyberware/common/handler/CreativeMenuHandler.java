@@ -92,8 +92,7 @@ public class CreativeMenuHandler
 			buttons.add(salvaged     = new CEXButton(355, i + 166 + 4, j + 29 + 8, 0));
 			buttons.add(manufactured = new CEXButton(356, i + 166 + 4, j + 29 + 31, 1));
 			
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) gui, 2);
-			if (selectedTabIndex != Cyberware.creativeTab.getTabIndex())
+			if (isCorrectGui(event.getGui()))
 			{
 				salvaged.visible = false;
 				manufactured.visible = false;
@@ -133,48 +132,43 @@ public class CreativeMenuHandler
 	@SubscribeEvent
 	public void handleCreativeInventory(BackgroundDrawnEvent event)
 	{
-		if (event.getGui() instanceof GuiContainerCreative)
+		if (isCorrectGui(event.getGui()))
 		{
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) event.getGui(), 2);
-
-			if (selectedTabIndex == Cyberware.creativeTab.getTabIndex())
+			GuiContainerCreative gui = (GuiContainerCreative) event.getGui();
+			int i = (gui.width - 136) / 2;
+			int j = (gui.height - 195) / 2;
+			
+			int xSize = 29;
+			int ySize = 129;
+			
+			int xOffset = 0;
+			boolean hasVisibleEffect = false;
+			for(PotionEffect potioneffect : mc.player.getActivePotionEffects())
 			{
-				GuiContainerCreative gui = (GuiContainerCreative) event.getGui();
-				int i = (gui.width - 136) / 2;
-				int j = (gui.height - 195) / 2;
-				
-				int xSize = 29;
-				int ySize = 129;
-				
-				int xOffset = 0;
-				boolean hasVisibleEffect = false;
-				for(PotionEffect potioneffect : mc.player.getActivePotionEffects())
-				{
-					Potion potion = potioneffect.getPotion();
-					if(potion.shouldRender(potioneffect)) {
-						hasVisibleEffect = true; break;
-					}
+				Potion potion = potioneffect.getPotion();
+				if(potion.shouldRender(potioneffect)) {
+					hasVisibleEffect = true; break;
 				}
-				if (!this.mc.player.getActivePotionEffects().isEmpty() && hasVisibleEffect)
-				{
-					xOffset = 59;
-				}
-				salvaged.x = salvaged.baseX + xOffset;
-				manufactured.x = manufactured.baseX + xOffset;
-
-				
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				this.mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
-				gui.drawTexturedModalRect(i + 166 + xOffset, j + 29, 0, 0, xSize, ySize);
-				
-				salvaged.visible = true;
-				manufactured.visible = true;
 			}
-			else
+			if (!this.mc.player.getActivePotionEffects().isEmpty() && hasVisibleEffect)
 			{
-				if (salvaged != null) salvaged.visible = false;
-				if (manufactured != null) manufactured.visible = false;
+				xOffset = 59;
 			}
+			salvaged.x = salvaged.baseX + xOffset;
+			manufactured.x = manufactured.baseX + xOffset;
+
+			
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			this.mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
+			gui.drawTexturedModalRect(i + 166 + xOffset, j + 29, 0, 0, xSize, ySize);
+			
+			salvaged.visible = true;
+			manufactured.visible = true;
+		}
+		else
+		{
+			if (salvaged != null) salvaged.visible = false;
+			if (manufactured != null) manufactured.visible = false;
 		}
 	}
 	
@@ -212,11 +206,7 @@ public class CreativeMenuHandler
 	{
 		if (gui instanceof GuiContainerCreative)
 		{
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) gui, 2);
-			if (selectedTabIndex == Cyberware.creativeTab.getTabIndex())
-			{
-				return true;
-			}
+			return ((GuiContainerCreative) gui).getSelectedTabIndex() == Cyberware.creativeTab.getIndex();
 		}
 		return false;
 	}
