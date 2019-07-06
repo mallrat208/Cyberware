@@ -247,7 +247,6 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 
         if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 4)) && isMatrixWorking(e))
         {
-
             if (!e.world.isRemote && event.getSource() instanceof EntityDamageSource)
             {
                 //Entity attacker = ((EntityDamageSource) event.getSource()).getSourceOfDamage();
@@ -290,7 +289,6 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
 
                 }
 
-
                 if (!((float) e.hurtResistantTime > (float) e.maxHurtResistantTime / 2.0F))
                 {
                     Random random = e.getRNG();
@@ -299,10 +297,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                         event.setCanceled(true);
                         e.hurtResistantTime = e.maxHurtResistantTime;
                         e.hurtTime = e.maxHurtTime = 10;
-
-                        //Field: EntityLivingBase#lastDamage
-                        ReflectionHelper.setPrivateValue(EntityLivingBase.class, e, 9999F, 47);
-
+                        ReflectionHelper.setPrivateValue(EntityLivingBase.class, e, 9999F, "lastDamage", "field_110153_bc");
                         CyberwarePacketHandler.INSTANCE.sendToAllAround(new DodgePacket(e.getEntityId()), new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 50));
                     }
                 }

@@ -45,10 +45,21 @@ repositories {
     }
 
     maven {
-        name = "DarkHax"
-        url = 'http://maven.epoxide.xyz'
+        name = "MC Mod Devs"
+        url = 'http://maven.mcmoddev.com'
     }
-
+    maven {
+        name = 'CurseForge'
+        url = 'https://minecraft.curseforge.com/api/maven/'
+    }
+    maven { // The One Probe, EnderIO, EnderCore
+        name 'tterrag'
+        url 'http://maven.tterrag.com/'
+    }
+    maven { // The One Probe, EnderIO, EnderCore
+        name 'tterrag2'
+        url 'http://maven2.tterrag.com/'
+    }
     //maven {
     //    name "CraftTweaker"
     //    url "http://maven.blamejared.com/"
@@ -135,9 +146,6 @@ minecraft {
 
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
-    // JEI
-    useDepAts = true
-
     // Replace
     //replace '1.0.0.0', project.forge_version
     replace '@MOD_VERSION@', "${mod_version}" + buildNumber()
@@ -200,32 +208,33 @@ dependencies {
     //compile "mcp.mobius.waila:Waila:${config.waila_version}_${config.mc_version}:dev"
     //compile "mcp.mobius.waila:Hwyla:+"
 
-    // TESLA
-    // https://github.com/Darkhax-Minecraft/Tesla/blob/master/README.md
-    //compile "net.darkhax.tesla:Tesla:${config.tesla_version}"
-
     // IC2
     // http://maven.ic2.player.to/net/industrial-craft/industrialcraft-2/2.7.9-ex111/industrialcraft-2-2.7.9-ex111-api.jar
     //deobfCompile "net.industrial-craft:industrialcraft-2:${ic2_version}-ex112:api"
 
-    // ToughAsNails
-    compile "com.github.glitchfiend.biomesoplenty:ToughAsNails:${tan_version}:api"
-
     // BiomesOPlenty
     //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
 
-    // DarkHax
-    compile "net.darkhax.tesla:Tesla-1.12:1.0.61"
+    // Matter Overdrive 
+    deobfCompile 'matteroverdrive:MatterOverdrive-1.12.2:0.7.1.0:universal'
+
+    compileOnly "com.enderio.core:EnderCore:${mc_version}-${endercore_version}:core"
+    deobfCompile "com.enderio:EnderIO:${mc_version}-${enderio_version}"
+    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
+    //Given we are only compiling EnderCore we also need a reference to auto save
+    compile "info.loenwind.autosave:AutoSave:${mc_version}-1.0.10"
+    
+    // ToughAsNails
+    deobfCompile "tough-as-nails:ToughAsNails-1.12.2:3.1.0.140:universal"
+
+    // TESLA
+    // https://github.com/Darkhax-Minecraft/Tesla/blob/master/README.md
+    compile "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
 
     // RF
-    deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
+    deobfCompile "cofh:RedstoneFlux:1.12-2.0.2.3:universal"
 
     // Compile Included JARs
-    compile files(
-            //'Baubles.jar',
-            //'Botania.jar',
-            'TaN.jar'
-    )
 }
 
 processResources {
