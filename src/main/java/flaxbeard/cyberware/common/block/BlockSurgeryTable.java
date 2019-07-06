@@ -118,7 +118,7 @@ public class BlockSurgeryTable extends BlockBed
 /*	@Nonnull
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(PART) == BlockBed.EnumPartType.HEAD ? null : CyberwareContent.surgeryTableItem;
+		return state.getValue(PART) == BlockBed.EnumPartType.HEAD ? Items.AIR : CyberwareContent.surgeryTableItem;
 	}
 
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)

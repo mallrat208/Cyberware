@@ -232,7 +232,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(HALF) == EnumChamberHalf.UPPER ? null : this.ib;
+		return state.getValue(HALF) == EnumChamberHalf.UPPER ? Items.AIR : this.ib;
 	}
 	
 	@Override

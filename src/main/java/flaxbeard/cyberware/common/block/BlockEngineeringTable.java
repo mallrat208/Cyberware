@@ -278,7 +278,7 @@ public class BlockEngineeringTable extends BlockContainer
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(HALF) == EnumEngineeringHalf.UPPER ? null : this.ib;
+		return state.getValue(HALF) == EnumEngineeringHalf.UPPER ? Items.AIR : this.ib;
 	}
 	
 	@SuppressWarnings("deprecation")
