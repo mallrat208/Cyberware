@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.common.block.tile;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,8 +18,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.oredict.OreDictionary;
-import flaxbeard.cyberware.api.item.IBlueprint;
 import flaxbeard.cyberware.common.CyberwareContent;
 
 public class TileEntityComponentBox extends TileEntity
@@ -28,7 +28,8 @@ public class TileEntityComponentBox extends TileEntity
 		{
 			super(i);
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 		{
@@ -72,31 +73,32 @@ public class TileEntityComponentBox extends TileEntity
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
-		slots.deserializeNBT(compound.getCompoundTag("inv"));
+		slots.deserializeNBT(tagCompound.getCompoundTag("inv"));
 		
-		if (compound.hasKey("CustomName"))
+		if (tagCompound.hasKey("CustomName"))
 		{
-			customName = compound.getString("CustomName");
+			customName = tagCompound.getString("CustomName");
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
+		tagCompound = super.writeToNBT(tagCompound);
 		
-		compound.setTag("inv", this.slots.serializeNBT());
+		tagCompound.setTag("inv", this.slots.serializeNBT());
 		
 		if (this.hasCustomName())
 		{
-			compound.setString("CustomName", customName);
+			tagCompound.setString("CustomName", customName);
 		}
 				
-		return compound;
+		return tagCompound;
 	}
 
 	@Override
@@ -114,15 +116,17 @@ public class TileEntityComponentBox extends TileEntity
 		return new SPacketUpdateTileEntity(pos, 0, data);
 	}
 	
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	public boolean isUseableByPlayer(EntityPlayer player)
+	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) == this
+		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -142,7 +146,7 @@ public class TileEntityComponentBox extends TileEntity
 	
 	public ITextComponent getDisplayName()
 	{
-		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
 	
 	@Override

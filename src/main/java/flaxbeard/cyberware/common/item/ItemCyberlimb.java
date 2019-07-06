@@ -23,12 +23,16 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 
 public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 {
+
+	public static final int META_LEFT_CYBER_ARM         = 0;
+	public static final int META_RIGHT_CYBER_ARM        = 1;
+	public static final int META_LEFT_CYBER_LEG         = 2;
+	public static final int META_RIGHT_CYBER_LEG        = 3;
 	
 	public ItemCyberlimb(String name, EnumSlot[] slots, String[] subnames)
 	{
 		super(name, slots, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 
 	@Override
@@ -65,37 +69,39 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		return data.getBoolean("active");
 	}
 	
-	private Set<Integer> didFall = new HashSet<Integer>();
+	private Set<Integer> didFall = new HashSet<>();
 	
 	@SubscribeEvent
 	public void handleFallDamage(LivingAttackEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-		if (e.world.isRemote && (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)) || CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 3))) && event.getSource() == DamageSource.FALL)
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if ( entityLivingBase.world.isRemote
+		  && event.getSource() == DamageSource.FALL
+		  && ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_LEFT_CYBER_LEG))
+		    || CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_RIGHT_CYBER_LEG)) ))
 		{
-			if (!didFall.contains(e.getEntityId()))
-			{
-				didFall.add(e.getEntityId());
-			}
+			didFall.add(entityLivingBase.getEntityId());
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleSound(PlaySoundAtEntityEvent event)
 	{
-		Entity e = event.getEntity();
-		if (e instanceof EntityPlayer && event.getSound() == SoundEvents.ENTITY_PLAYER_HURT && e.world.isRemote)
+		Entity entity = event.getEntity();
+		if ( entity instanceof EntityPlayer
+		  && event.getSound() == SoundEvents.ENTITY_PLAYER_HURT
+		  && entity.world.isRemote )
 		{
-			if (didFall.contains(e.getEntityId()))
+			if (didFall.contains(entity.getEntityId()))
 			{
 				int numLegs = 0;
 				
-				if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)))
+				if (CyberwareAPI.isCyberwareInstalled(entity, new ItemStack(this, 1, META_LEFT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
 				
-				if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 3)))
+				if (CyberwareAPI.isCyberwareInstalled(entity, new ItemStack(this, 1, META_RIGHT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
@@ -104,7 +110,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 				{	
 					event.setSound(SoundEvents.ENTITY_IRONGOLEM_HURT);
 					event.setPitch(event.getPitch() + 1F);
-					didFall.remove((Integer) e.getEntityId());
+					didFall.remove(entity.getEntityId());
 				}
 			}
 		}	
@@ -113,20 +119,19 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void power(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		for (int i = 0; i < 4; i++)
+		for (int damage = 0; damage < 4; damage++)
 		{
-			ItemStack test = new ItemStack(this, 1, i);
-			ItemStack installed = CyberwareAPI.getCyberware(e, test);
-			if (e.ticksExisted % 20 == 0 && !installed.isEmpty())
+			ItemStack test = new ItemStack(this, 1, damage);
+			ItemStack itemStackInstalled = CyberwareAPI.getCyberware(entityLivingBase, test);
+			if (entityLivingBase.ticksExisted % 20 == 0 && !itemStackInstalled.isEmpty())
 			{
-				boolean used = CyberwareAPI.getCapability(e).usePower(installed, getPowerConsumption(installed));
+				boolean isPowered = CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackInstalled, getPowerConsumption(itemStackInstalled));
 				
-				CyberwareAPI.getCyberwareNBT(installed).setBoolean("active", used);
+				CyberwareAPI.getCyberwareNBT(itemStackInstalled).setBoolean("active", isPowered);
 			}
 		}
-
 	}
 	
 	@Override

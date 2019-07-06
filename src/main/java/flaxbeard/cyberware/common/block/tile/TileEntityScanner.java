@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.common.block.tile;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,12 +28,10 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	public class ItemStackHandlerScanner extends ItemStackHandler
 	{
 		public boolean overrideExtract = false;
-		private TileEntityScanner table;
 		
 		public ItemStackHandlerScanner(TileEntityScanner table, int i)
 		{
 			super(i);
-			this.table = table;
 		}
 		
 		@Override
@@ -40,7 +40,8 @@ public class TileEntityScanner extends TileEntity implements ITickable
 			super.setStackInSlot(slot, stack);
 
 	    }
-
+		
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 		{
@@ -50,6 +51,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 			return result;
 		}
 		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
@@ -105,19 +107,22 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		{
 			return slots.getSlots();
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot)
 		{
 			return slots.getStackInSlot(slot);
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 		{
 			return slots.insertItem(slot, stack, simulate);
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
@@ -187,35 +192,36 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
-		slots.deserializeNBT(compound.getCompoundTag("inv"));
+		slots.deserializeNBT(tagCompound.getCompoundTag("inv"));
 		
-		if (compound.hasKey("CustomName", 8))
+		if (tagCompound.hasKey("CustomName", 8))
 		{
-			customName = compound.getString("CustomName");
+			customName = tagCompound.getString("CustomName");
 		}
 		
-		this.ticks = compound.getInteger("ticks");
+		this.ticks = tagCompound.getInteger("ticks");
 	}
 	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
+		tagCompound = super.writeToNBT(tagCompound);
 		
-		compound.setTag("inv", this.slots.serializeNBT());
+		tagCompound.setTag("inv", this.slots.serializeNBT());
 		
 		if (this.hasCustomName())
 		{
-			compound.setString("CustomName", customName);
+			tagCompound.setString("CustomName", customName);
 		}
 		
-		compound.setInteger("ticks", ticks);
+		tagCompound.setInteger("ticks", ticks);
 		
-		return compound;
+		return tagCompound;
 	}
 	
 	@Override
@@ -233,6 +239,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		return new SPacketUpdateTileEntity(pos, 0, data);
 	}
 	
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
@@ -240,9 +247,10 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	}
 	
 	
-	public boolean isUseableByPlayer(EntityPlayer player)
+	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) == this
+		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -262,7 +270,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	
 	public ITextComponent getDisplayName()
 	{
-		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
 
 

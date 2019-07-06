@@ -51,7 +51,7 @@ public class Cyberware
 		event.registerServerCommand(new CommandClearCyberware());
 	}
 
-	@Mod.EventHandler
+	@EventHandler
 	public void onFingerprintViolation(FMLFingerprintViolationEvent event)
 	{
 		// TODO: add a proper logger?

@@ -30,7 +30,6 @@ public class RecipeHandler
      */
     public static void addRecipe(IRecipe recipe)
     {
-        //CraftingManager.getInstance().getRecipeList().add(recipe);
         ForgeRegistries.RECIPES.register(recipe);
     }
 
@@ -143,16 +142,16 @@ public class RecipeHandler
 
     public static void addSmelting(ItemStack input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 
     public static void addSmelting(Item input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 
     public static void addSmelting(Block input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 }

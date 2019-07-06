@@ -1,10 +1,10 @@
 package flaxbeard.cyberware.common.block.tile;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -20,12 +20,12 @@ public class TileEntityBeaconPost extends TileEntity
 	public static class TileEntityBeaconPostMaster extends TileEntityBeaconPost
 	{
 		@SideOnly(Side.CLIENT)
+		@Nonnull
 		@Override
 		public AxisAlignedBB getRenderBoundingBox()
 		{
 			return new AxisAlignedBB(pos.getX() - 1, pos.getY(), pos.getZ() - 1, pos.getX() + 2, pos.getY() + 10, pos.getZ() + 2);
 		}
-		
 		
 		@Override
 		public void setMasterLoc(BlockPos start)
@@ -81,8 +81,7 @@ public class TileEntityBeaconPost extends TileEntity
 						Block block = state.getBlock();
 						if (block == CyberwareContent.radioPost && state.getValue(BlockBeaconPost.TRANSFORMED) > 0)
 						{
-							TileEntityBeaconPost bp = (TileEntityBeaconPost) world.getTileEntity(newPos);
-	
+							world.getTileEntity(newPos);
 							world.setBlockState(newPos, state.withProperty(BlockBeaconPost.TRANSFORMED, 0), 2);
 							
 						}
@@ -95,15 +94,15 @@ public class TileEntityBeaconPost extends TileEntity
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
 		if (!(this instanceof TileEntityBeaconPostMaster))
 		{
-			int x = compound.getInteger("xx");
-			int y = compound.getInteger("yy");
-			int z = compound.getInteger("zz");
+			int x = tagCompound.getInteger("xx");
+			int y = tagCompound.getInteger("yy");
+			int z = tagCompound.getInteger("zz");
 			this.master = new BlockPos(x, y, z);
 		}
 		
@@ -124,26 +123,27 @@ public class TileEntityBeaconPost extends TileEntity
 		return new SPacketUpdateTileEntity(pos, 0, data);
 	}
 	
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
+		tagCompound = super.writeToNBT(tagCompound);
 		
 		if (!(this instanceof TileEntityBeaconPostMaster))
 		{
-			compound.setInteger("xx", master.getX());
-			compound.setInteger("yy", master.getY());
-			compound.setInteger("zz", master.getZ());
+			tagCompound.setInteger("xx", master.getX());
+			tagCompound.setInteger("yy", master.getY());
+			tagCompound.setInteger("zz", master.getZ());
 		}
 				
-		return compound;
+		return tagCompound;
 		
 	}
 	

@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.common.misc;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -56,7 +58,8 @@ public class BlueprintCraftingHandler implements IRecipe
 	{
 		return new BlueprintResult(inv).canCraft;
 	}
-
+	
+	@Nonnull
 	@Override
 	public ItemStack getCraftingResult(InventoryCrafting inv)
 	{
@@ -69,12 +72,14 @@ public class BlueprintCraftingHandler implements IRecipe
 	//	return 0;
 	//}
 
+	@Nonnull
 	@Override
 	public ItemStack getRecipeOutput()
 	{
 		return ItemStack.EMPTY;
 	}
-
+	
+	@Nonnull
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
 	{

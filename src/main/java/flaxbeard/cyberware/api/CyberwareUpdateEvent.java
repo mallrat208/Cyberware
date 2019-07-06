@@ -5,16 +5,16 @@ import net.minecraftforge.event.entity.EntityEvent;
 
 public class CyberwareUpdateEvent extends EntityEvent
 {
-	private final EntityLivingBase entityLiving;
+	private final EntityLivingBase entityLivingBase;
 	
-	public CyberwareUpdateEvent(EntityLivingBase entity)
+	public CyberwareUpdateEvent(EntityLivingBase entityLivingBase)
 	{
-		super(entity);
-		entityLiving = entity;
+		super(entityLivingBase);
+		this.entityLivingBase = entityLivingBase;
 	}
 
 	public EntityLivingBase getEntityLiving()
 	{
-		return entityLiving;
+		return entityLivingBase;
 	}
 }

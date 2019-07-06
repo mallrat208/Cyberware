@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.common.item.ItemArmorCyberware.ModelTrenchcoat;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
@@ -28,23 +29,20 @@ public class ClientUtils
 	@SideOnly(Side.CLIENT)
 	public static final ModelBiped trench = new ModelTrenchcoat(0.51F);
 	
+	private static final float TEXTURE_SCALE = 1.0F / 256; 
 	public static void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
 	{
-		float zLevel = -10;
-		float f = 0.00390625F;
-		float f1 = 0.00390625F;
 		Tessellator tessellator = Tessellator.getInstance();
-		//VertexBuffer vertexbuffer = tessellator.getBuffer();
-		BufferBuilder vertexbuffer = tessellator.getBuffer();
-		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-		vertexbuffer.pos((double)(x + 0), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
-		vertexbuffer.pos((double)(x + width), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();
-		vertexbuffer.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + 0) * f1)).endVertex();
-		vertexbuffer.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + 0) * f1)).endVertex();
+		BufferBuilder bufferBuilder = tessellator.getBuffer();
+		bufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+		bufferBuilder.pos(x        , y + height, -10.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x + width, y + height, -10.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x + width, y         , -10.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x        , y         , -10.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
 		tessellator.draw();
 	}
 	
-	private static HashMap<String, ResourceLocation> textures = new HashMap<String, ResourceLocation>();
+	private static HashMap<String, ResourceLocation> textures = new HashMap<>();
 
 	public static void bindTexture(String string)
 	{

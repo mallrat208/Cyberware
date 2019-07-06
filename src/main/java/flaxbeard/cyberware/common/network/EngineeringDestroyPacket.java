@@ -1,24 +1,15 @@
 package flaxbeard.cyberware.common.network;
 
-import flaxbeard.cyberware.api.CyberwareAPI;
-import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable;
-import flaxbeard.cyberware.common.item.ItemBlueprint;
 import io.netty.buffer.ByteBuf;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.items.ItemStackHandler;
 
 public class EngineeringDestroyPacket implements IMessage
 {
@@ -87,8 +78,6 @@ public class EngineeringDestroyPacket implements IMessage
 	
 				engineering.smash(true);
 			}
-			
-			
 		}
 		
 	}

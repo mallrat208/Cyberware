@@ -17,14 +17,12 @@ import org.lwjgl.opengl.GL11;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.HudElementBase;
-import flaxbeard.cyberware.api.hud.IHudElement;
-import flaxbeard.cyberware.api.hud.IHudElement.EnumAnchorHorizontal;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.handler.HudHandler;
 
 public class MissingPowerDisplay extends HudElementBase
 {
-	private static final List<ItemStack> exampleStacks = new ArrayList<ItemStack>();
+	private static final List<ItemStack> exampleStacks = new ArrayList<>();
 	static
 	{
 		exampleStacks.add(new ItemStack(CyberwareContent.cybereyes));
@@ -47,81 +45,81 @@ public class MissingPowerDisplay extends HudElementBase
 	}
 	
 	@Override
-	public void renderElement(int x, int y, EntityPlayer p, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks)
+	public void renderElement(int x, int y, EntityPlayer entityPlayer, ScaledResolution resolution, boolean isHUDjackAvailable, boolean isConfigOpen, float partialTicks)
 	{
-		if (!isHidden() && hudjackAvailable)
-		{
-			boolean flipHoriz = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
-			float currTime = p.ticksExisted + partialTicks;
-			
-			GL11.glPushMatrix();
-			GlStateManager.enableBlend();
-			ICyberwareUserData data = CyberwareAPI.getCapability(p);
-			
-			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
-	
-			
-			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		if ( isHidden()
+		  || !isHUDjackAvailable ) {
+			return;
+		}
 		
-			RenderItem ir = Minecraft.getMinecraft().getRenderItem();
-			List<ItemStack> stacks = isConfigOpen ? exampleStacks : data.getPowerOutages();
-			List<Integer> stackTimes = data.getPowerOutageTimes();
-			List<Integer> toRemove = new ArrayList<Integer>();
-			float zL = ir.zLevel;
-			ir.zLevel = -300;
-			int left = x - 1 + (flipHoriz ? 0 : 20);
-			int top = y;
-			for (int i = stacks.size() - 1; i >= 0; i--)
+		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
+		float currTime = entityPlayer.ticksExisted + partialTicks;
+		
+		GL11.glPushMatrix();
+		GlStateManager.enableBlend();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		
+		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		
+		RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+		List<ItemStack> stacksPowerOutage = isConfigOpen ? exampleStacks : cyberwareUserData.getPowerOutages();
+		List<Integer> timesPowerOutage = cyberwareUserData.getPowerOutageTimes();
+		List<Integer> indexesElapsed = new ArrayList<>();
+		float zLevelSaved = renderItem.zLevel;
+		renderItem.zLevel = -300;
+		int xPosition = x - 1 + (isRightAnchored ? 0 : 20);
+		int yPosition = y;
+		for (int index = stacksPowerOutage.size() - 1; index >= 0; index--)
+		{
+			ItemStack stack = stacksPowerOutage.get(index);
+			if (!stack.isEmpty())
 			{
-				ItemStack stack = stacks.get(i);
-				if (!stack.isEmpty())
+				int time = (int) currTime;
+				if (isConfigOpen)
 				{
-					int time = (int) currTime;
-					if (isConfigOpen)
+					if (index == 0)
 					{
-						if (i == 0)
-						{
-							time = (int) (currTime - 20 - (p.ticksExisted % 40));
-						}
-					}
-					else
-					{
-						time = stackTimes.get(i);
-					}
-					boolean keep = p.ticksExisted - time < 50;
-					double pct = Math.max(0F, ((currTime - time - 20) / 30F));
-
-					float move = (float) ((20 * Math.sin(pct * (Math.PI / 2F))));
-					if (keep)
-					{
-						
-						GL11.glPushMatrix();
-						GL11.glTranslatef(flipHoriz ? move : -move, 0F, 0F);
-						
-						fr.drawStringWithShadow("!", left + 14, top + 8, 0xFF0000);
-						
-						RenderHelper.enableStandardItemLighting();
-						ir.renderItemAndEffectIntoGUI(stack, left, top);
-						RenderHelper.disableStandardItemLighting();
-
-						GL11.glPopMatrix();
-						top += 18;
-					}
-					else if (!isConfigOpen)
-					{
-						toRemove.add(i);
+						time = (int) (currTime - 20 - (entityPlayer.ticksExisted % 40));
 					}
 				}
+				else
+				{
+					time = timesPowerOutage.get(index);
+				}
+				
+				if (entityPlayer.ticksExisted - time < 50)
+				{
+					double percentVisible = Math.max(0F, (currTime - time - 20) / 30F);
+					float xOffset = (float) (20F * Math.sin(percentVisible * Math.PI / 2F));
+					
+					GL11.glPushMatrix();
+					GL11.glTranslatef(isRightAnchored ? xOffset : -xOffset, 0.0F, 0.0F);
+					
+					fontRenderer.drawStringWithShadow("!", xPosition + 14, yPosition + 8, 0xFF0000);
+					
+					RenderHelper.enableStandardItemLighting();
+					renderItem.renderItemAndEffectIntoGUI(stack, xPosition, yPosition);
+					RenderHelper.disableStandardItemLighting();
+					
+					GL11.glPopMatrix();
+					yPosition += 18;
+				}
+				else if (!isConfigOpen)
+				{
+					indexesElapsed.add(index);
+				}
 			}
-			ir.zLevel = zL;
-			
-			for (int i : toRemove)
-			{
-				stacks.remove(i);
-				stackTimes.remove(i);
-			}
-			
-			GL11.glPopMatrix();
 		}
+		renderItem.zLevel = zLevelSaved;
+		
+		for (int indexElapsed : indexesElapsed)
+		{
+			stacksPowerOutage.remove(indexElapsed);
+			timesPowerOutage.remove(indexElapsed);
+		}
+				
+		GL11.glPopMatrix();
 	}
 }

@@ -26,164 +26,164 @@ import flaxbeard.cyberware.common.misc.NNLUtil;
 public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 {
 
+    public static final int META_SPURS                      = 0;
+    public static final int META_AQUA                       = 1;
+    public static final int META_WHEELS                     = 2;
+    
     public ItemFootUpgrade(String name, EnumSlot slot, String[] subnames)
     {
         super(name, slot, subnames);
         MinecraftForge.EVENT_BUS.register(this);
-
     }
 
     @Override
     public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
     {
-        if (stack.getItemDamage() != 1) return NonNullList.create();
+        if (stack.getItemDamage() != META_AQUA) return NonNullList.create();
 
         return NNLUtil.fromArray(new ItemStack[][] {
-                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }});
+                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG),
+                                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
     }
 
     @SubscribeEvent
     public void handleHorseMove(LivingUpdateEvent event)
     {
-        EntityLivingBase e = event.getEntityLiving();
-        if (e instanceof EntityHorse)
+        EntityLivingBase entityLivingBase = event.getEntityLiving();
+        if (entityLivingBase instanceof EntityHorse)
         {
-            EntityHorse horse = (EntityHorse) e;
-            for (Entity pass : horse.getPassengers())
+            EntityHorse entityHorse = (EntityHorse) entityLivingBase;
+            for (Entity entityPassenger : entityHorse.getPassengers())
             {
-                if (pass instanceof EntityLivingBase && CyberwareAPI.isCyberwareInstalled(pass, new ItemStack(this, 1, 0)))
+                if ( entityPassenger instanceof EntityLivingBase
+                  && CyberwareAPI.isCyberwareInstalled(entityPassenger, new ItemStack(this, 1, META_SPURS)) )
                 {
-                    horse.addPotionEffect(new PotionEffect(MobEffects.SPEED, 1, 5, true, false));
+                    entityHorse.addPotionEffect(new PotionEffect(MobEffects.SPEED, 1, 5, true, false));
                     break;
                 }
             }
         }
     }
 
-
-    private Map<UUID, Boolean> lastAqua = new HashMap<UUID, Boolean>();
-    private Map<UUID, Integer> lastWheels = new HashMap<UUID, Integer>();
-    private Map<UUID, Float> stepAssist = new HashMap<UUID, Float>();
+    private Map<UUID, Boolean> mapIsAquaPowered = new HashMap<>();
+    private Map<UUID, Integer> mapCountdownWheelsPowered = new HashMap<>();
+    private Map<UUID, Float> mapStepHeight = new HashMap<>();
 
     @SubscribeEvent(priority=EventPriority.NORMAL)
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
-        EntityLivingBase e = event.getEntityLiving();
+        EntityLivingBase entityLivingBase = event.getEntityLiving();
 
-        ItemStack test = new ItemStack(this, 1, 1);
-        if (CyberwareAPI.isCyberwareInstalled(e, test) && e.isInWater() && !e.onGround)
+        ItemStack itemStackAqua = new ItemStack(this, 1, META_AQUA);
+        if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackAqua)
+          && entityLivingBase.isInWater() && !entityLivingBase.onGround )
         {
             int numLegs = 0;
-            if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 2)))
+            if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
             {
                 numLegs++;
             }
-            if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 3)))
+            if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
             {
                 numLegs++;
             }
-            Boolean last = getLastAqua(e);
+            boolean wasPowered = getIsAquaPowered(entityLivingBase);
 
-            boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
-            if (powerUsed)
+            boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
+                              ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
+                              : wasPowered;
+            if (isPowered)
             {
-                if (e.moveForward > 0)
+                if (entityLivingBase.moveForward > 0)
                 {
-                    //e.moveRelative(0F, numLegs * 0.4F, 0.075F);
-                    //e.moveRelative(0F, numLegs * 0.4F, 0.075F, 0.0F);
-                    e.moveRelative(0F, 0F, numLegs * 0.4F, 0.075F);
+                    entityLivingBase.moveRelative(0F, 0F, numLegs * 0.4F, 0.075F);
                 }
             }
 
-            lastAqua.put(e.getUniqueID(), powerUsed);
+            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), isPowered);
         }
         else
         {
-            lastAqua.put(e.getUniqueID(), true);
+            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), true);
         }
 
-        test = new ItemStack(this, 1, 2);
-        if (CyberwareAPI.isCyberwareInstalled(e, test))
+        ItemStack itemStackWheels = new ItemStack(this, 1, META_WHEELS);
+        if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackWheels))
         {
-            Boolean last = getLastWheels(e) > 0;
+            boolean wasPowered = getCountdownWheelsPowered(entityLivingBase) > 0;
 
-            boolean powerUsed = EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && (e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last);
-            if (powerUsed)
+            boolean isPowered = EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, itemStackWheels))
+                             && ( entityLivingBase.ticksExisted % 20 == 0
+                                ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackWheels, getPowerConsumption(itemStackWheels))
+                                : wasPowered );
+            if (isPowered)
             {
-                if (!stepAssist.containsKey(e.getUniqueID()))
+                if (!mapStepHeight.containsKey(entityLivingBase.getUniqueID()))
                 {
-                    stepAssist.put(e.getUniqueID(), Math.max(e.stepHeight, .6F));
+                    mapStepHeight.put(entityLivingBase.getUniqueID(), Math.max(entityLivingBase.stepHeight, .6F));
                 }
-                e.stepHeight = 1F;
+                entityLivingBase.stepHeight = 1F;
 
-                lastWheels.put(e.getUniqueID(), 10);
-
-
+                mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), 10);
             }
-            else if (stepAssist.containsKey(e.getUniqueID()) && last)
+            else if (mapStepHeight.containsKey(entityLivingBase.getUniqueID()) && wasPowered)
             {
+                entityLivingBase.stepHeight = mapStepHeight.get(entityLivingBase.getUniqueID());
 
-                e.stepHeight = stepAssist.get(e.getUniqueID());
-
-                lastWheels.put(e.getUniqueID(), getLastWheels(e) - 1);
+                mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), getCountdownWheelsPowered(entityLivingBase) - 1);
             }
             else
             {
-                lastWheels.put(e.getUniqueID(), 0);
+                mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), 0);
             }
-
-
         }
-        else if (stepAssist.containsKey(e.getUniqueID()))
+        else if (mapStepHeight.containsKey(entityLivingBase.getUniqueID()))
         {
+            entityLivingBase.stepHeight = mapStepHeight.get(entityLivingBase.getUniqueID());
 
-            e.stepHeight = stepAssist.get(e.getUniqueID());
-
-            int glw = getLastWheels(e) - 1;
-
-            if (glw == 0)
+            int countdownWheelsPowered = getCountdownWheelsPowered(entityLivingBase) - 1;
+            if (countdownWheelsPowered == 0)
             {
-                stepAssist.remove(e.getUniqueID());
+                mapStepHeight.remove(entityLivingBase.getUniqueID());
             }
 
-            lastWheels.put(e.getUniqueID(), glw);
-
+            mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), countdownWheelsPowered);
         }
     }
 
-    private boolean getLastAqua(EntityLivingBase e)
+    private boolean getIsAquaPowered(EntityLivingBase entityLivingBase)
     {
-        if (!lastAqua.containsKey(e.getUniqueID()))
+        if (!mapIsAquaPowered.containsKey(entityLivingBase.getUniqueID()))
         {
-            lastAqua.put(e.getUniqueID(), Boolean.TRUE);
+            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), Boolean.TRUE);
         }
-        return lastAqua.get(e.getUniqueID());
+        return mapIsAquaPowered.get(entityLivingBase.getUniqueID());
     }
 
-    private int getLastWheels(EntityLivingBase e)
+    private int getCountdownWheelsPowered(EntityLivingBase entityLivingBase)
     {
-        if (!lastWheels.containsKey(e.getUniqueID()))
+        if (!mapCountdownWheelsPowered.containsKey(entityLivingBase.getUniqueID()))
         {
-            lastWheels.put(e.getUniqueID(), 10);
+            mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), 10);
         }
-        return lastWheels.get(e.getUniqueID());
+        return mapCountdownWheelsPowered.get(entityLivingBase.getUniqueID());
     }
 
     @Override
     public int getPowerConsumption(ItemStack stack)
     {
-        return stack.getItemDamage() == 1 ? LibConstants.AQUA_CONSUMPTION :
-                stack.getItemDamage() == 2 ? LibConstants.WHEEL_CONSUMPTION : 0;
+        return stack.getItemDamage() == META_AQUA ? LibConstants.AQUA_CONSUMPTION :
+               stack.getItemDamage() == META_WHEELS ? LibConstants.WHEEL_CONSUMPTION : 0;
     }
 
     @Override
     public boolean hasMenu(ItemStack stack)
     {
-        return stack.getItemDamage() == 2;
+        return stack.getItemDamage() == META_WHEELS;
     }
 
     @Override
-    public void use(Entity e, ItemStack stack)
+    public void use(Entity entity, ItemStack stack)
     {
         EnableDisableHelper.toggle(stack);
     }
@@ -193,9 +193,8 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
     {
         return EnableDisableHelper.getUnlocalizedLabel(stack);
     }
-
-
-    private static final float[] f = new float[] { 1F, 0F, 0F };
+    
+    private static final float[] f = new float[] { 1.0F, 0.0F, 0.0F };
 
     @Override
     public float[] getColor(ItemStack stack)

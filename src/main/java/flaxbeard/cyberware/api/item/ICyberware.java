@@ -38,8 +38,8 @@ public interface ICyberware
 
 	public class Quality
 	{
-		private static Map<String, Quality> mapping = new HashMap<String, Quality>();
-		public static List<Quality> qualities = new ArrayList<Quality>();
+		private static Map<String, Quality> mapping = new HashMap<>();
+		public static List<Quality> qualities = new ArrayList<>();
 		private String unlocalizedName;
 		private String nameModifier;
 		private String spriteSuffix;
@@ -83,6 +83,7 @@ public interface ICyberware
 		}
 	}
 
+	// @TODO rename to BodyRegion since it's more a type/category than an actual inventory slot
 	public enum EnumSlot
 	{
 		EYES(12, "eyes"),
@@ -149,8 +150,8 @@ public interface ICyberware
 		}
 	}
 
-	public void onAdded(EntityLivingBase entity, ItemStack stack);
-	public void onRemoved(EntityLivingBase entity, ItemStack stack);
+	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack);
+	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack);
 
 	public interface ISidedLimb
 	{

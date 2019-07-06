@@ -2,7 +2,7 @@ package flaxbeard.cyberware.common.block;
 
 import java.util.Random;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -10,13 +10,13 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,6 +25,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -40,7 +41,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable.TileEnti
 public class BlockEngineeringTable extends BlockContainer
 {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
-	public static final PropertyEnum<EnumEngineeringHalf> HALF = PropertyEnum.<EnumEngineeringHalf>create("half", EnumEngineeringHalf.class);
+	public static final PropertyEnum<EnumEngineeringHalf> HALF = PropertyEnum.create("half", EnumEngineeringHalf.class);
 	public final Item ib;
 
 	public BlockEngineeringTable()
@@ -66,8 +67,8 @@ public class BlockEngineeringTable extends BlockContainer
 
 		ib.setCreativeTab(Cyberware.creativeTab);
 		
-		GameRegistry.registerTileEntity(TileEntityEngineeringTable.class, Cyberware.MODID + ":" + name);
-		GameRegistry.registerTileEntity(TileEntityEngineeringDummy.class, Cyberware.MODID + ":" + name + "Dummy");
+		GameRegistry.registerTileEntity(TileEntityEngineeringTable.class, new ResourceLocation(Cyberware.MODID, name));
+		GameRegistry.registerTileEntity(TileEntityEngineeringDummy.class, new ResourceLocation(Cyberware.MODID, name + "Dummy"));
 
 		CyberwareContent.items.add(ib);
 	}
@@ -76,7 +77,9 @@ public class BlockEngineeringTable extends BlockContainer
 	private static final AxisAlignedBB n = new AxisAlignedBB(4F / 16F, 0F, 4F / 16F, 12F / 16F, 1F, 16F / 16F);
 	private static final AxisAlignedBB e = new AxisAlignedBB(0F / 16F, 0F, 4F / 16F, 12F / 16F, 1F, 12F / 16F);
 	private static final AxisAlignedBB w = new AxisAlignedBB(4F / 16F, 0F, 4F / 16F, 16F / 16F, 1F, 12F / 16F);
-
+	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
@@ -100,6 +103,7 @@ public class BlockEngineeringTable extends BlockContainer
 		
 	}
 	
+	@Nonnull
 	@Override
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
 	{
@@ -125,7 +129,6 @@ public class BlockEngineeringTable extends BlockContainer
 		}
 		else
 		{
-			boolean shouldBreak = false;
 			BlockPos blockpos1 = pos.up();
 			IBlockState iblockstate1 = worldIn.getBlockState(blockpos1);
 
@@ -141,19 +144,19 @@ public class BlockEngineeringTable extends BlockContainer
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
+	public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer)
 	{
 		BlockPos blockpos = pos.down();
 		BlockPos blockpos1 = pos.up();
 
-		if (player.capabilities.isCreativeMode && state.getValue(HALF) == EnumEngineeringHalf.UPPER && worldIn.getBlockState(blockpos).getBlock() == this)
+		if (entityPlayer.capabilities.isCreativeMode && state.getValue(HALF) == EnumEngineeringHalf.UPPER && worldIn.getBlockState(blockpos).getBlock() == this)
 		{
 			worldIn.setBlockToAir(blockpos);
 		}
 
 		if (state.getValue(HALF) == EnumEngineeringHalf.LOWER && worldIn.getBlockState(blockpos1).getBlock() == this)
 		{
-			if (player.capabilities.isCreativeMode)
+			if (entityPlayer.capabilities.isCreativeMode)
 			{
 				worldIn.setBlockToAir(pos);
 			}
@@ -182,6 +185,8 @@ public class BlockEngineeringTable extends BlockContainer
 		return (meta & 1) > 0 ? new TileEntityEngineeringTable() : new TileEntityEngineeringDummy();
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
@@ -190,16 +195,15 @@ public class BlockEngineeringTable extends BlockContainer
 	
 
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		ItemStack heldItem = player.getHeldItem(hand);
 		boolean top = state.getValue(HALF) == EnumEngineeringHalf.UPPER;
 		BlockPos checkPos = top ? pos : pos.add(0, 1, 0);
 		TileEntity tileentity = worldIn.getTileEntity(checkPos);
 		
 		if (tileentity instanceof TileEntityEngineeringTable)
 		{
-			player.openGui(Cyberware.INSTANCE, 2, worldIn, checkPos.getX(), checkPos.getY(), checkPos.getZ());
+			entityPlayer.openGui(Cyberware.INSTANCE, 2, worldIn, checkPos.getX(), checkPos.getY(), checkPos.getZ());
 		}
 		
 		return true;
@@ -231,6 +235,8 @@ public class BlockEngineeringTable extends BlockContainer
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
@@ -245,44 +251,51 @@ public class BlockEngineeringTable extends BlockContainer
 		return (state.getValue(FACING).getHorizontalIndex() << 1) + (state.getValue(HALF) == EnumEngineeringHalf.UPPER ? 1 : 0);
 	}
 	
+	@Nonnull
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] {HALF, FACING});
+		return new BlockStateContainer(this, HALF, FACING);
 	}
 	
 	@Override
 	public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
 	{
-		return pos.getY() >= worldIn.getHeight() - 1 ? false : super.canPlaceBlockAt(worldIn, pos) && super.canPlaceBlockAt(worldIn, pos.up());
+		return pos.getY() < worldIn.getHeight() - 1
+		    && (super.canPlaceBlockAt(worldIn, pos)
+		    && super.canPlaceBlockAt(worldIn, pos.up()));
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumPushReaction getMobilityFlag(IBlockState state)
 	{
 		return EnumPushReaction.DESTROY;
 	}
 	
-	@Nullable
+	@Nonnull
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
 		return state.getValue(HALF) == EnumEngineeringHalf.UPPER ? null : this.ib;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return state.getValue(HALF) == EnumEngineeringHalf.LOWER;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isFullCube(IBlockState state)
 	{
 		return state.getValue(HALF) == EnumEngineeringHalf.LOWER;
 	}
 	
-	public static enum EnumEngineeringHalf implements IStringSerializable
+	public enum EnumEngineeringHalf implements IStringSerializable
 	{
 		UPPER,
 		LOWER;

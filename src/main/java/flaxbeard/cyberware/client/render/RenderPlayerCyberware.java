@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.client.render;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -10,7 +12,6 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -20,8 +21,8 @@ import net.minecraft.util.math.MathHelper;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
-import flaxbeard.cyberware.client.gui.GuiSurgery;
 import flaxbeard.cyberware.common.CyberwareContent;
+import flaxbeard.cyberware.common.item.ItemCyberlimb;
 import flaxbeard.cyberware.common.item.ItemHandUpgrade;
 
 public class RenderPlayerCyberware extends RenderPlayer
@@ -36,9 +37,9 @@ public class RenderPlayerCyberware extends RenderPlayer
 		super(renderManager, arms);
 	}
 
-	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID + ":textures/models/player_muscles.png");
-	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID + ":textures/models/player_robot.png");
-	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID + ":textures/models/player_rusty_robot.png");
+	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID, "textures/models/player_muscles.png");
+	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID, "textures/models/player_robot.png");
+	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID, "textures/models/player_rusty_robot.png");
 
 	@Override
 	public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
@@ -60,10 +61,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderRightArm(clientPlayer);
 		
-		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
-				&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))
-				&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT && clientPlayer.getHeldItemMainhand().isEmpty()
-				&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
+		if ( CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))
+		  && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))
+		  && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT
+		  && clientPlayer.getHeldItemMainhand().isEmpty()
+		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))) )
 		{
 			GlStateManager.pushMatrix();
 
@@ -86,10 +88,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderLeftArm(clientPlayer);
 		
-		if (CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))
-			&& CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))
-			&& Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT && clientPlayer.getHeldItemMainhand().isEmpty()
-			&& EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, 1))))
+		if ( CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))
+		  && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))
+		  && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT
+		  && clientPlayer.getHeldItemMainhand().isEmpty()
+		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))) )
 		{
 			GlStateManager.pushMatrix();
 
@@ -106,7 +109,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		}
 	}
 
-	public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
+	public void doRender(@Nonnull AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
 		if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderPlayerEvent.Pre(entity, this, partialTicks, x, y, z))) return;
 		if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
@@ -157,7 +160,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 
 			if (shouldSit && entity.getRidingEntity() instanceof EntityLivingBase)
 			{
-				EntityLivingBase entitylivingbase = (EntityLivingBase)entity.getRidingEntity();
+				EntityLivingBase entitylivingbase = (EntityLivingBase) entity.getRidingEntity();
 				f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
 				f2 = f1 - f;
 				float f3 = MathHelper.wrapDegrees(f2);
@@ -219,7 +222,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 					this.renderModel(entity, f6, f5, f8, f2, f7, f4);
 				}
 
-				if (!(entity instanceof EntityPlayer) || !((EntityPlayer)entity).isSpectator())
+				if (!entity.isSpectator())
 				{
 					this.renderLayers(entity, f6, f5, partialTicks, f8, f2, f7, f4);
 				}
@@ -244,7 +247,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 
 				GlStateManager.depthMask(true);
 
-				if (!(entity instanceof EntityPlayer) || !((EntityPlayer)entity).isSpectator())
+				if (!entity.isSpectator())
 				{
 					this.renderLayers(entity, f6, f5, partialTicks, f8, f2, f7, f4);
 				}
@@ -256,10 +259,10 @@ public class RenderPlayerCyberware extends RenderPlayer
 		{
 		}
 
-		entity.inventory.armorInventory.set(3,head);
-		entity.inventory.armorInventory.set(2,body);
-		entity.inventory.armorInventory.set(1,legs);
-		entity.inventory.armorInventory.set(0,shoes);
+		entity.inventory.armorInventory.set(3, head);
+		entity.inventory.armorInventory.set(2, body);
+		entity.inventory.armorInventory.set(1, legs);
+		entity.inventory.armorInventory.set(0, shoes);
 		entity.inventory.mainInventory.set(entity.inventory.currentItem,heldItem);
 		entity.inventory.offHandInventory.set(0, offHand);
 
@@ -282,7 +285,6 @@ public class RenderPlayerCyberware extends RenderPlayer
 
 		if (clientPlayer.isSpectator())
 		{
-			//modelplayer.setInvisible(false);
 			modelplayer.setVisible(false);
 			modelplayer.bipedHead.showModel = true;
 			modelplayer.bipedHeadwear.showModel = true;
@@ -291,14 +293,13 @@ public class RenderPlayerCyberware extends RenderPlayer
 		{
 			ItemStack itemstack = clientPlayer.getHeldItemMainhand();
 			ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
-			//modelplayer.setInvisible(true);
 			modelplayer.setVisible(true);
-			modelplayer.bipedHeadwear.showModel = modelplayer.bipedHead.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.HAT);
-			modelplayer.bipedBodyWear.showModel = modelplayer.bipedBody.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
-			modelplayer.bipedLeftLegwear.showModel = modelplayer.bipedLeftLeg.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
-			modelplayer.bipedRightLegwear.showModel = modelplayer.bipedRightLeg.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
-			modelplayer.bipedLeftArmwear.showModel = modelplayer.bipedLeftArm.isHidden ? false : clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
-			modelplayer.bipedRightArmwear.showModel = modelplayer.bipedRightArm.isHidden ? false :clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
+			modelplayer.bipedHeadwear.showModel = !modelplayer.bipedHead.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.HAT);
+			modelplayer.bipedBodyWear.showModel = !modelplayer.bipedBody.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
+			modelplayer.bipedLeftLegwear.showModel = !modelplayer.bipedLeftLeg.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
+			modelplayer.bipedRightLegwear.showModel = !modelplayer.bipedRightLeg.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
+			modelplayer.bipedLeftArmwear.showModel = !modelplayer.bipedLeftArm.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
+			modelplayer.bipedRightArmwear.showModel = !modelplayer.bipedRightArm.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
 			modelplayer.isSneak = clientPlayer.isSneaking();
 			ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
 			ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;

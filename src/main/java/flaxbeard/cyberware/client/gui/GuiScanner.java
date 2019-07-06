@@ -116,11 +116,11 @@ public class GuiScanner extends GuiContainer
 
 		if (this.isPointInRegion(35, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_scan") } ), mouseX - i, mouseY - j, fontRenderer);
+			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.to_scan")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		if (this.isPointInRegion(15, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(1).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRenderer);
+			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.paper")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
 		if (scanner.ticks > 0)
@@ -130,12 +130,12 @@ public class GuiScanner extends GuiContainer
 				int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
 				int seconds = (ticksLeft % 1200) / 20;
 				int minutes = (ticksLeft / 1200);
-				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.time_left", minutes, seconds) } ), mouseX - i, mouseY - j, fontRenderer);
+				this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.time_left", minutes, seconds)), mouseX - i, mouseY - j, fontRenderer);
 			}
 		}
 	}
 
-	private static Map<String, Integer> langMax = new HashMap<String, Integer>();
+	private static Map<String, Integer> langMax = new HashMap<>();
 
 	private int getMaxMessage(String language)
 	{

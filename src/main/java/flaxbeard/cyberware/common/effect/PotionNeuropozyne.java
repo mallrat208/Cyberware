@@ -5,12 +5,10 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
@@ -25,7 +23,6 @@ public class PotionNeuropozyne extends Potion
 		super(isBadEffectIn, liquidColorIn);
 		this.setPotionName("cyberware.potion." + name);
 		this.setRegistryName(new ResourceLocation(Cyberware.MODID, name));
-		//GameRegistry.register(this, new ResourceLocation(Cyberware.MODID, name));
 		ForgeRegistries.POTIONS.register(this);
 		this.iconIndex = iconIndex;
 	}
@@ -47,7 +44,6 @@ public class PotionNeuropozyne extends Potion
 	{
 		Minecraft.getMinecraft().renderEngine.bindTexture(resource);
 		Tessellator tessellator = Tessellator.getInstance();
-		//VertexBuffer buf = tessellator.getBuffer();
 		BufferBuilder buf = tessellator.getBuffer();
 		buf.begin(7, DefaultVertexFormats.POSITION_TEX);
 		GlStateManager.color(1, 1, 1, alpha);

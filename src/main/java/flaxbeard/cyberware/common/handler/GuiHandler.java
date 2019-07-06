@@ -26,46 +26,46 @@ public class GuiHandler implements IGuiHandler
 {
 
 	@Override
-	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+	public Object getServerGuiElement(int id, EntityPlayer entityPlayer, World world, int x, int y, int z)
 	{
 		switch (id)
 		{
 			case 0:
-				return new ContainerSurgery(player.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerSurgery(entityPlayer.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
 			case 1:
-				return new ContainerFineManipulators(player.inventory, true, player);
+				return new ContainerFineManipulators(entityPlayer.inventory, true, entityPlayer);
 			case 2:
-				return new ContainerEngineeringTable(player.getCachedUniqueIdString(), player.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerEngineeringTable(entityPlayer.getCachedUniqueIdString(), entityPlayer.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
 			case 3:
-				return new ContainerScanner(player.inventory, (TileEntityScanner) world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerScanner(entityPlayer.inventory, (TileEntityScanner) world.getTileEntity(new BlockPos(x, y, z)));
 			case 4:
-				return new ContainerBlueprintArchive(player.inventory, (TileEntityBlueprintArchive) world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerBlueprintArchive(entityPlayer.inventory, (TileEntityBlueprintArchive) world.getTileEntity(new BlockPos(x, y, z)));
 			case 5:
-				return new ContainerComponentBox(player.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerComponentBox(entityPlayer.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
 			default:
-				return new ContainerComponentBox(player.inventory, player.inventory.mainInventory.get(player.inventory.currentItem));
+				return new ContainerComponentBox(entityPlayer.inventory, entityPlayer.inventory.mainInventory.get(entityPlayer.inventory.currentItem));
 		}
 	}
 
 	@Override
-	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
+	public Object getClientGuiElement(int id, EntityPlayer entityPlayer, World world, int x, int y, int z)
 	{
 		switch (id)
 		{
 			case 0:
-				return new GuiSurgery(player.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiSurgery(entityPlayer.inventory, (TileEntitySurgery) world.getTileEntity(new BlockPos(x, y, z)));
 			case 1:
-				return new GuiFineManipulators(player, new ContainerFineManipulators(player.inventory, false, player));
+				return new GuiFineManipulators(entityPlayer, new ContainerFineManipulators(entityPlayer.inventory, false, entityPlayer));
 			case 2:
-				return new GuiEngineeringTable(player.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiEngineeringTable(entityPlayer.inventory, (TileEntityEngineeringTable) world.getTileEntity(new BlockPos(x, y, z)));
 			case 3:
-				return new GuiScanner(player.inventory, (TileEntityScanner) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiScanner(entityPlayer.inventory, (TileEntityScanner) world.getTileEntity(new BlockPos(x, y, z)));
 			case 4:
-				return new GuiBlueprintArchive(player.inventory, (TileEntityBlueprintArchive) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiBlueprintArchive(entityPlayer.inventory, (TileEntityBlueprintArchive) world.getTileEntity(new BlockPos(x, y, z)));
 			case 5:
-				return new GuiComponentBox(player.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiComponentBox(entityPlayer.inventory, (TileEntityComponentBox) world.getTileEntity(new BlockPos(x, y, z)));
 			default:
-				return new GuiComponentBox(player.inventory, player.inventory.mainInventory.get(player.inventory.currentItem));
+				return new GuiComponentBox(entityPlayer.inventory, entityPlayer.inventory.mainInventory.get(entityPlayer.inventory.currentItem));
 		}
 	}
 

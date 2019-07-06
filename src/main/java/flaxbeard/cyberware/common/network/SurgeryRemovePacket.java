@@ -104,10 +104,7 @@ public class SurgeryRemovePacket implements IMessage
 				}
 				surgery.updateEssential(EnumSlot.values()[slotNumber / LibConstants.WARE_PER_SLOT]);
 				surgery.updateEssence();
-
 			}
-			
-			
 		}
 		
 	}

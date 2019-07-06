@@ -32,11 +32,13 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 public class ItemLungsUpgrade extends ItemCyberware
 {
 
+	private static final int META_COMPRESSED_OXYGEN       = 0;
+	private static final int META_HYPEROXYGENATION_BOOST  = 1;
+	
 	public ItemLungsUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -45,32 +47,31 @@ public class ItemLungsUpgrade extends ItemCyberware
 	{
 		if (event.getType() == ElementType.AIR)
 		{
-			EntityPlayer p = Minecraft.getMinecraft().player;
-			if (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 0)) && !p.isCreative())
+			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, META_COMPRESSED_OXYGEN)) && !entityPlayer.isCreative())
 			{
 				GL11.glPushMatrix();
-				ItemStack stack = CyberwareAPI.getCyberware(p, new ItemStack(this, 1, 0));
+				ItemStack stack = CyberwareAPI.getCyberware(entityPlayer, new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
 				int air = getAir(stack);
 				
 				Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
-		
+				
 				ScaledResolution res = event.getResolution();
 				GlStateManager.enableBlend();
 				int left = res.getScaledWidth() / 2 + 91;
-				int top = res.getScaledHeight() - 49 - 8;//- right_height;
+				int top = res.getScaledHeight() - 49 - 8;
 				
-				float r = 1F;
-				float b = 1F;
-				float g = 1F;
-	
-			
-				if (p.isInsideOfMaterial(Material.WATER))
+				float r = 1.0F;
+				float b = 1.0F;
+				float g = 1.0F;
+				
+				if (entityPlayer.isInsideOfMaterial(Material.WATER))
 				{
 					while (air > 0)
 					{
-						r += 1F;
-						b -= .25F;
-						g += .25F;
+						r += 1.0F;
+						b -= 0.25F;
+						g += 0.25F;
 						GL11.glColor3f(r, g, b);
 						int drawAir = Math.min(300, air);
 						int full = MathHelper.ceil((double)(drawAir - 2) * 10.0D / 300.0D);
@@ -81,12 +82,11 @@ public class ItemLungsUpgrade extends ItemCyberware
 							ClientUtils.drawTexturedModalRect(left - i * 8 - 9, top, (i < full ? 16 : 25), 18, 9, 9);
 						}
 						
-						
 						air -= 300;
 						top -= 8;
 					}
 				}
-			
+				
 				GL11.glColor3f(1.0F, 1.0F, 1.0F);
 				//GlStateManager.disableBlend();
 				GL11.glPopMatrix();
@@ -94,87 +94,85 @@ public class ItemLungsUpgrade extends ItemCyberware
 		}
 	}
 	
-	private Map<UUID, Boolean> lastOxygen = new HashMap<UUID, Boolean>();
+	private Map<UUID, Boolean> mapIsOxygenPowered = new HashMap<>();
 	
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 0)))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_COMPRESSED_OXYGEN)))
 		{
-			ItemStack stack = CyberwareAPI.getCyberware(e, new ItemStack(this, 1, 0));
+			ItemStack stack = CyberwareAPI.getCyberware(entityLivingBase, new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
 			int air = getAir(stack);
-			if (e.getAir() < 300 && air > 0)
+			if (entityLivingBase.getAir() < 300 && air > 0)
 			{
-				int toAdd = Math.min(300 - e.getAir(), air);
-				e.setAir(e.getAir() + toAdd);
+				int toAdd = Math.min(300 - entityLivingBase.getAir(), air);
+				entityLivingBase.setAir(entityLivingBase.getAir() + toAdd);
 				CyberwareAPI.getCyberwareNBT(stack).setInteger("air", air - toAdd);
 			}
-			else if (e.getAir() == 300 && air < 900)
+			else if (entityLivingBase.getAir() == 300 && air < 900)
 			{
 				CyberwareAPI.getCyberwareNBT(stack).setInteger("air", air + 1);
 			}
 		}
 		
-
-
-		ItemStack test = new ItemStack(this, 1, 1);
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 1)))
+		ItemStack test = new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST);
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST)))
 		{
-			if ((e.isSprinting() || e instanceof EntityMob) && !e.isInWater() && e.onGround)
+			if ((entityLivingBase.isSprinting() || entityLivingBase instanceof EntityMob) && !entityLivingBase.isInWater() && entityLivingBase.onGround)
 			{
-				Boolean last = getLastOxygen(e);
+				boolean wasPowered = getIsOxygenPowered(entityLivingBase);
 
-				int ranks = CyberwareAPI.getCyberwareRank(e, test);
+				int ranks = CyberwareAPI.getCyberwareRank(entityLivingBase, test);
 				test.setCount(ranks);
-				boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : last;
-				
-				if (powerUsed)
+				boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
+				                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test))
+				                  : wasPowered;
+				if (isPowered)
 				{
-					//e.moveRelative(0F, .2F * ranks, 0.075F);
-					e.moveRelative(0F, 0.0F, .2F * ranks, 0.075F);
+					entityLivingBase.moveRelative(0F, 0.0F, .2F * ranks, 0.075F);
 				}
 				
-				lastOxygen.put(e.getUniqueID(), powerUsed);
+				mapIsOxygenPowered.put(entityLivingBase.getUniqueID(), isPowered);
 			}
 		}
 	}
 	
-	private boolean getLastOxygen(EntityLivingBase e)
+	private boolean getIsOxygenPowered(EntityLivingBase entityLivingBase)
 	{
-		if (!lastOxygen.containsKey(e.getUniqueID()))
+		if (!mapIsOxygenPowered.containsKey(entityLivingBase.getUniqueID()))
 		{
-			lastOxygen.put(e.getUniqueID(), Boolean.TRUE);
+			mapIsOxygenPowered.put(entityLivingBase.getUniqueID(), Boolean.TRUE);
 		}
-		return lastOxygen.get(e.getUniqueID());
+		return mapIsOxygenPowered.get(entityLivingBase.getUniqueID());
 	}
 	
 	@Override
 	public int installedStackSize(ItemStack stack)
 	{
-		return stack.getItemDamage() == 1 ? 3 : 1;
+		return stack.getItemDamage() == META_HYPEROXYGENATION_BOOST ? 3 : 1;
 	}
 
 	private int getAir(ItemStack stack)
 	{
-		NBTTagCompound data = CyberwareAPI.getCyberwareNBT(stack);
-		if (!data.hasKey("air"))
+		NBTTagCompound tagCompound = CyberwareAPI.getCyberwareNBT(stack);
+		if (!tagCompound.hasKey("air"))
 		{
-			data.setInteger("air", 900);
+			tagCompound.setInteger("air", 900);
 		}
-		return data.getInteger("air");
+		return tagCompound.getInteger("air");
 	}
 	
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 1 ? LibConstants.HYPEROXYGENATION_CONSUMPTION * stack.getCount() : 0;
+		return stack.getItemDamage() == META_HYPEROXYGENATION_BOOST ? LibConstants.HYPEROXYGENATION_CONSUMPTION * stack.getCount() : 0;
 	}
 	
 	@Override
 	protected int getUnmodifiedEssenceCost(ItemStack stack)
 	{
-		if (stack.getItemDamage() == 1)
+		if (stack.getItemDamage() == META_HYPEROXYGENATION_BOOST)
 		{
 			switch (stack.getCount())
 			{

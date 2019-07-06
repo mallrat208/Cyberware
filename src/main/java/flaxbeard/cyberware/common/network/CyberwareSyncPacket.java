@@ -4,7 +4,6 @@ import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.CyberwareHudDataEvent;
 import flaxbeard.cyberware.api.hud.IHudElement;
-import flaxbeard.cyberware.api.hud.IHudSaveData;
 import flaxbeard.cyberware.client.gui.hud.HudNBTData;
 import io.netty.buffer.ByteBuf;
 
@@ -72,17 +71,17 @@ public class CyberwareSyncPacket implements IMessage
 		}
 		
 		@Override
-		public Void call() throws Exception
+		public Void call()
 		{
 			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			if (targetEntity != null && CyberwareAPI.hasCapability(targetEntity))
 			{
-				ICyberwareUserData userData = CyberwareAPI.getCapability(targetEntity);
-				userData.deserializeNBT(data);
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(targetEntity);
+				cyberwareUserData.deserializeNBT(data);
 				
 				if (targetEntity == Minecraft.getMinecraft().player)
 				{
-					NBTTagCompound comp = userData.getHudData();
+					NBTTagCompound tagCompound = cyberwareUserData.getHudData();
 					
 					CyberwareHudDataEvent hudEvent = new CyberwareHudDataEvent();
 					MinecraftForge.EVENT_BUS.post(hudEvent);
@@ -90,9 +89,9 @@ public class CyberwareSyncPacket implements IMessage
 					
 					for (IHudElement element : elements)
 					{
-						if (comp.hasKey(element.getUniqueName()))
+						if (tagCompound.hasKey(element.getUniqueName()))
 						{
-							element.load(new HudNBTData((NBTTagCompound) comp.getTag(element.getUniqueName())));
+							element.load(new HudNBTData((NBTTagCompound) tagCompound.getTag(element.getUniqueName())));
 						}
 					}
 				}

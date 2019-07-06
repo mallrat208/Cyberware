@@ -11,18 +11,17 @@ import org.lwjgl.opengl.GL11;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.HudElementBase;
-import flaxbeard.cyberware.api.hud.IHudElement.EnumAnchorHorizontal;
 import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.handler.HudHandler;
 
 public class PowerDisplay extends HudElementBase
 {
-	private static int cachedCap = 0;
-	private static int cachedTotal = 0;
-	private static float cachedPercent = 0;
 
-	private static int cachedProd = 0;
- 	private static int cachedCons = 0;
+	private static float cache_percentFull = 0;
+	private static int cache_power_capacity = 0;
+	private static int cache_power_stored = 0;
+	private static int cache_power_production = 0;
+ 	private static int cache_power_consumption = 0;
 
 	public PowerDisplay()
 	{
@@ -34,66 +33,72 @@ public class PowerDisplay extends HudElementBase
 	}
 
 	@Override
-	public void renderElement(int x, int y, EntityPlayer p, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks)
+	public void renderElement(int x, int y, EntityPlayer entityPlayer, ScaledResolution resolution, boolean isHUDjackAvailable, boolean isConfigOpen, float partialTicks)
 	{
-		if (!isHidden() && hudjackAvailable)
-		{
-			boolean flipHoriz = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
-
-			float currTime = p.ticksExisted + partialTicks;
-			
-			GL11.glPushMatrix();
-			GlStateManager.enableBlend();
-			ICyberwareUserData data = CyberwareAPI.getCapability(p);
-			
-			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
-	
-			
-			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-			
-			if (p.ticksExisted % 20 == 0)
-			{
-				cachedPercent = data.getPercentFull();
-				cachedCap = data.getCapacity();
-				cachedTotal = data.getStoredPower();
-				cachedProd = data.getProduction();
-				cachedCons = data.getConsumption();
-			}
-			
-			float[] color = CyberwareAPI.getHUDColor();
-			int colorHex = CyberwareAPI.getHUDColorHex();
-			
-			if (cachedPercent != -1)
-			{
-				int amount = Math.round((21F * cachedPercent));
-	
-				boolean danger = (cachedPercent <= .2F);
-				boolean superDanger = danger && (cachedPercent <= .05F);
-				int xOffset = (danger ? 39 : 0);
-				
-				if (!superDanger || p.ticksExisted % 4 != 0)
-				{
-					int moveX = flipHoriz ? (x + getWidth() - 13) : x;
-					GlStateManager.pushMatrix();
-					if (!danger) GlStateManager.color(color[0], color[1], color[2]);
-					ClientUtils.drawTexturedModalRect(moveX, y, xOffset, 0, 13, 2 + (21 - amount));
-					ClientUtils.drawTexturedModalRect(moveX, y + 2 + (21 - amount), 13 + xOffset, 2 + (21 - amount), 13, amount + 2);
-					
-					ClientUtils.drawTexturedModalRect(moveX, y + 2 + (21 - amount), 26 + xOffset, 2 + (21 - amount), 13, amount + 2);
-					GlStateManager.popMatrix();
-	
-					String output = cachedTotal + " / " + cachedCap;
-					int textX = flipHoriz ? x + getWidth() - 15 - fr.getStringWidth(output) : x + 15;
-
-					fr.drawStringWithShadow(output, textX, y + 4, danger ? 0xFF0000 : colorHex);
-
-					output = "-" + cachedCons + " / +" + cachedProd;
-					textX = flipHoriz ? x + getWidth() - 15 - fr.getStringWidth(output) : x + 15;
-					fr.drawStringWithShadow(output, textX, y + 14, danger ? 0xFF0000 : colorHex);
-				}
-			}
-			
-			GL11.glPopMatrix();
+		if ( isHidden()
+		  || !isHUDjackAvailable ) {
+			return;
 		}
+		
+		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
+		
+		GL11.glPushMatrix();
+		GlStateManager.enableBlend();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		
+		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		
+		if (entityPlayer.ticksExisted % 20 == 0)
+		{
+			cache_percentFull = cyberwareUserData.getPercentFull();
+			cache_power_capacity = cyberwareUserData.getCapacity();
+			cache_power_stored = cyberwareUserData.getStoredPower();
+			cache_power_production = cyberwareUserData.getProduction();
+			cache_power_consumption = cyberwareUserData.getConsumption();
+		}
+		
+		if (cache_power_capacity != 0)
+		{
+			boolean isLowPower = cache_percentFull <= 0.2F;
+			boolean isCriticalPower = cache_percentFull <= 0.05F;
+			
+			if ( !isCriticalPower
+			  || entityPlayer.ticksExisted % 4 != 0 )
+			{
+				float[] colorFloats = CyberwareAPI.getHUDColor();
+				int colorHex = CyberwareAPI.getHUDColorHex();
+				
+				// battery icon
+				GlStateManager.pushMatrix();
+				
+				int uOffset = isLowPower ? 39 : 0;
+				int xOffset = isRightAnchored ? (x + getWidth() - 13) : x;
+				int yBatterySize = Math.round(21F * cache_percentFull);
+				
+				if (!isLowPower) GlStateManager.color(colorFloats[0], colorFloats[1], colorFloats[2]);
+				
+				// battery top part
+				ClientUtils.drawTexturedModalRect(xOffset, y, uOffset, 0, 13, 2 + (21 - yBatterySize));
+				// battery background
+				ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 13 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
+				// battery foreground
+				ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 26 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
+				GlStateManager.popMatrix();
+				
+				// storage stats
+				String textPowerStorage = cache_power_stored + " / " + cache_power_capacity;
+				int xPowerStorage = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerStorage) : x + 15;
+				fontRenderer.drawStringWithShadow(textPowerStorage, xPowerStorage, y + 4, isLowPower ? 0xFF0000 : colorHex);
+				
+				// progression stats
+				String textPowerProgression = "-" + cache_power_consumption + " / +" + cache_power_production;
+				int xPowerProgression = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerProgression) : x + 15;
+				fontRenderer.drawStringWithShadow(textPowerProgression, xPowerProgression, y + 14, isLowPower ? 0xFF0000 : colorHex);
+			}
+		}
+		
+		GL11.glPopMatrix();
 	}
 }

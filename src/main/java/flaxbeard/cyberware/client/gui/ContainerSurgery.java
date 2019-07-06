@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,7 +54,7 @@ public class ContainerSurgery extends Container
 		}
 		
 		@Override
-		public boolean canTakeStack(EntityPlayer playerIn)
+		public boolean canTakeStack(EntityPlayer entityPlayer)
 		{
 			return surgery.canDisableItem(getStack(), slot, index % LibConstants.WARE_PER_SLOT);
 		}
@@ -78,19 +79,20 @@ public class ContainerSurgery extends Container
 			surgery.updateEssence();
 		}
 		
-		/*@Override
-		public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+		/*
+		@Override
+		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
 	    {
-			super.onPickupFromSlot(playerIn, stack);
+			super.onPickupFromSlot(entityPlayer, stack);
 			surgery.markDirty();
 			surgery.updateEssential(slot);
 			surgery.updateEssence();
-	    }*/
+	    }
+	    */
 		
 		@Override
 		public boolean isItemValid(@Nullable ItemStack stack)
 		{
-			//System.out.println(surgery.canDisableItem(getPlayerStack(), slot, index % LibConstants.WARE_PER_SLOT));
 			ItemStack playerStack = getPlayerStack();
 			//if (!stack.isEmpty() && !playerStack.isEmpty() && stack.getit) return false;
 			if (!getPlayerStack().isEmpty() && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
@@ -140,7 +142,6 @@ public class ContainerSurgery extends Container
 	{
 		this.surgery = surgery;
 		
-		int row = 0;
 		int c = 0;
 		for (EnumSlot slot : EnumSlot.values())
 		{
@@ -154,7 +155,6 @@ public class ContainerSurgery extends Container
 				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, Integer.MIN_VALUE, Integer.MIN_VALUE, slot));
 				c++;
 			}
-			row++;
 		}
 
 		for (int l = 0; l < 3; ++l)
@@ -172,16 +172,16 @@ public class ContainerSurgery extends Container
 	}
 	
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn)
+	public boolean canInteractWith(EntityPlayer entityPlayer)
 	{
-		return surgery.isUseableByPlayer(playerIn);
+		return surgery.isUseableByPlayer(entityPlayer);
 	}
 	
-	@Nullable
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
+	@Nonnull
+	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = (Slot)this.inventorySlots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 	
 		if (slot != null && slot.getHasStack())
 		{
@@ -220,7 +220,7 @@ public class ContainerSurgery extends Container
 				return ItemStack.EMPTY;
 			}
 	
-			slot.onTake(playerIn, itemstack1);
+			slot.onTake(entityPlayer, itemstack1);
 		}
 	
 		return itemstack;

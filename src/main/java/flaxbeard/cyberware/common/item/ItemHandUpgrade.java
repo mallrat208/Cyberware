@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -17,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.HarvestCheck;
@@ -25,36 +23,42 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.google.common.collect.HashMultimap;
 
-import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.misc.NNLUtil;
-import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
-import flaxbeard.cyberware.common.network.GuiPacket;
 
 public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
 {
+
+    public static final int META_CRAFT_HANDS                = 0;
+    public static final int META_CLAWS                      = 1;
+    public static final int META_MINING                     = 2;
+    
     private final Item tool_level;
 
     public ItemHandUpgrade(String name, EnumSlot slot, String[] subnames)
     {
         super(name, slot, subnames);
         MinecraftForge.EVENT_BUS.register(this);
-        this.tool_level = CyberwareConfig.FIST_MINING_LEVEL == 3 ? Items.DIAMOND_PICKAXE : CyberwareConfig.FIST_MINING_LEVEL == 2 ? Items.IRON_PICKAXE : Items.STONE_PICKAXE;
+        this.tool_level = CyberwareConfig.FIST_MINING_LEVEL == 3
+                        ? Items.DIAMOND_PICKAXE
+                        : CyberwareConfig.FIST_MINING_LEVEL == 2
+                        ? Items.IRON_PICKAXE
+                        : Items.STONE_PICKAXE;
     }
 
     @Override
     public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
     {
         return NNLUtil.fromArray(new ItemStack[][] {
-                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 0), new ItemStack(CyberwareContent.cyberlimbs, 1, 1) }});
+                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM),
+                                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM) }});
     }
 
     @Override
@@ -63,112 +67,111 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         return other.getItem() == this;
     }
 
-    private Map<UUID, Boolean> lastClaws = new HashMap<UUID, Boolean>();
+    private Map<UUID, Boolean> lastClaws = new HashMap<>();
     public static float clawsTime;
 
     @SubscribeEvent(priority=EventPriority.NORMAL)
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
-        EntityLivingBase e = event.getEntityLiving();
+        EntityLivingBase entityLivingBase = event.getEntityLiving();
 
-        ItemStack test = new ItemStack(this, 1, 1);
-        if (CyberwareAPI.isCyberwareInstalled(e, test))
+        ItemStack test = new ItemStack(this, 1, META_CLAWS);
+        if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
         {
-            Boolean last = getLastClaws(e);
-            boolean isEquipped = e.getHeldItemMainhand().isEmpty() &&
-                    (e.getPrimaryHand() == EnumHandSide.RIGHT ?
-                            (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) :
-                            (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
-            if (isEquipped && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
+            boolean wasEquipped = getLastClaws(entityLivingBase);
+            boolean isEquipped = entityLivingBase.getHeldItemMainhand().isEmpty()
+                 && ( entityLivingBase.getPrimaryHand() == EnumHandSide.RIGHT
+                    ? (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                    : (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+            if ( isEquipped
+              && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test)) )
             {
-                this.addUnarmedDamage(e, test);
-                lastClaws.put(e.getUniqueID(), true);
+                addUnarmedDamage(entityLivingBase, test);
+                lastClaws.put(entityLivingBase.getUniqueID(), true);
 
-                if (!last)
+                if (!wasEquipped)
                 {
                     if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
                     {
-                        updateHand(e, true);
+                        updateHand(entityLivingBase, true);
                     }
                 }
             }
-            else
+            else if (wasEquipped)
             {
-                this.removeUnarmedDamage(e, test);
-                lastClaws.put(e.getUniqueID(), false);
+                removeUnarmedDamage(entityLivingBase, test);
+                lastClaws.put(entityLivingBase.getUniqueID(), false);
             }
-
         }
         else
         {
-
-            lastClaws.put(e.getUniqueID(), false);
+            lastClaws.put(entityLivingBase.getUniqueID(), false);
         }
     }
 
-    private void updateHand(EntityLivingBase e, boolean delay)
+    private void updateHand(EntityLivingBase entityLivingBase, boolean delay)
     {
-        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null)
+        if ( Minecraft.getMinecraft() != null
+          && Minecraft.getMinecraft().player != null )
         {
-            if (e == Minecraft.getMinecraft().player)
+            if (entityLivingBase == Minecraft.getMinecraft().player)
             {
-                clawsTime = Minecraft.getMinecraft().getRenderPartialTicks() + e.ticksExisted + (delay ? 5 : 0);
+                clawsTime = Minecraft.getMinecraft().getRenderPartialTicks() + entityLivingBase.ticksExisted + (delay ? 5 : 0);
             }
         }
     }
 
-    private boolean getLastClaws(EntityLivingBase e)
+    private boolean getLastClaws(EntityLivingBase entityLivingBase)
     {
-        if (!lastClaws.containsKey(e.getUniqueID()))
+        if (!lastClaws.containsKey(entityLivingBase.getUniqueID()))
         {
-            lastClaws.put(e.getUniqueID(), Boolean.FALSE);
+            lastClaws.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
-        return lastClaws.get(e.getUniqueID());
+        return lastClaws.get(entityLivingBase.getUniqueID());
     }
-
-
-    public void addUnarmedDamage(EntityLivingBase entity, ItemStack stack)
+    
+    public void addUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
     {
-        if (stack.getItemDamage() == 1)
+        if (stack.getItemDamage() == META_CLAWS)
         {
-            HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+            HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 
             multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws damage upgrade", 5.5F, 0));
-            entity.getAttributeMap().applyAttributeModifiers(multimap);
+            entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
         }
     }
 
-    public void removeUnarmedDamage(EntityLivingBase entity, ItemStack stack)
+    public void removeUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
     {
-        if (stack.getItemDamage() == 1)
+        if (stack.getItemDamage() == META_CLAWS)
         {
-            HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+            HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 
             multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws Claws upgrade", 5.5F, 0));
-            entity.getAttributeMap().removeAttributeModifiers(multimap);
+            entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
         }
     }
 
     @Override
-    public void onRemoved(EntityLivingBase entity, ItemStack stack)
+    public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
     {
-        if (stack.getItemDamage() == 1)
+        if (stack.getItemDamage() == META_CLAWS)
         {
-            removeUnarmedDamage(entity, stack);
+            removeUnarmedDamage(entityLivingBase, stack);
         }
     }
 
     @SubscribeEvent
     public void handleMining(HarvestCheck event)
     {
-        EntityPlayer p = event.getEntityPlayer();
-        ItemStack test = new ItemStack(this, 1, 2);
-        boolean rightArm = (p.getPrimaryHand() == EnumHandSide.RIGHT ?
-                (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) :
-                (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
-        if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand().isEmpty())
+        EntityPlayer entityPlayer = event.getEntityPlayer();
+        ItemStack test = new ItemStack(this, 1, META_MINING);
+        boolean rightArm = ( entityPlayer.getPrimaryHand() == EnumHandSide.RIGHT
+                           ? (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                           : (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+        if (rightArm && CyberwareAPI.isCyberwareInstalled(entityPlayer, test) && entityPlayer.getHeldItemMainhand().isEmpty())
         {
-            ItemStack pick = new ItemStack(this.tool_level);
+            ItemStack pick = new ItemStack(tool_level);
             if (pick.canHarvestBlock(event.getTargetBlock()))
             {
                 event.setCanHarvest(true);
@@ -179,15 +182,15 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     @SubscribeEvent
     public void handleMineSpeed(BreakSpeed event)
     {
-        EntityPlayer p = event.getEntityPlayer();
-        ItemStack test = new ItemStack(this, 1, 2);
-        boolean rightArm = (p.getPrimaryHand() == EnumHandSide.RIGHT ?
-                (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 1))) :
-                (CyberwareAPI.isCyberwareInstalled(p, new ItemStack(CyberwareContent.cyberlimbs, 1, 0))));
-        if (rightArm && CyberwareAPI.isCyberwareInstalled(p, test) && p.getHeldItemMainhand().isEmpty())
+        EntityPlayer entityPlayer = event.getEntityPlayer();
+        ItemStack test = new ItemStack(this, 1, META_MINING);
+        boolean rightArm = ( entityPlayer.getPrimaryHand() == EnumHandSide.RIGHT
+                           ? (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                           : (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+        if (rightArm && CyberwareAPI.isCyberwareInstalled(entityPlayer, test) && entityPlayer.getHeldItemMainhand().isEmpty())
         {
-            ItemStack pick = new ItemStack(this.tool_level);
-            event.setNewSpeed(event.getNewSpeed() * pick.getDestroySpeed(p.world.getBlockState(event.getPos())));
+            ItemStack pick = new ItemStack(tool_level);
+            event.setNewSpeed(event.getNewSpeed() * pick.getDestroySpeed(entityPlayer.world.getBlockState(event.getPos())));
         }
     }
 
@@ -196,16 +199,16 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     @Override
     public boolean hasMenu(ItemStack stack)
     {
-        return stack.getItemDamage() == 1;
+        return stack.getItemDamage() == META_CLAWS;
     }
 
     @Override
-    public void use(Entity e, ItemStack stack)
+    public void use(Entity entity, ItemStack stack)
     {
         EnableDisableHelper.toggle(stack);
-        if (e instanceof EntityLivingBase && FMLCommonHandler.instance().getSide() == Side.CLIENT)
+        if (entity instanceof EntityLivingBase && FMLCommonHandler.instance().getSide() == Side.CLIENT)
         {
-            updateHand((EntityLivingBase) e, false);
+            updateHand((EntityLivingBase) entity, false);
         }
     }
 
@@ -215,7 +218,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         return EnableDisableHelper.getUnlocalizedLabel(stack);
     }
 
-    private static final float[] f = new float[] { 1F, 0F, 0F };
+    private static final float[] f = new float[] { 1.0F, 0.0F, 0.0F };
 
     @Override
     public float[] getColor(ItemStack stack)

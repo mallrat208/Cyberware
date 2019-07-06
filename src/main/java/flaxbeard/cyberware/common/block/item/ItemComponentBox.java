@@ -5,15 +5,11 @@ import java.util.List;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import flaxbeard.cyberware.Cyberware;
-import flaxbeard.cyberware.api.CyberwareAPI;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -23,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemComponentBox extends ItemBlockCyberware
@@ -34,29 +31,31 @@ public class ItemComponentBox extends ItemBlockCyberware
 		this.setMaxStackSize(1);
 	}
 	
+	@Nonnull
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer entityPlayer, @Nonnull EnumHand hand)
 	{
-		ItemStack itemStackIn = playerIn.getHeldItem(hand);
-		playerIn.openGui(Cyberware.INSTANCE, 6, worldIn, 0, 0, 0);
-		return new ActionResult(EnumActionResult.PASS, itemStackIn);
+		ItemStack itemStackIn = entityPlayer.getHeldItem(hand);
+		entityPlayer.openGui(Cyberware.INSTANCE, 6, worldIn, 0, 0, 0);
+		return new ActionResult<>(EnumActionResult.PASS, itemStackIn);
 	}
 	
+	@Nonnull
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer entityPlayer, World worldIn, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		if (playerIn.isSneaking())
+		if (entityPlayer.isSneaking())
 		{
-			EnumActionResult res = super.onItemUse(playerIn, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-			if (res == EnumActionResult.SUCCESS && playerIn.isCreative())
+			EnumActionResult res = super.onItemUse(entityPlayer, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+			if (res == EnumActionResult.SUCCESS && entityPlayer.isCreative())
 			{
-				playerIn.inventory.mainInventory.set(playerIn.inventory.currentItem, ItemStack.EMPTY);
+				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem, ItemStack.EMPTY);
 			}
 			return res;
 		}
 		else
 		{
-			playerIn.openGui(Cyberware.INSTANCE, 6, worldIn, 0, 0, 0);
+			entityPlayer.openGui(Cyberware.INSTANCE, 6, worldIn, 0, 0, 0);
 		}
 		return EnumActionResult.SUCCESS;
 	}

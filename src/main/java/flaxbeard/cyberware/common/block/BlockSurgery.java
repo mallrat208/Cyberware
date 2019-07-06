@@ -1,6 +1,6 @@
 package flaxbeard.cyberware.common.block;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.block.BlockContainer;
@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -47,17 +48,19 @@ public class BlockSurgery extends BlockContainer
 		this.setUnlocalizedName(Cyberware.MODID + "." + name);
 
 		this.setCreativeTab(Cyberware.creativeTab);
-		GameRegistry.registerTileEntity(TileEntitySurgery.class, Cyberware.MODID + ":" + name);
+		GameRegistry.registerTileEntity(TileEntitySurgery.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta)
 	{
 		return new TileEntitySurgery();
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
@@ -65,29 +68,26 @@ public class BlockSurgery extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		ItemStack heldItem = player.getHeldItem(hand);
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntitySurgery)
 		{
-			TileEntitySurgery surgery = (TileEntitySurgery) tileentity;
-			
+			TileEntitySurgery tileEntitySurgery = (TileEntitySurgery) tileentity;
 			
 			//Ensure the Base Tolerance Attribute has been updated for any Config Changes
-			player.getEntityAttribute(CyberwareAPI.TOLERANCE_ATTR).setBaseValue(CyberwareConfig.ESSENCE);
-
-			surgery.updatePlayerSlots(player);
-			player.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
+			entityPlayer.getEntityAttribute(CyberwareAPI.TOLERANCE_ATTR).setBaseValue(CyberwareConfig.ESSENCE);
+			
+			tileEntitySurgery.updatePlayerSlots(entityPlayer);
+			entityPlayer.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
 		}
 		
 		return true;
-		
 	}
 	
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	public void breakBlock(World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state)
 	{ 
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -105,7 +105,6 @@ public class BlockSurgery extends BlockContainer
 			}
 		}
 		super.breakBlock(worldIn, pos, state);
-
 	}
 
 }

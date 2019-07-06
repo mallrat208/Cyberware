@@ -26,7 +26,7 @@ public abstract class HudElementBase implements IHudElement
 	}
 
 	@Override
-	public void render(EntityPlayer player, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks)
+	public void render(EntityPlayer entityPlayer, ScaledResolution resolution, boolean isHUDjackAvailable, boolean isConfigOpen, float partialTicks)
 	{
 		int x = getX();
 		int y = getY();
@@ -39,21 +39,21 @@ public abstract class HudElementBase implements IHudElement
 			y = resolution.getScaledHeight() - y - getHeight();
 		}
 		
-		renderElement(x, y, player, resolution, hudjackAvailable, isConfigOpen, partialTicks);
+		renderElement(x, y, entityPlayer, resolution, isHUDjackAvailable, isConfigOpen, partialTicks);
 	}
 	
-	public abstract void renderElement(int x, int y, EntityPlayer player, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks);
+	public abstract void renderElement(int x, int y, EntityPlayer entityPlayer, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks);
 
 	public void setDefaultX(int x)
 	{
 		this.defaultX = x;
-		this.setX(x);
+		setX(x);
 	}
 	
 	public void setDefaultY(int y)
 	{
 		this.defaultY = y;
-		this.setY(y);
+		setY(y);
 	}
 	
 	@Override

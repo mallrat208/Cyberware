@@ -1,6 +1,7 @@
 package flaxbeard.cyberware.common.misc;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
+
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -26,7 +27,8 @@ public class SpecificWrapper implements IItemHandlerModifiable
 	{
 		return slots[input];
 	}
-
+	
+	@Nonnull
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
@@ -37,7 +39,8 @@ public class SpecificWrapper implements IItemHandlerModifiable
 
 		return ItemStack.EMPTY;
 	}
-
+	
+	@Nonnull
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 	{
@@ -48,7 +51,8 @@ public class SpecificWrapper implements IItemHandlerModifiable
 
 		return stack;
 	}
-
+	
+	@Nonnull
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate)
 	{

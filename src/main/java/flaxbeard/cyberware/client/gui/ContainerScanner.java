@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,7 +23,7 @@ public class ContainerScanner extends Container
 		}
 		
 		@Override
-		public boolean canTakeStack(EntityPlayer playerIn)
+		public boolean canTakeStack(EntityPlayer entityPlayer)
 		{
 			return true;
 		}
@@ -34,11 +35,13 @@ public class ContainerScanner extends Container
 			scanner.markDirty();
 		}
 		
-		/*@Override
-		public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+		/*
+		@Override
+		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
 		{
 			scanner.markDirty();
-		}*/
+		}
+		*/
 		
 		@Override
 		public void putStack(@Nullable ItemStack stack)
@@ -85,16 +88,16 @@ public class ContainerScanner extends Container
 	}
 	
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn)
+	public boolean canInteractWith(EntityPlayer entityPlayer)
 	{
-		return scanner.isUseableByPlayer(playerIn);
+		return scanner.isUseableByPlayer(entityPlayer);
 	}
 	
-	@Nullable
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
+	@Nonnull
+	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = (Slot)this.inventorySlots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 		boolean doUpdate = false;
 		if (slot != null && slot.getHasStack())
 		{
@@ -158,7 +161,7 @@ public class ContainerScanner extends Container
 				return ItemStack.EMPTY;
 			}
 
-			slot.onTake(playerIn, itemstack1);
+			slot.onTake(entityPlayer, itemstack1);
 		}
 		
 		return itemstack;

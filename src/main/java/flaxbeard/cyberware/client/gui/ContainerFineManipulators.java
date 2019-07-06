@@ -3,19 +3,16 @@ package flaxbeard.cyberware.client.gui;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public class ContainerFineManipulators extends ContainerPlayer
 {
-	public ContainerFineManipulators(InventoryPlayer playerInventory, boolean localWorld, EntityPlayer player)
+	public ContainerFineManipulators(InventoryPlayer playerInventory, boolean localWorld, EntityPlayer entityPlayer)
 	{
-		super(playerInventory, localWorld, player);
+		super(playerInventory, localWorld, entityPlayer);
 		
 		this.inventorySlots.clear();
 		
@@ -46,9 +43,9 @@ public class ContainerFineManipulators extends ContainerPlayer
 	}
 	
 	@Override
-	public void onContainerClosed(EntityPlayer playerIn)
+	public void onContainerClosed(EntityPlayer entityPlayer)
 	{
-		super.onContainerClosed(playerIn);
+		super.onContainerClosed(entityPlayer);
 		
 		for (int i = 0; i < 9; ++i)
 		{
@@ -56,7 +53,7 @@ public class ContainerFineManipulators extends ContainerPlayer
 			
 			if (!itemstack.isEmpty())
 			{
-				playerIn.dropItem(itemstack, false);
+				entityPlayer.dropItem(itemstack, false);
 			}
 		}
 		

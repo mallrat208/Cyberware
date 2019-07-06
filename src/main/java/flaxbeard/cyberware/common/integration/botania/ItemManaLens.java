@@ -75,20 +75,22 @@ public class ItemManaLens //extends ItemCyberware
 		return stack.getItemDamage() == 0 ? other.getItem() == CyberwareContent.cybereyes : false;
 	}
 	
-	private boolean hasLensNotMonocle(EntityPlayer p)
+	private boolean hasLensNotMonocle(EntityPlayer entityPlayer)
 	{
-		return !Botania.proxy.isClientPlayerWearingMonocle() && CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this)) || CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 1));
+		return !Botania.proxy.isClientPlayerWearingMonocle()
+		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this))
+		    || CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, 1));
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onDrawScreenPost(RenderGameOverlayEvent.Post event)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 		
-		if (hasLensNotMonocle(p))
+		if (hasLensNotMonocle(entityPlayer))
 		{
-			//ItemMonocle.renderHUD(event.getResolution(), p);
+			//ItemMonocle.renderHUD(event.getResolution(), entityPlayer);
 		}
 	}
 	

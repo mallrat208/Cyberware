@@ -7,27 +7,27 @@ import flaxbeard.cyberware.api.ICyberwareUserData;
 
 public class HotkeyHelper
 {
-	public static void assignHotkey(ICyberwareUserData data, ItemStack stack, int key)
+	public static void assignHotkey(ICyberwareUserData cyberwareUserData, ItemStack stack, int key)
 	{
-		removeHotkey(data, stack);
+		removeHotkey(cyberwareUserData, stack);
 		
-		data.addHotkey(key, stack);
+		cyberwareUserData.addHotkey(key, stack);
 		CyberwareAPI.getCyberwareNBT(stack).setInteger("hotkey", key);
 	}
 	
-	public static void removeHotkey(ICyberwareUserData data, int key)
+	public static void removeHotkey(ICyberwareUserData cyberwareUserData, int key)
 	{
-		ItemStack stack = data.getHotkey(key);
-		removeHotkey(data, stack);
+		ItemStack stack = cyberwareUserData.getHotkey(key);
+		removeHotkey(cyberwareUserData, stack);
 	}
 	
-	public static void removeHotkey(ICyberwareUserData data, ItemStack stack)
+	public static void removeHotkey(ICyberwareUserData cyberwareUserData, ItemStack stack)
 	{
 		int hotkey = getHotkey(stack);
 		
 		if (hotkey != -1)
 		{
-			data.removeHotkey(hotkey);
+			cyberwareUserData.removeHotkey(hotkey);
 			CyberwareAPI.getCyberwareNBT(stack).removeTag("hotkey");
 		}
 	}
@@ -36,12 +36,12 @@ public class HotkeyHelper
 	{
 		if (stack.isEmpty()) return -1;
 		
-		NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
-		if (!comp.hasKey("hotkey"))
+		NBTTagCompound tagCompound = CyberwareAPI.getCyberwareNBT(stack);
+		if (!tagCompound.hasKey("hotkey"))
 		{
 			return -1;
 		}
 		
-		return comp.getInteger("hotkey");
+		return tagCompound.getInteger("hotkey");
 	}
 }

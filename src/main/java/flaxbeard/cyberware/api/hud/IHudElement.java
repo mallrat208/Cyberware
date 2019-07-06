@@ -19,7 +19,7 @@ public interface IHudElement
 		BOTTOM;
 	}
 	
-	public void render(EntityPlayer player, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks);
+	public void render(EntityPlayer entityPlayer, ScaledResolution resolution, boolean isHUDjackAvailable, boolean isConfigOpen, float partialTicks);
 	
 	public boolean canMove();
 	

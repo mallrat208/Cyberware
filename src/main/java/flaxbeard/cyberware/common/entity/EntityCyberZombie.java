@@ -1,7 +1,7 @@
 package flaxbeard.cyberware.common.entity;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,51 +26,52 @@ import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.handler.CyberwareDataHandler;
-import flaxbeard.cyberware.common.item.ItemArmorCyberware;
 import flaxbeard.cyberware.common.lib.LibConstants;
 
 public class EntityCyberZombie extends EntityZombie
 {
-	private static final DataParameter<Integer> CYBER_VARIANT = EntityDataManager.<Integer>createKey(EntityCyberZombie.class, DataSerializers.VARINT);
+	private static final DataParameter<Integer> CYBER_VARIANT = EntityDataManager.createKey(EntityCyberZombie.class, DataSerializers.VARINT);
 
-	public boolean hasWare;
+	public boolean hasRandomWare;
 	private CyberwareUserDataImpl cyberware;
 	
 	public EntityCyberZombie(World worldIn)
 	{
 		super(worldIn);
 		cyberware = new CyberwareUserDataImpl();
-		hasWare = false;
-		//CyberwareDataHandler.addRandomCyberware(this);
+		hasRandomWare = false;
 	}
 	
 	protected void entityInit()
 	{
 		super.entityInit();
-		this.dataManager.register(CYBER_VARIANT, Integer.valueOf(0));
+		dataManager.register(CYBER_VARIANT, 0);
 	}
 	
 	@Override
 	public void onLivingUpdate()
 	{
-		if (!this.hasWare && !this.world.isRemote)
+		if ( !hasRandomWare
+		  && !world.isRemote )
 		{
-			if (!isBrute() && this.world.rand.nextFloat() < (LibConstants.NATURAL_BRUTE_CHANCE / 100F))
+			if ( !isBrute()
+			  && world.rand.nextFloat() < (LibConstants.NATURAL_BRUTE_CHANCE / 100F) )
 			{
-				this.setBrute();
+				setBrute();
 			}
 			CyberwareDataHandler.addRandomCyberware(this, isBrute());
 			if (isBrute())
 			{
-				this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).applyModifier(new AttributeModifier("Brute Bonus", 6D, 0));
-				this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(new AttributeModifier("Brute Bonus", 1D, 0));
+				getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).applyModifier(new AttributeModifier("Brute Bonus", 6D, 0));
+				getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(new AttributeModifier("Brute Bonus", 1D, 0));
 			}
-			this.setHealth(this.getMaxHealth());
-			hasWare = true;
+			setHealth(getMaxHealth());
+			hasRandomWare = true;
 		}
-		if (isBrute() && this.height != (1.95F * 1.2F))
+		if ( isBrute()
+		  && height != (1.95F * 1.2F) )
 		{
-			this.setSizeNormal(0.6F * 1.2F, 1.95F * 1.2F);
+			setSizeNormal(0.6F * 1.2F, 1.95F * 1.2F);
 		}
 		super.onLivingUpdate();
 	}
@@ -78,58 +79,62 @@ public class EntityCyberZombie extends EntityZombie
 	
 	protected void setSizeNormal(float width, float height)
 	{
-		if (width != this.width || height != this.height)
+		if ( width != width
+		  || height != height )
 		{
-			float f = this.width;
+			float widthPrevious = this.width;
 			this.width = width;
 			this.height = height;
-			AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
-			this.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)this.width, axisalignedbb.minY + (double)this.height, axisalignedbb.minZ + (double)this.width));
+			AxisAlignedBB axisalignedbb = getEntityBoundingBox();
+			setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ,
+			                                       axisalignedbb.minX + width, axisalignedbb.minY + height, axisalignedbb.minZ + width ));
 
-			if (this.width > f && !this.firstUpdate && !this.world.isRemote)
+			if ( width > widthPrevious
+			  && !firstUpdate
+			  && !world.isRemote )
 			{
-				this.move(MoverType.SELF,(double)(f - this.width), 0.0D, (double)(f - this.width));
+				move(MoverType.SELF, widthPrevious - width, 0.0D, widthPrevious - width);
 			}
 		}
 	}
-
+	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
+		tagCompound = super.writeToNBT(tagCompound);
 
-		compound.setBoolean("hasRandomWare", hasWare);
-		compound.setBoolean("brute", isBrute());
+		tagCompound.setBoolean("hasRandomWare", hasRandomWare);
+		tagCompound.setBoolean("brute", isBrute());
 
-		if (hasWare)
+		if (hasRandomWare)
 		{
-			NBTTagCompound comp = cyberware.serializeNBT();
-			compound.setTag("ware", comp);
+			NBTTagCompound tagCompoundCyberware = cyberware.serializeNBT();
+			tagCompound.setTag("ware", tagCompoundCyberware);
 		}
-		return compound;
+		return tagCompound;
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
-		boolean brute = compound.getBoolean("brute");
+		boolean brute = tagCompound.getBoolean("brute");
 		if (brute)
 		{
-			this.setBrute();
+			setBrute();
 		}
-		this.hasWare = compound.getBoolean("hasRandomWare");
-		if (compound.hasKey("ware"))
+		hasRandomWare = tagCompound.getBoolean("hasRandomWare");
+		if (tagCompound.hasKey("ware"))
 		{
-			cyberware.deserializeNBT(compound.getCompoundTag("ware"));
+			cyberware.deserializeNBT(tagCompound.getCompoundTag("ware"));
 		}
 	}
 	
 	@Override
-	public <T> T getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, net.minecraft.util.EnumFacing facing)
+	public <T> T getCapability(@Nonnull net.minecraftforge.common.capabilities.Capability<T> capability, net.minecraft.util.EnumFacing facing)
 	{
-
 		if (capability == CyberwareAPI.CYBERWARE_CAPABILITY)
 		{
 			return (T) cyberware;
@@ -138,9 +143,10 @@ public class EntityCyberZombie extends EntityZombie
 	}
 
 	@Override
-	public boolean hasCapability(net.minecraftforge.common.capabilities.Capability<?> capability, net.minecraft.util.EnumFacing facing)
+	public boolean hasCapability(@Nonnull net.minecraftforge.common.capabilities.Capability<?> capability, net.minecraft.util.EnumFacing facing)
 	{
-		return capability == CyberwareAPI.CYBERWARE_CAPABILITY || super.hasCapability(capability, facing);
+		return capability == CyberwareAPI.CYBERWARE_CAPABILITY
+		    || super.hasCapability(capability, facing);
 	}
 	
 	@Override
@@ -148,14 +154,17 @@ public class EntityCyberZombie extends EntityZombie
 	{
 		super.dropEquipment(wasRecentlyHit, lootingModifier);
 		
-		if (CyberwareConfig.KATANA && !CyberwareConfig.NO_CLOTHES && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana)
+		if ( CyberwareConfig.KATANA
+		  && !CyberwareConfig.NO_CLOTHES
+		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
+		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana )
 		{
 			
-			ItemStack itemstack = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).copy();
+			ItemStack itemstack = getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).copy();
 			if (itemstack.isItemStackDamageable())
 			{
 				int i = Math.max(itemstack.getMaxDamage() - 25, 1);
-				int j = itemstack.getMaxDamage() - this.rand.nextInt(this.rand.nextInt(i) + 1);
+				int j = itemstack.getMaxDamage() - rand.nextInt(rand.nextInt(i) + 1);
 
 				if (j > i)
 				{
@@ -170,16 +179,16 @@ public class EntityCyberZombie extends EntityZombie
 				itemstack.setItemDamage(j);
 			}
 
-			this.entityDropItem(itemstack, 0.0F);
+			entityDropItem(itemstack, 0.0F);
 		}
 		
 		
-		if (hasWare)
+		if (hasRandomWare)
 		{
 			float rarity = Math.min(100, CyberwareConfig.DROP_RARITY + lootingModifier * 5F);
 			if (world.rand.nextFloat() < (rarity / 100F))
 			{
-				List<ItemStack> allWares = new ArrayList<ItemStack>();
+				List<ItemStack> allWares = new ArrayList<>();
 				for (EnumSlot slot : EnumSlot.values())
 				{
 					NonNullList<ItemStack> stuff = cyberware.getInstalledCyberware(slot);
@@ -206,38 +215,37 @@ public class EntityCyberZombie extends EntityZombie
 
 				if (count < 50)
 				{
-					this.entityDropItem(drop, 0.0F);
+					entityDropItem(drop, 0.0F);
 				}
 			}
 		}
 	}
 	
 	@Override
-	protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty)
+	protected void setEquipmentBasedOnDifficulty(@Nonnull DifficultyInstance difficulty)
 	{
 		super.setEquipmentBasedOnDifficulty(difficulty);
 		
-		if (CyberwareConfig.KATANA && !CyberwareConfig.NO_CLOTHES && !this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty() && this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD)
+		if ( CyberwareConfig.KATANA
+		  && !CyberwareConfig.NO_CLOTHES
+		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
+		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD )
 		{
-			this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(CyberwareContent.katana));
-			this.setDropChance(EntityEquipmentSlot.MAINHAND, 0F);
+			setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(CyberwareContent.katana));
+			setDropChance(EntityEquipmentSlot.MAINHAND, 0F);
 		}
 	}
 
 	public boolean isBrute()
 	{
-		return ((Integer)this.dataManager.get(CYBER_VARIANT)).intValue() == 1;
+		return dataManager.get(CYBER_VARIANT) == 1;
 	}
 	
 	public boolean setBrute()
 	{
-		this.setChild(false);
-		this.dataManager.set(CYBER_VARIANT, Integer.valueOf(1));
-
-		if (!this.hasWare)
-		{
-			return true;
-		}
-		return false;
+		setChild(false);
+		dataManager.set(CYBER_VARIANT, 1);
+		
+		return !hasRandomWare;
 	}
 }

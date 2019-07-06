@@ -1,7 +1,7 @@
 package flaxbeard.cyberware.api;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,150 +38,113 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 {
 	public static final IStorage<ICyberwareUserData> STORAGE = new CyberwareUserDataStorage();
 
-	private NonNullList<NonNullList<ItemStack>> wares = NonNullList.create();
+	private NonNullList<NonNullList<ItemStack>> cyberwaresBySlot = NonNullList.create();
 	private boolean[] missingEssentials = new boolean[EnumSlot.values().length * 2];
 	
-	private int storedPower = 0;
-	private int prod = 0;
- 	private int lastProd = 0;
- 	private int cons = 0;
- 	private int lastCons = 0;
-	private int powerCap = 0;
-	private Map<ItemStack, Integer> powerBuffer = new HashMap<ItemStack, Integer>();
-	private Map<ItemStack, Integer> powerBufferLast = new HashMap<ItemStack, Integer>();
-	private NonNullList<ItemStack> outOfPower = NonNullList.create();
-	private List<Integer> outOfPowerTimes = new ArrayList<Integer>();
+	private int power_stored = 0;
+	private int power_production = 0;
+ 	private int power_lastProduction = 0;
+ 	private int power_consumption = 0;
+ 	private int power_lastConsumption = 0;
+	private int power_capacity = 0;
+	private Map<ItemStack, Integer> power_buffer = new HashMap<>();
+	private Map<ItemStack, Integer> power_lastBuffer = new HashMap<>();
+	private NonNullList<ItemStack> nnlPowerOutages = NonNullList.create();
+	private List<Integer> ticksPowerOutages = new ArrayList<>();
 	private int missingEssence = 0;
 	private NonNullList<ItemStack> specialBatteries = NonNullList.create();
-	private int essence = 0;
-	private int maxEssence = 0;
 	private NonNullList<ItemStack> activeItems = NonNullList.create();
 	private NonNullList<ItemStack> hudjackItems = NonNullList.create();
-	private Map<Integer, ItemStack> hotkeys = new HashMap<Integer, ItemStack>();
-	private NBTTagCompound hudData = new NBTTagCompound();
+	private Map<Integer, ItemStack> hotkeys = new HashMap<>();
+	private NBTTagCompound hudData;
 	private boolean hasOpenedRadialMenu = false;
 	
 	private int hudColor = 0x00FFFF;
-	private float[] hudColorFloat = new float[] { 0F, 1F, 1F };
+	private float[] hudColorFloat = new float[] { 0.0F, 1.0F, 1.0F };
 	
 	public CyberwareUserDataImpl()
 	{
 		hudData = new NBTTagCompound();
-		for (int i = 0; i < EnumSlot.values().length; i ++){
-			NonNullList<ItemStack> wareSlot = NonNullList.create();
-			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
-				wareSlot.add(ItemStack.EMPTY);
+		for (EnumSlot slot : EnumSlot.values())
+		{
+			NonNullList<ItemStack> nnlCyberwaresInSlot = NonNullList.create();
+			for (int indexSlot = 0; indexSlot < LibConstants.WARE_PER_SLOT; indexSlot++)
+			{
+				nnlCyberwaresInSlot.add(ItemStack.EMPTY);
 			}
-			wares.add(wareSlot);
+			cyberwaresBySlot.add(nnlCyberwaresInSlot);
 		}
 		resetWare(null);
 	}
 	
 	@Override
-	public void resetWare(EntityLivingBase e)
+	public void resetWare(EntityLivingBase entityLivingBase)
 	{
-		for (NonNullList<ItemStack> slot : this.wares)
+		for (NonNullList<ItemStack> nnlCyberwaresInSlot : cyberwaresBySlot)
 		{
-			for (ItemStack item : slot)
+			for (ItemStack item : nnlCyberwaresInSlot)
 			{
 				if (CyberwareAPI.isCyberware(item))
 				{
-					CyberwareAPI.getCyberware(item).onRemoved(e, item);
+					CyberwareAPI.getCyberware(item).onRemoved(entityLivingBase, item);
 				}
 			}
 		}
 		missingEssence = 0;
-		for (int i = 0; i < wares.size(); i++)
+		for (EnumSlot slot : EnumSlot.values())
 		{
-			NonNullList<ItemStack> wareSlot = NonNullList.create();
-			NonNullList<ItemStack> startItems = CyberwareConfig.getStartingItems(EnumSlot.values()[i]);
-			for (ItemStack s : startItems){
-				wareSlot.add(s.copy());
+			NonNullList<ItemStack> nnlCyberwaresInSlot = NonNullList.create();
+			NonNullList<ItemStack> startItems = CyberwareConfig.getStartingItems(slot);
+			for (ItemStack startItem : startItems){
+				nnlCyberwaresInSlot.add(startItem.copy());
 			}
-			wares.set(i,wareSlot);
+			cyberwaresBySlot.set(slot.ordinal(), nnlCyberwaresInSlot);
 		}
-		this.missingEssentials =  new boolean[EnumSlot.values().length * 2];
-		this.updateCapacity();
+		missingEssentials = new boolean[EnumSlot.values().length * 2];
+		updateCapacity();
 	}
 	
 	@Override
 	public List<ItemStack> getPowerOutages()
 	{
-		return outOfPower;
+		return nnlPowerOutages;
 	}
 	
 	@Override
 	public List<Integer> getPowerOutageTimes()
 	{
-		return outOfPowerTimes;
+		return ticksPowerOutages;
 	}
 	
 	@Override
 	public int getCapacity()
 	{
 		int specialCap = 0;
-		for (ItemStack item : this.specialBatteries)
+		for (ItemStack item : specialBatteries)
 		{
 			ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(item);
 			specialCap += battery.getCapacity(item);
 		}
-		return powerCap + specialCap;
+		return power_capacity + specialCap;
 	}
-	
-	/*public void updateEssential()
-	{
-		missingEssentials = new boolean[EnumSlot.values().length * 2];
-		for (int slotNum = 0; slotNum < EnumSlot.values().length; slotNum++)
-		{
-			EnumSlot slot = EnumSlot.values()[slotNum];
-			for (int i = 0; i < LibConstants.WARE_PER_SLOT; i++)
-			{
-				ItemStack stack = wares[slotNum][i];
-				
-				if (!stack.isEmpty())
-				{
-					ICyberware ware = CyberwareAPI.getCyberware(stack);
-					if (ware.isEssential(stack))
-					{
-						if (slot.isSided() && ware instanceof ISidedLimb)
-						{
-							if (((ISidedLimb) ware).getSide(stack) == EnumSide.LEFT )
-							{
-								setHasEssential(slot, true, this.hasEssential(slot, EnumSide.RIGHT));
-							}
-							else
-							{
-								setHasEssential(slot, this.hasEssential(slot, EnumSide.LEFT), true);
-							}
-						}
-						else
-						{
-							setHasEssential(slot, true, true);
-						}
-					}
-					
-				}
-			}
-		}
-	}*/
 	
 	@Override
 	public int getStoredPower()
 	{
 		int specialStored = 0;
-		for (ItemStack item : this.specialBatteries)
+		for (ItemStack item : specialBatteries)
 		{
 			ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(item);
 			specialStored += battery.getStoredEnergy(item);
 		}
-		return storedPower + specialStored;
+		return power_stored + specialStored;
 	}
 	
 	@Override
 	public float getPercentFull()
 	{
 		if (getCapacity() == 0) return -1F;
-		return getStoredPower() / (1F * getCapacity());
+		return getStoredPower() / (float) getCapacity();
 	}
 	
 	@Override
@@ -192,14 +156,14 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public boolean isAtCapacity(ItemStack stack, int buffer)
 	{
-		// buffer = Math.min(powerCap - 1, buffer); TODO
-		int leftOverSpaceNormal = powerCap - storedPower;
+		// buffer = Math.min(power_capacity - 1, buffer); TODO
+		int leftOverSpaceNormal = power_capacity - power_stored;
 
 		if (leftOverSpaceNormal > buffer) return false;
 		
 		int leftOverSpaceSpecial = 0;
 
-		for (ItemStack batteryStack : this.specialBatteries)
+		for (ItemStack batteryStack : specialBatteries)
 		{
 			ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(batteryStack);
 			int spaceInThisSpecial = battery.add(batteryStack, stack, buffer + 1, true);
@@ -211,8 +175,6 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		return true;
 	}
 	
-	
-	
 	@Override
 	public void addPower(int amount, ItemStack inputter)
 	{
@@ -220,24 +182,20 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			throw new IllegalArgumentException("Amount must be positive!");
 		}
-		//if (powerCap < storedPower + amount)
-		//{
 		
-		int amountAlready = 0;
 		ItemStack stack = ItemStack.EMPTY;
 		if (!inputter.isEmpty())
 		{
 			stack = new ItemStack(inputter.getItem(), 1, inputter.getItemDamage());
 		}
-		if (powerBuffer.containsKey(stack))
+		
+		int amountExisting = 0;
+		if (power_buffer.containsKey(stack))
 		{
-			amountAlready = powerBuffer.get(stack);
+			amountExisting = power_buffer.get(stack);
 		}
-		powerBuffer.put(stack, amount + amountAlready);
-
-		prod += amount;
-		//}
-		//storedPower = Math.min(powerCap, storedPower + amount);
+		
+		power_production += amount;
 	}
 	
 	private boolean canGiveOut = true;
@@ -245,10 +203,10 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public boolean usePower(ItemStack stack, int amount)
 	{
-		return this.usePower(stack, amount, true);
+		return usePower(stack, amount, true);
 	}
 	
-	private int addMap(Map<ItemStack, Integer> map)
+	private int ComputeSum(@Nonnull Map<ItemStack, Integer> map)
 	{
 		int total = 0;
 		for (ItemStack key : map.keySet())
@@ -260,12 +218,12 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	
 	private void subtractFromBufferLast(int amount)
 	{
-		for (ItemStack key : powerBufferLast.keySet())
+		for (ItemStack key : power_lastBuffer.keySet())
 		{
-			int get = powerBufferLast.get(key);
+			int get = power_lastBuffer.get(key);
 			int amountToSubtract = Math.min(get, amount);
 			amount -= amountToSubtract;
-			powerBufferLast.put(key, get - amountToSubtract);
+			power_lastBuffer.put(key, get - amountToSubtract);
 			if (amount <= 0) break;
 		}
 	}
@@ -283,53 +241,48 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 			return false;
 		}
-
-		cons += amount;
 		
-		int getPowerBufferLast = addMap(powerBufferLast);
-		//System.out.println("BEFORE: " + getPowerBufferLast + " " + amount);
-		int amountAvailable = storedPower + getPowerBufferLast;
+		power_consumption += amount;
+		
+		int sumPowerBufferLast = ComputeSum(power_lastBuffer);
+		int amountAvailable = power_stored + sumPowerBufferLast;
 		
 		int amountAvailableSpecial = 0;
 		if (amountAvailable < amount)
 		{
+			int amountMissing = amount - amountAvailable;
 
-			int toGo = amount - amountAvailable;
-
-			for (ItemStack batteryStack : this.specialBatteries)
+			for (ItemStack batteryStack : specialBatteries)
 			{
 				ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(batteryStack);
-
-				int extract = battery.extract(batteryStack, toGo, true);
-
-				toGo -= extract;
+				int extract = battery.extract(batteryStack, amountMissing, true);
+				
+				amountMissing -= extract;
 				amountAvailableSpecial += extract;
 				
-				
-				if (toGo <= 0) break;
+				if (amountMissing <= 0) break;
 			}
 			
 			if (amountAvailableSpecial + amountAvailable >= amount)
 			{
-				toGo = amount - amountAvailable;
+				amountMissing = amount - amountAvailable;
 				
-				for (ItemStack batteryStack : this.specialBatteries)
+				for (ItemStack batteryStack : specialBatteries)
 				{
 					ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(batteryStack);
-					int extract = battery.extract(batteryStack, toGo, false);
-					toGo -= extract;
+					int extract = battery.extract(batteryStack, amountMissing, false);
 					
-					if (toGo <= 0) break;
+					amountMissing -= extract;
+					
+					if (amountMissing <= 0) break;
 				}
 				
 				amount -= amountAvailableSpecial;
 			}
-			
 		}
 		
 		if (amountAvailable < amount)
 		{
-			
 			if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
 			{
 				setOutOfPower(stack);
@@ -341,41 +294,43 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			return false;
 		}
 		
-		int leftAfterBuffer = Math.max(0, amount - getPowerBufferLast);
+		int leftAfterBuffer = Math.max(0, amount - sumPowerBufferLast);
 		subtractFromBufferLast(amount);
-		storedPower -= leftAfterBuffer;
-		//System.out.println("AFTER: " + addMap(powerBufferLast));
+		power_stored -= leftAfterBuffer;
 		return true;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void setOutOfPower(ItemStack stack)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		if (p != null && !stack.isEmpty())
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		if ( entityPlayer != null
+		  && !stack.isEmpty() )
 		{
-			int i = -1;
-			int n = 0;
-			for (ItemStack e : outOfPower)
+			int indexFound = -1;
+			int indexLoop = 0;
+			for (ItemStack stackExisting : nnlPowerOutages)
 			{
-				if (!e.isEmpty() && e.getItem() == stack.getItem() && e.getItemDamage() == stack.getItemDamage())
+				if ( !stackExisting.isEmpty()
+				  && stackExisting.getItem() == stack.getItem()
+				  && stackExisting.getItemDamage() == stack.getItemDamage() )
 				{
-					i = n;
+					indexFound = indexLoop;
 					break;
 				}
-				n++;
+				indexLoop++;
 			}
-			if (i != -1)
+			if (indexFound != -1)
 			{
-				outOfPower.remove(i);
-				outOfPowerTimes.remove(i);
+				nnlPowerOutages.remove(indexFound);
+				ticksPowerOutages.remove(indexFound);
 			}
-			outOfPower.add(stack);
-			outOfPowerTimes.add(p.ticksExisted);
-			if (outOfPower.size() >= 8)
+			nnlPowerOutages.add(stack);
+			ticksPowerOutages.add(entityPlayer.ticksExisted);
+			if (nnlPowerOutages.size() >= 8)
 			{
-				outOfPower.remove(0);
-				outOfPowerTimes.remove(0);
+				nnlPowerOutages.remove(0);
+				ticksPowerOutages.remove(0);
 			}
 		}
 	}
@@ -383,7 +338,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public NonNullList<ItemStack> getInstalledCyberware(EnumSlot slot)
 	{
-		return wares.get(slot.ordinal());
+		return cyberwaresBySlot.get(slot.ordinal());
 	}
 	
 	@Override
@@ -401,130 +356,129 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public void setHasEssential(EnumSlot slot, boolean hasLeft, boolean hasRight)
 	{
-		missingEssentials[slot.ordinal() * 2] = !hasLeft;
+		missingEssentials[slot.ordinal() * 2    ] = !hasLeft;
 		missingEssentials[slot.ordinal() * 2 + 1] = !hasRight;
 	}
 
 	@Override
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, List<ItemStack> cyberware)
+	public void setInstalledCyberware(EntityLivingBase entityLivingBase, EnumSlot slot, @Nonnull List<ItemStack> cyberwaresToInstall)
 	{
-		while (cyberware.size() > LibConstants.WARE_PER_SLOT)
+		while (cyberwaresToInstall.size() > LibConstants.WARE_PER_SLOT)
 		{
-			cyberware.remove(cyberware.size() - 1);
+			cyberwaresToInstall.remove(cyberwaresToInstall.size() - 1);
 		}
-		while (cyberware.size() < LibConstants.WARE_PER_SLOT)
+		while (cyberwaresToInstall.size() < LibConstants.WARE_PER_SLOT)
 		{
-			cyberware.add(ItemStack.EMPTY);
+			cyberwaresToInstall.add(ItemStack.EMPTY);
 		}
-		setInstalledCyberware(entity, slot, cyberware);
+		setInstalledCyberware(entityLivingBase, slot, cyberwaresToInstall);
 	}
 	
 	@Override
 	public void updateCapacity()
 	{
-		powerCap = 0;
+		power_capacity = 0;
 		specialBatteries = NonNullList.create();
 		activeItems = NonNullList.create();
 		hudjackItems = NonNullList.create();
-		hotkeys = new HashMap<Integer, ItemStack>();
+		hotkeys = new HashMap<>();
 		
 		for (EnumSlot slot : EnumSlot.values())
 		{
-			for (ItemStack wareStack : getInstalledCyberware(slot))
+			for (ItemStack itemStackCyberware : getInstalledCyberware(slot))
 			{
-				if (CyberwareAPI.isCyberware(wareStack))
+				if (CyberwareAPI.isCyberware(itemStackCyberware))
 				{
-					ICyberware ware = CyberwareAPI.getCyberware(wareStack);
+					ICyberware cyberware = CyberwareAPI.getCyberware(itemStackCyberware);
 					
-					if (ware instanceof IMenuItem && ((IMenuItem) ware).hasMenu(wareStack))
+					if ( cyberware instanceof IMenuItem
+					  && ((IMenuItem) cyberware).hasMenu(itemStackCyberware) )
 					{
-						this.activeItems.add(wareStack);
+						activeItems.add(itemStackCyberware);
 						
-						int hotkey = HotkeyHelper.getHotkey(wareStack);
+						int hotkey = HotkeyHelper.getHotkey(itemStackCyberware);
 						if (hotkey != -1)
 						{
-							hotkeys.put(hotkey, wareStack);
+							hotkeys.put(hotkey, itemStackCyberware);
 						}
 					}
 					
-					if (ware instanceof IHudjack)
+					if (cyberware instanceof IHudjack)
 					{
-						this.hudjackItems.add(wareStack);
+						hudjackItems.add(itemStackCyberware);
 					}
 					
-					if (ware instanceof ISpecialBattery)
+					if (cyberware instanceof ISpecialBattery)
 					{
-						this.specialBatteries.add(wareStack);
+						specialBatteries.add(itemStackCyberware);
 					}
 					else
 					{
-						powerCap += ware.getCapacity(wareStack);
+						power_capacity += cyberware.getCapacity(itemStackCyberware);
 					}
 				}
 			}
 		}
 		
-		storedPower = Math.min(storedPower, powerCap);
+		power_stored = Math.min(power_stored, power_capacity);
 	}
 	
 	@Override
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, NonNullList<ItemStack> cyberware)
+	public void setInstalledCyberware(EntityLivingBase entityLivingBase, EnumSlot slot, NonNullList<ItemStack> cyberwaresToInstall)
 	{
-		if (cyberware.size() != wares.get(slot.ordinal()).size())
+		if (cyberwaresToInstall.size() != cyberwaresBySlot.get(slot.ordinal()).size())
 		{
-			System.out.println("ERROR!");
+			System.out.println(String.format("ERROR: invalid cyberware size %d vs %d",
+			                                 cyberwaresToInstall.size(), cyberwaresBySlot.get(slot.ordinal()).size() ));
 		}
-		NonNullList<ItemStack> newWares = cyberware;
-		NonNullList<ItemStack> oldWares = wares.get(slot.ordinal());
+		NonNullList<ItemStack> cyberwaresInstalled = cyberwaresBySlot.get(slot.ordinal());
 		
-		if (entity != null)
+		if (entityLivingBase != null)
 		{
-			for (ItemStack oldWare : oldWares)
+			for (ItemStack itemStackInstalled : cyberwaresInstalled)
 			{
-				if (CyberwareAPI.isCyberware(oldWare))
+				if (!CyberwareAPI.isCyberware(itemStackInstalled)) continue;
+			
+				boolean found = false;
+				for (ItemStack itemStackToInstall : cyberwaresToInstall)
 				{
-					boolean found = false;
-					for (ItemStack newWare : newWares)
+					if ( CyberwareAPI.areCyberwareStacksEqual(itemStackToInstall, itemStackInstalled)
+					  && itemStackToInstall.getCount() == itemStackInstalled.getCount() )
 					{
-						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.getCount() == oldWare.getCount())
-						{
-							found = true;
-							break;
-						}
+						found = true;
+						break;
 					}
-					
-					if (!found)
-					{
-						
-						CyberwareAPI.getCyberware(oldWare).onRemoved(entity, oldWare);
-					}
+				}
+				
+				if (!found)
+				{
+					CyberwareAPI.getCyberware(itemStackInstalled).onRemoved(entityLivingBase, itemStackInstalled);
 				}
 			}
 			
-			for (ItemStack newWare : newWares)
+			for (ItemStack itemStackToInstall : cyberwaresToInstall)
 			{
-				if (CyberwareAPI.isCyberware(newWare))
+				if (!CyberwareAPI.isCyberware(itemStackToInstall)) continue;
+			
+				boolean found = false;
+				for (ItemStack oldWare : cyberwaresInstalled)
 				{
-					boolean found = false;
-					for (ItemStack oldWare : oldWares)
+					if ( CyberwareAPI.areCyberwareStacksEqual(itemStackToInstall, oldWare)
+					  && itemStackToInstall.getCount() == oldWare.getCount() )
 					{
-						if (CyberwareAPI.areCyberwareStacksEqual(newWare, oldWare) && newWare.getCount() == oldWare.getCount())
-						{
-							found = true;
-							break;
-						}
+						found = true;
+						break;
 					}
-					
-					if (!found)
-					{
-						
-						CyberwareAPI.getCyberware(newWare).onAdded(entity, newWare);
-					}
+				}
+				
+				if (!found)
+				{
+					CyberwareAPI.getCyberware(itemStackToInstall).onAdded(entityLivingBase, itemStackToInstall);
 				}
 			}
 		}
 		
-		wares.set(slot.ordinal(),cyberware);
+		cyberwaresBySlot.set(slot.ordinal(), cyberwaresToInstall);
 	}
 	
 	@Override
@@ -534,13 +488,13 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 	
 	@Override
-	public int getCyberwareRank(ItemStack cyberware)
+	public int getCyberwareRank(ItemStack cyberwareTemplate)
 	{
-		ItemStack cw = getCyberware(cyberware);
+		ItemStack cyberwareFound = getCyberware(cyberwareTemplate);
 		
-		if (!cw.isEmpty())
+		if (!cyberwareFound.isEmpty())
 		{
-			return cw.getCount();
+			return cyberwareFound.getCount();
 		}
 		
 		return 0;
@@ -549,12 +503,13 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public ItemStack getCyberware(ItemStack cyberware)
 	{
-		NonNullList<ItemStack> slotItems = getInstalledCyberware(CyberwareAPI.getCyberware(cyberware).getSlot(cyberware));
-		for (ItemStack item : slotItems)
+		for (ItemStack itemStack : getInstalledCyberware(CyberwareAPI.getCyberware(cyberware).getSlot(cyberware)))
 		{
-			if (!item.isEmpty() && item.getItem() == cyberware.getItem() && item.getItemDamage() == cyberware.getItemDamage())
+			if ( !itemStack.isEmpty()
+			  && itemStack.getItem() == cyberware.getItem()
+			  && itemStack.getItemDamage() == cyberware.getItemDamage() )
 			{
-				return item;
+				return itemStack;
 			}
 		}
 		return ItemStack.EMPTY;
@@ -563,154 +518,152 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public NBTTagCompound serializeNBT()
 	{
-		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList list = new NBTTagList();
+		NBTTagCompound tagCompound = new NBTTagCompound();
+		NBTTagList listSlots = new NBTTagList();
 		
 		for (EnumSlot slot : EnumSlot.values())
 		{
-			NBTTagList list2 = new NBTTagList();
+			NBTTagList listCyberwares = new NBTTagList();
 			for (ItemStack cyberware : getInstalledCyberware(slot))
 			{
-				NBTTagCompound temp = new NBTTagCompound();
+				NBTTagCompound tagCompoundCyberware = new NBTTagCompound();
 				if (!cyberware.isEmpty())
 				{
-					temp = cyberware.writeToNBT(temp);
+					cyberware.writeToNBT(tagCompoundCyberware);
 				}
-				list2.appendTag(temp);
+				listCyberwares.appendTag(tagCompoundCyberware);
 			}
-			list.appendTag(list2);
+			listSlots.appendTag(listCyberwares);
 		}
 		
-		compound.setTag("cyberware", list);
+		tagCompound.setTag("cyberware", listSlots);
 		
-		NBTTagList essentialList = new NBTTagList();
-		for (int i = 0; i < this.missingEssentials.length; i++)
-		{
-			essentialList.appendTag(new NBTTagByte((byte) (this.missingEssentials[i] ? 1 : 0)));
+		NBTTagList listEssentials = new NBTTagList();
+		for (boolean missingEssential : missingEssentials) {
+			listEssentials.appendTag(new NBTTagByte((byte) (missingEssential ? 1 : 0)));
 		}
-		compound.setTag("discard", essentialList);
-		compound.setTag("powerBuffer", writeMap(this.powerBuffer));
-		compound.setTag("powerBufferLast", writeMap(this.powerBufferLast));
-		compound.setInteger("powerCap", this.powerCap);
-		compound.setInteger("storedPower", this.storedPower);
-		compound.setInteger("missingEssence", missingEssence);
-		compound.setTag("hud", hudData);
-		compound.setInteger("color", hudColor);
-		compound.setBoolean("hasOpenedRadialMenu", hasOpenedRadialMenu);
-		return compound;
+		tagCompound.setTag("discard", listEssentials);
+		tagCompound.setTag("powerBuffer", serializeMap(power_buffer));
+		tagCompound.setTag("powerBufferLast", serializeMap(power_lastBuffer));
+		tagCompound.setInteger("powerCap", power_capacity);
+		tagCompound.setInteger("storedPower", power_stored);
+		tagCompound.setInteger("missingEssence", missingEssence);
+		tagCompound.setTag("hud", hudData);
+		tagCompound.setInteger("color", hudColor);
+		tagCompound.setBoolean("hasOpenedRadialMenu", hasOpenedRadialMenu);
+		return tagCompound;
 	}
 	
-	private NBTTagList writeMap(Map<ItemStack, Integer> map)
+	private NBTTagList serializeMap(@Nonnull Map<ItemStack, Integer> map)
 	{
-		NBTTagList list = new NBTTagList();
+		NBTTagList listMap = new NBTTagList();
 		
 		for (ItemStack stack : map.keySet())
 		{
-			NBTTagCompound temp = new NBTTagCompound();
-			NBTTagCompound item = new NBTTagCompound();
-			temp.setBoolean("null", stack.isEmpty());
+			NBTTagCompound tagCompoundEntry = new NBTTagCompound();
+			tagCompoundEntry.setBoolean("null", stack.isEmpty());
 			if (!stack.isEmpty())
 			{
-				stack.writeToNBT(item);
-				temp.setTag("item", item);
+				NBTTagCompound tagCompoundItem = new NBTTagCompound();
+				stack.writeToNBT(tagCompoundItem);
+				tagCompoundEntry.setTag("item", tagCompoundItem);
 			}
-			temp.setInteger("value", map.get(stack));
+			tagCompoundEntry.setInteger("value", map.get(stack));
 
-			list.appendTag(temp);
+			listMap.appendTag(tagCompoundEntry);
 		}
 		
-		return list;
+		return listMap;
 	}
 	
-	private Map<ItemStack, Integer> readMap(NBTTagList list)
+	private Map<ItemStack, Integer> deserializeMap(@Nonnull NBTTagList listMap)
 	{
-		Map<ItemStack, Integer> map = new HashMap<ItemStack, Integer>();
-		for (int i = 0; i < list.tagCount(); i++)
+		Map<ItemStack, Integer> map = new HashMap<>();
+		for (int index = 0; index < listMap.tagCount(); index++)
 		{
-			NBTTagCompound temp = list.getCompoundTagAt(i);
-			boolean isNull = temp.getBoolean("null");
+			NBTTagCompound tagCompoundEntry = listMap.getCompoundTagAt(index);
+			boolean isNull = tagCompoundEntry.getBoolean("null");
 			ItemStack stack = ItemStack.EMPTY;
 			if (!isNull)
 			{
-				stack = new ItemStack(temp.getCompoundTag("item"));
+				stack = new ItemStack(tagCompoundEntry.getCompoundTag("item"));
 			}
 			
-			map.put(stack, temp.getInteger("value"));
+			map.put(stack, tagCompoundEntry.getInteger("value"));
 		}
 		
 		return map;
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound tag)
+	public void deserializeNBT(NBTTagCompound tagCompound)
 	{
-		powerBuffer = readMap((NBTTagList) tag.getTag("powerBuffer"));
-		powerCap = tag.getInteger("powerCap");
-		powerBufferLast = readMap((NBTTagList) tag.getTag("powerBufferLast"));
-
-		storedPower = tag.getInteger("storedPower");
-		if (tag.hasKey("essence"))
+		power_buffer = deserializeMap(tagCompound.getTagList("powerBuffer", NBT.TAG_COMPOUND));
+		power_capacity = tagCompound.getInteger("powerCap");
+		power_lastBuffer = deserializeMap((NBTTagList) tagCompound.getTag("powerBufferLast"));
+		
+		power_stored = tagCompound.getInteger("storedPower");
+		if (tagCompound.hasKey("essence"))
 		{
-			missingEssence = getMaxEssence() - tag.getInteger("essence");
+			missingEssence = getMaxEssence() - tagCompound.getInteger("essence");
 		}
 		else
 		{
-			missingEssence = tag.getInteger("missingEssence");
+			missingEssence = tagCompound.getInteger("missingEssence");
 		}
-		hudData = tag.getCompoundTag("hud");
-		hasOpenedRadialMenu = tag.getBoolean("hasOpenedRadialMenu");
-		NBTTagList essentialList = (NBTTagList) tag.getTag("discard");
-		for (int i = 0; i < essentialList.tagCount(); i++)
+		hudData = tagCompound.getCompoundTag("hud");
+		hasOpenedRadialMenu = tagCompound.getBoolean("hasOpenedRadialMenu");
+		NBTTagList listEssentials = (NBTTagList) tagCompound.getTag("discard");
+		for (int i = 0; i < listEssentials.tagCount(); i++)
 		{
-			this.missingEssentials[i] = ((NBTTagByte) essentialList.get(i)).getByte() > 0;
+			missingEssentials[i] = ((NBTTagByte) listEssentials.get(i)).getByte() > 0;
 		}
 		
-		NBTTagList list = (NBTTagList) tag.getTag("cyberware");
-		for (int i = 0; i < list.tagCount(); i++)
+		NBTTagList listSlots = (NBTTagList) tagCompound.getTag("cyberware");
+		for (int indexBodySlot = 0; indexBodySlot < listSlots.tagCount(); indexBodySlot++)
 		{
-			EnumSlot slot = EnumSlot.values()[i];
+			EnumSlot slot = EnumSlot.values()[indexBodySlot];
 			
-			NBTTagList list2 = (NBTTagList) list.get(i);
-			NonNullList<ItemStack> cyberware = NonNullList.create();
-			for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
-				cyberware.add(ItemStack.EMPTY);
+			NBTTagList listCyberwares = (NBTTagList) listSlots.get(indexBodySlot);
+			NonNullList<ItemStack> nnlCyberwaresOfType = NonNullList.create();
+			for (int indexInventorySlot = 0; indexInventorySlot < LibConstants.WARE_PER_SLOT; indexInventorySlot++){
+				nnlCyberwaresOfType.add(ItemStack.EMPTY);
 			}
 
-			for (int j = 0; j < list2.tagCount() && j < cyberware.size(); j++)
+			int countInventorySlots = Math.min(listCyberwares.tagCount(), nnlCyberwaresOfType.size());
+			for (int indexInventorySlot = 0; indexInventorySlot < countInventorySlots; indexInventorySlot++)
 			{
-				
-				cyberware.set(j,new ItemStack(list2.getCompoundTagAt(j)));
+				nnlCyberwaresOfType.set(indexInventorySlot, new ItemStack(listCyberwares.getCompoundTagAt(indexInventorySlot)));
 			}
 			
-			setInstalledCyberware(null, slot, cyberware);
+			setInstalledCyberware(null, slot, nnlCyberwaresOfType);
 		}
 		
 		int color = 0x00FFFF;
 
-		if (tag.hasKey("color"))
+		if (tagCompound.hasKey("color"))
 		{
-			color = tag.getInteger("color");
+			color = tagCompound.getInteger("color");
 		}
-		this.setHudColor(color);
-
-
+		setHudColor(color);
+		
 		updateCapacity();
 	}
 	
 	private static class CyberwareUserDataStorage implements IStorage<ICyberwareUserData>
 	{
 		@Override
-		public NBTBase writeNBT(Capability<ICyberwareUserData> capability, ICyberwareUserData instance, EnumFacing side)
+		public NBTBase writeNBT(Capability<ICyberwareUserData> capability, ICyberwareUserData cyberwareUserData, EnumFacing side)
 		{
-			return instance.serializeNBT();
+			return cyberwareUserData.serializeNBT();
 		}
 
 		@Override
-		public void readNBT(Capability<ICyberwareUserData> capability, ICyberwareUserData instance, EnumFacing side, NBTBase nbt)
+		public void readNBT(Capability<ICyberwareUserData> capability, ICyberwareUserData cyberwareUserData, EnumFacing side, NBTBase nbt)
 		{
 			if (nbt instanceof NBTTagCompound)
 			{
-				instance.deserializeNBT((NBTTagCompound) nbt);
+				cyberwareUserData.deserializeNBT((NBTTagCompound) nbt);
 			}
 			else
 			{
@@ -723,20 +676,20 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	{
 		public static final ResourceLocation NAME = new ResourceLocation(Cyberware.MODID, "cyberware");
 		
-		private final ICyberwareUserData cap = new CyberwareUserDataImpl();
+		private final ICyberwareUserData cyberwareUserData = new CyberwareUserDataImpl();
 
 		@Override
-		public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+		public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing)
 		{
 			return capability == CyberwareAPI.CYBERWARE_CAPABILITY;
 		}
 
 		@Override
-		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+		public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing)
 		{
 			if (capability == CyberwareAPI.CYBERWARE_CAPABILITY)
 			{
-				return CyberwareAPI.CYBERWARE_CAPABILITY.cast(cap);
+				return CyberwareAPI.CYBERWARE_CAPABILITY.cast(cyberwareUserData);
 			}
 			
 			return null;
@@ -745,51 +698,50 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		@Override
 		public NBTTagCompound serializeNBT()
 		{
-			return cap.serializeNBT();
+			return cyberwareUserData.serializeNBT();
 		}
 
 		@Override
-		public void deserializeNBT(NBTTagCompound nbt)
+		public void deserializeNBT(NBTTagCompound tagCompound)
 		{
-			cap.deserializeNBT(nbt);
+			cyberwareUserData.deserializeNBT(tagCompound);
 		}
-		
 	}
 	
 	private void storePower(Map<ItemStack, Integer> map)
 	{
-		for (ItemStack item : this.specialBatteries)
+		for (ItemStack itemStackSpecialBattery : specialBatteries)
 		{
-			for (ItemStack key : map.keySet())
+			for (ItemStack itemStackBuffer : map.keySet())
 			{
-				ISpecialBattery battery = (ISpecialBattery) CyberwareAPI.getCyberware(item);
-				int keyAmount = map.get(key);
-				int amountTaken = battery.add(item, key, keyAmount, false);
-				map.put(key, keyAmount - amountTaken);
+				ISpecialBattery specialBattery = (ISpecialBattery) CyberwareAPI.getCyberware(itemStackSpecialBattery);
+				int amountBuffer = map.get(itemStackBuffer);
+				int amountTaken = specialBattery.add(itemStackSpecialBattery, itemStackBuffer, amountBuffer, false);
+				map.put(itemStackBuffer, amountBuffer - amountTaken);
 			}
 		}
-		this.storedPower = Math.min(this.powerCap, storedPower + addMap(map));
+		power_stored = Math.min(power_capacity, power_stored + ComputeSum(map));
 	}
 
 	@Override
 	public void resetBuffer()
 	{
 		canGiveOut = true;
-		storePower(powerBufferLast);
-		powerBufferLast = powerBuffer;
-		powerBuffer = new HashMap<ItemStack, Integer>();
-		this.isImmune = false;
-
-		lastCons = cons;
-		lastProd = prod;
-		prod = 0;
-		cons = 0;
+		storePower(power_lastBuffer);
+		power_lastBuffer = power_buffer;
+		power_buffer = new HashMap<>();
+		isImmune = false;
+		
+		power_lastConsumption = power_consumption;
+		power_lastProduction = power_production;
+		power_production = 0;
+		power_consumption = 0;
 	}
 
 	@Override
 	public void setImmune()
 	{
-		this.isImmune = true;
+		isImmune = true;
 	}
 	
 	private boolean isImmune = false;
@@ -806,7 +758,6 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	public int getMaxEssence()
 	{
 		return CyberwareConfig.ESSENCE;
-		//return maxEssence; TODO
 	}
 
 	@Override
@@ -817,21 +768,21 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 
 	@Override
-	public int getMaxTolerance(EntityLivingBase e)
+	public int getMaxTolerance(EntityLivingBase entityLivingBase)
 	{
-		return (int)e.getAttributeMap().getAttributeInstance(CyberwareAPI.TOLERANCE_ATTR).getAttributeValue();
+		return (int) entityLivingBase.getAttributeMap().getAttributeInstance(CyberwareAPI.TOLERANCE_ATTR).getAttributeValue();
 	}
 
 	@Override
-	public int getTolerance(EntityLivingBase e)
+	public int getTolerance(EntityLivingBase entityLivingBase)
 	{
-		return getMaxTolerance(e) - missingEssence;
+		return getMaxTolerance(entityLivingBase) - missingEssence;
 	}
 
 	@Override
-	public void setTolerance(EntityLivingBase e, int amt)
+	public void setTolerance(EntityLivingBase entityLivingBase, int amount)
 	{
-		missingEssence = getMaxTolerance(e) - amt;
+		missingEssence = getMaxTolerance(entityLivingBase) - amount;
 	}
 
 
@@ -857,10 +808,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public void removeHotkey(int i)
 	{
-		if (hotkeys.containsKey(i))
-		{
-			hotkeys.remove(i);
-		}
+		hotkeys.remove(i);
 	}
 
 	@Override
@@ -886,9 +834,9 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	}
 
 	@Override
-	public void setHudData(NBTTagCompound comp)
+	public void setHudData(NBTTagCompound tagCompound)
 	{
-		hudData = comp;
+		hudData = tagCompound;
 	}
 
 	@Override
@@ -947,12 +895,12 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	@Override
 	public int getProduction()
 	{
-		return lastProd;
+		return power_lastProduction;
 	}
 
 	@Override
  	public int getConsumption()
  	{
-		return lastCons;
+		return power_lastConsumption;
 	}
 }

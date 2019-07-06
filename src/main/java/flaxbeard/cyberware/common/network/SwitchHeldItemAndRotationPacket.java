@@ -72,7 +72,7 @@ public class SwitchHeldItemAndRotationPacket implements IMessage
 		}
 		
 		@Override
-		public Void call() throws Exception
+		public Void call()
 		{
 			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			

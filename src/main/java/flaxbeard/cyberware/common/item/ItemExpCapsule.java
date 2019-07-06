@@ -17,12 +17,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemExpCapsule extends Item
@@ -42,13 +42,13 @@ public class ItemExpCapsule extends Item
 	}
 	
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
 		if (this.isInCreativeTab(tab)) {
 			ItemStack stack = new ItemStack(this);
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("xp", 100);
-			stack.setTagCompound(compound);
+			NBTTagCompound tagCompound = new NBTTagCompound();
+			tagCompound.setInteger("xp", 100);
+			stack.setTagCompound(tagCompound);
 			list.add(stack);
 		}
 	}
@@ -58,30 +58,31 @@ public class ItemExpCapsule extends Item
 	{
 		return true;
 	}
-
+	
+	@Nonnull
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer playerIn, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer entityPlayer, @Nonnull EnumHand hand)
 	{
-		ItemStack stack = playerIn.getHeldItem(hand);
+		ItemStack stack = entityPlayer.getHeldItem(hand);
 
 		int xp = 0;
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound c = stack.getTagCompound();
-			if (c.hasKey("xp"))
+			if (tagCompound.hasKey("xp"))
 			{
-				xp = c.getInteger("xp");
+				xp = tagCompound.getInteger("xp");
 			}
 		}
 
-		if (!playerIn.capabilities.isCreativeMode)
+		if (!entityPlayer.capabilities.isCreativeMode)
 		{
 			stack.shrink(1);
 		}
 
-		playerIn.addExperience(xp);
+		entityPlayer.addExperience(xp);
 
-		return new ActionResult(EnumActionResult.SUCCESS, stack);
+		return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 	}
 
 	@Override
@@ -89,16 +90,16 @@ public class ItemExpCapsule extends Item
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		int xp = 0;
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound c = stack.getTagCompound();
-			if (c.hasKey("xp"))
+			if (tagCompound.hasKey("xp"))
 			{
-				xp = c.getInteger("xp");
+				xp = tagCompound.getInteger("xp");
 			}
 		}
 		String before = I18n.format("cyberware.tooltip.exp_capsule.before");
-		if (before.length() > 0) before = before += " ";
+		if (before.length() > 0) before += " ";
 		
 		String after = I18n.format("cyberware.tooltip.exp_capsule.after");
 		if (after.length() > 0) after = " " + after;

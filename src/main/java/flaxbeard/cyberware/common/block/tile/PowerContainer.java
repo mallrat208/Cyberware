@@ -41,12 +41,12 @@ public class PowerContainer implements ITeslaConsumer, ITeslaHolder, ITeslaProdu
 	}
 	
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
+	public void deserializeNBT(NBTTagCompound tagCompound)
 	{
-		this.stored = nbt.getLong("power");
-		this.capacity = nbt.getLong("capacity");
-		this.inputRate = nbt.getLong("input");
-		this.outputRate = nbt.getLong("output");
+		this.stored = tagCompound.getLong("power");
+		this.capacity = tagCompound.getLong("capacity");
+		this.inputRate = tagCompound.getLong("input");
+		this.outputRate = tagCompound.getLong("output");
 			
 		if (this.stored > this.getCapacity())
 		{

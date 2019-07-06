@@ -20,6 +20,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -29,64 +30,72 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 public class ItemSkinUpgrade extends ItemCyberware
 {
 
+	public static final int META_SOLARSKIN              = 0;
+	public static final int META_SUBDERMAL_SPIKES       = 1;
+	public static final int META_SYNTHETIC_SKIN         = 2;
+	public static final int META_IMMUNOSUPPRESSANT      = 3;
+	
 	public ItemSkinUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+        if (entityLivingBase == null) return;
 
-        if (e == null)
-            return;
-
-		ItemStack test = new ItemStack(this, 1, 0);
-		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
+		ItemStack test = new ItemStack(this, 1, META_SOLARSKIN);
+		if ( entityLivingBase.ticksExisted % 20 == 0
+		  && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test) )
 		{
-			if (e.world.canBlockSeeSky(new BlockPos((int) e.posX,(int) (e.posY + e.height),(int) e.posZ)))
+			if (entityLivingBase.world.canBlockSeeSky(new BlockPos(entityLivingBase.posX, entityLivingBase.posY + entityLivingBase.height, entityLivingBase.posZ)))
 			{
-				CyberwareAPI.getCapability(e).addPower(getPowerProduction(test), test);
+				CyberwareAPI.getCapability(entityLivingBase).addPower(getPowerProduction(test), test);
 			}
 		}
 	}
 	
-	private Set<UUID> lastImmuno = new HashSet<>();
-	private static Map<UUID, Collection<PotionEffect>> potions = new HashMap<UUID, Collection<PotionEffect>>();
+	private Set<UUID> setIsImmunosuppressantPowered = new HashSet<>();
+	private static Map<UUID, Collection<PotionEffect>> mapPotions = new HashMap<>();
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-		if (e == null)
-			return;
-
-		ItemStack test = new ItemStack(this, 1, 3);
-		if (CyberwareAPI.isCyberwareInstalled(e, test))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase == null) return;
+		
+		ItemStack itemStackImmunosuppressant = new ItemStack(this, 1, META_IMMUNOSUPPRESSANT);
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackImmunosuppressant))
 		{
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastImmuno.contains(e.getUniqueID());
+			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
+			                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackImmunosuppressant, getPowerConsumption(itemStackImmunosuppressant))
+			                  : setIsImmunosuppressantPowered.contains(entityLivingBase.getUniqueID());
 			
-			if (!powerUsed && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
+			if ( !isPowered
+			  && entityLivingBase instanceof EntityPlayer
+			  && entityLivingBase.ticksExisted % 100 == 0
+			  && !entityLivingBase.isPotionActive(CyberwareContent.neuropozyneEffect) )
 			{
-				e.attackEntityFrom(EssentialsMissingHandler.lowessence, 2F);
+				entityLivingBase.attackEntityFrom(EssentialsMissingHandler.lowessence, 2F);
 			}
 			
-			if (potions.containsKey(e.getUniqueID()))
+			if (mapPotions.containsKey(entityLivingBase.getUniqueID()))
 			{
-				Collection<PotionEffect> potionsLastActive = potions.get(e.getUniqueID());
-				Collection<PotionEffect> currentEffects = e.getActivePotionEffects();
-				for (PotionEffect cE : currentEffects)
+				Collection<PotionEffect> potionsLastActive = mapPotions.get(entityLivingBase.getUniqueID());
+				Collection<PotionEffect> currentEffects = entityLivingBase.getActivePotionEffects();
+				for (PotionEffect potionEffectCurrent : currentEffects)
 				{
-					if (cE.getPotion() == MobEffects.POISON || cE.getPotion() == MobEffects.HUNGER)
+					if ( potionEffectCurrent.getPotion() == MobEffects.POISON
+					  || potionEffectCurrent.getPotion() == MobEffects.HUNGER )
 					{
 						boolean found = false;
-						for (PotionEffect lE : potionsLastActive)
+						for (PotionEffect potionEffectLast : potionsLastActive)
 						{
-							if (lE.getPotion() == cE.getPotion() && lE.getAmplifier() == cE.getAmplifier())
+							if ( potionEffectLast.getPotion() == potionEffectCurrent.getPotion()
+							  && potionEffectLast.getAmplifier() == potionEffectCurrent.getAmplifier() )
 							{
 								found = true;
 								break;
@@ -95,43 +104,51 @@ public class ItemSkinUpgrade extends ItemCyberware
 						
 						if (!found)
 						{
-							e.addPotionEffect(new PotionEffect(cE.getPotion(), (int) (cE.getDuration() * 1.8F), cE.getAmplifier(), cE.getIsAmbient(), cE.doesShowParticles()));
+							entityLivingBase.addPotionEffect(new PotionEffect(potionEffectCurrent.getPotion(),
+							                                                  (int) (potionEffectCurrent.getDuration() * 1.8F),
+							                                                  potionEffectCurrent.getAmplifier(),
+							                                                  potionEffectCurrent.getIsAmbient(),
+							                                                  potionEffectCurrent.doesShowParticles() ));
 						}
 					}
 				}
 			}
 			
-			if(powerUsed)
-				lastImmuno.add(e.getUniqueID());
+			if (isPowered)
+			{
+				setIsImmunosuppressantPowered.add(entityLivingBase.getUniqueID());
+			}
 			else
-				lastImmuno.remove(e.getUniqueID());
+			{
+				setIsImmunosuppressantPowered.remove(entityLivingBase.getUniqueID());
+			}
 			
-			potions.put(e.getUniqueID(), e.getActivePotionEffects());
+			mapPotions.put(entityLivingBase.getUniqueID(), entityLivingBase.getActivePotionEffects());
 		}
 		else
 		{
-			lastImmuno.remove(e.getUniqueID());
-			potions.remove(e.getUniqueID());
+			setIsImmunosuppressantPowered.remove(entityLivingBase.getUniqueID());
+			mapPotions.remove(entityLivingBase.getUniqueID());
 		}
 	}
 	
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 3 ? LibConstants.IMMUNO_CONSUMPTION : 0;
+		return stack.getItemDamage() == META_IMMUNOSUPPRESSANT ? LibConstants.IMMUNO_CONSUMPTION : 0;
 	}
 	
-
 	@SubscribeEvent
 	public void handleHurt(LivingHurtEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 1)))
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_SUBDERMAL_SPIKES)))
 		{
-			if (event.getSource() instanceof EntityDamageSource && !(event.getSource() instanceof EntityDamageSourceIndirect))
+			if ( event.getSource() instanceof EntityDamageSource
+			  && !(event.getSource() instanceof EntityDamageSourceIndirect) )
 			{
-				for (ItemStack stack : e.getArmorInventoryList())
+				for (ItemStack stack : entityLivingBase.getArmorInventoryList())
 				{
 					if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
 					{
@@ -142,31 +159,29 @@ public class ItemSkinUpgrade extends ItemCyberware
 					}
 					else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
 					{
-						if (((ISpecialArmor) stack.getItem()).getProperties(e, stack, event.getSource(), event.getAmount(), 1).AbsorbRatio * 25D > 4)
+						if (((ISpecialArmor) stack.getItem()).getProperties(entityLivingBase, stack, event.getSource(), event.getAmount(), 1).AbsorbRatio * 25D > 4)
 						{
 							return;
 						}
 					}
 				}
 				
-				Random random = e.getRNG();
-				Entity attacker = ((EntityDamageSource) event.getSource()).getTrueSource();
-				int level = 2;
+				Random random = entityLivingBase.getRNG();
+				Entity attacker = event.getSource().getTrueSource();
 				if (EnchantmentThorns.shouldHit(3, random))
 				{
 					if (attacker != null)
 					{
-						attacker.attackEntityFrom(DamageSource.causeThornsDamage(e), (float) EnchantmentThorns.getDamage(2, random));
+						attacker.attackEntityFrom(DamageSource.causeThornsDamage(entityLivingBase), (float) EnchantmentThorns.getDamage(2, random));
 					}
 				}
 			}
 		}
 	}
 	
-	
 	@Override
 	public int getPowerProduction(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? LibConstants.SOLAR_PRODUCTION : 0;
+		return stack.getItemDamage() == META_SOLARSKIN ? LibConstants.SOLAR_PRODUCTION : 0;
 	}
 }

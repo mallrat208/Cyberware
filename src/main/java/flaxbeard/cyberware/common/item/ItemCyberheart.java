@@ -35,22 +35,21 @@ public class ItemCyberheart extends ItemCyberware
 	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void power(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		ItemStack test = new ItemStack(this);
-		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
+		if (entityLivingBase.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
 		{
-			if (!CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)))
+			if (!CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)))
 			{
-				e.attackEntityFrom(EssentialsMissingHandler.heartless, Integer.MAX_VALUE);
+				entityLivingBase.attackEntityFrom(EssentialsMissingHandler.heartless, Integer.MAX_VALUE);
 			}
 		}
 		
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this)))
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this)))
 		{
-			e.removePotionEffect(MobEffects.WEAKNESS);
+			entityLivingBase.removePotionEffect(MobEffects.WEAKNESS);
 		}
 	}
-	
 	
 	@Override
 	public int getPowerConsumption(ItemStack stack)

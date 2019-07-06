@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -62,228 +63,219 @@ public class EssentialsMissingHandler
 
 	public static final EssentialsMissingHandler INSTANCE = new EssentialsMissingHandler();
 
-	private static Map<Integer, Integer> timesLungs = new HashMap<Integer, Integer>();
+	private static Map<Integer, Integer> timesLungs = new HashMap<>();
 	
 	private static final UUID speedId = UUID.fromString("fe00fdea-5044-11e6-beb8-9e71128cae77");
 
-	private Map<Integer, Boolean> last = new HashMap<Integer, Boolean>();
-	private Map<Integer, Boolean> lastClient = new HashMap<Integer, Boolean>();
+	private Map<Integer, Boolean> last = new HashMap<>();
+	private Map<Integer, Boolean> lastClient = new HashMap<>();
 	
 	@SubscribeEvent
 	public void triggerCyberwareEvent(LivingUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-		if (e == null)
-			return;
-
-		if (CyberwareAPI.hasCapability(e))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			CyberwareUpdateEvent event2 = new CyberwareUpdateEvent(e);
+			CyberwareUpdateEvent event2 = new CyberwareUpdateEvent(entityLivingBase);
 			MinecraftForge.EVENT_BUS.post(event2);
 		}
 	}
-
+	
 	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase == null) return;
 
-		if (e == null)
-			return;
-
-		ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 		
-		if (e.ticksExisted % 20 == 0)
+		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			cyberware.resetBuffer();
+			cyberwareUserData.resetBuffer();
 		}
 		
-		if (!cyberware.hasEssential(EnumSlot.CRANIUM))
+		if (!cyberwareUserData.hasEssential(EnumSlot.CRANIUM))
 		{
-			e.attackEntityFrom(brainless, Integer.MAX_VALUE);
+			entityLivingBase.attackEntityFrom(brainless, Integer.MAX_VALUE);
 		}
 
-		if (cyberware.getTolerance(e) < CyberwareConfig.CRITICAL_ESSENCE && e instanceof EntityPlayer && e.ticksExisted % 100 == 0 && !e.isPotionActive(CyberwareContent.neuropozyneEffect))
+		if ( cyberwareUserData.getTolerance(entityLivingBase) < CyberwareConfig.CRITICAL_ESSENCE
+		  && entityLivingBase instanceof EntityPlayer
+		  && entityLivingBase.ticksExisted % 100 == 0
+		  && !entityLivingBase.isPotionActive(CyberwareContent.neuropozyneEffect) )
 		{
-			e.addPotionEffect(new PotionEffect(CyberwareContent.rejectionEffect, 110, 0, true, false));
-			e.attackEntityFrom(lowessence, 2F);
+			entityLivingBase.addPotionEffect(new PotionEffect(CyberwareContent.rejectionEffect, 110, 0, true, false));
+			entityLivingBase.attackEntityFrom(lowessence, 2F);
 		}
-					
+		
 		int numMissingLegs = 0;
 		int numMissingLegsVisible = 0;
-
-		if (cyberware.getTolerance(e) <= 0)
+		
+		if (cyberwareUserData.getTolerance(entityLivingBase) <= 0)
 		{
-			e.attackEntityFrom(noessence, Integer.MAX_VALUE);
+			entityLivingBase.attackEntityFrom(noessence, Integer.MAX_VALUE);
 		}
 		
-		if (!cyberware.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
+		if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
 		{
 			numMissingLegs++;
 			numMissingLegsVisible++;
 		}
-		if (!cyberware.hasEssential(EnumSlot.LEG, EnumSide.RIGHT))
+		if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.RIGHT))
 		{
 			numMissingLegs++;
 			numMissingLegsVisible++;
-
 		}
 		
-		ItemStack legLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
-		if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
+		ItemStack legLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG));
+		if ( !legLeft.isEmpty()
+		  && !ItemCyberlimb.isPowered(legLeft) )
 		{
 			numMissingLegs++;
 		}
 		
-		ItemStack legRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
-		if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
+		ItemStack legRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG));
+		if ( !legRight.isEmpty()
+		  && !ItemCyberlimb.isPowered(legRight) )
 		{
 			numMissingLegs++;
 		}
 		
-
-		if (e instanceof EntityPlayer)
+		if (entityLivingBase instanceof EntityPlayer)
 		{
-	
-			
 			if (numMissingLegsVisible == 2)
 			{
-				e.height = 1.8F - (10F / 16F);
-				((EntityPlayer) e).eyeHeight = ((EntityPlayer) e).getDefaultEyeHeight() - (10F / 16F);
-				AxisAlignedBB axisalignedbb = e.getEntityBoundingBox();
-				e.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)e.width, axisalignedbb.minY + (double)e.height, axisalignedbb.minZ + (double)e.width));
+				entityLivingBase.height = 1.8F - (10F / 16F);
+				((EntityPlayer) entityLivingBase).eyeHeight = ((EntityPlayer) entityLivingBase).getDefaultEyeHeight() - (10F / 16F);
+				AxisAlignedBB axisalignedbb = entityLivingBase.getEntityBoundingBox();
+				entityLivingBase.setEntityBoundingBox(new AxisAlignedBB(
+						axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ,
+						axisalignedbb.minX + entityLivingBase.width, axisalignedbb.minY + entityLivingBase.height, axisalignedbb.minZ + entityLivingBase.width));
 				
-				if (e.world.isRemote)
+				if (entityLivingBase.world.isRemote)
 				{
-					lastClient.put(e.getEntityId(), true);
+					lastClient.put(entityLivingBase.getEntityId(), true);
 				}
 				else
 				{
-					last.put(e.getEntityId(), true);
+					last.put(entityLivingBase.getEntityId(), true);
 				}
-
 			}
-			else if (last(e.world.isRemote, e))
+			else if (last(entityLivingBase.world.isRemote, entityLivingBase))
 			{
-				e.height = 1.8F;
-				((EntityPlayer) e).eyeHeight = ((EntityPlayer) e).getDefaultEyeHeight();
-				AxisAlignedBB axisalignedbb = e.getEntityBoundingBox();
-				e.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)e.width, axisalignedbb.minY + (double)e.height, axisalignedbb.minZ + (double)e.width));
+				entityLivingBase.height = 1.8F;
+				((EntityPlayer) entityLivingBase).eyeHeight = ((EntityPlayer) entityLivingBase).getDefaultEyeHeight();
+				AxisAlignedBB axisalignedbb = entityLivingBase.getEntityBoundingBox();
+				entityLivingBase.setEntityBoundingBox(new AxisAlignedBB(
+						axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ,
+						axisalignedbb.minX + entityLivingBase.width, axisalignedbb.minY + entityLivingBase.height, axisalignedbb.minZ + entityLivingBase.width ));
 				
-				if (e.world.isRemote)
+				if (entityLivingBase.world.isRemote)
 				{
-					lastClient.put(e.getEntityId(), false);
+					lastClient.put(entityLivingBase.getEntityId(), false);
 				}
 				else
 				{
-					last.put(e.getEntityId(), false);
+					last.put(entityLivingBase.getEntityId(), false);
 				}
 			}
 		}
 		
-		if (numMissingLegs >= 1 && e.onGround)
+		if ( numMissingLegs >= 1
+		  && entityLivingBase.onGround )
 		{
-
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 			
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			e.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
 
-			//e.moveEntity(e.lastTickPosX - e.posX, 0, e.lastTickPosZ - e.posZ);
+			//entityLivingBase.moveEntity(entityLivingBase.lastTickPosX - entityLivingBase.posX, 0, entityLivingBase.lastTickPosZ - entityLivingBase.posZ);
 		}
 		else
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 			
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			e.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 		
-		
-
-		if (!cyberware.hasEssential(EnumSlot.HEART))
+		if (!cyberwareUserData.hasEssential(EnumSlot.HEART))
 		{
-			e.attackEntityFrom(heartless, Integer.MAX_VALUE);
+			entityLivingBase.attackEntityFrom(heartless, Integer.MAX_VALUE);
 		}
 		
-		if (!cyberware.hasEssential(EnumSlot.BONE))
+		if (!cyberwareUserData.hasEssential(EnumSlot.BONE))
 		{
-			
-			e.attackEntityFrom(spineless, Integer.MAX_VALUE);
+			entityLivingBase.attackEntityFrom(spineless, Integer.MAX_VALUE);
 		}
 		
-		if (!cyberware.hasEssential(EnumSlot.MUSCLE))
+		if (!cyberwareUserData.hasEssential(EnumSlot.MUSCLE))
 		{
-			e.attackEntityFrom(nomuscles, Integer.MAX_VALUE);
+			entityLivingBase.attackEntityFrom(nomuscles, Integer.MAX_VALUE);
 		}
 		
-		
-		if (!cyberware.hasEssential(EnumSlot.LUNGS))
+		if (!cyberwareUserData.hasEssential(EnumSlot.LUNGS))
 		{
-			if (getLungsTime(e) >= 20)
+			if (getLungsTime(entityLivingBase) >= 20)
 			{
-				timesLungs.put(e.getEntityId(), e.ticksExisted);
-				e.attackEntityFrom(DamageSource.DROWN, 2F);
+				timesLungs.put(entityLivingBase.getEntityId(), entityLivingBase.ticksExisted);
+				entityLivingBase.attackEntityFrom(DamageSource.DROWN, 2F);
 			}
 		}
 		else
 		{
-			timesLungs.remove(e.getEntityId());
+			timesLungs.remove(entityLivingBase.getEntityId());
 		}
 	}
 	
-	private boolean last(boolean remote, EntityLivingBase e)
+	private boolean last(boolean remote, EntityLivingBase entityLivingBase)
 	{
 		if (remote)
 		{
-			if (!lastClient.containsKey(e.getEntityId()))
+			if (!lastClient.containsKey(entityLivingBase.getEntityId()))
 			{
-				lastClient.put(e.getEntityId(), false);
+				lastClient.put(entityLivingBase.getEntityId(), false);
 			}
-			return lastClient.get(e.getEntityId());
+			return lastClient.get(entityLivingBase.getEntityId());
 		}
 		else
 		{
-			if (!last.containsKey(e.getEntityId()))
+			if (!last.containsKey(entityLivingBase.getEntityId()))
 			{
-				last.put(e.getEntityId(), false);
+				last.put(entityLivingBase.getEntityId(), false);
 			}
-			return last.get(e.getEntityId());
+			return last.get(entityLivingBase.getEntityId());
 		}
 	}
 	
-
 	@SubscribeEvent
 	public void handleJump(LivingJumpEvent event)
 	{
-	    EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
+	    EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 
 			int numMissingLegs = 0;
 			
-			if (!cyberware.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
+			if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
 			{
 				numMissingLegs++;
 			}
-			if (!cyberware.hasEssential(EnumSlot.LEG, EnumSide.RIGHT))
+			if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.RIGHT))
 			{
 				numMissingLegs++;
 			}
 			
-			ItemStack legLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 2));
+			ItemStack legLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG));
 			if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
 			{
 				numMissingLegs++;
 			}
 			
-			ItemStack legRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 3));
+			ItemStack legRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG));
 			if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
 			{
 				numMissingLegs++;
@@ -291,93 +283,88 @@ public class EssentialsMissingHandler
 			
 			if (numMissingLegs == 2)
 			{
-				e.motionY = 0.2F;
+				entityLivingBase.motionY = 0.2F;
 			}
 		}
 	}
 		
-	private int getLungsTime(EntityLivingBase e)
+	private int getLungsTime(@Nonnull EntityLivingBase entityLivingBase)
 	{
-		if (!timesLungs.containsKey(e.getEntityId()))
-		{
-			timesLungs.put(e.getEntityId(), e.ticksExisted);
-		}
-		return e.ticksExisted - timesLungs.get(e.getEntityId());
+		Integer timeLungs = timesLungs.computeIfAbsent(entityLivingBase.getEntityId(), k -> entityLivingBase.ticksExisted);
+		return entityLivingBase.ticksExisted - timeLungs;
 	}
 	
-	private static Map<Integer, Integer> hunger = new HashMap<Integer, Integer>();
-	private static Map<Integer, Float> saturation = new HashMap<Integer, Float>();
+	private static Map<Integer, Integer> mapHunger = new HashMap<>();
+	private static Map<Integer, Float> mapSaturation = new HashMap<>();
 
 	@SubscribeEvent
 	public void handleEatFoodTick(LivingEntityUseItemEvent.Tick event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 
-        if (e == null)
-            return;
+        if (entityLivingBase == null) return;
 
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
+		if ( entityLivingBase instanceof EntityPlayer
+		  && CyberwareAPI.hasCapability(entityLivingBase)
+		  && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT )
 		{
-			EntityPlayer p = (EntityPlayer) e;
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			
-			if (!cyberware.hasEssential(EnumSlot.LOWER_ORGANS))
+			if (!cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
 			{
-				hunger.put(p.getEntityId(), p.getFoodStats().getFoodLevel());
-				saturation.put(p.getEntityId(), p.getFoodStats().getSaturationLevel());
+				mapHunger.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getFoodLevel());
+				mapSaturation.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getSaturationLevel());
 			}
 		}
 		else
 		{
-			hunger.remove(e.getEntityId());
-			saturation.remove(e.getEntityId());
+			mapHunger.remove(entityLivingBase.getEntityId());
+			mapSaturation.remove(entityLivingBase.getEntityId());
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleEatFoodEnd(LivingEntityUseItemEvent.Finish event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		ItemStack stack = event.getItem();
 
-        if (e == null)
-            return;
-
-		if (e instanceof EntityPlayer && CyberwareAPI.hasCapability(e) && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT)
+		if ( entityLivingBase instanceof EntityPlayer
+		  && CyberwareAPI.hasCapability(entityLivingBase)
+		  && !stack.isEmpty()
+		  && stack.getItem().getItemUseAction(stack) == EnumAction.EAT )
 		{
-			EntityPlayer p = (EntityPlayer) e;
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			
-			if (!cyberware.hasEssential(EnumSlot.LOWER_ORGANS))
+			if (!cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
 			{
-				int hungerVal = hunger.keySet().contains(p) ? hunger.get(p) : p.getFoodStats().getFoodLevel();
-				float satVal = saturation.keySet().contains(p) ? saturation.get(p) : p.getFoodStats().getSaturationLevel();
+				int hungerVal = mapHunger.keySet().contains(entityPlayer) ? mapHunger.get(entityPlayer) : entityPlayer.getFoodStats().getFoodLevel();
+				float satVal = mapSaturation.keySet().contains(entityPlayer) ? mapSaturation.get(entityPlayer) : entityPlayer.getFoodStats().getSaturationLevel();
 
-				p.getFoodStats().setFoodLevel(hungerVal);
-				p.getFoodStats().setFoodSaturationLevel(satVal);
+				entityPlayer.getFoodStats().setFoodLevel(hungerVal);
+				entityPlayer.getFoodStats().setFoodSaturationLevel(satVal);
 			}
 		}
 	}
 	
 	public static final ResourceLocation BLACK_PX = new ResourceLocation(Cyberware.MODID + ":textures/gui/blackpx.png");
 	
-	private boolean removedMove = false;
-
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void overlayPre(ClientTickEvent event)
 	{
-		if (event.phase == Phase.START && Minecraft.getMinecraft() != null && Minecraft.getMinecraft().player != null)
+		if ( event.phase == Phase.START
+		  && Minecraft.getMinecraft() != null
+		  && Minecraft.getMinecraft().player != null )
 		{
-			EntityPlayer e = Minecraft.getMinecraft().player;
+			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 
-            if (e == null)
-                return;
-
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			e.getAttributeMap().removeAttributeModifiers(multimap);
+			entityPlayer.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
 
@@ -387,21 +374,15 @@ public class EssentialsMissingHandler
 	{
 		if (event.getType() == ElementType.ALL)
 		{
-			EntityPlayer e = Minecraft.getMinecraft().player;
-
-            if (e == null)
-                return;
-
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			//e.getAttributeMap().removeAttributeModifiers(multimap);
+			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+            if (entityPlayer == null) return;
 			
-			
-			if (CyberwareAPI.hasCapability(e))
+			if (CyberwareAPI.hasCapability(entityPlayer))
 			{
-				ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
 				
-				if (!cyberware.hasEssential(EnumSlot.EYES) && !e.isCreative())
+				if ( !cyberwareUserData.hasEssential(EnumSlot.EYES)
+				  && !entityPlayer.isCreative() )
 				{
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
@@ -434,22 +415,17 @@ public class EssentialsMissingHandler
 		}
 	}
 	
-
 	@SubscribeEvent
 	public void handleMissingSkin(LivingHurtEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
-		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			
-			if (!cyberware.hasEssential(EnumSlot.SKIN))
-			{
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
+		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			
+			if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
+			{
 				if (!event.getSource().isUnblockable() || event.getSource() == DamageSource.FALL)
 				{
 					event.setAmount(event.getAmount() * 3F);
@@ -461,89 +437,77 @@ public class EssentialsMissingHandler
 	@SubscribeEvent
 	public void handleEntityInteract(PlayerInteractEvent.EntityInteract event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleRightClickBlock(PlayerInteractEvent.RightClickBlock event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleRightClickItem(PlayerInteractEvent.RightClickItem event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		if (CyberwareAPI.hasCapability(e))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		
+		if (CyberwareAPI.hasCapability(entityLivingBase))
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberware);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
 
-	private void processEvent(Event event, EnumHand hand, EntityPlayer p, ICyberwareUserData cyberware)
+	private void processEvent(Event event, EnumHand hand, EntityPlayer entityPlayer, ICyberwareUserData cyberwareUserData)
 	{
-		EnumHandSide mainHand = p.getPrimaryHand();
+		EnumHandSide mainHand = entityPlayer.getPrimaryHand();
 		EnumHandSide offHand = ((mainHand == EnumHandSide.LEFT) ? EnumHandSide.RIGHT : EnumHandSide.LEFT);
 		EnumSide correspondingMainHand = ((mainHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
 		EnumSide correspondingOffHand = ((offHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
 		
 		boolean leftUnpowered = false;
-		ItemStack armLeft = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 0));
+		ItemStack armLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM));
 		if (!armLeft.isEmpty() && !ItemCyberlimb.isPowered(armLeft))
 		{
 			leftUnpowered = true;
 		}
 		
 		boolean rightUnpowered = false;
-		ItemStack armRight = cyberware.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, 1));
+		ItemStack armRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM));
 		if (!armRight.isEmpty() && !ItemCyberlimb.isPowered(armRight))
 		{
 			rightUnpowered = true;
 		}
 
-		if (hand == EnumHand.MAIN_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingMainHand) || leftUnpowered))
+		if (hand == EnumHand.MAIN_HAND && (!cyberwareUserData.hasEssential(EnumSlot.ARM, correspondingMainHand) || leftUnpowered))
 		{
 			event.setCanceled(true);
 		}
-		else if (hand == EnumHand.OFF_HAND && (!cyberware.hasEssential(EnumSlot.ARM, correspondingOffHand) || rightUnpowered))
+		else if (hand == EnumHand.OFF_HAND && (!cyberwareUserData.hasEssential(EnumSlot.ARM, correspondingOffHand) || rightUnpowered))
 		{
 			event.setCanceled(true);
 		}

@@ -12,26 +12,25 @@ public class EnableDisableHelper
 	{
 		if (stack.isEmpty()) return false;
 
-		NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
-		if (!comp.hasKey(ENABLED_STR))
+		NBTTagCompound tagCompound = CyberwareAPI.getCyberwareNBT(stack);
+		if (!tagCompound.hasKey(ENABLED_STR))
 		{
 			return true;
 		}
 		
-		return comp.getBoolean(ENABLED_STR);
+		return tagCompound.getBoolean(ENABLED_STR);
 	}
 	
 	public static void toggle(ItemStack stack)
 	{
+		NBTTagCompound tagCompound = CyberwareAPI.getCyberwareNBT(stack);
 		if (isEnabled(stack))
 		{
-			NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
-			comp.setBoolean(ENABLED_STR, false);
+			tagCompound.setBoolean(ENABLED_STR, false);
 		}
 		else
 		{
-			NBTTagCompound comp = CyberwareAPI.getCyberwareNBT(stack);
-			comp.removeTag(ENABLED_STR);
+			tagCompound.removeTag(ENABLED_STR);
 		}
 	}
 	

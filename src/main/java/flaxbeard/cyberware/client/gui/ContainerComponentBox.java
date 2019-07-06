@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -86,33 +87,33 @@ public class ContainerComponentBox extends Container
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer playerIn)
+	public boolean canInteractWith(EntityPlayer entityPlayer)
 	{
-		return box == null ? playerIn.inventory.mainInventory.get(playerIn.inventory.currentItem) == item : this.box.isUseableByPlayer(playerIn);
+		return box == null ? entityPlayer.inventory.mainInventory.get(entityPlayer.inventory.currentItem) == item : this.box.isUseableByPlayer(entityPlayer);
 	}
 
-	public void onContainerClosed(EntityPlayer playerIn)
+	public void onContainerClosed(EntityPlayer entityPlayer)
 	{
-		super.onContainerClosed(playerIn);
+		super.onContainerClosed(entityPlayer);
 		
 		if (!item.isEmpty())
 		{
-			NBTTagCompound comp = slots.serializeNBT();
+			NBTTagCompound tagCompoundSlots = slots.serializeNBT();
 			if (!item.hasTagCompound())
 			{
 				item.setTagCompound(new NBTTagCompound());
 			}
-			item.getTagCompound().setTag("contents", comp);
+			item.getTagCompound().setTag("contents", tagCompoundSlots);
 		}
 	}
 	/**
 	 * Take a stack from the specified inventory slot.
 	 */
-	@Nullable
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
+	@Nonnull
+	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = (Slot)this.inventorySlots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack())
 		{

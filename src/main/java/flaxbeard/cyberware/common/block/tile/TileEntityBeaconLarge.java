@@ -70,7 +70,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 								ns ? xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 						
 						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
 								pos.getX() + .5F - (ns ? xOffset : 0), 
@@ -79,7 +79,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 								ns ? -xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : -xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 	
 						degrees += 5;
 					}
@@ -87,14 +87,13 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 			}
 		}
 	}
-
 	
 	private void disable()
 	{
 		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
 		if (map == null)
 		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
+			posForTier(TIER).put(world.provider.getDimension(), new HashMap<>());
 			map = posForTier(TIER).get(world.provider.getDimension());
 		}
 		if (map.containsKey(this.getPos()))
@@ -109,7 +108,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
 		if (map == null)
 		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
+			posForTier(TIER).put(world.provider.getDimension(), new HashMap<>());
 			map = posForTier(TIER).get(world.provider.getDimension());
 		}
 		if (!map.containsKey(this.getPos()))

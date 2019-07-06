@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class CyberwareHudEvent extends Event
 {
-	private List<IHudElement> elements = new ArrayList<IHudElement>();
+	private List<IHudElement> elements = new ArrayList<>();
 	private boolean hudjackAvailable;
 	private ScaledResolution scaledResolution;
 

@@ -21,69 +21,69 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 public class ItemBoneUpgrade extends ItemCyberware
 {
 
+	public static final int META_LACING                 = 0;
+	public static final int META_FLEX                   = 1;
+	public static final int META_BATTERY                = 2;
+	
 	public ItemBoneUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
 	private static final UUID healthId = UUID.fromString("8bce997a-4c3a-11e6-beb8-9e71128cae77");
 
 	@Override
-	public void onAdded(EntityLivingBase entity, ItemStack stack)
+	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_LACING)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 			
 			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
-			entity.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
 		}
 	}
 	
 	@Override
-	public void onRemoved(EntityLivingBase entity, ItemStack stack)
+	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_LACING)
 		{
-			//System.out.println("REMOVED0");
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
+			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
 			
 			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
-			entity.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleJoinWorld(EntityJoinWorldEvent event)
 	{
-		Entity e = event.getEntity();
+		Entity entity = event.getEntity();
 		
-		ItemStack test = new ItemStack(this, 1, 0);
-		if (e instanceof EntityLivingBase && CyberwareAPI.isCyberwareInstalled(e, test))
+		ItemStack test = new ItemStack(this, 1, META_LACING);
+		if (entity instanceof EntityLivingBase && CyberwareAPI.isCyberwareInstalled(entity, test))
 		{
-			this.onAdded((EntityLivingBase) e, CyberwareAPI.getCyberware(e, test));
+			this.onAdded((EntityLivingBase) entity, CyberwareAPI.getCyberware(entity, test));
 		}
-		else if (CyberwareAPI.hasCapability(e) && e instanceof EntityLivingBase)
+		else if (CyberwareAPI.hasCapability(entity) && entity instanceof EntityLivingBase)
 		{
-			this.onRemoved((EntityLivingBase) e, test);
+			this.onRemoved((EntityLivingBase) entity, test);
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleFallDamage(LivingHurtEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 1)))
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_FLEX)))
 		{
-
 			if (event.getSource() == DamageSource.FALL)
 			{
 				event.setAmount(event.getAmount() * .3333F);
 			}
-			
 		}
 	}
 	
@@ -95,20 +95,20 @@ public class ItemBoneUpgrade extends ItemCyberware
 	
 	public int getCapacity(ItemStack wareStack)
 	{
-		return wareStack.getItemDamage() == 2 ? LibConstants.BONE_BATTERY_CAPACITY * wareStack.getCount() : 0;
+		return wareStack.getItemDamage() == META_BATTERY ? LibConstants.BONE_BATTERY_CAPACITY * wareStack.getCount() : 0;
 	}
 	
 	@Override
 	public int installedStackSize(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? 5 : 
-			stack.getItemDamage() == 2 ? 4 : 1;
+		return stack.getItemDamage() == META_LACING ? 5
+		     : stack.getItemDamage() == META_BATTERY ? 4 : 1;
 	}
 	
 	@Override
 	protected int getUnmodifiedEssenceCost(ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_LACING)
 		{
 			switch (stack.getCount())
 			{
@@ -124,7 +124,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 					return 15;
 			}
 		}
-		if (stack.getItemDamage() == 2)
+		if (stack.getItemDamage() == META_BATTERY)
 		{
 			switch (stack.getCount())
 			{

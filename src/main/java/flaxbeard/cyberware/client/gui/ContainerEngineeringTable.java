@@ -2,6 +2,7 @@ package flaxbeard.cyberware.client.gui;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +34,7 @@ public class ContainerEngineeringTable extends Container
 		}
 		
 		@Override
-		public boolean canTakeStack(EntityPlayer playerIn)
+		public boolean canTakeStack(EntityPlayer entityPlayer)
 		{
 			return true;
 		}
@@ -51,12 +52,14 @@ public class ContainerEngineeringTable extends Container
 			}
 		}
 		
-		/*@Override
-		public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+		/*
+		@Override
+		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
 		{
-			super.onPickupFromSlot(playerIn, stack);
+			super.onPickupFromSlot(entityPlayer, stack);
 			engineering.markDirty();
-		}*/
+		}
+		*/
 		
 		@Override
 		public void putStack(@Nullable ItemStack stack)
@@ -88,12 +91,14 @@ public class ContainerEngineeringTable extends Container
 			seeIfCheckNewBox();
 		}
 		
-		/*@Override
-		public ItemStack onTake(EntityPlayer playerIn, ItemStack stack)
+		/*
+		@Override
+		public ItemStack onTake(EntityPlayer entityPlayer, ItemStack stack)
 		{
 			seeIfCheckNewBox();
-			return super.onTake(playerIn, stack);
-		}*/
+			return super.onTake(entityPlayer, stack);
+		}
+		*/
 		
 		@Override
 		public void putStack(ItemStack stack)
@@ -127,12 +132,14 @@ public class ContainerEngineeringTable extends Container
 			updateNBT();
 		}
 		
-		/*@Override
-		public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+		/*
+		@Override
+		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
 		{
-			super.onPickupFromSlot(playerIn, stack);
+			super.onPickupFromSlot(entityPlayer, stack);
 			updateNBT();
-		}*/
+		}
+		*/
 		
 		@Override
 		public void putStack(ItemStack stack)
@@ -148,12 +155,12 @@ public class ContainerEngineeringTable extends Container
 				ItemStack item = playerInv.mainInventory.get((Integer) componentBox);
 				if (!item.isEmpty() && item.getItem() == CyberwareContent.componentBox.ib)
 				{
-					NBTTagCompound comp = componentHandler.serializeNBT();
+					NBTTagCompound tagCompound = componentHandler.serializeNBT();
 					if (!item.hasTagCompound())
 					{
 						item.setTagCompound(new NBTTagCompound());
 					}
-					item.getTagCompound().setTag("contents", comp);
+					item.getTagCompound().setTag("contents", tagCompound);
 				}
 			}
 		}
@@ -163,10 +170,10 @@ public class ContainerEngineeringTable extends Container
 	private final TileEntityEngineeringTable engineering;
 	public TileEntityBlueprintArchive archive;
 	public int archiveIndex = 0;
-	public ArrayList<TileEntityBlueprintArchive> archiveList = new ArrayList<TileEntityBlueprintArchive>();
+	public ArrayList<TileEntityBlueprintArchive> archiveList = new ArrayList<>();
 	
 	public Object componentBox;
-	public ArrayList<Object> componentBoxList = new ArrayList<Object>();
+	public ArrayList<Object> componentBoxList = new ArrayList<>();
 	public int componentBoxIndex = 0;
 	
 	ItemStackHandler componentHandler = null;
@@ -319,7 +326,7 @@ public class ContainerEngineeringTable extends Container
 	}
 	
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn)
+	public boolean canInteractWith(EntityPlayer entityPlayer)
 	{
 		while (archive != null && archive.getWorld().getTileEntity(archive.getPos()) != archive)
 		{
@@ -372,15 +379,15 @@ public class ContainerEngineeringTable extends Container
 				this.nextComponentBox();
 			}
 		}
-		return playerIn == null ? false : engineering.isUseableByPlayer(playerIn);
+		return entityPlayer == null ? false : engineering.isUseableByPlayer(entityPlayer);
 	}
 
 
-	@Nullable
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
+	@Nonnull
+	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = (Slot)this.inventorySlots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 		boolean doUpdate = false;
 		
 		int componentLow = (this.archive == null ? 46 : 64);
@@ -486,7 +493,7 @@ public class ContainerEngineeringTable extends Container
 				return ItemStack.EMPTY;
 			}
 
-			slot.onTake(playerIn, itemstack1);
+			slot.onTake(entityPlayer, itemstack1);
 		}
 		
 		if (doUpdate)
@@ -620,9 +627,9 @@ public class ContainerEngineeringTable extends Container
 	}
 	
 	@Override
-	public void onContainerClosed(EntityPlayer playerIn)
+	public void onContainerClosed(EntityPlayer entityPlayer)
 	{
-		super.onContainerClosed(playerIn);
+		super.onContainerClosed(entityPlayer);
 		handleClosingBox();
 	}
 	

@@ -10,12 +10,10 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 public class CyberwareSurgeryEvent extends EntityEvent
 {
-	private final EntityLivingBase entityLiving;
 	
-	public CyberwareSurgeryEvent(EntityLivingBase entity)
+	public CyberwareSurgeryEvent(EntityLivingBase entityLivingBase)
 	{
-		super(entity);
-		entityLiving = entity;
+		super(entityLivingBase);
 	}
 	
 	/**
@@ -25,17 +23,19 @@ public class CyberwareSurgeryEvent extends EntityEvent
 	@Cancelable
 	public static class Pre extends CyberwareSurgeryEvent
 	{
-		public Pre(EntityLivingBase entity)
+		public Pre(EntityLivingBase entityLivingBase)
 		{
-			super(entity);
-			if (isAndroid(entity)){
+			super(entityLivingBase);
+			if (isAndroid(entityLivingBase)){
 				setCanceled(true);
 			}
 		}
 
-		private boolean isAndroid(EntityLivingBase entity){
-			if (CyberwareConfig.INT_MATTER_OVERDRIVE && Loader.isModLoaded("matteroverdrive") && entity instanceof EntityPlayer){
-				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entity);
+		private boolean isAndroid(EntityLivingBase entityLivingBase){
+			if ( CyberwareConfig.INT_MATTER_OVERDRIVE
+			  && Loader.isModLoaded("matteroverdrive")
+			  && entityLivingBase instanceof EntityPlayer ){
+				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entityLivingBase);
 			}
 			return false;
 		}
@@ -46,10 +46,9 @@ public class CyberwareSurgeryEvent extends EntityEvent
 	 */
 	public static class Post extends CyberwareSurgeryEvent
 	{
-		
-		public Post(EntityLivingBase entity)
+		public Post(EntityLivingBase entityLivingBase)
 		{
-			super(entity);
+			super(entityLivingBase);
 		}
 	}
 }

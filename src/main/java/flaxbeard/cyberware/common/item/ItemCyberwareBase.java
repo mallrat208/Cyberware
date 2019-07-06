@@ -1,17 +1,14 @@
 package flaxbeard.cyberware.common.item;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
 import flaxbeard.cyberware.Cyberware;
-import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
-import flaxbeard.cyberware.api.item.ICyberwareTabItem;
 import flaxbeard.cyberware.common.CyberwareContent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ItemCyberwareBase extends Item
 {
@@ -33,6 +30,7 @@ public class ItemCyberwareBase extends Item
         CyberwareContent.items.add(this);
 	}
 	
+	@Nonnull
 	@Override
 	public String getUnlocalizedName(ItemStack itemstack)
 	{
@@ -45,7 +43,7 @@ public class ItemCyberwareBase extends Item
 	}
 	
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
 		if (this.isInCreativeTab(tab)) {
 			if (subnames.length == 0)

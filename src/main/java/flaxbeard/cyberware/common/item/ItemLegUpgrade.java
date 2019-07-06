@@ -18,44 +18,46 @@ import flaxbeard.cyberware.common.misc.NNLUtil;
 public class ItemLegUpgrade extends ItemCyberware
 {
 
+	private static final int META_JUMP_BOOST            = 0;
+	private static final int META_FALL_DAMAGE           = 1;
+	
 	public ItemLegUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
 	@Override
 	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{		
 		return NNLUtil.fromArray(new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, 2), new ItemStack(CyberwareContent.cyberlimbs, 1, 3) }});
+				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG),
+				                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
 	}
-	
 	
 	@SubscribeEvent
 	public void playerJumps(LivingEvent.LivingJumpEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		ItemStack test = new ItemStack(this, 1, 0);
-		if (CyberwareAPI.isCyberwareInstalled(e, test))
+		ItemStack test = new ItemStack(this, 1, META_JUMP_BOOST);
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
 		{
 			int numLegs = 0;
-			if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 2)))
+			if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
-			if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(CyberwareContent.cyberlimbs, 1, 3)))
+			if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
-			ICyberwareUserData ware = CyberwareAPI.getCapability(e);
-			if (ware.usePower(test, this.getPowerConsumption(test)))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			if (cyberwareUserData.usePower(test, this.getPowerConsumption(test)))
 			{
-				if (e.isSneaking())
+				if (entityLivingBase.isSneaking())
 				{
-					Vec3d vector = e.getLook(0.5F);
+					Vec3d vector = entityLivingBase.getLook(0.5F);
 					double total = Math.abs(vector.z + vector.x);
 					double jump = 0;
 					if (jump >= 1)
@@ -65,13 +67,13 @@ public class ItemLegUpgrade extends ItemCyberware
 
 					double y = vector.y < total ? total : vector.y;
 
-					e.motionY += (numLegs * ((jump + 1) * y)) / 3F;
-					e.motionZ += (jump + 1) * vector.z * numLegs;
-					e.motionX += (jump + 1) * vector.x * numLegs;
+					entityLivingBase.motionY += (numLegs * ((jump + 1) * y)) / 3F;
+					entityLivingBase.motionZ += (jump + 1) * vector.z * numLegs;
+					entityLivingBase.motionX += (jump + 1) * vector.x * numLegs;
 				}
 				else
 				{
-					e.motionY += numLegs * (0.2750000059604645D / 2D);
+					entityLivingBase.motionY += numLegs * (0.2750000059604645D / 2D);
 				}
 			}
 		}
@@ -80,10 +82,12 @@ public class ItemLegUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void onFallDamage(LivingAttackEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		ItemStack test = new ItemStack(this, 1, 1);
-		if (event.getSource() == DamageSource.FALL && event.getAmount() <= 6F && CyberwareAPI.isCyberwareInstalled(e, test))
+		ItemStack test = new ItemStack(this, 1, META_FALL_DAMAGE);
+		if ( event.getSource() == DamageSource.FALL
+		  && event.getAmount() <= 6F
+		  && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test) )
 		{
 			event.setCanceled(true);
 		}
@@ -92,6 +96,6 @@ public class ItemLegUpgrade extends ItemCyberware
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? LibConstants.JUMPBOOST_CONSUMPTION : 0;
+		return stack.getItemDamage() == META_JUMP_BOOST ? LibConstants.JUMPBOOST_CONSUMPTION : 0;
 	}
 }
