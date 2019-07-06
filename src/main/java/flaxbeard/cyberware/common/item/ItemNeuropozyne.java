@@ -29,7 +29,7 @@ public class ItemNeuropozyne extends Item
     {
         this.setRegistryName(name);
         ForgeRegistries.ITEMS.register(this);
-        this.setUnlocalizedName(Cyberware.MODID + "." + name);
+        this.setTranslationKey(Cyberware.MODID + "." + name);
 
         this.setCreativeTab(Cyberware.creativeTab);
 

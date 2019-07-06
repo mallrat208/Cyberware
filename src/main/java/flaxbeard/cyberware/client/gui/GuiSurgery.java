@@ -1520,7 +1520,7 @@ public class GuiSurgery extends GuiContainer
 		{
 			if (i == 0)
 			{
-				list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+				list.set(i, stack.getRarity().getColor() + list.get(i));
 			}
 			else
 			{

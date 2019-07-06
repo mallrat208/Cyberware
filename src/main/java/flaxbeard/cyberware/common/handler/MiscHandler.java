@@ -71,7 +71,7 @@ public class MiscHandler
 							{
 								toAdd += " " + I18n.format("cyberware.tooltip.joiner_or") + " ";
 							}
-							toAdd += I18n.format(reqs.get(i).get(j).getUnlocalizedName() + ".name");
+							toAdd += I18n.format(reqs.get(i).get(j).getTranslationKey() + ".name");
 							
 						}
 						

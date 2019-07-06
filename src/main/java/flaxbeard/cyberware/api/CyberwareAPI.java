@@ -180,7 +180,7 @@ public final class CyberwareAPI
 			{
 				tagCompound.removeTag(DATA_TAG);
 			}
-			if (tagCompound != null && tagCompound.hasNoTags())
+			if (tagCompound != null && tagCompound.isEmpty())
 			{
 				stack.setTagCompound(null);
 			}

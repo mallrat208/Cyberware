@@ -62,8 +62,8 @@ public class BlockEngineeringTable extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
-		ib.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
+		ib.setTranslationKey(Cyberware.MODID + "." + name);
 
 		ib.setCreativeTab(Cyberware.creativeTab);
 		
@@ -242,7 +242,7 @@ public class BlockEngineeringTable extends BlockContainer
 	{
 		return this.getDefaultState()
 				.withProperty(HALF, (meta & 1) > 0 ? EnumEngineeringHalf.UPPER : EnumEngineeringHalf.LOWER)
-				.withProperty(FACING, EnumFacing.getHorizontal(meta >> 1));
+				.withProperty(FACING, EnumFacing.byHorizontalIndex(meta >> 1));
 	}
 	
 	@Override
@@ -269,7 +269,7 @@ public class BlockEngineeringTable extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public EnumPushReaction getMobilityFlag(IBlockState state)
+	public EnumPushReaction getPushReaction(IBlockState state)
 	{
 		return EnumPushReaction.DESTROY;
 	}

@@ -83,7 +83,7 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		
 		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		setUnlocalizedName(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
 		
 		setCreativeTab(Cyberware.creativeTab);
 		

@@ -360,7 +360,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 			if (!stack.isEmpty() && stack.hasTagCompound())
 			{
 				stack.getTagCompound().removeTag(CyberwareAPI.QUALITY_TAG);
-				if (stack.getTagCompound().hasNoTags())
+				if (stack.getTagCompound().isEmpty())
 				{
 					stack.setTagCompound(null);
 				}

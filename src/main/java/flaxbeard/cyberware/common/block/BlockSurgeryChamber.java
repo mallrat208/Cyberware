@@ -67,8 +67,8 @@ public class BlockSurgeryChamber extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
-		ib.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
+		ib.setTranslationKey(Cyberware.MODID + "." + name);
 
 		ib.setCreativeTab(Cyberware.creativeTab);
 		
@@ -247,7 +247,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public EnumPushReaction getMobilityFlag(IBlockState state)
+	public EnumPushReaction getPushReaction(IBlockState state)
 	{
 		return EnumPushReaction.DESTROY;
 	}
@@ -260,7 +260,7 @@ public class BlockSurgeryChamber extends BlockContainer
 		return this.getDefaultState()
 				.withProperty(HALF, (meta & 1) > 0 ? EnumChamberHalf.UPPER : EnumChamberHalf.LOWER)
 				.withProperty(OPEN, (meta & 2) > 0)
-				.withProperty(FACING, EnumFacing.getHorizontal(meta >> 2));
+				.withProperty(FACING, EnumFacing.byHorizontalIndex(meta >> 2));
 	}
 	
 	@Override

@@ -12,7 +12,7 @@ public class ItemSurgeryTable extends Item
 		
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
         this.setMaxDamage(0);
         
 		this.setCreativeTab(Cyberware.creativeTab);
@@ -43,7 +43,7 @@ public class ItemSurgeryTable extends Item
 			}
 
 			int i = MathHelper.floor_double((entityPlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-			EnumFacing enumfacing = EnumFacing.getHorizontal(i);
+			EnumFacing enumfacing = EnumFacing.byHorizontalIndex(i);
 			BlockPos blockpos = pos.offset(enumfacing);
 
 			if (entityPlayer.canPlayerEdit(pos, facing, stack) && entityPlayer.canPlayerEdit(blockpos, facing, stack))

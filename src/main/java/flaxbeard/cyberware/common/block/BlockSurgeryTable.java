@@ -34,7 +34,7 @@ public class BlockSurgeryTable extends BlockBed
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
 		GameRegistry.registerTileEntity(TileEntitySurgery.class, new ResourceLocation(Cyberware.MODID, name));
 		

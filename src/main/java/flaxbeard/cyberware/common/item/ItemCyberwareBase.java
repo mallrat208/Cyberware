@@ -18,7 +18,7 @@ public class ItemCyberwareBase extends Item
 	{
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
         
 		this.setCreativeTab(Cyberware.creativeTab);
 				
@@ -32,14 +32,14 @@ public class ItemCyberwareBase extends Item
 	
 	@Nonnull
 	@Override
-	public String getUnlocalizedName(ItemStack itemstack)
+	public String getTranslationKey(ItemStack itemstack)
 	{
 		int damage = itemstack.getItemDamage();
 		if (damage >= subnames.length)
 		{
-			return super.getUnlocalizedName();
+			return super.getTranslationKey();
 		}
-		return super.getUnlocalizedName(itemstack) + "." + subnames[damage];
+		return super.getTranslationKey(itemstack) + "." + subnames[damage];
 	}
 	
 	@Override

@@ -206,7 +206,7 @@ public class RenderCyberlimbHand
 	
 	private boolean isBlockTranslucent(@Nullable Block blockIn)
 	{
-		return blockIn != null && blockIn.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+		return blockIn != null && blockIn.getRenderLayer() == BlockRenderLayer.TRANSLUCENT;
 	}
 	
 	private void renderMapFirstPersonSide(float p_187465_1_, EnumHandSide p_187465_2_, float p_187465_3_, ItemStack p_187465_4_)

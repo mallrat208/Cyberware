@@ -37,7 +37,7 @@ public class BlockCharger extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
 		this.setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityCharger.class, new ResourceLocation(Cyberware.MODID, name));

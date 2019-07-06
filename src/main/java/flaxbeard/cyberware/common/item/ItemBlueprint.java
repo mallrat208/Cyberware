@@ -33,7 +33,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 	{
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);
 				

@@ -50,7 +50,7 @@ public class BlockBlueprintArchive extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
 		this.setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityBlueprintArchive.class, new ResourceLocation(Cyberware.MODID, name));
@@ -103,7 +103,7 @@ public class BlockBlueprintArchive extends BlockContainer
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		EnumFacing enumfacing = EnumFacing.getFront(meta);
+		EnumFacing enumfacing = EnumFacing.byIndex(meta);
 
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
@@ -116,7 +116,7 @@ public class BlockBlueprintArchive extends BlockContainer
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return ((EnumFacing)state.getValue(FACING)).getIndex();
+		return state.getValue(FACING).getIndex();
 	}
 	
 	@SuppressWarnings("deprecation")

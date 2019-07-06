@@ -151,7 +151,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
             IBlockState state = event.getState();
             ItemStack tool = entityPlayer.getHeldItem(EnumHand.MAIN_HAND);
 
-            if (!tool.isEmpty() && (tool.getItem() instanceof ItemSword || tool.getItem().getUnlocalizedName().contains("sword"))) return;
+            if (!tool.isEmpty() && (tool.getItem() instanceof ItemSword || tool.getItem().getTranslationKey().contains("sword"))) return;
 
             if (isToolEffective(tool, state)) return;
 

@@ -30,13 +30,7 @@ public class TabCyberware extends CreativeTabs
 	
 	@Nonnull
 	@Override
-	public ItemStack getTabIconItem()
-	{
-		return ItemStack.EMPTY;
-	}
-	@Override
-	public ItemStack getIconItemStack()
-	{
+	public ItemStack createIcon() {
 		return new ItemStack(CyberwareContent.cybereyes);
 	}
 	
