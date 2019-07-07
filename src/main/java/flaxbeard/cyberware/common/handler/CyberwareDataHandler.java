@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -17,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
@@ -188,7 +190,12 @@ public class CyberwareDataHandler
 		if ( entityLiving instanceof EntityPigZombie
 		  || !(entityLiving instanceof EntityZombie) )
 		{
-			return;
+			final ResourceLocation resourceLocation = EntityList.getKey(entityLiving);
+			if ( resourceLocation == null
+			     || !resourceLocation.getPath().contains("ombie") )
+			{
+				return;
+			}
 		}
 		
 		if ( !CyberwareConfig.NO_ZOMBIES
@@ -214,8 +221,10 @@ public class CyberwareDataHandler
 					event.getWorld().spawnEntity(entityCyberZombie);
 					entityLiving.deathTime = 19;
 					entityLiving.setHealth(0F);
+					
+					// continue processing to get a chance for clothing
+					entityLiving = entityCyberZombie;
 				}
-				return;
 			}
 		}
 		
@@ -234,7 +243,7 @@ public class CyberwareDataHandler
 					entityLiving.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(CyberwareContent.shades2));
 				}
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, .5F);
+				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, CyberwareConfig.DROP_RARITY / 100F);
 			}
 			
 			float chestRand = entityLiving.world.rand.nextFloat();
@@ -255,7 +264,7 @@ public class CyberwareDataHandler
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, .5F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
 			}
 			else if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()
 			       && chestRand - (LibConstants.ZOMBIE_TRENCH_CHANCE / 100F) < LibConstants.ZOMBIE_BIKER_CHANCE / 100F )
@@ -264,7 +273,7 @@ public class CyberwareDataHandler
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, .5F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
 			}
 		}
 	}
