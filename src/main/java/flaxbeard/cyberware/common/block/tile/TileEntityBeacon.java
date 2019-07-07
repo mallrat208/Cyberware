@@ -28,26 +28,39 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 public class TileEntityBeacon extends TileEntity implements ITickable
 {
 	private static List<Integer> tiers = new ArrayList<>();
-	private static Map<Integer, Map<Integer, Map<BlockPos, Integer>>> beaconPos = new HashMap<>();
+	private static Map<Integer, Map<Integer, Map<BlockPos, Integer>>> mapBeaconPositionByTierDimension = new HashMap<>();
 	private boolean wasWorking = false;
 	private int count = 0;
 	
 	private static int TIER = 2;
 	
-	public static Map<Integer, Map<BlockPos, Integer>> posForTier(int tier)
+	private static Map<Integer, Map<BlockPos, Integer>> getBeaconPositionsForTier(int tier)
 	{
-		Map<Integer, Map<BlockPos, Integer>> map = beaconPos.get(tier);
-
-		if (map == null)
+		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
+		if (mapBeaconPositionByDimension == null)
 		{
-			beaconPos.put(tier, new HashMap<>());
-			map = beaconPos.get(tier);
+			mapBeaconPositionByTierDimension.put(tier, new HashMap<>());
+			mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
 			tiers.add(tier);
 			Collections.sort(tiers);
 			Collections.reverse(tiers);
 		}
 		
-		return map;
+		return mapBeaconPositionByDimension;
+	}
+	
+	public static Map<BlockPos, Integer> getBeaconPositionsForTierAndDimension(int tier, World world)
+	{
+		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = getBeaconPositionsForTier(tier);
+		int idDimension = world.provider.getDimension();
+		Map<BlockPos, Integer> mapBeaconPosition = mapBeaconPositionByDimension.get(idDimension);
+		if (mapBeaconPosition == null)
+		{
+			mapBeaconPosition = new HashMap<>();
+			mapBeaconPositionByDimension.put(idDimension, mapBeaconPosition);
+		}
+		
+		return mapBeaconPosition;
 	}
 	
 	@Override
@@ -120,30 +133,16 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 
 	private void disable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
-		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (map.containsKey(this.getPos()))
-		{
-			map.remove(this.getPos());
-		}
-	
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		mapBeaconPosition.remove(getPos());
 	}
 
 	private void enable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		if (!mapBeaconPosition.containsKey(getPos()))
 		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (!map.containsKey(this.getPos()))
-		{
-			map.put(this.getPos(), LibConstants.BEACON_RANGE);
+			mapBeaconPosition.put(getPos(), LibConstants.BEACON_RANGE);
 		}
 	}
 	
@@ -158,18 +157,12 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 	{
 		for (int tier : tiers)
 		{
-			Map<BlockPos, Integer> map = posForTier(tier).get(world.provider.getDimension());
-			if (map == null)
+			Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(tier, world);
+			for (Entry<BlockPos, Integer> entry : mapBeaconPosition.entrySet())
 			{
-				posForTier(tier).put(world.provider.getDimension(), new HashMap<>());
-				map = posForTier(tier).get(world.provider.getDimension());
-			}
-			
-			for (Entry<BlockPos, Integer> entry : map.entrySet())
-			{
-				float distance = (float) Math.sqrt( (posX - entry.getKey().getX()) * (posX - entry.getKey().getX())
-				                                  + (posZ - entry.getKey().getZ()) * (posZ - entry.getKey().getZ()) );
-				if (distance < entry.getValue())
+				double squareDistance = (posX - entry.getKey().getX()) * (posX - entry.getKey().getX())
+				                      + (posZ - entry.getKey().getZ()) * (posZ - entry.getKey().getZ());
+				if (squareDistance < entry.getValue() * entry.getValue())
 				{
 					return tier;
 				}
