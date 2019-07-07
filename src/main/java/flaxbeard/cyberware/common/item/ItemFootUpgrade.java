@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -52,14 +53,19 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
         EntityLivingBase entityLivingBase = event.getEntityLiving();
         if (entityLivingBase instanceof EntityHorse)
         {
+        	ItemStack itemStackSpurs = new ItemStack(this, 1, META_SPURS);
             EntityHorse entityHorse = (EntityHorse) entityLivingBase;
             for (Entity entityPassenger : entityHorse.getPassengers())
             {
-                if ( entityPassenger instanceof EntityLivingBase
-                  && CyberwareAPI.isCyberwareInstalled(entityPassenger, new ItemStack(this, 1, META_SPURS)) )
+                if (entityPassenger instanceof EntityLivingBase)
                 {
-                    entityHorse.addPotionEffect(new PotionEffect(MobEffects.SPEED, 1, 5, true, false));
-                    break;
+	                ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPassenger);
+	                if ( cyberwareUserData != null
+	                  && cyberwareUserData.isCyberwareInstalled(itemStackSpurs) )
+	                {
+	                    entityHorse.addPotionEffect(new PotionEffect(MobEffects.SPEED, 1, 5, true, false));
+	                    break;
+	                }
                 }
             }
         }
@@ -73,24 +79,27 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
-
-        ItemStack itemStackAqua = new ItemStack(this, 1, META_AQUA);
-        if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackAqua)
-          && entityLivingBase.isInWater() && !entityLivingBase.onGround )
+	    ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+	    if (cyberwareUserData == null) return;
+	    
+        ItemStack itemStackAqua = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_AQUA));
+        if ( !itemStackAqua.isEmpty()
+          && !entityLivingBase.onGround
+          && entityLivingBase.isInWater() )
         {
             int numLegs = 0;
-            if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
+            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
             {
                 numLegs++;
             }
-            if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
             {
                 numLegs++;
             }
             boolean wasPowered = getIsAquaPowered(entityLivingBase);
 
             boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-                              ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
+                              ? cyberwareUserData.usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
                               : wasPowered;
             if (isPowered)
             {
@@ -107,14 +116,14 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
             mapIsAquaPowered.put(entityLivingBase.getUniqueID(), true);
         }
 
-        ItemStack itemStackWheels = new ItemStack(this, 1, META_WHEELS);
-        if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackWheels))
+        ItemStack itemStackWheels = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WHEELS));
+        if (!itemStackWheels.isEmpty())
         {
             boolean wasPowered = getCountdownWheelsPowered(entityLivingBase) > 0;
 
-            boolean isPowered = EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, itemStackWheels))
+            boolean isPowered = EnableDisableHelper.isEnabled(itemStackWheels)
                              && ( entityLivingBase.ticksExisted % 20 == 0
-                                ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackWheels, getPowerConsumption(itemStackWheels))
+                                ? cyberwareUserData.usePower(itemStackWheels, getPowerConsumption(itemStackWheels))
                                 : wasPowered );
             if (isPowered)
             {

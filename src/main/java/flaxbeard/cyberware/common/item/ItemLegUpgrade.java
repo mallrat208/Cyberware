@@ -39,21 +39,22 @@ public class ItemLegUpgrade extends ItemCyberware
 	public void playerJumps(LivingEvent.LivingJumpEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
 		
-		ItemStack test = new ItemStack(this, 1, META_JUMP_BOOST);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		ItemStack itemStackJumpBoost = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_JUMP_BOOST));
+		if (!itemStackJumpBoost.isEmpty())
 		{
 			int numLegs = 0;
-			if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
+			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
-			if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
-			if (cyberwareUserData.usePower(test, this.getPowerConsumption(test)))
+			if (cyberwareUserData.usePower(itemStackJumpBoost, getPowerConsumption(itemStackJumpBoost)))
 			{
 				if (entityLivingBase.isSneaking())
 				{
@@ -82,12 +83,17 @@ public class ItemLegUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void onFallDamage(LivingAttackEvent event)
 	{
-		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if ( event.getSource() != DamageSource.FALL
+		  || event.getAmount() > 6F )
+		{
+			return;
+		}
 		
-		ItemStack test = new ItemStack(this, 1, META_FALL_DAMAGE);
-		if ( event.getSource() == DamageSource.FALL
-		  && event.getAmount() <= 6F
-		  && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test) )
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_FALL_DAMAGE)))
 		{
 			event.setCanceled(true);
 		}

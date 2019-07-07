@@ -53,31 +53,33 @@ public class ItemHeartUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void handleDeath(LivingDeathEvent event)
 	{
+		if (event.isCanceled()) return;
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ItemStack itemStackInternalDefibrillator = new ItemStack(this, 1, META_INTERNAL_DEFIBRILLATOR);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackInternalDefibrillator) && !event.isCanceled())
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackInternalDefibrillator = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_INTERNAL_DEFIBRILLATOR));
+		if (!itemStackInternalDefibrillator.isEmpty())
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
-			ItemStack stack = CyberwareAPI.getCyberware(entityLivingBase, itemStackInternalDefibrillator);
-			if ( (!CyberwareAPI.getCyberwareNBT(stack).hasKey("used"))
+			if ( (!CyberwareAPI.getCyberwareNBT(itemStackInternalDefibrillator).hasKey("used"))
 			  && cyberwareUserData.usePower(itemStackInternalDefibrillator, getPowerConsumption(itemStackInternalDefibrillator), false) )
 			{
-				NonNullList<ItemStack> items = cyberwareUserData.getInstalledCyberware(EnumSlot.HEART);
-				NonNullList<ItemStack> itemsNew = NonNullList.create();
-				itemsNew.addAll(items);
-				for (int i = 0; i < items.size(); i++)
-				{
-					ItemStack item = items.get(i);
-					if ( !item.isEmpty()
-					  && item.getItem() == this
-					  && item.getItemDamage() == META_INTERNAL_DEFIBRILLATOR )
-					{
-						itemsNew.set(i, ItemStack.EMPTY);
-						break;
-					}
-				}
 				if (entityLivingBase instanceof EntityPlayer)
 				{
+					NonNullList<ItemStack> items = cyberwareUserData.getInstalledCyberware(EnumSlot.HEART);
+					NonNullList<ItemStack> itemsNew = NonNullList.create();
+					itemsNew.addAll(items);
+					for (int i = 0; i < items.size(); i++)
+					{
+						ItemStack item = items.get(i);
+						if ( !item.isEmpty()
+						  && item.getItem() == this
+						  && item.getItemDamage() == META_INTERNAL_DEFIBRILLATOR )
+						{
+							itemsNew.set(i, ItemStack.EMPTY);
+							break;
+						}
+					}
 					cyberwareUserData.setInstalledCyberware(entityLivingBase, EnumSlot.HEART, itemsNew);
 					cyberwareUserData.updateCapacity();
 					if (!entityLivingBase.world.isRemote)
@@ -87,10 +89,9 @@ public class ItemHeartUpgrade extends ItemCyberware
 				}
 				else
 				{
-					stack = CyberwareAPI.getCyberware(entityLivingBase, itemStackInternalDefibrillator);
-					NBTTagCompound tagCompoundCyberware = CyberwareAPI.getCyberwareNBT(stack);
+					itemStackInternalDefibrillator = cyberwareUserData.getCyberware(itemStackInternalDefibrillator);
+					NBTTagCompound tagCompoundCyberware = CyberwareAPI.getCyberwareNBT(itemStackInternalDefibrillator);
 					tagCompoundCyberware.setBoolean("used", true);
-					stack.getTagCompound().setTag(CyberwareAPI.DATA_TAG, tagCompoundCyberware);
 
 					CyberwareAPI.updateData(entityLivingBase);
 				}
@@ -108,23 +109,30 @@ public class ItemHeartUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
 		
-		
-		ItemStack test = new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER);
-		if (entityLivingBase.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER));
+		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			isStemWorking.put(entityLivingBase.getUniqueID(), CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)));
+			if (!itemStackStemCellSynthesizer.isEmpty())
+			{
+				isStemWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackStemCellSynthesizer, getPowerConsumption(itemStackStemCellSynthesizer)));
+			}
 		}
 		
-		
-		test = new ItemStack(this, 1, META_PLATELET_DISPATCHER);
-		if (entityLivingBase.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		ItemStack itemStackPlateletDispatcher = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_PLATELET_DISPATCHER));
+		if ( entityLivingBase.ticksExisted % 20 == 0
+		  && !itemStackPlateletDispatcher.isEmpty() )
 		{
-			isPlateletWorking.put(entityLivingBase.getUniqueID(), CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)));
+			isPlateletWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackPlateletDispatcher, getPowerConsumption(itemStackPlateletDispatcher)));
 		}
-		if (isPlateletWorking(entityLivingBase) && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		
+		if ( isPlateletWorking(entityLivingBase)
+		  && !itemStackPlateletDispatcher.isEmpty() )
 		{
-			if (entityLivingBase.getHealth() >= entityLivingBase.getMaxHealth() * .8F && entityLivingBase.getHealth() != entityLivingBase.getMaxHealth())
+			if ( entityLivingBase.getHealth() >= entityLivingBase.getMaxHealth() * .8F
+			  && entityLivingBase.getHealth() != entityLivingBase.getMaxHealth() )
 			{
 				int t = getPlateletTime(entityLivingBase);
 				if (t >= 40)
@@ -143,7 +151,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 			timesPlatelets.remove(entityLivingBase.getUniqueID());
 		}
 		
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER)))
+		if (!itemStackStemCellSynthesizer.isEmpty())
 		{
 			if (isStemWorking(entityLivingBase))
 			{
@@ -205,9 +213,13 @@ public class ItemHeartUpgrade extends ItemCyberware
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleHurt(LivingHurtEvent event)
 	{
+		if (event.isCanceled()) return;
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if ( !event.isCanceled()
-		  && CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER)) )
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER));
+		if (!itemStackStemCellSynthesizer.isEmpty())
 		{
 			float damageAmount = event.getAmount();
 			DamageSource damageSrc = event.getSource();
@@ -300,10 +312,15 @@ public class ItemHeartUpgrade extends ItemCyberware
 	public void power(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ItemStack test = new ItemStack(this, 1, META_CARDIOVASCULAR_COUPLER);
-		if (entityLivingBase.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
+		
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_CARDIOVASCULAR_COUPLER));
+		if (!itemStackCardiovascularCoupler.isEmpty())
 		{
-			CyberwareAPI.getCapability(entityLivingBase).addPower(getPowerProduction(test), test);
+			cyberwareUserData.addPower(getPowerProduction(itemStackCardiovascularCoupler), itemStackCardiovascularCoupler);
 		}
 	}
 	

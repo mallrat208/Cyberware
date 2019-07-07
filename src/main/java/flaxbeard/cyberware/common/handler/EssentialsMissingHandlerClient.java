@@ -64,9 +64,9 @@ public class EssentialsMissingHandlerClient
 		if (!CyberwareConfig.RENDER) return;
 		
 		EntityPlayer entityPlayer = event.getEntityPlayer();
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
 			boolean hasLeftLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT);
 			boolean hasRightLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.RIGHT);
 			boolean hasLeftArm = cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.LEFT);
@@ -110,11 +110,11 @@ public class EssentialsMissingHandlerClient
 				if (!hasRightLeg || !hasLeftLeg || !hasRightArm || !hasLeftArm || robotLeftArm || robotRightArm || robotLeftLeg || robotRightLeg)
 				{
 					event.setCanceled(true);
-
-					boolean leftArmRusty = robotLeftArm && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightArmRusty = robotRightArm && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean leftLegRusty = robotLeftLeg && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(CyberwareAPI.getCyberware(entityPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
+					
+					boolean leftArmRusty  = robotLeftArm  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM ))) == CyberwareAPI.QUALITY_SCAVENGED;
+					boolean rightArmRusty = robotRightArm && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))) == CyberwareAPI.QUALITY_SCAVENGED;
+					boolean leftLegRusty  = robotLeftLeg  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG ))) == CyberwareAPI.QUALITY_SCAVENGED;
+					boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
 
 					if (bigArms)
 					{
@@ -282,12 +282,11 @@ public class EssentialsMissingHandlerClient
 		event.getRenderer().getMainModel().bipedRightArm.isHidden = false;
 		event.getRenderer().getMainModel().bipedLeftLeg.isHidden = false;
 		event.getRenderer().getMainModel().bipedRightLeg.isHidden = false;
-
+		
 		EntityPlayer entityPlayer = event.getEntityPlayer();
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
-			
 			if (pants.containsKey(entityPlayer.getEntityId()))
 			{
 				entityPlayer.inventory.armorInventory.set(1, pants.get(entityPlayer.getEntityId()));
@@ -337,10 +336,11 @@ public class EssentialsMissingHandlerClient
 	public void handleMissingEssentials(LivingUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase != Minecraft.getMinecraft().player) return;
 		
-		if (entityLivingBase != null && entityLivingBase == Minecraft.getMinecraft().player)
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			GameSettings settings = Minecraft.getMinecraft().gameSettings;
 			boolean stillMissingArm = false;
 			boolean stillMissingSecondArm = false;

@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.handler.EssentialsMissingHandler;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -46,14 +47,17 @@ public class ItemSkinUpgrade extends ItemCyberware
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
         if (entityLivingBase == null) return;
-
-		ItemStack test = new ItemStack(this, 1, META_SOLARSKIN);
-		if ( entityLivingBase.ticksExisted % 20 == 0
-		  && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test) )
+        if (entityLivingBase.ticksExisted % 20 != 0) return;
+        
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackSolarskin = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_SOLARSKIN));
+		if (!itemStackSolarskin.isEmpty())
 		{
 			if (entityLivingBase.world.canBlockSeeSky(new BlockPos(entityLivingBase.posX, entityLivingBase.posY + entityLivingBase.height, entityLivingBase.posZ)))
 			{
-				CyberwareAPI.getCapability(entityLivingBase).addPower(getPowerProduction(test), test);
+				cyberwareUserData.addPower(getPowerProduction(itemStackSolarskin), itemStackSolarskin);
 			}
 		}
 	}
@@ -65,13 +69,14 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if (entityLivingBase == null) return;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackImmunosuppressant = new ItemStack(this, 1, META_IMMUNOSUPPRESSANT);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackImmunosuppressant))
+		ItemStack itemStackImmunosuppressant = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_IMMUNOSUPPRESSANT));
+		if (!itemStackImmunosuppressant.isEmpty())
 		{
 			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-			                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackImmunosuppressant, getPowerConsumption(itemStackImmunosuppressant))
+			                  ? cyberwareUserData.usePower(itemStackImmunosuppressant, getPowerConsumption(itemStackImmunosuppressant))
 			                  : setIsImmunosuppressantPowered.contains(entityLivingBase.getUniqueID());
 			
 			if ( !isPowered
@@ -142,8 +147,10 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleHurt(LivingHurtEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_SUBDERMAL_SPIKES)))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_SUBDERMAL_SPIKES)))
 		{
 			if ( event.getSource() instanceof EntityDamageSource
 			  && !(event.getSource() instanceof EntityDamageSourceIndirect) )

@@ -57,11 +57,11 @@ public class CyberwareMenuHandler
 		}
 		if(event.phase == Phase.END)
 		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
 			if ( mc.player != null
-			  && mc.currentScreen == null )
+			  && mc.currentScreen == null
+			  && cyberwareUserData != null )
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
-				
 				for (int keyCode : cyberwareUserData.getHotkeys())
 				{
 					if (isPressed(cyberwareUserData, keyCode))
@@ -79,7 +79,7 @@ public class CyberwareMenuHandler
 			}
 			
 			if ( mc.player != null
-			  && CyberwareAPI.getCapability(mc.player).getNumActiveItems() > 0
+			  && cyberwareUserData.getNumActiveItems() > 0
 			  && KeyBinds.menu.isPressed()
 			  && mc.currentScreen == null )
 			{
@@ -93,7 +93,7 @@ public class CyberwareMenuHandler
 				mc.gameSettings.keyBindSprint.setKeyConflictContext(gui);
 				
 				mc.displayGuiScreen(new GuiCyberwareMenu());
-				CyberwareAPI.getCapability(mc.player).setOpenedRadialMenu(true);
+				cyberwareUserData.setOpenedRadialMenu(true);
 				CyberwarePacketHandler.INSTANCE.sendToServer(new OpenRadialMenuPacket());
 
 				wasInScreen = 5;

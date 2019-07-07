@@ -55,10 +55,11 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
-	public void updatePlayerSlots(EntityLivingBase entityLivingBase)
+	public void updatePlayerSlots(EntityLivingBase entityLivingBase, ICyberwareUserData cyberwareUserData)
 	{
 		markDirty();
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		
+		if (cyberwareUserData != null)
 		{
 			if (entityLivingBase.getEntityId() != lastEntity)
 			{
@@ -68,7 +69,6 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				}
 				lastEntity = entityLivingBase.getEntityId();
 			}
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			this.maxEssence = cyberwareUserData.getMaxTolerance(entityLivingBase);
 			
 			// Update slotsPlayer with the items in the player's body
@@ -411,9 +411,10 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 	{
 		if (inProgress && progressTicks < 80)
 		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(targetEntity);
 			if ( targetEntity != null
 			  && !targetEntity.isDead
-			  && CyberwareAPI.hasCapability(targetEntity) )
+			  && cyberwareUserData != null )
 			{
 				BlockPos pos = getPos();
 				
@@ -430,7 +431,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 				
 				if (progressTicks == 60)
 				{
-					processUpdate();
+					processUpdate(cyberwareUserData);
 				}
 				
 				progressTicks++;
@@ -482,11 +483,9 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 		}
 	}
 	
-	public void processUpdate()
+	public void processUpdate(ICyberwareUserData cyberwareUserData)
 	{
-		updatePlayerSlots(targetEntity);
-				
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(targetEntity);
+		updatePlayerSlots(targetEntity, cyberwareUserData);
 		
 		for (int indexCyberSlot = 0; indexCyberSlot < EnumSlot.values().length; indexCyberSlot++)
 		{

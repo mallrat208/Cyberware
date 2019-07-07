@@ -8,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareContent;
 
 public class ItemArmUpgrade extends ItemCyberware
@@ -34,14 +35,15 @@ public class ItemArmUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void useBow(LivingEntityUseItemEvent.Tick event)
 	{
-		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		
-		ItemStack test = new ItemStack(this, 1, META_BOW);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+		ItemStack item = event.getItem();
+		if ( !item.isEmpty()
+		  && item.getItem() instanceof ItemBow )
 		{
-			ItemStack item = event.getItem();
+			EntityLivingBase entityLivingBase = event.getEntityLiving();
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+			if (cyberwareUserData == null) return;
 			
-			if (!item.isEmpty() && item.getItem() instanceof ItemBow)
+			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_BOW)))
 			{
 				event.setDuration(event.getDuration() - 1);
 			}

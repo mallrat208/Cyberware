@@ -61,9 +61,9 @@ public class TriggerActiveAbilityPacket implements IMessage
 		@Override
 		public void run()
 		{
-			if (entityPlayer != null && CyberwareAPI.hasCapability(entityPlayer))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
 				CyberwareAPI.useActiveItem(entityPlayer, cyberwareUserData.getCyberware(stack));
 			}
 		}

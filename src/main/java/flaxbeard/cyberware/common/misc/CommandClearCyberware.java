@@ -7,6 +7,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -41,7 +43,9 @@ public class CommandClearCyberware extends CommandBase
 	{
 		EntityPlayer entityPlayer = args.length == 0 ? getCommandSenderAsPlayer(sender) : getPlayer(server, sender, args[0]);
 
-		CyberwareAPI.getCapability(entityPlayer).resetWare(entityPlayer);
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return;
+		cyberwareUserData.resetWare(entityPlayer);
 		CyberwareAPI.updateData(entityPlayer);
 		
 		notifyCommandListener(sender, this, "cyberware.commands.clearCyberware.success", entityPlayer.getName());

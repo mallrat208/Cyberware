@@ -29,7 +29,7 @@ import flaxbeard.cyberware.common.network.SyncHotkeyPacket;
 
 public class GuiCyberwareMenu extends GuiScreen
 {
-	Minecraft mc;
+	Minecraft mc = Minecraft.getMinecraft();
 	boolean movedWheel = false;
 	int selectedPart = -1;
 	int lastMousedOverPart = -1;
@@ -126,15 +126,16 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		else
 		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+			if (cyberwareUserData == null) return;
+			
 			GlStateManager.pushMatrix();
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
 			GlStateManager.shadeModel(GL11.GL_SMOOTH);
 			int centerX = width / 2;
 			int centerY = height  / 2;
-			mc = Minecraft.getMinecraft();
 			
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
 			int piePieces = cyberwareUserData.getNumActiveItems();
 			
 			if ( movedWheel
@@ -403,11 +404,13 @@ public class GuiCyberwareMenu extends GuiScreen
 			}
 			else if (selectedPart != -1)
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
-
-				HotkeyHelper.removeHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart));
-				
-				CyberwarePacketHandler.INSTANCE.sendToServer(new SyncHotkeyPacket(selectedPart, Integer.MAX_VALUE));
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+				if (cyberwareUserData != null)
+				{
+					HotkeyHelper.removeHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart));
+					
+					CyberwarePacketHandler.INSTANCE.sendToServer(new SyncHotkeyPacket(selectedPart, Integer.MAX_VALUE));
+				}
 			}
 		}
 		
@@ -430,16 +433,18 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		if (mc != null && mc.gameSettings != null)
 		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
 			if ( KeyBinds.menu != null
 			  && ( !GameSettings.isKeyDown(KeyBinds.menu)
 			    && !editing
 			    && !color )
-			  || CyberwareAPI.getCapability(mc.player).getNumActiveItems() < 1 )
+			  || ( cyberwareUserData != null
+				&& cyberwareUserData.getNumActiveItems() < 1 ) )
 			{
-				if ( selectedPart != -1
+				if ( cyberwareUserData != null
+				  && selectedPart != -1
 				  && !editing )
 				{
-					ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
 					ItemStack hki = cyberwareUserData.getActiveItems().get(selectedPart);
 					ClientUtils.useActiveItemClient(mc.player, hki);
 				}
@@ -484,12 +489,14 @@ public class GuiCyberwareMenu extends GuiScreen
 	
 	private void assignHotkey(int code)
 	{
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
-		
-		HotkeyHelper.removeHotkey(cyberwareUserData, code);
-		HotkeyHelper.assignHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart), code);
-		
-		CyberwarePacketHandler.INSTANCE.sendToServer(new SyncHotkeyPacket(selectedPart, code));
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+		if (cyberwareUserData != null)
+		{
+			HotkeyHelper.removeHotkey(cyberwareUserData, code);
+			HotkeyHelper.assignHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart), code);
+			
+			CyberwarePacketHandler.INSTANCE.sendToServer(new SyncHotkeyPacket(selectedPart, code));
+		}
 		editing = false;
 	}
 	

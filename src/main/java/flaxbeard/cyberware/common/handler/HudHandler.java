@@ -121,11 +121,14 @@ public class HudHandler
 		EntityPlayerSP entityPlayerSP = mc.player;
 		if (entityPlayerSP == null) return;
 		
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayerSP);
+		if (cyberwareUserData == null) return;
+		
 		GlStateManager.pushMatrix();
 		float floatAmt = 0.0F;
 		boolean isHUDjackAvailable = false;
 		
-		List<ItemStack> listHUDjackItems = CyberwareAPI.getCapability(entityPlayerSP).getHudjackItems();
+		List<ItemStack> listHUDjackItems = cyberwareUserData.getHudjackItems();
 		for (ItemStack stack : listHUDjackItems)
 		{
 			if (((IHudjack) CyberwareAPI.getCyberware(stack)).isActive(stack))
@@ -200,19 +203,12 @@ public class HudHandler
 		}
 		
 		// Display a prompt to the user to open the radial menu if they haven't yet
-		if (CyberwareAPI.hasCapability(mc.player))
+		if ( cyberwareUserData.getActiveItems().size() > 0
+		  && !cyberwareUserData.hasOpenedRadialMenu() )
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
-			if (cyberwareUserData.getActiveItems().size() > 0)
-			{
-				boolean done = CyberwareAPI.getCapability(mc.player).hasOpenedRadialMenu();
-				if (!done)
-				{
-					String textOpenMenu = I18n.format("cyberware.gui.open_menu", KeyBinds.menu.getDisplayName());
-					FontRenderer fontRenderer = mc.fontRenderer;
-					fontRenderer.drawStringWithShadow(textOpenMenu, scaledResolution.getScaledWidth() - fontRenderer.getStringWidth(textOpenMenu) - 5, 5, CyberwareAPI.getHUDColorHex());
-				}
-			}
+			String textOpenMenu = I18n.format("cyberware.gui.open_menu", KeyBinds.menu.getDisplayName());
+			FontRenderer fontRenderer = mc.fontRenderer;
+			fontRenderer.drawStringWithShadow(textOpenMenu, scaledResolution.getScaledWidth() - fontRenderer.getStringWidth(textOpenMenu) - 5, 5, CyberwareAPI.getHUDColorHex());
 		}
 		
 		GlStateManager.popMatrix();

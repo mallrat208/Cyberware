@@ -67,10 +67,9 @@ public class SyncHotkeyPacket implements IMessage
 		@Override
 		public void run()
 		{
-			if (entityPlayer != null && CyberwareAPI.hasCapability(entityPlayer))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
-				
 				if (key == Integer.MAX_VALUE)
 				{
 					HotkeyHelper.removeHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart));

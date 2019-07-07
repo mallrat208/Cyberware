@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.block;
 
 import javax.annotation.Nonnull;
 
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
@@ -79,7 +80,8 @@ public class BlockSurgery extends BlockContainer
 			//Ensure the Base Tolerance Attribute has been updated for any Config Changes
 			entityPlayer.getEntityAttribute(CyberwareAPI.TOLERANCE_ATTR).setBaseValue(CyberwareConfig.ESSENCE);
 			
-			tileEntitySurgery.updatePlayerSlots(entityPlayer);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			tileEntitySurgery.updatePlayerSlots(entityPlayer, cyberwareUserData);
 			entityPlayer.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
 		}
 		

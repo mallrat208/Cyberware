@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.ICyberware;
 import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -76,11 +77,15 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if ( entityLivingBase.world.isRemote
-		  && event.getSource() == DamageSource.FALL
-		  && ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_LEFT_CYBER_LEG))
-		    || CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_RIGHT_CYBER_LEG)) ))
+		  && event.getSource() == DamageSource.FALL )
 		{
-			didFall.add(entityLivingBase.getEntityId());
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+			if (cyberwareUserData == null) return;
+			if ( cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LEFT_CYBER_LEG))
+		      || cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_RIGHT_CYBER_LEG)) )
+			{
+				didFall.add(entityLivingBase.getEntityId());
+			}
 		}
 	}
 	
@@ -96,12 +101,15 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 			{
 				int numLegs = 0;
 				
-				if (CyberwareAPI.isCyberwareInstalled(entity, new ItemStack(this, 1, META_LEFT_CYBER_LEG)))
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entity);
+				if (cyberwareUserData == null) return;
+				
+				if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LEFT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
 				
-				if (CyberwareAPI.isCyberwareInstalled(entity, new ItemStack(this, 1, META_RIGHT_CYBER_LEG)))
+				if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_RIGHT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
@@ -120,14 +128,16 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	public void power(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
 		
 		for (int damage = 0; damage < 4; damage++)
 		{
-			ItemStack test = new ItemStack(this, 1, damage);
-			ItemStack itemStackInstalled = CyberwareAPI.getCyberware(entityLivingBase, test);
-			if (entityLivingBase.ticksExisted % 20 == 0 && !itemStackInstalled.isEmpty())
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+			if (cyberwareUserData == null) return;
+			ItemStack itemStackInstalled = cyberwareUserData.getCyberware(new ItemStack(this, 1, damage));
+			if (!itemStackInstalled.isEmpty())
 			{
-				boolean isPowered = CyberwareAPI.getCapability(entityLivingBase).usePower(itemStackInstalled, getPowerConsumption(itemStackInstalled));
+				boolean isPowered = cyberwareUserData.usePower(itemStackInstalled, getPowerConsumption(itemStackInstalled));
 				
 				CyberwareAPI.getCyberwareNBT(itemStackInstalled).setBoolean("active", isPowered);
 			}

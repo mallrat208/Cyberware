@@ -2,7 +2,6 @@ package flaxbeard.cyberware.common.item;
 
 import java.util.UUID;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -16,6 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import com.google.common.collect.HashMultimap;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.lib.LibConstants;
 
 public class ItemBoneUpgrade extends ItemCyberware
@@ -60,30 +60,37 @@ public class ItemBoneUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void handleJoinWorld(EntityJoinWorldEvent event)
 	{
-		Entity entity = event.getEntity();
+		if (!(event.getEntity() instanceof EntityLivingBase)) return;
+		EntityLivingBase entityLivingBase = (EntityLivingBase) event.getEntity();
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
 		
-		ItemStack test = new ItemStack(this, 1, META_LACING);
-		if (entity instanceof EntityLivingBase && CyberwareAPI.isCyberwareInstalled(entity, test))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			this.onAdded((EntityLivingBase) entity, CyberwareAPI.getCyberware(entity, test));
-		}
-		else if (CyberwareAPI.hasCapability(entity) && entity instanceof EntityLivingBase)
-		{
-			this.onRemoved((EntityLivingBase) entity, test);
+			ItemStack itemStackMetalLacing = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_LACING));
+			if (!itemStackMetalLacing.isEmpty())
+			{
+				onAdded(entityLivingBase, cyberwareUserData.getCyberware(itemStackMetalLacing));
+			}
+			else
+			{
+				onRemoved(entityLivingBase, itemStackMetalLacing);
+			}
 		}
 	}
 	
 	@SubscribeEvent
 	public void handleFallDamage(LivingHurtEvent event)
 	{
-		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (event.getSource() != DamageSource.FALL) return;
 		
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_FLEX)))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_FLEX)))
 		{
-			if (event.getSource() == DamageSource.FALL)
-			{
-				event.setAmount(event.getAmount() * .3333F);
-			}
+			event.setAmount(event.getAmount() * .3333F);
 		}
 	}
 	

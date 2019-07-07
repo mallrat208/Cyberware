@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -96,16 +97,16 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	@SubscribeEvent
 	public void handleHurt(LivingHurtEvent event)
 	{
+		if (event.isCanceled()) return;
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-
-		if (entityLivingBase == null) return;
-
-		ItemStack test = new ItemStack(this, 1, META_WIRED_REFLEXES);
-		int rank = CyberwareAPI.getCyberwareRank(entityLivingBase, test);
-		if ( !event.isCanceled()
-		  && entityLivingBase instanceof EntityPlayer
-		  && rank > 1
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test))
+		if (!(entityLivingBase instanceof EntityPlayer)) return;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WIRED_REFLEXES));
+		int rank = itemStackWiredReflexes.getCount();
+		if ( rank > 1
+		  && EnableDisableHelper.isEnabled(itemStackWiredReflexes)
 		  && setIsStrengthPowered.contains(entityLivingBase.getUniqueID()) )
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
@@ -186,61 +187,69 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-
-        if (entityLivingBase == null) return;
-
-		ItemStack test = new ItemStack(this, 1, META_MUSCLE_REPLACEMENTS);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test))
+        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackMuscleReplacement = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_MUSCLE_REPLACEMENTS));
+		if (!itemStackMuscleReplacement.isEmpty())
 		{
 			boolean wasPowered = setIsStrengthPowered.contains(entityLivingBase.getUniqueID());
 			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-			                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test))
+			                  ? cyberwareUserData.usePower(itemStackMuscleReplacement, getPowerConsumption(itemStackMuscleReplacement))
 			                  : wasPowered;
 			if (isPowered)
 			{
-				if (!entityLivingBase.isInWater() && entityLivingBase.onGround && entityLivingBase.moveForward > 0)
+				if ( !entityLivingBase.isInWater()
+				  && entityLivingBase.onGround
+				  && entityLivingBase.moveForward > 0 )
 				{
 					entityLivingBase.moveRelative(0F, 0.0F,.5F, 0.075F);
 				}
 
-				this.onAdded(entityLivingBase, test);
-				setIsStrengthPowered.add(entityLivingBase.getUniqueID());
+				if (!wasPowered)
+				{
+					onAdded(entityLivingBase, itemStackMuscleReplacement);
+					setIsStrengthPowered.add(entityLivingBase.getUniqueID());
+				}
 			}
-			else
+			else if (wasPowered)
 			{
-				this.onRemoved(entityLivingBase, test);
+				onRemoved(entityLivingBase, itemStackMuscleReplacement);
 				setIsStrengthPowered.remove(entityLivingBase.getUniqueID());
 			}
 		}
-		else
+		else if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			this.onRemoved(entityLivingBase, test);
+			onRemoved(entityLivingBase, itemStackMuscleReplacement);
 			setIsStrengthPowered.remove(entityLivingBase.getUniqueID());
 		}
 		
-		test = new ItemStack(this, 1, META_WIRED_REFLEXES);
-		if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, test)
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test)) )
+		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			boolean wasPowered = setIsSpeedPowered.contains(entityLivingBase.getUniqueID());
-			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-			                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test))
-			                  : wasPowered;
-			if (isPowered)
+			ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WIRED_REFLEXES));
+			if ( !itemStackWiredReflexes.isEmpty()
+			  && EnableDisableHelper.isEnabled(itemStackWiredReflexes) )
 			{
-				this.onAdded(entityLivingBase, test);
-				setIsSpeedPowered.add(entityLivingBase.getUniqueID());
+				boolean wasPowered = setIsSpeedPowered.contains(entityLivingBase.getUniqueID());
+				boolean isPowered = cyberwareUserData.usePower(itemStackWiredReflexes, getPowerConsumption(itemStackWiredReflexes));
+				if ( !wasPowered
+				  && isPowered )
+				{
+					onAdded(entityLivingBase, itemStackWiredReflexes);
+					setIsSpeedPowered.add(entityLivingBase.getUniqueID());
+				}
+				else if ( wasPowered
+				       && !isPowered )
+				{
+					onRemoved(entityLivingBase, itemStackWiredReflexes);
+					setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
+				}
 			}
 			else
 			{
-				this.onRemoved(entityLivingBase, test);
+				onRemoved(entityLivingBase, itemStackWiredReflexes);
 				setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
 			}
-		}
-		else 
-		{
-			this.onRemoved(entityLivingBase, test);
-			setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
 		}
 	}
 	

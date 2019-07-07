@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberlimb;
@@ -61,11 +62,19 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderRightArm(clientPlayer);
 		
-		if ( CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))
-		  && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))
-		  && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.RIGHT
-		  && clientPlayer.getHeldItemMainhand().isEmpty()
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))) )
+		if ( Minecraft.getMinecraft().gameSettings.mainHand != EnumHandSide.RIGHT
+		  || !clientPlayer.getHeldItemMainhand().isEmpty() )
+		{
+			return;
+		}
+		
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(clientPlayer);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackClaws = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS));
+		if ( !itemStackClaws.isEmpty()
+		  && cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))
+		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();
 
@@ -88,11 +97,19 @@ public class RenderPlayerCyberware extends RenderPlayer
 		Minecraft.getMinecraft().getTextureManager().bindTexture(robo);
 		super.renderLeftArm(clientPlayer);
 		
-		if ( CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))
-		  && CyberwareAPI.isCyberwareInstalled(clientPlayer, new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))
-		  && Minecraft.getMinecraft().gameSettings.mainHand == EnumHandSide.LEFT
-		  && clientPlayer.getHeldItemMainhand().isEmpty()
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(clientPlayer, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS))) )
+		if ( Minecraft.getMinecraft().gameSettings.mainHand != EnumHandSide.LEFT
+		  || !clientPlayer.getHeldItemMainhand().isEmpty() )
+		{
+			return;
+		}
+		
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(clientPlayer);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackClaws = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS));
+		if ( !itemStackClaws.isEmpty()
+		  && cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))
+		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();
 

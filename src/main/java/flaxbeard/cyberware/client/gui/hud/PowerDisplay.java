@@ -42,16 +42,11 @@ public class PowerDisplay extends HudElementBase
 		
 		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
 		
-		GL11.glPushMatrix();
-		GlStateManager.enableBlend();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
-		
-		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
-		
-		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-		
 		if (entityPlayer.ticksExisted % 20 == 0)
 		{
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData == null) return;
+			
 			cache_percentFull = cyberwareUserData.getPercentFull();
 			cache_power_capacity = cyberwareUserData.getCapacity();
 			cache_power_stored = cyberwareUserData.getStoredPower();
@@ -59,45 +54,53 @@ public class PowerDisplay extends HudElementBase
 			cache_power_consumption = cyberwareUserData.getConsumption();
 		}
 		
-		if (cache_power_capacity != 0)
+		if (cache_power_capacity == 0) return;
+		
+		boolean isLowPower = cache_percentFull <= 0.2F;
+		boolean isCriticalPower = cache_percentFull <= 0.05F;
+		
+		if ( isCriticalPower
+		  && entityPlayer.ticksExisted % 4 == 0 )
 		{
-			boolean isLowPower = cache_percentFull <= 0.2F;
-			boolean isCriticalPower = cache_percentFull <= 0.05F;
-			
-			if ( !isCriticalPower
-			  || entityPlayer.ticksExisted % 4 != 0 )
-			{
-				float[] colorFloats = CyberwareAPI.getHUDColor();
-				int colorHex = CyberwareAPI.getHUDColorHex();
-				
-				// battery icon
-				GlStateManager.pushMatrix();
-				
-				int uOffset = isLowPower ? 39 : 0;
-				int xOffset = isRightAnchored ? (x + getWidth() - 13) : x;
-				int yBatterySize = Math.round(21F * cache_percentFull);
-				
-				if (!isLowPower) GlStateManager.color(colorFloats[0], colorFloats[1], colorFloats[2]);
-				
-				// battery top part
-				ClientUtils.drawTexturedModalRect(xOffset, y, uOffset, 0, 13, 2 + (21 - yBatterySize));
-				// battery background
-				ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 13 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
-				// battery foreground
-				ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 26 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
-				GlStateManager.popMatrix();
-				
-				// storage stats
-				String textPowerStorage = cache_power_stored + " / " + cache_power_capacity;
-				int xPowerStorage = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerStorage) : x + 15;
-				fontRenderer.drawStringWithShadow(textPowerStorage, xPowerStorage, y + 4, isLowPower ? 0xFF0000 : colorHex);
-				
-				// progression stats
-				String textPowerProgression = "-" + cache_power_consumption + " / +" + cache_power_production;
-				int xPowerProgression = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerProgression) : x + 15;
-				fontRenderer.drawStringWithShadow(textPowerProgression, xPowerProgression, y + 14, isLowPower ? 0xFF0000 : colorHex);
-			}
+			return;
 		}
+		
+		float[] colorFloats = CyberwareAPI.getHUDColor();
+		int colorHex = CyberwareAPI.getHUDColorHex();
+		
+		GL11.glPushMatrix();
+		GlStateManager.enableBlend();
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		
+		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		
+		// battery icon
+		GlStateManager.pushMatrix();
+		
+		int uOffset = isLowPower ? 39 : 0;
+		int xOffset = isRightAnchored ? (x + getWidth() - 13) : x;
+		int yBatterySize = Math.round(21F * cache_percentFull);
+		
+		if (!isLowPower) GlStateManager.color(colorFloats[0], colorFloats[1], colorFloats[2]);
+		
+		// battery top part
+		ClientUtils.drawTexturedModalRect(xOffset, y, uOffset, 0, 13, 2 + (21 - yBatterySize));
+		// battery background
+		ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 13 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
+		// battery foreground
+		ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 26 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
+		GlStateManager.popMatrix();
+		
+		// storage stats
+		String textPowerStorage = cache_power_stored + " / " + cache_power_capacity;
+		int xPowerStorage = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerStorage) : x + 15;
+		fontRenderer.drawStringWithShadow(textPowerStorage, xPowerStorage, y + 4, isLowPower ? 0xFF0000 : colorHex);
+		
+		// progression stats
+		String textPowerProgression = "-" + cache_power_consumption + " / +" + cache_power_production;
+		int xPowerProgression = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerProgression) : x + 15;
+		fontRenderer.drawStringWithShadow(textPowerProgression, xPowerProgression, y + 14, isLowPower ? 0xFF0000 : colorHex);
 		
 		GL11.glPopMatrix();
 	}

@@ -76,9 +76,10 @@ public final class CyberwareAPI
 	public static void setHUDColor(float[] color)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			CyberwareAPI.getCapability(entityPlayer).setHudColor(color);
+			cyberwareUserData.setHudColor(color);
 		}
 	}
 	
@@ -96,9 +97,10 @@ public final class CyberwareAPI
 	public static void setHUDColor(int hexVal)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			CyberwareAPI.getCapability(entityPlayer).setHudColor(hexVal);
+			cyberwareUserData.setHudColor(hexVal);
 		}
 	}
 	
@@ -112,9 +114,10 @@ public final class CyberwareAPI
 	public static int getHUDColorHex()
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			return CyberwareAPI.getCapability(entityPlayer).getHudColorHex();
+			return cyberwareUserData.getHudColorHex();
 		}
 		return 0;
 	}
@@ -123,9 +126,10 @@ public final class CyberwareAPI
 	public static float[] getHUDColor()
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(entityPlayer))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			return CyberwareAPI.getCapability(entityPlayer).getHudColor();
+			return cyberwareUserData.getHudColor();
 		}
 		return new float[] { 0F, 0F, 0F };
 	}
@@ -339,21 +343,7 @@ public final class CyberwareAPI
 	{
 		if (stack.isEmpty()) return null;
 		
-		ItemStack test = new ItemStack(stack.getItem(), 1, stack.getItemDamage());
-		ICyberware result = getWareFromKey(test);
-		if (result != null)
-		{
-			return result;
-		}
-		
-		ItemStack testGeneric = new ItemStack(stack.getItem(), 1, OreDictionary.WILDCARD_VALUE);
-		result = getWareFromKey(testGeneric);
-		if (result != null)
-		{
-			return result;
-		}
-		
-		return null;
+		return getWareFromKey(stack);
 	}
 	
 	@Nullable
@@ -362,8 +352,9 @@ public final class CyberwareAPI
 		for (Entry<ItemStack, ICyberware> entry : linkedWare.entrySet())
 		{
 			ItemStack entryKey = entry.getKey();
-			if (key.getItem() == entryKey.getItem() && key.getItemDamage() == entryKey.getItemDamage())
-			{
+			if ( key.getItem() == entryKey.getItem()
+			  && ( entryKey.getItemDamage() == OreDictionary.WILDCARD_VALUE
+				|| entryKey.getItemDamage() == key.getItemDamage() ) ) {
 				return entry.getValue();
 			}
 		}
@@ -371,79 +362,96 @@ public final class CyberwareAPI
 	}
 	
 	/**
+	 * A shortcut method to get you the ICyberwareUserData of a specific entity.
+	 * This will return null if the entity is null or has no capability.
+	 *
+	 * @param targetEntity	The entity whose ICyberwareUserData you want
+	 * @return				The ICyberwareUserData associated with the entity
+	 */
+	@Nullable
+	public static ICyberwareUserData getCapabilityOrNull(@Nullable Entity targetEntity)
+	{
+		if (targetEntity == null) return null;
+		return targetEntity.getCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+	}
+	
+	/**
 	 * A shortcut method to determine if the entity that is inputted
 	 * has ICyberwareUserData. Works with null entites.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity to test
 	 * @return				If the entity has ICyberwareUserData
 	 */
+	@Deprecated
 	public static boolean hasCapability(@Nullable Entity targetEntity)
 	{
-		if (targetEntity == null) return false;
-		return targetEntity.hasCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+		return getCapabilityOrNull(targetEntity) != null;
 	}
 	
 	/**
 	 * Assistant method to hasCapability. A shortcut to get you the ICyberwareUserData
 	 * of a specific entity. Note that you must verify if it has the capability first.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity whose ICyberwareUserData you want
 	 * @return				The ICyberwareUserData associated with the entity
 	 */
-	public static ICyberwareUserData getCapability(Entity targetEntity)
+	@Deprecated
+	public static ICyberwareUserData getCapability(@Nonnull Entity targetEntity)
 	{
-		return targetEntity.getCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+		return getCapabilityOrNull(targetEntity);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to quickly tell if an entity
 	 * has a piece of Cyberware installed. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				If the entity has the Cyberware
 	 */
+	@Deprecated
 	public static boolean isCyberwareInstalled(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return false;
-		
-		ICyberwareUserData cyberwareUserData = getCapability(targetEntity);
-		return cyberwareUserData.isCyberwareInstalled(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData != null && cyberwareUserData.isCyberwareInstalled(stack);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to quickly determine what level of
 	 * Cyberware is installed. Returns 0 if none. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				If the entity has the Cyberware, the level, or 0 if not
 	 */
+	@Deprecated
 	public static int getCyberwareRank(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return 0;
-		
-		ICyberwareUserData cyberwareUserData = getCapability(targetEntity);
-		return cyberwareUserData.getCyberwareRank(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData == null ? 0 : cyberwareUserData.getCyberwareRank(stack);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to get the itemstack for a piece
 	 * of cyberware. Useful for NBT data. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				The ItemStack found, or null if none
 	 */
+	@Deprecated
 	public static ItemStack getCyberware(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return ItemStack.EMPTY;
-		
-		ICyberwareUserData cyberwareUserData = getCapability(targetEntity);
-		return cyberwareUserData.getCyberware(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData == null ? ItemStack.EMPTY : cyberwareUserData.getCyberware(stack);
 	}
 	
 	public static void updateData(Entity targetEntity)
@@ -452,7 +460,9 @@ public final class CyberwareAPI
 		{
 			WorldServer world = (WorldServer) targetEntity.world;
 			
-			NBTTagCompound tagCompound = CyberwareAPI.getCapability(targetEntity).serializeNBT();
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(targetEntity);
+			if (cyberwareUserData == null) return;
+			NBTTagCompound tagCompound = cyberwareUserData.serializeNBT();
 			
 			if (targetEntity instanceof EntityPlayer)
 			{

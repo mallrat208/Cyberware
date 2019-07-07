@@ -26,6 +26,7 @@ import org.lwjgl.opengl.GL11;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.lib.LibConstants;
 
@@ -48,11 +49,15 @@ public class ItemLungsUpgrade extends ItemCyberware
 		if (event.getType() == ElementType.AIR)
 		{
 			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, META_COMPRESSED_OXYGEN)) && !entityPlayer.isCreative())
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData == null) return;
+			
+			ItemStack itemStackCompressedOxygen = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
+			if ( !itemStackCompressedOxygen.isEmpty()
+			  && !entityPlayer.isCreative() )
 			{
 				GL11.glPushMatrix();
-				ItemStack stack = CyberwareAPI.getCyberware(entityPlayer, new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
-				int air = getAir(stack);
+				int air = getAir(itemStackCompressedOxygen);
 				
 				Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
 				
@@ -100,33 +105,34 @@ public class ItemLungsUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_COMPRESSED_OXYGEN)))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackCompressedAir = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
+		if (!itemStackCompressedAir.isEmpty())
 		{
-			ItemStack stack = CyberwareAPI.getCyberware(entityLivingBase, new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
-			int air = getAir(stack);
+			int air = getAir(itemStackCompressedAir);
 			if (entityLivingBase.getAir() < 300 && air > 0)
 			{
 				int toAdd = Math.min(300 - entityLivingBase.getAir(), air);
 				entityLivingBase.setAir(entityLivingBase.getAir() + toAdd);
-				CyberwareAPI.getCyberwareNBT(stack).setInteger("air", air - toAdd);
+				CyberwareAPI.getCyberwareNBT(itemStackCompressedAir).setInteger("air", air - toAdd);
 			}
 			else if (entityLivingBase.getAir() == 300 && air < 900)
 			{
-				CyberwareAPI.getCyberwareNBT(stack).setInteger("air", air + 1);
+				CyberwareAPI.getCyberwareNBT(itemStackCompressedAir).setInteger("air", air + 1);
 			}
 		}
 		
-		ItemStack test = new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST);
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST)))
+		ItemStack itemStackHyperoxygenationBoost = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST));
+		if (!itemStackHyperoxygenationBoost.isEmpty())
 		{
 			if ((entityLivingBase.isSprinting() || entityLivingBase instanceof EntityMob) && !entityLivingBase.isInWater() && entityLivingBase.onGround)
 			{
 				boolean wasPowered = getIsOxygenPowered(entityLivingBase);
-
-				int ranks = CyberwareAPI.getCyberwareRank(entityLivingBase, test);
-				test.setCount(ranks);
+				int ranks = itemStackHyperoxygenationBoost.getCount();
 				boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-				                  ? CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test))
+				                  ? cyberwareUserData.usePower(itemStackHyperoxygenationBoost, getPowerConsumption(itemStackHyperoxygenationBoost))
 				                  : wasPowered;
 				if (isPowered)
 				{

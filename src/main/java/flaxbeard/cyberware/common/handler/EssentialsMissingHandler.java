@@ -75,10 +75,11 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			CyberwareUpdateEvent event2 = new CyberwareUpdateEvent(entityLivingBase);
-			MinecraftForge.EVENT_BUS.post(event2);
+			CyberwareUpdateEvent cyberwareUpdateEvent = new CyberwareUpdateEvent(entityLivingBase);
+			MinecraftForge.EVENT_BUS.post(cyberwareUpdateEvent);
 		}
 	}
 	
@@ -87,8 +88,8 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase == null) return;
-
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
 		
 		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
@@ -254,10 +255,9 @@ public class EssentialsMissingHandler
 	{
 	    EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
-
 			int numMissingLegs = 0;
 			
 			if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
@@ -306,13 +306,13 @@ public class EssentialsMissingHandler
         if (entityLivingBase == null) return;
 
 		if ( entityLivingBase instanceof EntityPlayer
-		  && CyberwareAPI.hasCapability(entityLivingBase)
-		  && !stack.isEmpty() && stack.getItem().getItemUseAction(stack) == EnumAction.EAT )
+		  && !stack.isEmpty()
+		  && stack.getItem().getItemUseAction(stack) == EnumAction.EAT )
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			
-			if (!cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
+			if (cyberwareUserData != null && !cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
 			{
 				mapHunger.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getFoodLevel());
 				mapSaturation.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getSaturationLevel());
@@ -331,14 +331,13 @@ public class EssentialsMissingHandler
 		ItemStack stack = event.getItem();
 
 		if ( entityLivingBase instanceof EntityPlayer
-		  && CyberwareAPI.hasCapability(entityLivingBase)
 		  && !stack.isEmpty()
 		  && stack.getItem().getItemUseAction(stack) == EnumAction.EAT )
 		{
 			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			
-			if (!cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
+			if (cyberwareUserData != null && !cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
 			{
 				Integer hunger = mapHunger.get(entityPlayer.getEntityId());
 				if (hunger != null)
@@ -382,20 +381,17 @@ public class EssentialsMissingHandler
 			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
             if (entityPlayer == null) return;
 			
-			if (CyberwareAPI.hasCapability(entityPlayer))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if ( cyberwareUserData != null
+			  && !cyberwareUserData.hasEssential(EnumSlot.EYES)
+			  && !entityPlayer.isCreative() )
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
-				
-				if ( !cyberwareUserData.hasEssential(EnumSlot.EYES)
-				  && !entityPlayer.isCreative() )
-				{
-					GlStateManager.pushMatrix();
-					GlStateManager.enableBlend();
-					GlStateManager.color(1F, 1F, 1F, .9F);
-					Minecraft.getMinecraft().getTextureManager().bindTexture(BLACK_PX);
-					ClientUtils.drawTexturedModalRect(0, 0, 0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-					GlStateManager.popMatrix();
-				}
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.color(1F, 1F, 1F, .9F);
+				Minecraft.getMinecraft().getTextureManager().bindTexture(BLACK_PX);
+				ClientUtils.drawTexturedModalRect(0, 0, 0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+				GlStateManager.popMatrix();
 			}
 			
 			if (TileEntitySurgery.workingOnPlayer)
@@ -425,10 +421,9 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
-			
 			if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
 			{
 				if (!event.getSource().isUnblockable() || event.getSource() == DamageSource.FALL)
@@ -444,9 +439,9 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
@@ -456,9 +451,9 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
@@ -468,9 +463,9 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}
@@ -480,9 +475,9 @@ public class EssentialsMissingHandler
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		
-		if (CyberwareAPI.hasCapability(entityLivingBase))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			processEvent(event, event.getHand(), event.getEntityPlayer(), cyberwareUserData);
 		}
 	}

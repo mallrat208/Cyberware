@@ -25,6 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.ICyberware;
 
 public class VanillaWares
@@ -70,8 +71,9 @@ public class VanillaWares
 		public void handleSpiderNightVision(CyberwareUpdateEvent event)
 		{
 			EntityLivingBase entityLivingBase = event.getEntityLiving();
-			
-			if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(Items.SPIDER_EYE)))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+			if ( cyberwareUserData != null
+			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
 			{
 				entityLivingBase.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, Integer.MAX_VALUE, -53, true, false));
 			}
@@ -92,7 +94,9 @@ public class VanillaWares
 			if (event.getType() == ElementType.CROSSHAIRS)
 			{
 				EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-				if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(Items.SPIDER_EYE)))
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+				if ( cyberwareUserData != null
+				  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
 				{
 					GlStateManager.translate(0, event.getResolution().getScaledHeight() / 5, 0);
 				}
@@ -107,7 +111,9 @@ public class VanillaWares
 			if (event.getType() == ElementType.CROSSHAIRS)
 			{
 				EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-				if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(Items.SPIDER_EYE)))
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+				if ( cyberwareUserData != null
+				  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
 				{
 					GlStateManager.translate(0, -event.getResolution().getScaledHeight() / 5, 0);
 				}
@@ -122,7 +128,9 @@ public class VanillaWares
 			
 			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 			
-			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(Items.SPIDER_EYE)))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if ( cyberwareUserData != null
+			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
 			{
 				if (Minecraft.getMinecraft().entityRenderer.getShaderGroup() == null)
 				{

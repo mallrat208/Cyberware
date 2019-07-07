@@ -49,9 +49,10 @@ public class GuiHudConfiguration extends GuiScreen
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		boolean active = false;
-		if (CyberwareAPI.hasCapability(mc.player))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+		if (cyberwareUserData != null)
 		{
-			List<ItemStack> hudjackItems = CyberwareAPI.getCapability(mc.player).getHudjackItems();
+			List<ItemStack> hudjackItems = cyberwareUserData.getHudjackItems();
 			for (ItemStack stack : hudjackItems)
 			{
 				if (((IHudjack) CyberwareAPI.getCyberware(stack)).isActive(stack))
@@ -451,9 +452,9 @@ public class GuiHudConfiguration extends GuiScreen
 			tagCompound.setTag(element.getUniqueName(), elementData.getTag());
 		}
 		
-		if (mc.player != null)
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+		if (cyberwareUserData != null)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(mc.player);
 			NBTTagCompound tagCompoundOld = cyberwareUserData.getHudData();
 			cyberwareUserData.setHudData(tagCompound);
 		}

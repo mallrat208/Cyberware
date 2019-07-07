@@ -4,6 +4,8 @@ import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import toughasnails.api.config.GameplayOption;
 import toughasnails.api.config.SyncedConfig;
 import toughasnails.api.stat.capability.IThirst;
@@ -31,42 +33,37 @@ public class CyberwareModifier extends TemperatureModifier
 	@Override
 	public Temperature applyPlayerModifiers(@Nonnull EntityPlayer entityPlayer, @Nonnull Temperature temperature, @Nonnull IModifierMonitor iModifierMonitor)
 	{
-		Temperature temperatureToReturn = temperature;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return temperature;
+		ItemStack itemStackCyberware = cyberwareUserData.getCyberware(cyberwareType.getCyberware());
+		if (itemStackCyberware.isEmpty()) return temperature;
 		
+		Temperature temperatureToReturn = temperature;
 		switch(cyberwareType)
 		{
 		case SWEAT:
 		{
-			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
+			boolean needCooling = temperature.getRange() == TemperatureRange.WARM
+			                   || temperature.getRange() == TemperatureRange.HOT;
+			
+			if ( needCooling
+			  && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0) )
 			{
-				boolean needCooling = temperature.getRange() == TemperatureRange.WARM
-				                   || temperature.getRange() == TemperatureRange.HOT;
-				
-				if ( needCooling
-				  && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0) )
+				if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
 				{
-					if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
-					{
-						IThirst data = ThirstHelper.getThirstData(entityPlayer);
-						data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
-					}
-					
-					temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
+					IThirst data = ThirstHelper.getThirstData(entityPlayer);
+					data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
 				}
-				
-				iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
+				temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
 			}
-		
+			
+			iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
 			break;
 		}
 		case BLUBBER:
 		{
-			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
-			{
-				temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
-				iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
-			}
-			
+			temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
+			iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
 			break;
 		}
 		}

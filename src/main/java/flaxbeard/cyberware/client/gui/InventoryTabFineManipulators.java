@@ -2,6 +2,7 @@ package flaxbeard.cyberware.client.gui;
 
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemHandUpgrade;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
@@ -30,7 +31,10 @@ public class InventoryTabFineManipulators extends AbstractTab
 	public boolean shouldAddToList()
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		return CyberwareAPI.hasCapability(entityPlayer)
-		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(CyberwareContent.handUpgrades,1,ItemHandUpgrade.META_CRAFT_HANDS));
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) {
+			return false;
+		}
+		return cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CRAFT_HANDS));
 	}
 }

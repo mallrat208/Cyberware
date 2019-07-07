@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -68,34 +70,50 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public void handleTeleJam(EnderTeleportEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
-        ItemStack itemStackJammer = new ItemStack(this, 1, META_ENDER_JAMMER);
-
-        if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, itemStackJammer)
-          && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, itemStackJammer)) )
+        if (!isTeleportationAllowed(entityLivingBase))
         {
             event.setCanceled(true);
-            return;
         }
-        if (entityLivingBase != null)
-        {
-            float range = 25F;
-            List<EntityLivingBase> entitiesInRange = entityLivingBase.world.getEntitiesWithinAABB(EntityLivingBase.class,
-                                                                                      new AxisAlignedBB(entityLivingBase.posX - range, entityLivingBase.posY - range, entityLivingBase.posZ - range,
-                                                                                                        entityLivingBase.posX + entityLivingBase.width + range, entityLivingBase.posY + entityLivingBase.height + range, entityLivingBase.posZ + entityLivingBase.width + range));
-            for (EntityLivingBase entityInRange : entitiesInRange)
+    }
+    
+    public static boolean isTeleportationAllowed(@Nullable EntityLivingBase entityLivingBase) {    
+        if (entityLivingBase == null) return true;
+        
+        ItemStack itemStackJammer = new ItemStack(CyberwareContent.brainUpgrades, 1, ItemBrainUpgrade.META_ENDER_JAMMER);
+        
+        ICyberwareUserData cyberwareUserDataSelf = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+        if (cyberwareUserDataSelf != null) {
+            ItemStack itemStackJammerSelf = cyberwareUserDataSelf.getCyberware(itemStackJammer);
+            if ( !itemStackJammerSelf.isEmpty()
+              && EnableDisableHelper.isEnabled(itemStackJammerSelf) )
             {
-                if (entityLivingBase.getDistance(entityInRange) <= range)
+                return false;
+            }
+        }
+        
+        float range = 25F;
+        List<EntityLivingBase> entitiesInRange = entityLivingBase.world.getEntitiesWithinAABB(
+                EntityLivingBase.class,
+                new AxisAlignedBB(entityLivingBase.posX - range, entityLivingBase.posY - range, entityLivingBase.posZ - range,
+                                  entityLivingBase.posX + entityLivingBase.width + range, entityLivingBase.posY + entityLivingBase.height + range, entityLivingBase.posZ + entityLivingBase.width + range));
+        for (EntityLivingBase entityInRange : entitiesInRange)
+        {
+            if (entityLivingBase.getDistanceSq(entityInRange) <= range * range)
+            {
+                ICyberwareUserData cyberwareUserDataInRange = CyberwareAPI.getCapabilityOrNull(entityInRange);
+                if (cyberwareUserDataInRange != null)
                 {
-                    if ( CyberwareAPI.isCyberwareInstalled(entityInRange, itemStackJammer)
-                      && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityInRange, itemStackJammer)) )
+                    ItemStack itemStackJammerInRange = cyberwareUserDataInRange.getCyberware(itemStackJammer);
+                    if ( !itemStackJammerInRange.isEmpty()
+                         && EnableDisableHelper.isEnabled(itemStackJammerInRange) )
                     {
-                        event.setCanceled(true);
-                        return;
+                        return false;
                     }
                 }
             }
         }
-
+        
+        return true;
     }
 
     @SubscribeEvent
@@ -109,17 +127,11 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                 return;
             }
             
-            if (CyberwareAPI.isCyberwareInstalled(entityPlayerOriginal, new ItemStack(this, 1, META_CORTICAL_STACK)))
+            ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayerOriginal);
+            if (cyberwareUserData == null) return;
+            
+            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CORTICAL_STACK)))
             {
-				/*
-				float range = 5F;
-				List<EntityXPOrb> orbs = entityPlayerOriginal.world.getEntitiesWithinAABB(EntityXPOrb.class, new AxisAlignedBB(entityPlayerOriginal.posX - range, entityPlayerOriginal.posY - range, entityPlayerOriginal.posZ - range, entityPlayerOriginal.posX + entityPlayerOriginal.width + range, entityPlayerOriginal.posY + entityPlayerOriginal.height + range, entityPlayerOriginal.posZ + entityPlayerOriginal.width + range));
-				for (EntityXPOrb orb : orbs)
-				{
-					orb.setDead();
-				}
-				*/
-
                 if (!entityPlayerOriginal.world.isRemote)
                 {
                     ItemStack stack = new ItemStack(CyberwareContent.expCapsule);
@@ -130,7 +142,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                     entityPlayerOriginal.world.spawnEntity(item);
                 }
             }
-            else if (CyberwareAPI.isCyberwareInstalled(entityPlayerOriginal, new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)))
+            else if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)))
             {
                 event.getEntityPlayer().addExperience((int) (Math.min(100, entityPlayerOriginal.experienceLevel * 7) * .9F));
             }
@@ -141,10 +153,13 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public void handleMining(BreakSpeed event)
     {
         EntityPlayer entityPlayer = event.getEntityPlayer();
-
-        ItemStack test = new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER);
-        if ( CyberwareAPI.isCyberwareInstalled(entityPlayer, test)
-          && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityPlayer, test))
+        
+        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+        if (cyberwareUserData == null) return;
+        
+        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER));
+        if ( !itemStackNeuralContextualizer.isEmpty()
+          && EnableDisableHelper.isEnabled(itemStackNeuralContextualizer)
           && isContextWorking(entityPlayer)
           && !entityPlayer.isSneaking() )
         {
@@ -178,28 +193,41 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
-
-        ItemStack test = new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER);
-        if ( entityLivingBase.ticksExisted % 20 == 0
-          && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test)
-          && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test)) )
+        if (entityLivingBase.ticksExisted % 20 != 0) return;
+        
+        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+        if (cyberwareUserData == null) return;
+        
+        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER));
+        if ( !itemStackNeuralContextualizer.isEmpty()
+          && EnableDisableHelper.isEnabled(itemStackNeuralContextualizer) )
         {
-            isContextWorking.put(entityLivingBase.getUniqueID(), CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)));
+            isContextWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackNeuralContextualizer, getPowerConsumption(itemStackNeuralContextualizer)));
         }
-
-        test = new ItemStack(this, 1, META_THREAT_MATRIX);
-        if ( entityLivingBase.ticksExisted % 20 == 0
-          && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test) )
+        else
         {
-            isMatrixWorking.put(entityLivingBase.getUniqueID(), CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)));
+            isContextWorking.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
-
-        test = new ItemStack(this, 1, META_RADIO);
-        if ( entityLivingBase.ticksExisted % 20 == 0
-          && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test)
-          && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test)) )
+        
+        ItemStack itemStackThreatMatrix = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_THREAT_MATRIX));
+        if (!itemStackThreatMatrix.isEmpty())
         {
-            isRadioWorking.put(entityLivingBase.getUniqueID(), CyberwareAPI.getCapability(entityLivingBase).usePower(test, getPowerConsumption(test)));
+            isMatrixWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackThreatMatrix, getPowerConsumption(itemStackThreatMatrix)));
+        }
+        else
+        {
+            isMatrixWorking.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
+        }
+        
+        ItemStack itemStackRadio = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_RADIO));
+        if ( !itemStackRadio.isEmpty()
+          && EnableDisableHelper.isEnabled(itemStackRadio) )
+        {
+            isRadioWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackRadio, getPowerConsumption(itemStackRadio)));
+        }
+        else
+        {
+            isRadioWorking.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
     }
 
@@ -252,8 +280,11 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public void handleXPDrop(LivingExperienceDropEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
-        if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_CORTICAL_STACK))
-          || CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)) )
+        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+        if (cyberwareUserData == null) return;
+        
+        if ( cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CORTICAL_STACK))
+          || cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)) )
         {
             event.setCanceled(true);
         }
@@ -265,9 +296,11 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public void handleHurt(LivingAttackEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
+        if (!isMatrixWorking(entityLivingBase)) return;
+        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+        if (cyberwareUserData == null) return;
 
-        if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this, 1, META_THREAT_MATRIX))
-          && isMatrixWorking(entityLivingBase) )
+        if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_THREAT_MATRIX)))
         {
             if ( !entityLivingBase.world.isRemote
               && event.getSource() instanceof EntityDamageSource )

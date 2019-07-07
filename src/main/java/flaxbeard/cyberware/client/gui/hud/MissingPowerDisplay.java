@@ -52,12 +52,14 @@ public class MissingPowerDisplay extends HudElementBase
 			return;
 		}
 		
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return;
+		
 		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
 		float currTime = entityPlayer.ticksExisted + partialTicks;
 		
 		GL11.glPushMatrix();
 		GlStateManager.enableBlend();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityPlayer);
 		
 		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
 		

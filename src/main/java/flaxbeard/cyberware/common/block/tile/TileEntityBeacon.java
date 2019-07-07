@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.item.ItemBrainUpgrade;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -173,14 +174,17 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 				new AxisAlignedBB(posX - LibConstants.BEACON_RANGE_INTERNAL, 0, posZ - LibConstants.BEACON_RANGE_INTERNAL,
 				                  posX + LibConstants.BEACON_RANGE_INTERNAL, 255, posZ + LibConstants.BEACON_RANGE_INTERNAL) );
 		
-		ItemStack test = new ItemStack(CyberwareContent.brainUpgrades, 1, ItemBrainUpgrade.META_RADIO);
+		ItemStack itemStackRadioRaw = new ItemStack(CyberwareContent.brainUpgrades, 1, ItemBrainUpgrade.META_RADIO);
 		for (EntityLivingBase entityInRange : entitiesInRange)
 		{
-			if (CyberwareAPI.hasCapability(entityInRange))
+			if (ItemBrainUpgrade.isRadioWorking(entityInRange))
 			{
-				if (CyberwareAPI.isCyberwareInstalled(entityInRange, test) && ItemBrainUpgrade.isRadioWorking(entityInRange))
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityInRange);
+				if (cyberwareUserData != null)
 				{
-					if (EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityInRange, test)))
+					ItemStack itemStackRadio = cyberwareUserData.getCyberware(itemStackRadioRaw);
+					if ( !itemStackRadio.isEmpty()
+					  && EnableDisableHelper.isEnabled(itemStackRadio) )
 					{
 						return 1;
 					}

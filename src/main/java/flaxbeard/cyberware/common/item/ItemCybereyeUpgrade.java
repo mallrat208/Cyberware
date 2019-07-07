@@ -24,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IHudjack;
 import flaxbeard.cyberware.api.item.IMenuItem;
@@ -66,9 +67,12 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	public void handleHighlight(RenderTickEvent event)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		ItemStack itemStackTargeting = new ItemStack(this, 1, META_TARGETING);
-		if ( CyberwareAPI.isCyberwareInstalled(entityPlayer, itemStackTargeting)
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityPlayer, itemStackTargeting)) )
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return;
+		ItemStack itemStackTargeting = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_TARGETING));
+		
+		if ( !itemStackTargeting.isEmpty()
+		  && EnableDisableHelper.isEnabled(itemStackTargeting) )
 		{
 			if (event.phase == Phase.START)
 			{
@@ -104,7 +108,10 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	public void handleFog(FogDensity event)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, META_UNDERWATER_VISION)))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return;
+		
+		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_UNDERWATER_VISION)))
 		{
 			if (entityPlayer.isInsideOfMaterial(Material.WATER))
 			{
@@ -123,9 +130,12 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	public void handleNightVision(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ItemStack testItem = new ItemStack(this, 1, META_NIGHT_VISION);
-		if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, testItem)
-		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, testItem)) )
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		ItemStack itemStackNightVision = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NIGHT_VISION));
+		
+		if ( !itemStackNightVision.isEmpty()
+		  && EnableDisableHelper.isEnabled(itemStackNightVision) )
 		{
 			entityLivingBase.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, Integer.MAX_VALUE, 53, true, false));
 		}
@@ -144,7 +154,12 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	@SideOnly(Side.CLIENT)
 	public void handleWaterVision(RenderBlockOverlayEvent event)
 	{
-		if (CyberwareAPI.isCyberwareInstalled(event.getPlayer(), new ItemStack(this, 1, META_UNDERWATER_VISION)))
+		EntityPlayer entityPlayer = event.getPlayer();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return;
+		ItemStack itemStackUnderwaterVision = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_UNDERWATER_VISION));
+		
+		if (!itemStackUnderwaterVision.isEmpty())
 		{
 			if ( event.getBlockForOverlay().getMaterial() == Material.WATER
 			  || event.getBlockForOverlay().getMaterial() == Material.LAVA )
@@ -180,7 +195,9 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 				sensitivity = mc.gameSettings.mouseSensitivity;
 			}
 			
-			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, META_ZOOM)))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if ( cyberwareUserData != null
+			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_ZOOM)) )
 			{
 				player = entityPlayer;
 

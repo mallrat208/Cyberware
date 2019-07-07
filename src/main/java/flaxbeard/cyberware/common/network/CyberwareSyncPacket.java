@@ -74,9 +74,9 @@ public class CyberwareSyncPacket implements IMessage
 		public Void call()
 		{
 			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
-			if (targetEntity != null && CyberwareAPI.hasCapability(targetEntity))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(targetEntity);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(targetEntity);
 				cyberwareUserData.deserializeNBT(data);
 				
 				if (targetEntity == Minecraft.getMinecraft().player)

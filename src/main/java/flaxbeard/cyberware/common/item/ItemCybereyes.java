@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.handler.EssentialsMissingHandler;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -46,8 +47,10 @@ public class ItemCybereyes extends ItemCyberware
 	public void handleBlindnessImmunity(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
 		
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this)))
+		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this)))
 		{
 			entityLivingBase.removePotionEffect(MobEffects.BLINDNESS);
 		}
@@ -57,12 +60,15 @@ public class ItemCybereyes extends ItemCyberware
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-				
-		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, new ItemStack(this)))
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackCybereye = cyberwareUserData.getCyberware(new ItemStack(this));
+		if (!itemStackCybereye.isEmpty())
 		{
 			if (entityLivingBase.ticksExisted % 20 == 0)
 			{
-				boolean isPowered = CyberwareAPI.getCapability(entityLivingBase).usePower(new ItemStack(this), getPowerConsumption(ItemStack.EMPTY));
+				boolean isPowered = cyberwareUserData.usePower(itemStackCybereye, getPowerConsumption(itemStackCybereye));
 				if ( entityLivingBase.world.isRemote
 				  && entityLivingBase == Minecraft.getMinecraft().player )
 				{
