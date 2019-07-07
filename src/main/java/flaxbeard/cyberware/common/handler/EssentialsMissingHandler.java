@@ -316,13 +316,12 @@ public class EssentialsMissingHandler
 			{
 				mapHunger.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getFoodLevel());
 				mapSaturation.put(entityPlayer.getEntityId(), entityPlayer.getFoodStats().getSaturationLevel());
+				return;
 			}
 		}
-		else
-		{
-			mapHunger.remove(entityLivingBase.getEntityId());
-			mapSaturation.remove(entityLivingBase.getEntityId());
-		}
+		
+		mapHunger.remove(entityLivingBase.getEntityId());
+		mapSaturation.remove(entityLivingBase.getEntityId());
 	}
 	
 	@SubscribeEvent
@@ -341,11 +340,17 @@ public class EssentialsMissingHandler
 			
 			if (!cyberwareUserData.hasEssential(EnumSlot.LOWER_ORGANS))
 			{
-				int hungerVal = mapHunger.keySet().contains(entityPlayer) ? mapHunger.get(entityPlayer) : entityPlayer.getFoodStats().getFoodLevel();
-				float satVal = mapSaturation.keySet().contains(entityPlayer) ? mapSaturation.get(entityPlayer) : entityPlayer.getFoodStats().getSaturationLevel();
-
-				entityPlayer.getFoodStats().setFoodLevel(hungerVal);
-				entityPlayer.getFoodStats().setFoodSaturationLevel(satVal);
+				Integer hunger = mapHunger.get(entityPlayer.getEntityId());
+				if (hunger != null)
+				{
+					entityPlayer.getFoodStats().setFoodLevel(hunger);
+				}
+				
+				Float saturation = mapSaturation.get(entityPlayer.getEntityId());
+				if (saturation != null)
+				{
+					entityPlayer.getFoodStats().setFoodSaturationLevel(saturation);
+				}
 			}
 		}
 	}
