@@ -89,8 +89,8 @@ public class CreativeMenuHandler
 			int j = (gui.height - 195) / 2;
 			
 			List<GuiButton> buttons = event.getButtonList();
-			buttons.add(salvaged     = new CEXButton(355, i + 166 + 4, j + 29 + 8, 0));
-			buttons.add(manufactured = new CEXButton(356, i + 166 + 4, j + 29 + 31, 1));
+			buttons.add(salvaged     = new CEXButton(355, i + 166 + 4, j + 30 + 8, 0));
+			buttons.add(manufactured = new CEXButton(356, i + 166 + 4, j + 30 + 31, 1));
 			
 			if (isCorrectGui(event.getGui()))
 			{
@@ -160,7 +160,7 @@ public class CreativeMenuHandler
 			
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
-			gui.drawTexturedModalRect(i + 166 + xOffset, j + 29, 0, 0, xSize, ySize);
+			gui.drawTexturedModalRect(i + 166 + xOffset, j + 30, 0, 0, xSize, ySize);
 			
 			salvaged.visible = true;
 			manufactured.visible = true;
