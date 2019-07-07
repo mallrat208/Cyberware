@@ -275,7 +275,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                 Entity attacker = event.getSource().getTrueSource();
                 if (entityLivingBase instanceof EntityPlayer)
                 {
-                    String str = entityLivingBase.getEntityId() + " " + entityLivingBase.ticksExisted + " " + attacker.getEntityId();
+                    String str = entityLivingBase.getEntityId() + " " + entityLivingBase.ticksExisted + " " + (attacker == null ? -1 : attacker.getEntityId());
                     if (lastHits.contains(str))
                     {
                         return;

@@ -162,7 +162,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 						entityPlayer.inventory.currentItem = indexWeapon;
 						
 						CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(indexWeapon, entityPlayer.getEntityId(),
-						                                                                           rank > 2 ? attacker.getEntityId() : -1 ),
+						                                                                           rank > 2 && attacker != null ? attacker.getEntityId() : -1 ),
 						                                       (EntityPlayerMP) entityPlayer);
 						
 						WorldServer worldServer = (WorldServer) entityPlayer.world;
@@ -170,7 +170,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 						for (EntityPlayer trackingPlayer : worldServer.getEntityTracker().getTrackingPlayers(entityPlayer))
 						{
 							CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(indexWeapon, entityPlayer.getEntityId(),
-							                                                                           rank > 2 ? attacker.getEntityId() : -1 ),
+							                                                                           rank > 2 && attacker != null ? attacker.getEntityId() : -1 ),
 							                                       (EntityPlayerMP) trackingPlayer);
 						}
 					}
