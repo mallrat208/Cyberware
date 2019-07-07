@@ -110,6 +110,8 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 	public void power(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
+		
 		ItemStack test = new ItemStack(this, 1, META_METABOLIC_GENERATOR);
 		if ( CyberwareAPI.isCyberwareInstalled(entityLivingBase, test)
 		  && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entityLivingBase, test)) )
@@ -117,7 +119,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 			ItemStack stack = CyberwareAPI.getCyberware(entityLivingBase, test);
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
 			
-			if (entityLivingBase.ticksExisted % 20 == 0 && !cyberwareUserData.isAtCapacity(test, getPowerProduction(stack)))
+			if (!cyberwareUserData.isAtCapacity(test, getPowerProduction(stack)))
 			{
 				if (entityLivingBase instanceof EntityPlayer)
 				{
@@ -156,7 +158,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		}
 		
 		ItemStack test2 = new ItemStack(this, 1, META_ADRENALINE_PUMP);
-		if (entityLivingBase.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(entityLivingBase, test2))
+		if (CyberwareAPI.isCyberwareInstalled(entityLivingBase, test2))
 		{
 			ItemStack stack = CyberwareAPI.getCyberware(entityLivingBase, test2);
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapability(entityLivingBase);
