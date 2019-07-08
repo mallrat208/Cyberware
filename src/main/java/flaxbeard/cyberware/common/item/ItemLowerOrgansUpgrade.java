@@ -192,7 +192,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 	private boolean wasBelow(ItemStack stack)
 	{
 		NBTTagCompound data = CyberwareAPI.getCyberwareNBT(stack);
-		if (!data.hasKey("toRemove"))
+		if (!data.hasKey("wasBelow"))
 		{
 			data.setBoolean("wasBelow", false);
 		}
