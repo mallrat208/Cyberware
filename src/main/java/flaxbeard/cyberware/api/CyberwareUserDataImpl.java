@@ -33,6 +33,7 @@ import flaxbeard.cyberware.api.item.IHudjack;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.lib.LibConstants;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 
 public class CyberwareUserDataImpl implements ICyberwareUserData
 {
@@ -371,7 +372,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			cyberwaresToInstall.add(ItemStack.EMPTY);
 		}
-		setInstalledCyberware(entityLivingBase, slot, cyberwaresToInstall);
+		setInstalledCyberware(entityLivingBase, slot, NNLUtil.fromArray(cyberwaresToInstall.toArray(new ItemStack[0])));
 	}
 	
 	@Override
