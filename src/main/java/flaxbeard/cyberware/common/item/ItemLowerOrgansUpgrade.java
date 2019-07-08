@@ -87,7 +87,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 					}
 				}
 				
-				Collection<PotionEffect> potionEffectsToAdd = mapPotions.get(entityPlayer.getEntityId());
+				Collection<PotionEffect> potionEffectsToAdd = mapPotions.get(entityPlayer.getUniqueID());
 				if (potionEffectsToAdd != null)
 				{
 					for (PotionEffect potionEffectToAdd : potionEffectsToAdd)
