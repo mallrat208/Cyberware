@@ -19,57 +19,59 @@ import javax.annotation.Nonnull;
 public class CyberwareModifier extends TemperatureModifier
 {
 	private final Type cyberwareType;
+	private final String description;
 	
 	CyberwareModifier(@Nonnull Type type)
 	{
 		super(Cyberware.MODID + ":" + type.name);
 		cyberwareType = type;
+		description = Cyberware.MODNAME + ": " + cyberwareType.name;
 	}
 	
 	@Override
 	public Temperature applyPlayerModifiers(@Nonnull EntityPlayer entityPlayer, @Nonnull Temperature temperature, @Nonnull IModifierMonitor iModifierMonitor)
 	{
-		int newTemperatureLevel = temperature.getRawValue();
+		Temperature temperatureToReturn = temperature;
 		
 		switch(cyberwareType)
 		{
-			case SWEAT:
-				{
-					if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
-					{
-						boolean needCooling = temperature.getRange() == TemperatureRange.WARM
-						                   || temperature.getRange() == TemperatureRange.HOT;
-						
-						if ( needCooling
-						  && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0) )
-						{
-							if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
-							{
-								IThirst data = ThirstHelper.getThirstData(entityPlayer);
-								data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
-							}
-							
-							newTemperatureLevel += cyberwareType.modifier;
-						}
-						
-						iModifierMonitor.addEntry(new Context(getId(), Cyberware.MODNAME + ": " + cyberwareType.name, temperature, new Temperature(newTemperatureLevel)));
-					}
+		case SWEAT:
+		{
+			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
+			{
+				boolean needCooling = temperature.getRange() == TemperatureRange.WARM
+				                   || temperature.getRange() == TemperatureRange.HOT;
 				
-					return new Temperature(newTemperatureLevel);
-				}
-			case BLUBBER:
+				if ( needCooling
+				  && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0) )
 				{
-					if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
+					if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
 					{
-						newTemperatureLevel += cyberwareType.modifier;
-						iModifierMonitor.addEntry(new Context(getId(), Cyberware.MODNAME + ": " + cyberwareType.name, temperature, new Temperature(newTemperatureLevel)));
+						IThirst data = ThirstHelper.getThirstData(entityPlayer);
+						data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
 					}
 					
-					return new Temperature(newTemperatureLevel);
+					temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
 				}
+				
+				iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
+			}
+		
+			break;
+		}
+		case BLUBBER:
+		{
+			if (CyberwareAPI.isCyberwareInstalled(entityPlayer, cyberwareType.getCyberware()))
+			{
+				temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
+				iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
+			}
+			
+			break;
+		}
 		}
 		
-		return temperature;
+		return temperatureToReturn;
 	}
 	
 	@Override
@@ -78,11 +80,17 @@ public class CyberwareModifier extends TemperatureModifier
 		return true;
 	}
 	
+	/* done by ancestor
 	@Nonnull
 	@Override
 	public String getId()
 	{
 		return Cyberware.MODID + cyberwareType.name;
+	}
+	*/
+	
+	public String getDescription() {
+		return description;
 	}
 	
 	enum Type
