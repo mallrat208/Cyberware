@@ -174,7 +174,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 				new AxisAlignedBB(posX - LibConstants.BEACON_RANGE_INTERNAL, 0, posZ - LibConstants.BEACON_RANGE_INTERNAL,
 				                  posX + LibConstants.BEACON_RANGE_INTERNAL, 255, posZ + LibConstants.BEACON_RANGE_INTERNAL) );
 		
-		ItemStack itemStackRadioRaw = new ItemStack(CyberwareContent.brainUpgrades, 1, ItemBrainUpgrade.META_RADIO);
+		ItemStack itemStackRadioRaw = CyberwareContent.brainUpgrades.getCachedStack(ItemBrainUpgrade.META_RADIO);
 		for (EntityLivingBase entityInRange : entitiesInRange)
 		{
 			if (ItemBrainUpgrade.isRadioWorking(entityInRange))

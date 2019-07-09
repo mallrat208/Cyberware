@@ -41,7 +41,7 @@ public class ItemCyberheart extends ItemCyberware
 		if (entityLivingBase.ticksExisted % 20 != 0) return;
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
-		ItemStack itemStackCyberheart = cyberwareUserData.getCyberware(new ItemStack(this));
+		ItemStack itemStackCyberheart = cyberwareUserData.getCyberware(getCachedStack(0));
 		
 		if (!itemStackCyberheart.isEmpty())
 		{

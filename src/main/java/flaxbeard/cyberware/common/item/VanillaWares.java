@@ -32,6 +32,8 @@ public class VanillaWares
 {
 	public static class SpiderEyeWare implements ICyberware
 	{
+		private static final ItemStack itemStackSpiderEye = new ItemStack(Items.SPIDER_EYE);
+		
 		public SpiderEyeWare()
 		{
 			MinecraftForge.EVENT_BUS.register(this);
@@ -71,9 +73,12 @@ public class VanillaWares
 		public void handleSpiderNightVision(CyberwareUpdateEvent event)
 		{
 			EntityLivingBase entityLivingBase = event.getEntityLiving();
+			if (entityLivingBase == null) return;
+			if (entityLivingBase.ticksExisted % 20 != 0) return;
+			
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
+			  && cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye) )
 			{
 				entityLivingBase.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, Integer.MAX_VALUE, -53, true, false));
 			}
@@ -96,7 +101,7 @@ public class VanillaWares
 				EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 				if ( cyberwareUserData != null
-				  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
+				  && cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye) )
 				{
 					GlStateManager.translate(0, event.getResolution().getScaledHeight() / 5, 0);
 				}
@@ -113,7 +118,7 @@ public class VanillaWares
 				EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 				if ( cyberwareUserData != null
-				  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
+				  && cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye) )
 				{
 					GlStateManager.translate(0, -event.getResolution().getScaledHeight() / 5, 0);
 				}
@@ -130,7 +135,7 @@ public class VanillaWares
 			
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(Items.SPIDER_EYE)) )
+			  && cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye) )
 			{
 				if (Minecraft.getMinecraft().entityRenderer.getShaderGroup() == null)
 				{

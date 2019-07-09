@@ -52,12 +52,12 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		if (stack.getItemDamage() == META_TARGETING)
 		{
 			return NNLUtil.fromArray(new ItemStack[][] { 
-					new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) }, 
-					new ItemStack[] { new ItemStack(this, 1, META_HUDJACK) }});
+					new ItemStack[] { CyberwareContent.cybereyes.getCachedStack(0) }, 
+					new ItemStack[] { getCachedStack(META_HUDJACK) }});
 		}
 		
 		return NNLUtil.fromArray(new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cybereyes) }});
+				new ItemStack[] { CyberwareContent.cybereyes.getCachedStack(0) }});
 	}
 
 	private static List<EntityLivingBase> affected = new ArrayList<>();
@@ -69,7 +69,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 		if (cyberwareUserData == null) return;
-		ItemStack itemStackTargeting = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_TARGETING));
+		ItemStack itemStackTargeting = cyberwareUserData.getCyberware(getCachedStack(META_TARGETING));
 		
 		if ( !itemStackTargeting.isEmpty()
 		  && EnableDisableHelper.isEnabled(itemStackTargeting) )
@@ -111,7 +111,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_UNDERWATER_VISION)))
+		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_UNDERWATER_VISION)))
 		{
 			if (entityPlayer.isInsideOfMaterial(Material.WATER))
 			{
@@ -132,7 +132,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
-		ItemStack itemStackNightVision = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NIGHT_VISION));
+		ItemStack itemStackNightVision = cyberwareUserData.getCyberware(getCachedStack(META_NIGHT_VISION));
 		
 		if ( !itemStackNightVision.isEmpty()
 		  && EnableDisableHelper.isEnabled(itemStackNightVision) )
@@ -157,7 +157,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		EntityPlayer entityPlayer = event.getPlayer();
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 		if (cyberwareUserData == null) return;
-		ItemStack itemStackUnderwaterVision = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_UNDERWATER_VISION));
+		ItemStack itemStackUnderwaterVision = cyberwareUserData.getCyberware(getCachedStack(META_UNDERWATER_VISION));
 		
 		if (!itemStackUnderwaterVision.isEmpty())
 		{
@@ -197,7 +197,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 			
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_ZOOM)) )
+			  && cyberwareUserData.isCyberwareInstalled(getCachedStack(META_ZOOM)) )
 			{
 				player = entityPlayer;
 

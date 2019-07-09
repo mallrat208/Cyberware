@@ -103,7 +103,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WIRED_REFLEXES));
+		ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(getCachedStack(META_WIRED_REFLEXES));
 		int rank = itemStackWiredReflexes.getCount();
 		if ( rank > 1
 		  && EnableDisableHelper.isEnabled(itemStackWiredReflexes)
@@ -190,7 +190,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackMuscleReplacement = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_MUSCLE_REPLACEMENTS));
+		ItemStack itemStackMuscleReplacement = cyberwareUserData.getCyberware(getCachedStack(META_MUSCLE_REPLACEMENTS));
 		if (!itemStackMuscleReplacement.isEmpty())
 		{
 			boolean wasPowered = setIsStrengthPowered.contains(entityLivingBase.getUniqueID());
@@ -226,7 +226,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		
 		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WIRED_REFLEXES));
+			ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(getCachedStack(META_WIRED_REFLEXES));
 			if ( !itemStackWiredReflexes.isEmpty()
 			  && EnableDisableHelper.isEnabled(itemStackWiredReflexes) )
 			{

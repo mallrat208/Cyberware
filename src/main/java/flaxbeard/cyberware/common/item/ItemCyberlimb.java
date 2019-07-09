@@ -81,8 +81,8 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		{
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			if (cyberwareUserData == null) return;
-			if ( cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LEFT_CYBER_LEG))
-		      || cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_RIGHT_CYBER_LEG)) )
+			if ( cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LEFT_CYBER_LEG))
+		      || cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)) )
 			{
 				didFall.add(entityLivingBase.getEntityId());
 			}
@@ -104,12 +104,12 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entity);
 				if (cyberwareUserData == null) return;
 				
-				if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LEFT_CYBER_LEG)))
+				if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LEFT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
 				
-				if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_RIGHT_CYBER_LEG)))
+				if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)))
 				{
 					numLegs++;
 				}
@@ -134,7 +134,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		{
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			if (cyberwareUserData == null) return;
-			ItemStack itemStackInstalled = cyberwareUserData.getCyberware(new ItemStack(this, 1, damage));
+			ItemStack itemStackInstalled = cyberwareUserData.getCyberware(getCachedStack(damage));
 			if (!itemStackInstalled.isEmpty())
 			{
 				boolean isPowered = cyberwareUserData.usePower(itemStackInstalled, getPowerConsumption(itemStackInstalled));

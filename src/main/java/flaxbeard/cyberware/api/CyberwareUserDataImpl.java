@@ -187,7 +187,15 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		ItemStack stack = ItemStack.EMPTY;
 		if (!inputter.isEmpty())
 		{
-			stack = new ItemStack(inputter.getItem(), 1, inputter.getItemDamage());
+			if ( inputter.hasTagCompound()
+			  || inputter.getCount() != 1 )
+			{
+				stack = new ItemStack(inputter.getItem(), 1, inputter.getItemDamage());
+			}
+			else
+			{
+				stack = inputter;
+			}
 		}
 		
 		int amountExisting = 0;

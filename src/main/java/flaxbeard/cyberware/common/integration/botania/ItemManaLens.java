@@ -78,8 +78,8 @@ public class ItemManaLens //extends ItemCyberware
 	private boolean hasLensNotMonocle(EntityPlayer entityPlayer)
 	{
 		return !Botania.proxy.isClientPlayerWearingMonocle()
-		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this))
-		    || CyberwareAPI.isCyberwareInstalled(entityPlayer, new ItemStack(this, 1, 1));
+		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(0))
+		    || CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(1));
 	}
 
 	@SideOnly(Side.CLIENT)

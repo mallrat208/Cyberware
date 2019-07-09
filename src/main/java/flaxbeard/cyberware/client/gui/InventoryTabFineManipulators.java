@@ -35,6 +35,6 @@ public class InventoryTabFineManipulators extends AbstractTab
 		if (cyberwareUserData == null) {
 			return false;
 		}
-		return cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CRAFT_HANDS));
+		return cyberwareUserData.isCyberwareInstalled(CyberwareContent.handUpgrades.getCachedStack(ItemHandUpgrade.META_CRAFT_HANDS));
 	}
 }

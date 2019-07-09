@@ -54,7 +54,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		{
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LIVER_FILTER)))
+			  && cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LIVER_FILTER)))
 			{
 				mapPotions.put(entityPlayer.getUniqueID(), new ArrayList<>(entityPlayer.getActivePotionEffects()));
 			}
@@ -75,7 +75,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		{
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_LIVER_FILTER)))
+			  && cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LIVER_FILTER)))
 			{
 				Collection<PotionEffect> potionEffectsRemoved = new ArrayList<>(entityPlayer.getActivePotionEffects());
 				for (PotionEffect potionEffect : potionEffectsRemoved)
@@ -114,7 +114,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackMetabolicGenerator = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_METABOLIC_GENERATOR));
+		ItemStack itemStackMetabolicGenerator = cyberwareUserData.getCyberware(getCachedStack(META_METABOLIC_GENERATOR));
 		if ( !itemStackMetabolicGenerator.isEmpty()
 		  && EnableDisableHelper.isEnabled(itemStackMetabolicGenerator) )
 		{
@@ -157,7 +157,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 			}
 		}
 		
-		ItemStack itemStackAdrenalinePump = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_ADRENALINE_PUMP));
+		ItemStack itemStackAdrenalinePump = cyberwareUserData.getCyberware(getCachedStack(META_ADRENALINE_PUMP));
 		if (!itemStackAdrenalinePump.isEmpty())
 		{
 			boolean wasBelow = wasBelow(itemStackAdrenalinePump);

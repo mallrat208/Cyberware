@@ -79,7 +79,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
     public static boolean isTeleportationAllowed(@Nullable EntityLivingBase entityLivingBase) {    
         if (entityLivingBase == null) return true;
         
-        ItemStack itemStackJammer = new ItemStack(CyberwareContent.brainUpgrades, 1, ItemBrainUpgrade.META_ENDER_JAMMER);
+        ItemStack itemStackJammer = CyberwareContent.brainUpgrades.getCachedStack(ItemBrainUpgrade.META_ENDER_JAMMER);
         
         ICyberwareUserData cyberwareUserDataSelf = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserDataSelf != null) {
@@ -130,7 +130,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
             ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayerOriginal);
             if (cyberwareUserData == null) return;
             
-            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CORTICAL_STACK)))
+            if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_CORTICAL_STACK)))
             {
                 if (!entityPlayerOriginal.world.isRemote)
                 {
@@ -142,7 +142,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                     entityPlayerOriginal.world.spawnEntity(item);
                 }
             }
-            else if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)))
+            else if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_CONSCIOUSNESS_TRANSMITTER)))
             {
                 event.getEntityPlayer().addExperience((int) (Math.min(100, entityPlayerOriginal.experienceLevel * 7) * .9F));
             }
@@ -157,7 +157,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
         if (cyberwareUserData == null) return;
         
-        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER));
+        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(getCachedStack(META_NEURAL_CONTEXTUALIZER));
         if ( !itemStackNeuralContextualizer.isEmpty()
           && EnableDisableHelper.isEnabled(itemStackNeuralContextualizer)
           && isContextWorking(entityPlayer)
@@ -198,7 +198,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserData == null) return;
         
-        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_NEURAL_CONTEXTUALIZER));
+        ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(getCachedStack(META_NEURAL_CONTEXTUALIZER));
         if ( !itemStackNeuralContextualizer.isEmpty()
           && EnableDisableHelper.isEnabled(itemStackNeuralContextualizer) )
         {
@@ -209,7 +209,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
             isContextWorking.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
         
-        ItemStack itemStackThreatMatrix = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_THREAT_MATRIX));
+        ItemStack itemStackThreatMatrix = cyberwareUserData.getCyberware(getCachedStack(META_THREAT_MATRIX));
         if (!itemStackThreatMatrix.isEmpty())
         {
             isMatrixWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackThreatMatrix, getPowerConsumption(itemStackThreatMatrix)));
@@ -219,7 +219,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
             isMatrixWorking.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
         
-        ItemStack itemStackRadio = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_RADIO));
+        ItemStack itemStackRadio = cyberwareUserData.getCyberware(getCachedStack(META_RADIO));
         if ( !itemStackRadio.isEmpty()
           && EnableDisableHelper.isEnabled(itemStackRadio) )
         {
@@ -283,8 +283,8 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserData == null) return;
         
-        if ( cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CORTICAL_STACK))
-          || cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_CONSCIOUSNESS_TRANSMITTER)) )
+        if ( cyberwareUserData.isCyberwareInstalled(getCachedStack(META_CORTICAL_STACK))
+          || cyberwareUserData.isCyberwareInstalled(getCachedStack(META_CONSCIOUSNESS_TRANSMITTER)) )
         {
             event.setCanceled(true);
         }
@@ -300,7 +300,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserData == null) return;
 
-        if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_THREAT_MATRIX)))
+        if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_THREAT_MATRIX)))
         {
             if ( !entityLivingBase.world.isRemote
               && event.getSource() instanceof EntityDamageSource )

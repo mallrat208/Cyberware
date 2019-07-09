@@ -31,8 +31,8 @@ public class ItemLegUpgrade extends ItemCyberware
 	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
 	{		
 		return NNLUtil.fromArray(new ItemStack[][] { 
-				new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG),
-				                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
+				new ItemStack[] { CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG),
+				                  CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
 	}
 	
 	@SubscribeEvent
@@ -42,15 +42,15 @@ public class ItemLegUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackJumpBoost = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_JUMP_BOOST));
+		ItemStack itemStackJumpBoost = cyberwareUserData.getCyberware(getCachedStack(META_JUMP_BOOST));
 		if (!itemStackJumpBoost.isEmpty())
 		{
 			int numLegs = 0;
-			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
+			if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
-			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+			if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
 			{
 				numLegs++;
 			}
@@ -93,7 +93,7 @@ public class ItemLegUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_FALL_DAMAGE)))
+		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_FALL_DAMAGE)))
 		{
 			event.setCanceled(true);
 		}

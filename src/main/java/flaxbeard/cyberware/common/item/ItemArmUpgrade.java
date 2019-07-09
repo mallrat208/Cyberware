@@ -26,8 +26,8 @@ public class ItemArmUpgrade extends ItemCyberware
 	{		
 		NonNullList<NonNullList<ItemStack>> l1 = NonNullList.create();
 		NonNullList<ItemStack> l2 = NonNullList.create();
-		l2.add(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM));
-		l2.add(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM));
+		l2.add(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM));
+		l2.add(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM));
 		l1.add(l2);
 		return l1;
 	}
@@ -43,7 +43,7 @@ public class ItemArmUpgrade extends ItemCyberware
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			if (cyberwareUserData == null) return;
 			
-			if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_BOW)))
+			if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_BOW)))
 			{
 				event.setDuration(event.getDuration() - 1);
 			}

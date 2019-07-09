@@ -52,7 +52,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			if (cyberwareUserData == null) return;
 			
-			ItemStack itemStackCompressedOxygen = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
+			ItemStack itemStackCompressedOxygen = cyberwareUserData.getCyberware(getCachedStack(META_COMPRESSED_OXYGEN));
 			if ( !itemStackCompressedOxygen.isEmpty()
 			  && !entityPlayer.isCreative() )
 			{
@@ -108,7 +108,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackCompressedAir = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_COMPRESSED_OXYGEN));
+		ItemStack itemStackCompressedAir = cyberwareUserData.getCyberware(getCachedStack(META_COMPRESSED_OXYGEN));
 		if (!itemStackCompressedAir.isEmpty())
 		{
 			int air = getAir(itemStackCompressedAir);
@@ -124,7 +124,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 			}
 		}
 		
-		ItemStack itemStackHyperoxygenationBoost = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_HYPEROXYGENATION_BOOST));
+		ItemStack itemStackHyperoxygenationBoost = cyberwareUserData.getCyberware(getCachedStack(META_HYPEROXYGENATION_BOOST));
 		if (!itemStackHyperoxygenationBoost.isEmpty())
 		{
 			if ((entityLivingBase.isSprinting() || entityLivingBase instanceof EntityMob) && !entityLivingBase.isInWater() && entityLivingBase.onGround)

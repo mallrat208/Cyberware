@@ -58,8 +58,8 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
     {
         return NNLUtil.fromArray(new ItemStack[][] {
-                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM),
-                                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM) }});
+                new ItemStack[] { CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM),
+                                  CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM) }});
     }
 
     @Override
@@ -78,14 +78,14 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserData == null) return;
         
-        ItemStack itemStackClaws = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_CLAWS));
+        ItemStack itemStackClaws = cyberwareUserData.getCyberware(getCachedStack(META_CLAWS));
         if (!itemStackClaws.isEmpty())
         {
             boolean wasEquipped = getLastClaws(entityLivingBase);
             boolean isEquipped = entityLivingBase.getHeldItemMainhand().isEmpty()
                  && ( entityLivingBase.getPrimaryHand() == EnumHandSide.RIGHT
-                    ? (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
-                    : (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+                    ? (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                    : (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))) );
             if ( isEquipped
               && EnableDisableHelper.isEnabled(itemStackClaws) )
             {
@@ -171,10 +171,10 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
         if (cyberwareUserData == null) return;
         
-        ItemStack itemStackMining = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_MINING));
+        ItemStack itemStackMining = cyberwareUserData.getCyberware(getCachedStack(META_MINING));
         boolean rightArm = ( entityPlayer.getPrimaryHand() == EnumHandSide.RIGHT
-                           ? (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
-                           : (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+                           ? (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                           : (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))) );
         if ( rightArm
           && !itemStackMining.isEmpty()
           && entityPlayer.getHeldItemMainhand().isEmpty() )
@@ -194,10 +194,10 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
         if (cyberwareUserData == null) return;
     
-        ItemStack itemStackMining = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_MINING));
+        ItemStack itemStackMining = cyberwareUserData.getCyberware(getCachedStack(META_MINING));
         boolean rightArm = ( entityPlayer.getPrimaryHand() == EnumHandSide.RIGHT
-                           ? (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM)))
-                           : (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))) );
+                           ? (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM)))
+                           : (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))) );
         if ( rightArm
           && !itemStackMining.isEmpty()
           && entityPlayer.getHeldItemMainhand().isEmpty() )

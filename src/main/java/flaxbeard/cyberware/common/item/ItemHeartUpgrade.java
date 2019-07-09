@@ -58,7 +58,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackInternalDefibrillator = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_INTERNAL_DEFIBRILLATOR));
+		ItemStack itemStackInternalDefibrillator = cyberwareUserData.getCyberware(getCachedStack(META_INTERNAL_DEFIBRILLATOR));
 		if (!itemStackInternalDefibrillator.isEmpty())
 		{
 			if ( (!CyberwareAPI.getCyberwareNBT(itemStackInternalDefibrillator).hasKey("used"))
@@ -112,7 +112,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER));
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
 		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
 			if (!itemStackStemCellSynthesizer.isEmpty())
@@ -121,7 +121,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 			}
 		}
 		
-		ItemStack itemStackPlateletDispatcher = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_PLATELET_DISPATCHER));
+		ItemStack itemStackPlateletDispatcher = cyberwareUserData.getCyberware(getCachedStack(META_PLATELET_DISPATCHER));
 		if ( entityLivingBase.ticksExisted % 20 == 0
 		  && !itemStackPlateletDispatcher.isEmpty() )
 		{
@@ -218,7 +218,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_STEM_CELL_SYNTHESIZER));
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
 		if (!itemStackStemCellSynthesizer.isEmpty())
 		{
 			float damageAmount = event.getAmount();
@@ -317,7 +317,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_CARDIOVASCULAR_COUPLER));
+		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(getCachedStack(META_CARDIOVASCULAR_COUPLER));
 		if (!itemStackCardiovascularCoupler.isEmpty())
 		{
 			cyberwareUserData.addPower(getPowerProduction(itemStackCardiovascularCoupler), itemStackCardiovascularCoupler);

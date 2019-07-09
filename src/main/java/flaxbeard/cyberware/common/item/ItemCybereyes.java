@@ -50,7 +50,7 @@ public class ItemCybereyes extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this)))
+		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(0)))
 		{
 			entityLivingBase.removePotionEffect(MobEffects.BLINDNESS);
 		}
@@ -63,7 +63,7 @@ public class ItemCybereyes extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackCybereye = cyberwareUserData.getCyberware(new ItemStack(this));
+		ItemStack itemStackCybereye = cyberwareUserData.getCyberware(getCachedStack(0));
 		if (!itemStackCybereye.isEmpty())
 		{
 			if (entityLivingBase.ticksExisted % 20 == 0)

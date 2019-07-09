@@ -67,7 +67,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData != null)
 		{
-			ItemStack itemStackMetalLacing = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_LACING));
+			ItemStack itemStackMetalLacing = cyberwareUserData.getCyberware(getCachedStack(META_LACING));
 			if (!itemStackMetalLacing.isEmpty())
 			{
 				onAdded(entityLivingBase, cyberwareUserData.getCyberware(itemStackMetalLacing));
@@ -88,7 +88,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_FLEX)))
+		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_FLEX)))
 		{
 			event.setAmount(event.getAmount() * .3333F);
 		}

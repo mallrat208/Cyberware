@@ -71,9 +71,9 @@ public class RenderPlayerCyberware extends RenderPlayer
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(clientPlayer);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackClaws = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS));
+		ItemStack itemStackClaws = cyberwareUserData.getCyberware(CyberwareContent.handUpgrades.getCachedStack(ItemHandUpgrade.META_CLAWS));
 		if ( !itemStackClaws.isEmpty()
-		  && cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM))
+		  && cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM))
 		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();
@@ -106,9 +106,9 @@ public class RenderPlayerCyberware extends RenderPlayer
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(clientPlayer);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackClaws = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CLAWS));
+		ItemStack itemStackClaws = cyberwareUserData.getCyberware(CyberwareContent.handUpgrades.getCachedStack(ItemHandUpgrade.META_CLAWS));
 		if ( !itemStackClaws.isEmpty()
-		  && cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM))
+		  && cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))
 		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();

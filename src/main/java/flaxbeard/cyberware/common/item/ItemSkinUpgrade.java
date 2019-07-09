@@ -52,7 +52,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackSolarskin = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_SOLARSKIN));
+		ItemStack itemStackSolarskin = cyberwareUserData.getCyberware(getCachedStack(META_SOLARSKIN));
 		if (!itemStackSolarskin.isEmpty())
 		{
 			if (entityLivingBase.world.canBlockSeeSky(new BlockPos(entityLivingBase.posX, entityLivingBase.posY + entityLivingBase.height, entityLivingBase.posZ)))
@@ -72,7 +72,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		ItemStack itemStackImmunosuppressant = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_IMMUNOSUPPRESSANT));
+		ItemStack itemStackImmunosuppressant = cyberwareUserData.getCyberware(getCachedStack(META_IMMUNOSUPPRESSANT));
 		if (!itemStackImmunosuppressant.isEmpty())
 		{
 			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
@@ -150,7 +150,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(new ItemStack(this, 1, META_SUBDERMAL_SPIKES)))
+		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_SUBDERMAL_SPIKES)))
 		{
 			if ( event.getSource() instanceof EntityDamageSource
 			  && !(event.getSource() instanceof EntityDamageSourceIndirect) )

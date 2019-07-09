@@ -129,14 +129,14 @@ public class EssentialsMissingHandler
 			numMissingLegsVisible++;
 		}
 		
-		ItemStack legLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG));
+		ItemStack legLeft = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG));
 		if ( !legLeft.isEmpty()
 		  && !ItemCyberlimb.isPowered(legLeft) )
 		{
 			numMissingLegs++;
 		}
 		
-		ItemStack legRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG));
+		ItemStack legRight = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG));
 		if ( !legRight.isEmpty()
 		  && !ItemCyberlimb.isPowered(legRight) )
 		{
@@ -269,13 +269,13 @@ public class EssentialsMissingHandler
 				numMissingLegs++;
 			}
 			
-			ItemStack legLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG));
+			ItemStack legLeft = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG));
 			if (!legLeft.isEmpty() && !ItemCyberlimb.isPowered(legLeft))
 			{
 				numMissingLegs++;
 			}
 			
-			ItemStack legRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG));
+			ItemStack legRight = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG));
 			if (!legRight.isEmpty() && !ItemCyberlimb.isPowered(legRight))
 			{
 				numMissingLegs++;
@@ -490,14 +490,14 @@ public class EssentialsMissingHandler
 		EnumSide correspondingOffHand = ((offHand == EnumHandSide.RIGHT) ? EnumSide.RIGHT : EnumSide.LEFT);
 		
 		boolean leftUnpowered = false;
-		ItemStack armLeft = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_ARM));
+		ItemStack armLeft = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM));
 		if (!armLeft.isEmpty() && !ItemCyberlimb.isPowered(armLeft))
 		{
 			leftUnpowered = true;
 		}
 		
 		boolean rightUnpowered = false;
-		ItemStack armRight = cyberwareUserData.getCyberware(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_ARM));
+		ItemStack armRight = cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM));
 		if (!armRight.isEmpty() && !ItemCyberlimb.isPowered(armRight))
 		{
 			rightUnpowered = true;

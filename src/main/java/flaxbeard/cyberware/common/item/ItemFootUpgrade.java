@@ -43,8 +43,8 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
         if (stack.getItemDamage() != META_AQUA) return NonNullList.create();
 
         return NNLUtil.fromArray(new ItemStack[][] {
-                new ItemStack[] { new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG),
-                                  new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
+                new ItemStack[] { CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG),
+                                  CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG) }});
     }
 
     @SubscribeEvent
@@ -53,7 +53,7 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
         EntityLivingBase entityLivingBase = event.getEntityLiving();
         if (entityLivingBase instanceof EntityHorse)
         {
-        	ItemStack itemStackSpurs = new ItemStack(this, 1, META_SPURS);
+        	ItemStack itemStackSpurs = getCachedStack(META_SPURS);
             EntityHorse entityHorse = (EntityHorse) entityLivingBase;
             for (Entity entityPassenger : entityHorse.getPassengers())
             {
@@ -82,17 +82,17 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
 	    ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 	    if (cyberwareUserData == null) return;
 	    
-        ItemStack itemStackAqua = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_AQUA));
+        ItemStack itemStackAqua = cyberwareUserData.getCyberware(getCachedStack(META_AQUA));
         if ( !itemStackAqua.isEmpty()
           && !entityLivingBase.onGround
           && entityLivingBase.isInWater() )
         {
             int numLegs = 0;
-            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_LEFT_CYBER_LEG)))
+            if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
             {
                 numLegs++;
             }
-            if (cyberwareUserData.isCyberwareInstalled(new ItemStack(CyberwareContent.cyberlimbs, 1, ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+            if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
             {
                 numLegs++;
             }
@@ -116,7 +116,7 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
             mapIsAquaPowered.put(entityLivingBase.getUniqueID(), true);
         }
 
-        ItemStack itemStackWheels = cyberwareUserData.getCyberware(new ItemStack(this, 1, META_WHEELS));
+        ItemStack itemStackWheels = cyberwareUserData.getCyberware(getCachedStack(META_WHEELS));
         if (!itemStackWheels.isEmpty())
         {
             boolean wasPowered = getCountdownWheelsPowered(entityLivingBase) > 0;

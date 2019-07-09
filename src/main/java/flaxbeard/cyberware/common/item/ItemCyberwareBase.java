@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 public class ItemCyberwareBase extends Item
 {
 	public String[] subnames;
+	private ItemStack[] itemStackCache;
 
 	public ItemCyberwareBase(String name, String... subnames)
 	{
@@ -23,6 +24,7 @@ public class ItemCyberwareBase extends Item
 		this.setCreativeTab(Cyberware.creativeTab);
 				
 		this.subnames = subnames;
+		this.itemStackCache = new ItemStack[Math.max(subnames.length, 1)];
 
 		this.setHasSubtypes(this.subnames.length > 0);
 		this.setMaxDamage(0);
@@ -57,4 +59,24 @@ public class ItemCyberwareBase extends Item
 		}
 	}
 
+	public ItemStack getCachedStack(int damage)
+	{
+		ItemStack itemStack = itemStackCache[damage];
+		if ( itemStack != null
+		  && ( itemStack.getItem() != this
+		    || itemStack.getCount() != 1
+		    || itemStack.getItemDamage() != damage ) )
+		{
+			Cyberware.logger.error(String.format("Corrupted item stack cache: found %s as %s:%d, expected %s:%d",
+			                                     itemStack, itemStack.getItem(), itemStack.getItemDamage(),
+			                                     this, damage ));
+			itemStack = null;
+		}
+		if (itemStack == null)
+		{
+			itemStack = new ItemStack(this, 1, damage);
+			itemStackCache[damage] = itemStack;
+		}
+		return itemStack;
+	}
 }
