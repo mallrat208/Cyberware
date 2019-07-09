@@ -429,8 +429,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	{
 		if (cyberwaresToInstall.size() != cyberwaresBySlot.get(slot.ordinal()).size())
 		{
-			System.out.println(String.format("ERROR: invalid cyberware size %d vs %d",
-			                                 cyberwaresToInstall.size(), cyberwaresBySlot.get(slot.ordinal()).size() ));
+			Cyberware.logger.error(String.format("Invalid number of cyberware to install: found %d, expecting %d",
+			                                     cyberwaresToInstall.size(), cyberwaresBySlot.get(slot.ordinal()).size() ));
 		}
 		NonNullList<ItemStack> cyberwaresInstalled = cyberwaresBySlot.get(slot.ordinal());
 		

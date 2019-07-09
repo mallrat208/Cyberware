@@ -364,10 +364,12 @@ public class CyberwareDataHandler
 		}
 		
 		/*
-		System.out.println("_____LIST_____ " + numberOfItemsToInstall);
+		Cyberware.logger.info(String.format("numberOfItemsToInstall is %s",
+		                                    numberOfItemsToInstall));
 		for (ItemStack stack : installed)
 		{
-			System.out.println(stack.getUnlocalizedName() + " " + stack.stackSize);
+			numberOfItemsToInstall(String.format("%d x %s",
+			                                     stack.getCount(), stack.getTranslationKey() ));
 		}
 		*/
 		

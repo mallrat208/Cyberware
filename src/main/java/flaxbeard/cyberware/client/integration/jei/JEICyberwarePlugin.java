@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.client.integration.jei;
 
+import flaxbeard.cyberware.Cyberware;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
@@ -15,7 +16,7 @@ public class JEICyberwarePlugin implements IModPlugin
 	@Override
 	public void register(IModRegistry registry)
 	{
-		System.out.println("Augmenting JEI");
+		Cyberware.logger.info("Augmenting JEI");
 		
 		IJeiHelpers jeiHelpers = registry.getJeiHelpers();
 		//registry.addRecipeCategories(recipeCategories);

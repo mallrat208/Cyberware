@@ -467,7 +467,7 @@ public final class CyberwareAPI
 			if (targetEntity instanceof EntityPlayer)
 			{
 				PACKET_HANDLER.sendTo(new CyberwareSyncPacket(tagCompound, targetEntity.getEntityId()), (EntityPlayerMP) targetEntity);
-				//System.out.println("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to that player's client");
+				// Cyberware.logger.info("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to that player's client");
 			}
 
 			for (EntityPlayer trackingPlayer : world.getEntityTracker().getTrackingPlayers(targetEntity))
@@ -476,7 +476,7 @@ public final class CyberwareAPI
 				/*
 				if (targetEntity instanceof EntityPlayer)
 				{
-					System.out.println("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to player " + trackingPlayer.getName());
+					Cyberware.logger.info("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to player " + trackingPlayer.getName());
 				}
 				*/
 			}

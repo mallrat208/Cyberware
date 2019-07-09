@@ -226,8 +226,11 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 					}
 					
 				}
-				if (!found) System.out.println(String.format("Can't find required %s for %s in %s:%d",
-				                                             neededItem, stack, slot, indexSlot ));
+				if (!found)
+				{
+					Cyberware.logger.error(String.format("Can't find required %s for %s in %s:%d",
+					                                     neededItem, stack, slot, indexSlot ));
+				}
 			}
 		}
 	}

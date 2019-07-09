@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.common.item.ItemArmorCyberware.ModelTrenchcoat;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
@@ -49,7 +50,7 @@ public class ClientUtils
 		if (!textures.containsKey(string))
 		{
 			textures.put(string, new ResourceLocation(string));
-			System.out.println("[Cyberware] Registering new ResourceLocation: " + string);
+			Cyberware.logger.info("Registering new ResourceLocation: " + string);
 		}
 		Minecraft.getMinecraft().getTextureManager().bindTexture(textures.get(string));
 	}

@@ -10,6 +10,7 @@ import flaxbeard.cyberware.common.CommonProxy;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.misc.CommandClearCyberware;
 import flaxbeard.cyberware.common.misc.TabCyberware;
+import org.apache.logging.log4j.Logger;
 
 @Mod(name = Cyberware.MODNAME, modid = Cyberware.MODID, version = Cyberware.VERSION, certificateFingerprint = "@MOD_SIGNATURE@")
 public class Cyberware
@@ -17,6 +18,7 @@ public class Cyberware
 	public static final String MODNAME = "Cyberware";
 	public static final String MODID = "cyberware";
 	public static final String VERSION = "@MOD_VERSION@";
+	public static Logger logger;
 	
 	@Instance(MODID)
 	public static Cyberware INSTANCE;
@@ -27,6 +29,7 @@ public class Cyberware
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		logger = event.getModLog();
 		CyberwareConfig.preInit(event);
 		proxy.preInit();
 	}
@@ -54,7 +57,6 @@ public class Cyberware
 	@EventHandler
 	public void onFingerprintViolation(FMLFingerprintViolationEvent event)
 	{
-		// TODO: add a proper logger?
 		System.out.println("[Cyberware] Invalid fingerprint detected");
 	}
 }
