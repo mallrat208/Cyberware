@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -25,23 +26,35 @@ public class ItemBoneUpgrade extends ItemCyberware
 	public static final int META_FLEX                   = 1;
 	public static final int META_BATTERY                = 2;
 	
+	public static final int MAX_STACK_SIZE_LACING       = 5;
+	
 	public ItemBoneUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	private static final UUID healthId = UUID.fromString("8bce997a-4c3a-11e6-beb8-9e71128cae77");
-
+	private static final UUID idBoneHealthAttribute = UUID.fromString("8bce997a-4c3a-11e6-beb8-9e71128cae77");
+	private static final HashMap<Integer, HashMultimap<String, AttributeModifier>> multimapBoneHealthAttributes = new HashMap<>(MAX_STACK_SIZE_LACING + 1);
+	
+	private static HashMultimap<String, AttributeModifier> getBoneHealthAttribute(int stackSize)
+	{
+		HashMultimap<String, AttributeModifier> multimapBoneHealthAttribute = multimapBoneHealthAttributes.get(stackSize);
+		if (multimapBoneHealthAttribute == null)
+		{
+			multimapBoneHealthAttribute = HashMultimap.create();
+			multimapBoneHealthAttribute.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(idBoneHealthAttribute, "Bone hp upgrade", 4F * stackSize, 0));
+			multimapBoneHealthAttributes.put(stackSize, multimapBoneHealthAttribute);
+		}
+		return multimapBoneHealthAttribute;
+	}
+	
 	@Override
 	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
 		if (stack.getItemDamage() == META_LACING)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
-			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(getBoneHealthAttribute(stack.getCount()));
 		}
 	}
 	
@@ -50,10 +63,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 	{
 		if (stack.getItemDamage() == META_LACING)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(healthId, "Bone hp upgrade", 4F * stack.getCount(), 0));
-			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(getBoneHealthAttribute(stack.getCount()));
 		}
 	}
 	
@@ -108,7 +118,7 @@ public class ItemBoneUpgrade extends ItemCyberware
 	@Override
 	public int installedStackSize(ItemStack stack)
 	{
-		return stack.getItemDamage() == META_LACING ? 5
+		return stack.getItemDamage() == META_LACING ? MAX_STACK_SIZE_LACING
 		     : stack.getItemDamage() == META_BATTERY ? 4 : 1;
 	}
 	

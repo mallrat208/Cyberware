@@ -41,31 +41,34 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	private static final int META_WIRED_REFLEXES          = 0;
 	private static final int META_MUSCLE_REPLACEMENTS     = 1;
 	
+	private static final UUID idMuscleSpeedAttribute = UUID.fromString("f0ab4766-4be1-11e6-beb8-9e71128cae77");
+	private static final UUID idMuscleDamageAttribute = UUID.fromString("f63d6916-4be1-11e6-beb8-9e71128cae77");
+	private static final HashMultimap<String, AttributeModifier> multimapMuscleSpeedAttribute;
+	private static final HashMultimap<String, AttributeModifier> multimapMuscleDamageAttribute;
+	
+	static {
+		multimapMuscleSpeedAttribute = HashMultimap.create();
+		multimapMuscleSpeedAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(idMuscleSpeedAttribute, "Muscle speed upgrade", 1.5F, 0));
+		multimapMuscleDamageAttribute = HashMultimap.create();
+		multimapMuscleDamageAttribute.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(idMuscleDamageAttribute, "Muscle damage upgrade", 3F, 0));
+	}
+	
 	public ItemMuscleUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	private static final UUID speedId = UUID.fromString("f0ab4766-4be1-11e6-beb8-9e71128cae77");
-	private static final UUID strengthId = UUID.fromString("f63d6916-4be1-11e6-beb8-9e71128cae77");
-
 	@Override
 	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
 		if (stack.getItemDamage() == META_WIRED_REFLEXES)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
-			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMuscleSpeedAttribute);
 		}
 		else if (stack.getItemDamage() == META_MUSCLE_REPLACEMENTS)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
-			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMuscleDamageAttribute);
 		}
 	}
 
@@ -74,17 +77,11 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	{
 		if (stack.getItemDamage() == META_WIRED_REFLEXES)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
-			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMuscleSpeedAttribute);
 		}
 		else if (stack.getItemDamage() == META_MUSCLE_REPLACEMENTS)
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
-			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMuscleDamageAttribute);
 		}
 	}
 	

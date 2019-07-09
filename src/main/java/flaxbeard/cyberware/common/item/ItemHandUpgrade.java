@@ -42,7 +42,15 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     public static final int META_MINING                     = 2;
     
     private final Item tool_level;
-
+    
+    private static final UUID isClawsStrengthAttribute = UUID.fromString("63c32801-94fb-40d4-8bd2-89135c1e44b1");
+    private static final HashMultimap<String, AttributeModifier> multimapClawsStrengthAttribute;
+    
+    static {
+        multimapClawsStrengthAttribute = HashMultimap.create();
+        multimapClawsStrengthAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(isClawsStrengthAttribute, "Claws damage upgrade", 5.5F, 0));
+    }
+    
     public ItemHandUpgrade(String name, EnumSlot slot, String[] subnames)
     {
         super(name, slot, subnames);
@@ -106,8 +114,9 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
                 lastClaws.put(entityLivingBase.getUniqueID(), false);
             }
         }
-        else
+        else if (entityLivingBase.ticksExisted % 20 == 0)
         {
+            removeUnarmedDamage(entityLivingBase, itemStackClaws);
             lastClaws.put(entityLivingBase.getUniqueID(), false);
         }
     }
@@ -137,10 +146,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     {
         if (stack.getItemDamage() == META_CLAWS)
         {
-            HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws damage upgrade", 5.5F, 0));
-            entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
+            entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapClawsStrengthAttribute);
         }
     }
 
@@ -148,10 +154,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     {
         if (stack.getItemDamage() == META_CLAWS)
         {
-            HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Claws Claws upgrade", 5.5F, 0));
-            entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
+            entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapClawsStrengthAttribute);
         }
     }
 
@@ -206,8 +209,6 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
             event.setNewSpeed(event.getNewSpeed() * pick.getDestroySpeed(entityPlayer.world.getBlockState(event.getPos())));
         }
     }
-
-    private static final UUID strengthId = UUID.fromString("63c32801-94fb-40d4-8bd2-89135c1e44b1");
 
     @Override
     public boolean hasMenu(ItemStack stack)

@@ -65,8 +65,14 @@ public class EssentialsMissingHandler
 
 	private static Map<Integer, Integer> timesLungs = new HashMap<>();
 	
-	private static final UUID speedId = UUID.fromString("fe00fdea-5044-11e6-beb8-9e71128cae77");
-
+	private static final UUID idMissingLegSpeedAttribute = UUID.fromString("fe00fdea-5044-11e6-beb8-9e71128cae77");
+	private static final HashMultimap<String, AttributeModifier> multimapMissingLegSpeedAttribute;
+	
+	static {
+		multimapMissingLegSpeedAttribute = HashMultimap.create();
+		multimapMissingLegSpeedAttribute.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(idMissingLegSpeedAttribute, "Missing leg speed", -100F, 0));
+	}
+	
 	private Map<Integer, Boolean> last = new HashMap<>();
 	private Map<Integer, Boolean> lastClient = new HashMap<>();
 	
@@ -186,19 +192,11 @@ public class EssentialsMissingHandler
 		if ( numMissingLegs >= 1
 		  && entityLivingBase.onGround )
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimap);
-
-			//entityLivingBase.moveEntity(entityLivingBase.lastTickPosX - entityLivingBase.posX, 0, entityLivingBase.lastTickPosZ - entityLivingBase.posZ);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMissingLegSpeedAttribute);
 		}
 		else
 		{
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMissingLegSpeedAttribute);
 		}
 		
 		if (!cyberwareUserData.hasEssential(EnumSlot.HEART))
@@ -365,10 +363,8 @@ public class EssentialsMissingHandler
 		  && Minecraft.getMinecraft().player != null )
 		{
 			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.create();
-			multimap.put(SharedMonsterAttributes.MOVEMENT_SPEED.getName(), new AttributeModifier(speedId, "Missing leg speed", -100F, 0));
-			entityPlayer.getAttributeMap().removeAttributeModifiers(multimap);
+			
+			entityPlayer.getAttributeMap().removeAttributeModifiers(multimapMissingLegSpeedAttribute);
 		}
 	}
 
