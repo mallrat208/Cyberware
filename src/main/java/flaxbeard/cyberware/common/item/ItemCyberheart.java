@@ -49,7 +49,7 @@ public class ItemCyberheart extends ItemCyberware
 			{
 				entityLivingBase.attackEntityFrom(EssentialsMissingHandler.heartless, Integer.MAX_VALUE);
 			}
-			else
+			else if (entityLivingBase.isPotionActive(MobEffects.WEAKNESS))
 			{
 				entityLivingBase.removePotionEffect(MobEffects.WEAKNESS);
 			}
