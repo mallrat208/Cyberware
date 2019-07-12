@@ -198,11 +198,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 			}
 		}
 		
-		int amountExisting = 0;
-		if (power_buffer.containsKey(stack))
-		{
-			amountExisting = power_buffer.get(stack);
-		}
+		Integer amountExisting = power_buffer.get(stack);
+		power_buffer.put(stack, amount + (amountExisting == null ? 0 : amountExisting));
 		
 		power_production += amount;
 	}
@@ -721,12 +718,12 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 	{
 		for (ItemStack itemStackSpecialBattery : specialBatteries)
 		{
-			for (ItemStack itemStackBuffer : map.keySet())
+			ISpecialBattery specialBattery = (ISpecialBattery) CyberwareAPI.getCyberware(itemStackSpecialBattery);
+			for (Map.Entry<ItemStack, Integer> entryBuffer : map.entrySet())
 			{
-				ISpecialBattery specialBattery = (ISpecialBattery) CyberwareAPI.getCyberware(itemStackSpecialBattery);
-				int amountBuffer = map.get(itemStackBuffer);
-				int amountTaken = specialBattery.add(itemStackSpecialBattery, itemStackBuffer, amountBuffer, false);
-				map.put(itemStackBuffer, amountBuffer - amountTaken);
+				int amountBuffer = entryBuffer.getValue();
+				int amountTaken = specialBattery.add(itemStackSpecialBattery, entryBuffer.getKey(), amountBuffer, false);
+				entryBuffer.setValue(amountBuffer - amountTaken);
 			}
 		}
 		power_stored = Math.min(power_capacity, power_stored + ComputeSum(map));
@@ -738,7 +735,7 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		canGiveOut = true;
 		storePower(power_lastBuffer);
 		power_lastBuffer = power_buffer;
-		power_buffer = new HashMap<>();
+		power_buffer = new HashMap<>(power_buffer.size());
 		isImmune = false;
 		
 		power_lastConsumption = power_consumption;
