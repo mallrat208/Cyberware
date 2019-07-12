@@ -84,7 +84,7 @@ public class EssentialsMissingHandler
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData != null)
 		{
-			CyberwareUpdateEvent cyberwareUpdateEvent = new CyberwareUpdateEvent(entityLivingBase);
+			CyberwareUpdateEvent cyberwareUpdateEvent = new CyberwareUpdateEvent(entityLivingBase, cyberwareUserData);
 			MinecraftForge.EVENT_BUS.post(cyberwareUpdateEvent);
 		}
 	}
@@ -93,9 +93,7 @@ public class EssentialsMissingHandler
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if (entityLivingBase == null) return;
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		if (entityLivingBase.ticksExisted % 20 == 0)
 		{

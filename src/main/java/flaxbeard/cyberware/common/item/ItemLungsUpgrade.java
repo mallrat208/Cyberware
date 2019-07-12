@@ -105,8 +105,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackCompressedAir = cyberwareUserData.getCyberware(getCachedStack(META_COMPRESSED_OXYGEN));
 		if (!itemStackCompressedAir.isEmpty())

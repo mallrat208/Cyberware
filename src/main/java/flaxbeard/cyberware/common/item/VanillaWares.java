@@ -73,12 +73,10 @@ public class VanillaWares
 		public void handleSpiderNightVision(CyberwareUpdateEvent event)
 		{
 			EntityLivingBase entityLivingBase = event.getEntityLiving();
-			if (entityLivingBase == null) return;
 			if (entityLivingBase.ticksExisted % 20 != 0) return;
 			
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-			if ( cyberwareUserData != null
-			  && cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye) )
+			ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
+			if (cyberwareUserData.isCyberwareInstalled(itemStackSpiderEye))
 			{
 				entityLivingBase.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, Integer.MAX_VALUE, -53, true, false));
 			}

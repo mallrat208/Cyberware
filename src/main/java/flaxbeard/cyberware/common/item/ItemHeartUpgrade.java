@@ -109,8 +109,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
 		if (entityLivingBase.ticksExisted % 20 == 0)
@@ -314,8 +313,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase.ticksExisted % 20 != 0) return;
 		
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(getCachedStack(META_CARDIOVASCULAR_COUPLER));
 		if (!itemStackCardiovascularCoupler.isEmpty())

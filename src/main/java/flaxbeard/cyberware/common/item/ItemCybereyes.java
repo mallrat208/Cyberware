@@ -47,8 +47,9 @@ public class ItemCybereyes extends ItemCyberware
 	public void handleBlindnessImmunity(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		if (!entityLivingBase.isPotionActive(MobEffects.BLINDNESS)) return;
+		
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(0)))
 		{
@@ -60,20 +61,18 @@ public class ItemCybereyes extends ItemCyberware
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
+		
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackCybereye = cyberwareUserData.getCyberware(getCachedStack(0));
 		if (!itemStackCybereye.isEmpty())
 		{
-			if (entityLivingBase.ticksExisted % 20 == 0)
+			boolean isPowered = cyberwareUserData.usePower(itemStackCybereye, getPowerConsumption(itemStackCybereye));
+			if ( entityLivingBase.world.isRemote
+			  && entityLivingBase == Minecraft.getMinecraft().player )
 			{
-				boolean isPowered = cyberwareUserData.usePower(itemStackCybereye, getPowerConsumption(itemStackCybereye));
-				if ( entityLivingBase.world.isRemote
-				  && entityLivingBase == Minecraft.getMinecraft().player )
-				{
-					isBlind = !isPowered;
-				}
+				isBlind = !isPowered;
 			}
 		}
 		else if ( entityLivingBase.world.isRemote

@@ -83,8 +83,7 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
-        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-        if (cyberwareUserData == null) return;
+        ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
         
         ItemStack itemStackClaws = cyberwareUserData.getCyberware(getCachedStack(META_CLAWS));
         if (!itemStackClaws.isEmpty())

@@ -184,8 +184,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+        ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackMuscleReplacement = cyberwareUserData.getCyberware(getCachedStack(META_MUSCLE_REPLACEMENTS));
 		if (!itemStackMuscleReplacement.isEmpty())

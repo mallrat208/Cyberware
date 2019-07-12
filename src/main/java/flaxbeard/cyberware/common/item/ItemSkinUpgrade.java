@@ -15,6 +15,10 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
+
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -46,12 +50,9 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-        if (entityLivingBase == null) return;
         if (entityLivingBase.ticksExisted % 20 != 0) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
         
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
-		
 		ItemStack itemStackSolarskin = cyberwareUserData.getCyberware(getCachedStack(META_SOLARSKIN));
 		if (!itemStackSolarskin.isEmpty())
 		{
@@ -69,8 +70,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 	public void handleMissingEssentials(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackImmunosuppressant = cyberwareUserData.getCyberware(getCachedStack(META_IMMUNOSUPPRESSANT));
 		if (!itemStackImmunosuppressant.isEmpty())

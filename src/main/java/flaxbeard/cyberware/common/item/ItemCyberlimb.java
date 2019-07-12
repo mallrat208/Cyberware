@@ -130,10 +130,9 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase.ticksExisted % 20 != 0) return;
 		
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		for (int damage = 0; damage < 4; damage++)
 		{
-			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-			if (cyberwareUserData == null) return;
 			ItemStack itemStackInstalled = cyberwareUserData.getCyberware(getCachedStack(damage));
 			if (!itemStackInstalled.isEmpty())
 			{

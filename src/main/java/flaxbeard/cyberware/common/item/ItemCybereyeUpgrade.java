@@ -130,8 +130,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 	public void handleNightVision(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		ItemStack itemStackNightVision = cyberwareUserData.getCyberware(getCachedStack(META_NIGHT_VISION));
 		
 		if ( !itemStackNightVision.isEmpty()

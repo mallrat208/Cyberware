@@ -37,10 +37,8 @@ public class ItemCyberheart extends ItemCyberware
 	public void power(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if (entityLivingBase == null) return;
 		if (entityLivingBase.ticksExisted % 20 != 0) return;
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-		if (cyberwareUserData == null) return;
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		ItemStack itemStackCyberheart = cyberwareUserData.getCyberware(getCachedStack(0));
 		
 		if (!itemStackCyberheart.isEmpty())

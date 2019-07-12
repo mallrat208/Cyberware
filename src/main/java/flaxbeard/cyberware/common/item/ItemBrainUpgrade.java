@@ -195,8 +195,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         EntityLivingBase entityLivingBase = event.getEntityLiving();
         if (entityLivingBase.ticksExisted % 20 != 0) return;
         
-        ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
-        if (cyberwareUserData == null) return;
+        ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
         
         ItemStack itemStackNeuralContextualizer = cyberwareUserData.getCyberware(getCachedStack(META_NEURAL_CONTEXTUALIZER));
         if ( !itemStackNeuralContextualizer.isEmpty()
