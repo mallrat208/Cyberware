@@ -104,23 +104,28 @@ public class EssentialsMissingHandler
 		{
 			entityLivingBase.attackEntityFrom(brainless, Integer.MAX_VALUE);
 		}
-
-		if ( cyberwareUserData.getTolerance(entityLivingBase) < CyberwareConfig.CRITICAL_ESSENCE
-		  && entityLivingBase instanceof EntityPlayer
-		  && entityLivingBase.ticksExisted % 100 == 0
-		  && !entityLivingBase.isPotionActive(CyberwareContent.neuropozyneEffect) )
+		
+		if ( entityLivingBase instanceof EntityPlayer
+		  && entityLivingBase.ticksExisted % 20 == 0 )
 		{
-			entityLivingBase.addPotionEffect(new PotionEffect(CyberwareContent.rejectionEffect, 110, 0, true, false));
-			entityLivingBase.attackEntityFrom(lowessence, 2F);
+			int tolerance = cyberwareUserData.getTolerance(entityLivingBase);
+			
+			if (tolerance <= 0)
+			{
+				entityLivingBase.attackEntityFrom(noessence, Integer.MAX_VALUE);
+			}
+			
+			if ( tolerance < CyberwareConfig.CRITICAL_ESSENCE
+			  && entityLivingBase.ticksExisted % 100 == 0
+			  && !entityLivingBase.isPotionActive(CyberwareContent.neuropozyneEffect) )
+			{
+				entityLivingBase.addPotionEffect(new PotionEffect(CyberwareContent.rejectionEffect, 110, 0, true, false));
+				entityLivingBase.attackEntityFrom(lowessence, 2F);
+			}
 		}
 		
 		int numMissingLegs = 0;
 		int numMissingLegsVisible = 0;
-		
-		if (cyberwareUserData.getTolerance(entityLivingBase) <= 0)
-		{
-			entityLivingBase.attackEntityFrom(noessence, Integer.MAX_VALUE);
-		}
 		
 		if (!cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT))
 		{
