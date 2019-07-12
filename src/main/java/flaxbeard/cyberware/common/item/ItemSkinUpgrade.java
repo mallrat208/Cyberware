@@ -51,16 +51,39 @@ public class ItemSkinUpgrade extends ItemCyberware
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
         if (entityLivingBase.ticksExisted % 20 != 0) return;
-		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
         
+        float lightFactor = getLightFactor(entityLivingBase);
+		if (lightFactor <= 0.0F) return;
+		
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
+		
 		ItemStack itemStackSolarskin = cyberwareUserData.getCyberware(getCachedStack(META_SOLARSKIN));
 		if (!itemStackSolarskin.isEmpty())
 		{
-			if (entityLivingBase.world.canBlockSeeSky(new BlockPos(entityLivingBase.posX, entityLivingBase.posY + entityLivingBase.height, entityLivingBase.posZ)))
-			{
-				cyberwareUserData.addPower(getPowerProduction(itemStackSolarskin), itemStackSolarskin);
-			}
+			int power = Math.max(0, Math.round(getPowerProduction(itemStackSolarskin) * lightFactor));
+			cyberwareUserData.addPower(power, itemStackSolarskin);
 		}
+	}
+	
+	private float getLightFactor(EntityLivingBase entityLivingBase)
+	{
+		World world = entityLivingBase.world;
+		// world must have a sun
+		if (!entityLivingBase.world.provider.hasSkyLight()) return 0.0F;
+		// current position can see the sun
+		BlockPos pos = new BlockPos(entityLivingBase.posX, entityLivingBase.posY + entityLivingBase.height, entityLivingBase.posZ);
+		if (!entityLivingBase.world.canBlockSeeSky(pos)) return 0.0F;
+		
+		// sun isn't shaded
+		int lightSky = world.getLightFor(EnumSkyBlock.SKY, pos);
+		// note: world.getSkylightSubtracted() is server side only
+		if (lightSky < 15) return 0.0F;
+		
+		// it's day time (see Vanilla daylight sensor)
+		float celestialAngleRadians = world.getCelestialAngleRadians(1.0F);
+		float offsetRadians = celestialAngleRadians < (float) Math.PI ? 0.0F : ((float) Math.PI * 2.0F);
+		float celestialAngleRadians2 = celestialAngleRadians + (offsetRadians - celestialAngleRadians) * 0.2F;
+		return MathHelper.cos(celestialAngleRadians2);
 	}
 	
 	private Set<UUID> setIsImmunosuppressantPowered = new HashSet<>();
