@@ -59,43 +59,57 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		return NNLUtil.fromArray(new ItemStack[][] { 
 				new ItemStack[] { CyberwareContent.cybereyes.getCachedStack(0) }});
 	}
-
-	private static List<EntityLivingBase> affected = new ArrayList<>();
+	
+	private static int cache_tickExisted = -1;
+	private static boolean cache_isHighlighting = false;
+	private static AxisAlignedBB cache_aabbHighlight = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
+	private static List<EntityLivingBase> entitiesInRange = new ArrayList<>(16);
+	private static final float HIGHLIGHT_RANGE = 25F;
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void handleHighlight(RenderTickEvent event)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
-		if (cyberwareUserData == null) return;
-		ItemStack itemStackTargeting = cyberwareUserData.getCyberware(getCachedStack(META_TARGETING));
+		if (entityPlayer == null) return;
 		
-		if ( !itemStackTargeting.isEmpty()
-		  && EnableDisableHelper.isEnabled(itemStackTargeting) )
+		if (entityPlayer.ticksExisted != cache_tickExisted)
+		{
+			cache_tickExisted = entityPlayer.ticksExisted;
+			
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData == null) return;
+			ItemStack itemStackTargeting = cyberwareUserData.getCyberware(getCachedStack(META_TARGETING));
+			cache_isHighlighting = !itemStackTargeting.isEmpty()
+			                    && EnableDisableHelper.isEnabled(itemStackTargeting);
+			if (cache_isHighlighting)
+			{
+				cache_aabbHighlight = new AxisAlignedBB(entityPlayer.posX - HIGHLIGHT_RANGE, entityPlayer.posY - HIGHLIGHT_RANGE, entityPlayer.posZ - HIGHLIGHT_RANGE,
+				                                        entityPlayer.posX + entityPlayer.width + HIGHLIGHT_RANGE, entityPlayer.posY + entityPlayer.height + HIGHLIGHT_RANGE, entityPlayer.posZ + entityPlayer.width + HIGHLIGHT_RANGE);
+			}
+		}
+		
+		if (cache_isHighlighting)
 		{
 			if (event.phase == Phase.START)
 			{
-				affected.clear();
-				float range = 25F;
-				List<EntityLivingBase> entityLivingBases = entityPlayer.world.getEntitiesWithinAABB(
-						EntityLivingBase.class,
-						new AxisAlignedBB(entityPlayer.posX - range, entityPlayer.posY - range, entityPlayer.posZ - range,
-						                  entityPlayer.posX + entityPlayer.width + range, entityPlayer.posY + entityPlayer.height + range, entityPlayer.posZ + entityPlayer.width + range));
+				entitiesInRange.clear();
+				List<EntityLivingBase> entityLivingBases = entityPlayer.world.getEntitiesWithinAABB(EntityLivingBase.class, cache_aabbHighlight);
+				double rangeSq = HIGHLIGHT_RANGE * HIGHLIGHT_RANGE;
 				for (EntityLivingBase entityLivingBase : entityLivingBases)
 				{
-					if ( entityPlayer.getDistanceSq(entityLivingBase) <= range * range
+					if ( entityPlayer.getDistanceSq(entityLivingBase) <= rangeSq
 					  && entityLivingBase != entityPlayer
 					  && !entityLivingBase.isGlowing() )
 					{
 						entityLivingBase.setGlowing(true);
-						affected.add(entityLivingBase);
+						entitiesInRange.add(entityLivingBase);
 					}
 				}
 			}
 			else if (event.phase == Phase.END)
 			{
-				for (EntityLivingBase entityLivingBase : affected)
+				for (EntityLivingBase entityLivingBase : entitiesInRange)
 				{
 					entityLivingBase.setGlowing(false);
 				}
