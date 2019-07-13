@@ -13,15 +13,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -38,6 +35,7 @@ import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.CyberwareContent;
+import flaxbeard.cyberware.common.ArmorClass;
 import flaxbeard.cyberware.common.lib.LibConstants;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
 import flaxbeard.cyberware.common.network.DodgePacket;
@@ -318,35 +316,13 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                     }
                 }
 
-                boolean armor = false;
-                for (ItemStack stack : entityLivingBase.getArmorInventoryList())
-                {
-                    if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
-                    {
-                        if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
-                        {
-                            return;
-                        }
-                    }
-                    else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
-                    {
-                        if (((ISpecialArmor) stack.getItem()).getProperties(entityLivingBase, stack, event.getSource(), event.getAmount(), 1).AbsorbRatio * 25D > 4)
-                        {
-                            return;
-                        }
-                    }
-
-                    if (!stack.isEmpty())
-                    {
-                        armor = true;
-                    }
-
-                }
-
+                ArmorClass armorClass = ArmorClass.get(entityLivingBase);
+                if (armorClass == ArmorClass.HEAVY) return;
+                
                 if (!((float) entityLivingBase.hurtResistantTime > (float) entityLivingBase.maxHurtResistantTime / 2.0F))
                 {
                     Random random = entityLivingBase.getRNG();
-                    if (random.nextFloat() < (armor ? LibConstants.DODGE_ARMOR : LibConstants.DODGE_NO_ARMOR))
+                    if (random.nextFloat() < (armorClass == ArmorClass.LIGHT ? LibConstants.DODGE_ARMOR : LibConstants.DODGE_NO_ARMOR))
                     {
                         event.setCanceled(true);
                         entityLivingBase.hurtResistantTime = entityLivingBase.maxHurtResistantTime;

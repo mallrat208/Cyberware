@@ -9,11 +9,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.common.ISpecialArmor;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,6 +20,7 @@ import flaxbeard.cyberware.api.hud.HudElementBase;
 import flaxbeard.cyberware.api.hud.INotification;
 import flaxbeard.cyberware.api.hud.NotificationInstance;
 import flaxbeard.cyberware.client.ClientUtils;
+import flaxbeard.cyberware.common.ArmorClass;
 import flaxbeard.cyberware.common.block.tile.TileEntityBeacon;
 import flaxbeard.cyberware.common.handler.HudHandler;
 
@@ -40,9 +37,8 @@ public class NotificationDisplay extends HudElementBase
 		setDefaultVerticalAnchor(EnumAnchorVertical.BOTTOM);
 	}
 	
-	private static Iterable<ItemStack> inv;
 	private static int tierRadio = -1;
-	private static boolean lightArmor = false;
+	private static boolean isWearingLightArmor = false;
 	private static final NotificationInstance[] examples = new NotificationInstance[] {
 			new NotificationInstance(0, new NotificationArmor(true)),
 			new NotificationInstance(0, new NotificationArmor(false)),
@@ -68,15 +64,13 @@ public class NotificationDisplay extends HudElementBase
 		
 		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
 		
-		Iterable<ItemStack> currInv = entityPlayer.getArmorInventoryList();
-		if (currInv != inv)
+		if (entityPlayer.ticksExisted % 20 == 0)
 		{
-			inv = currInv;
-			boolean temp = lightArmor;
-			lightArmor = updateLightArmor();
-			if (lightArmor != temp)
+			boolean wasWearingLightArmor = isWearingLightArmor;
+			isWearingLightArmor = ArmorClass.isWearingLightOrNone(entityPlayer);
+			if (isWearingLightArmor != wasWearingLightArmor)
 			{
-				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(lightArmor)));
+				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(isWearingLightArmor)));
 			}
 		}
 		
@@ -145,29 +139,6 @@ public class NotificationDisplay extends HudElementBase
 		}
 		
 		GL11.glPopMatrix();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private boolean updateLightArmor()
-	{
-		for (ItemStack stack : inv)
-		{
-			if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
-			{
-				if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
-				{
-					return false;
-				}
-			}
-			else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
-			{
-				if (((ISpecialArmor) stack.getItem()).getProperties(Minecraft.getMinecraft().player, stack, DamageSource.CACTUS, 1, 1).AbsorbRatio * 25D > 4)
-				{
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 	
 	@SideOnly(Side.CLIENT)

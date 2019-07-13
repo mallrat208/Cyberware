@@ -7,8 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
@@ -19,7 +17,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
-import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -28,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.ICyberwareUserData;
+import flaxbeard.cyberware.common.ArmorClass;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.handler.EssentialsMissingHandler;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -178,23 +176,8 @@ public class ItemSkinUpgrade extends ItemCyberware
 			if ( event.getSource() instanceof EntityDamageSource
 			  && !(event.getSource() instanceof EntityDamageSourceIndirect) )
 			{
-				for (ItemStack stack : entityLivingBase.getArmorInventoryList())
-				{
-					if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
-					{
-						if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
-						{
-							return;
-						}
-					}
-					else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
-					{
-						if (((ISpecialArmor) stack.getItem()).getProperties(entityLivingBase, stack, event.getSource(), event.getAmount(), 1).AbsorbRatio * 25D > 4)
-						{
-							return;
-						}
-					}
-				}
+				ArmorClass armorClass = ArmorClass.get(entityLivingBase);
+				if (armorClass == ArmorClass.HEAVY) return;
 				
 				Random random = entityLivingBase.getRNG();
 				Entity attacker = event.getSource().getTrueSource();
