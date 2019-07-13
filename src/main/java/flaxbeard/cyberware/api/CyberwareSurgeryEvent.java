@@ -1,7 +1,11 @@
 package flaxbeard.cyberware.api;
 
+import flaxbeard.cyberware.common.CyberwareConfig;
+import flaxbeard.cyberware.common.integration.CyberwareMatterOverdriveCheck;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 public class CyberwareSurgeryEvent extends EntityEvent
@@ -24,6 +28,16 @@ public class CyberwareSurgeryEvent extends EntityEvent
 		public Pre(EntityLivingBase entity)
 		{
 			super(entity);
+			if (isAndroid(entity)){
+				setCanceled(true);
+			}
+		}
+
+		private boolean isAndroid(EntityLivingBase entity){
+			if (CyberwareConfig.INT_MATTER_OVERDRIVE && Loader.isModLoaded("matteroverdrive") && entity instanceof EntityPlayer){
+				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entity);
+			}
+			return false;
 		}
 	}
 	
