@@ -598,7 +598,7 @@ public class TileEntitySurgery extends TileEntity implements ITickable
 			if (entityLivingBases.size() == 1)
 			{
 				EntityLivingBase entityLivingBase = entityLivingBases.get(0);
-				CyberwareSurgeryEvent.Pre preSurgeryEvent = new CyberwareSurgeryEvent.Pre(entityLivingBase);
+				CyberwareSurgeryEvent.Pre preSurgeryEvent = new CyberwareSurgeryEvent.Pre(entityLivingBase, slotsPlayer, slots);
 				
 				if (!MinecraftForge.EVENT_BUS.post(preSurgeryEvent))
 				{

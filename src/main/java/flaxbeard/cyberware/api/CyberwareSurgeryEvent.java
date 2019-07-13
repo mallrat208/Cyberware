@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class CyberwareSurgeryEvent extends EntityEvent
 {
@@ -18,14 +19,24 @@ public class CyberwareSurgeryEvent extends EntityEvent
 	
 	/**
 	 * Fired when the Surgery Chamber starts the process of altering an entities installed Cyberware
+	 * Changing inventories isn't supported.
 	 * Cancel to prevent any changes
 	 */
 	@Cancelable
 	public static class Pre extends CyberwareSurgeryEvent
 	{
-		public Pre(EntityLivingBase entityLivingBase)
+		public ItemStackHandler inventoryActual;
+		public ItemStackHandler inventoryTarget;
+		
+		public Pre(EntityLivingBase entityLivingBase, ItemStackHandler inventoryActual, ItemStackHandler inventoryTarget)
 		{
 			super(entityLivingBase);
+			
+			this.inventoryActual = new ItemStackHandler(120);
+			this.inventoryActual.deserializeNBT(inventoryActual.serializeNBT());
+			this.inventoryTarget = new ItemStackHandler(120);
+			this.inventoryTarget.deserializeNBT(inventoryTarget.serializeNBT());
+			
 			if (isAndroid(entityLivingBase)){
 				setCanceled(true);
 			}
@@ -38,6 +49,16 @@ public class CyberwareSurgeryEvent extends EntityEvent
 				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entityLivingBase);
 			}
 			return false;
+		}
+		
+		public ItemStackHandler getActualCyberwares()
+		{
+			return inventoryActual;
+		}
+		
+		public ItemStackHandler getTargetCyberwares()
+		{
+			return inventoryActual;
 		}
 	}
 	
