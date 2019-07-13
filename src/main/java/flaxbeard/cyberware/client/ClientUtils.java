@@ -36,10 +36,10 @@ public class ClientUtils
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 		bufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferBuilder.pos(x        , y + height, -10.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
-		bufferBuilder.pos(x + width, y + height, -10.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
-		bufferBuilder.pos(x + width, y         , -10.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
-		bufferBuilder.pos(x        , y         , -10.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x        , y + height, 0.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x + width, y + height, 0.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY + height) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x + width, y         , 0.0F).tex((textureX + width) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
+		bufferBuilder.pos(x        , y         , 0.0F).tex((textureX        ) * TEXTURE_SCALE, (textureY         ) * TEXTURE_SCALE).endVertex();
 		tessellator.draw();
 	}
 	

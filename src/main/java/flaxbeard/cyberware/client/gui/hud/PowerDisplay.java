@@ -4,9 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.player.EntityPlayer;
-
-import org.lwjgl.opengl.GL11;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
@@ -22,7 +22,10 @@ public class PowerDisplay extends HudElementBase
 	private static int cache_power_stored = 0;
 	private static int cache_power_production = 0;
  	private static int cache_power_consumption = 0;
-
+ 	
+ 	private final static float[] colorLowPowerFloats = { 1.0F, 0.0F, 0.125F };
+ 	private final static int colorLowPowerHex = 0xFF0020;
+	
 	public PowerDisplay()
 	{
 		super("cyberware:power");
@@ -65,24 +68,24 @@ public class PowerDisplay extends HudElementBase
 			return;
 		}
 		
-		float[] colorFloats = CyberwareAPI.getHUDColor();
-		int colorHex = CyberwareAPI.getHUDColorHex();
+		float[] colorFloats = isLowPower ? colorLowPowerFloats : CyberwareAPI.getHUDColor();
+		int colorHex = isLowPower ? colorLowPowerHex : CyberwareAPI.getHUDColorHex();
 		
-		GL11.glPushMatrix();
-		GlStateManager.enableBlend();
-		
-		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		GlStateManager.pushMatrix();
 		
 		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		
 		// battery icon
-		GlStateManager.pushMatrix();
+		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		GlStateManager.disableAlpha();
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 		
 		int uOffset = isLowPower ? 39 : 0;
 		int xOffset = isRightAnchored ? (x + getWidth() - 13) : x;
 		int yBatterySize = Math.round(21F * cache_percentFull);
 		
-		if (!isLowPower) GlStateManager.color(colorFloats[0], colorFloats[1], colorFloats[2]);
+		GlStateManager.color(colorFloats[0], colorFloats[1], colorFloats[2]);
 		
 		// battery top part
 		ClientUtils.drawTexturedModalRect(xOffset, y, uOffset, 0, 13, 2 + (21 - yBatterySize));
@@ -90,18 +93,17 @@ public class PowerDisplay extends HudElementBase
 		ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 13 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
 		// battery foreground
 		ClientUtils.drawTexturedModalRect(xOffset, y + 2 + (21 - yBatterySize), 26 + uOffset, 2 + (21 - yBatterySize), 13, yBatterySize + 2);
-		GlStateManager.popMatrix();
 		
 		// storage stats
 		String textPowerStorage = cache_power_stored + " / " + cache_power_capacity;
 		int xPowerStorage = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerStorage) : x + 15;
-		fontRenderer.drawStringWithShadow(textPowerStorage, xPowerStorage, y + 4, isLowPower ? 0xFF0000 : colorHex);
+		fontRenderer.drawStringWithShadow(textPowerStorage, xPowerStorage, y + 4, colorHex);
 		
 		// progression stats
 		String textPowerProgression = "-" + cache_power_consumption + " / +" + cache_power_production;
 		int xPowerProgression = isRightAnchored ? x + getWidth() - 15 - fontRenderer.getStringWidth(textPowerProgression) : x + 15;
-		fontRenderer.drawStringWithShadow(textPowerProgression, xPowerProgression, y + 14, isLowPower ? 0xFF0000 : colorHex);
+		fontRenderer.drawStringWithShadow(textPowerProgression, xPowerProgression, y + 14, colorHex);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 }
