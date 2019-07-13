@@ -22,8 +22,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import vazkii.botania.api.subtile.ISubTileContainer;
 import vazkii.botania.api.subtile.RadiusDescriptor;
 import vazkii.botania.api.subtile.SubTileEntity;
@@ -128,7 +126,7 @@ public class ItemManaLens //extends ItemCyberware
 
 		GlStateManager.pushMatrix();
 		GlStateManager.disableTexture2D();
-		GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+		GlStateManager.pushAttrib(GL11.GL_LIGHTING_BIT);
 		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -154,7 +152,7 @@ public class ItemManaLens //extends ItemCyberware
 
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
-		GL11.glPopAttrib();
+		GlStateManager.popAttrib();
 		GlStateManager.popMatrix();
 	} **/
 }

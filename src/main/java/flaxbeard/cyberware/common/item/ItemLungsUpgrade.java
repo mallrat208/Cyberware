@@ -22,8 +22,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.ICyberwareUserData;
@@ -56,7 +54,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 			if ( !itemStackCompressedOxygen.isEmpty()
 			  && !entityPlayer.isCreative() )
 			{
-				GL11.glPushMatrix();
+				GlStateManager.pushMatrix();
 				int air = getAir(itemStackCompressedOxygen);
 				
 				Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
@@ -77,7 +75,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 						r += 1.0F;
 						b -= 0.25F;
 						g += 0.25F;
-						GL11.glColor3f(r, g, b);
+						GlStateManager.color(r, g, b);
 						int drawAir = Math.min(300, air);
 						int full = MathHelper.ceil((double)(drawAir - 2) * 10.0D / 300.0D);
 						int partial = MathHelper.ceil((double)drawAir * 10.0D / 300.0D) - full;
@@ -92,9 +90,9 @@ public class ItemLungsUpgrade extends ItemCyberware
 					}
 				}
 				
-				GL11.glColor3f(1.0F, 1.0F, 1.0F);
+				GlStateManager.color(1.0F, 1.0F, 1.0F);
 				//GlStateManager.disableBlend();
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		}
 	}

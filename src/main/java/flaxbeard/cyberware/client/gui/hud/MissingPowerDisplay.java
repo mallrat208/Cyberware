@@ -12,8 +12,6 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.HudElementBase;
@@ -58,7 +56,7 @@ public class MissingPowerDisplay extends HudElementBase
 		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
 		float currTime = entityPlayer.ticksExisted + partialTicks;
 		
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		
 		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
@@ -96,8 +94,8 @@ public class MissingPowerDisplay extends HudElementBase
 					double percentVisible = Math.max(0F, (currTime - time - 20) / 30F);
 					float xOffset = (float) (20F * Math.sin(percentVisible * Math.PI / 2F));
 					
-					GL11.glPushMatrix();
-					GL11.glTranslatef(isRightAnchored ? xOffset : -xOffset, 0.0F, 0.0F);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(isRightAnchored ? xOffset : -xOffset, 0.0F, 0.0F);
 					
 					fontRenderer.drawStringWithShadow("!", xPosition + 14, yPosition + 8, 0xFF0000);
 					
@@ -105,7 +103,7 @@ public class MissingPowerDisplay extends HudElementBase
 					renderItem.renderItemAndEffectIntoGUI(stack, xPosition, yPosition);
 					RenderHelper.disableStandardItemLighting();
 					
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 					yPosition += 18;
 				}
 				else if (!isConfigOpen)
@@ -121,7 +119,7 @@ public class MissingPowerDisplay extends HudElementBase
 			stacksPowerOutage.remove(indexElapsed);
 			timesPowerOutage.remove(indexElapsed);
 		}
-				
-		GL11.glPopMatrix();
+		
+		GlStateManager.popMatrix();
 	}
 }

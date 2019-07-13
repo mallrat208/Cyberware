@@ -18,8 +18,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
@@ -197,9 +195,7 @@ public class HudHandler
 				GuiHudConfiguration.setXFromAbsolute(scaledResolution, hudElement, scaledResolution.getScaledWidth() - 4);
 			}
 			
-			GL11.glPushMatrix();
 			hudElement.render(entityPlayerSP, scaledResolution, isHUDjackAvailable, mc.currentScreen instanceof GuiHudConfiguration, event.renderTickTime);
-			GL11.glPopMatrix();
 		}
 		
 		// Display a prompt to the user to open the radial menu if they haven't yet

@@ -75,22 +75,22 @@ public class GuiSurgery extends GuiContainer
 		{
 			if (this.visible)
 			{
-				GL11.glPushMatrix();
-				GL11.glEnable(GL11.GL_BLEND);
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
 				
 				float trans = 0.4F;
 				if (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + buttonSize && mouseY < this.y + buttonSize)
 				{
 					trans = 0.6F;
 				}
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, trans);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 
 				
 				mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
-				GL11.glTranslatef(xPos, yPos, 0);
+				GlStateManager.translate(xPos, yPos, 0);
 				this.drawTexturedModalRect(0, 0, 194, 0, this.width, this.height);
 
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		}
 	}
@@ -143,8 +143,8 @@ public class GuiSurgery extends GuiContainer
 		{
 			if (this.visible)
 			{
-				GL11.glPushMatrix();
-				GL11.glEnable(GL11.GL_BLEND);
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
 				float trans = 0.4F;
 				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 				if (flag) trans = 0.6F;
@@ -159,7 +159,7 @@ public class GuiSurgery extends GuiContainer
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans / 2F);
 				this.drawTexturedModalRect(this.x, this.y, type.left, type.top, type.width, type.height);
 
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		}
 	}
@@ -602,8 +602,8 @@ public class GuiSurgery extends GuiContainer
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
 		
-		GL11.glPushMatrix();
-		GL11.glEnable(GL11.GL_BLEND);
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
 		
 		int essence = (int) ((surgery.essence * 1F / surgery.maxEssence) * 49);
 		int criticalEssence = (int) ((CyberwareConfig.CRITICAL_ESSENCE * 1F  / surgery.maxEssence) * 49);
@@ -618,7 +618,7 @@ public class GuiSurgery extends GuiContainer
 			float trans = 1.0F - ((ticksExisted() + partialTicks) - surgery.ticksWrong) / 10F;
 			if (trans > 0)
 			{
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, trans);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 	
 				Slot slot = inventorySlots.inventorySlots.get(surgery.wrongSlot);
 				drawTexturedModalRect(i + slot.xPos - 5, j + slot.yPos - 5, 185, 61, 26, 26);		// Blue slot
@@ -629,7 +629,7 @@ public class GuiSurgery extends GuiContainer
 			}
 		}
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
 		
 		// Draw the less-transparent slot borders
 		for (SlotSurgery pos : visibleSlots)
@@ -661,7 +661,7 @@ public class GuiSurgery extends GuiContainer
 				}
 			}
 			
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 0.2F);
 			for (int w = 0; w < 8; w++)
 			{
 				for (int h = 0; h < 5; h++)
@@ -674,7 +674,7 @@ public class GuiSurgery extends GuiContainer
 
 		
 		// Draw the more-transparent slot backs
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 0.2F);
 		for (SlotSurgery pos : visibleSlots)
 		{
 			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1, 176 + 18, 43, 18, 18);		// Blue slot
@@ -731,7 +731,7 @@ public class GuiSurgery extends GuiContainer
 	
 			}
 			
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.4F);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 0.4F);
 
 			if (missingSlots.size() > 0)
 			{
@@ -745,7 +745,7 @@ public class GuiSurgery extends GuiContainer
 		
 		this.zLevel = 0;
 
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 	
 	private static ItemStackHandler lastLastInv = new ItemStackHandler(120);
@@ -810,9 +810,8 @@ public class GuiSurgery extends GuiContainer
 			box = new ModelBox();
 		}
 		
-				
-		GL11.glPushMatrix();
-		
+		GlStateManager.pushMatrix();
+
 		// If doing a transition
 		if (transitionStart != 0)
 		{
@@ -879,11 +878,11 @@ public class GuiSurgery extends GuiContainer
 			if (percentageSkele < 0.9F)
 			{
 				this.zLevel = 90;
-				GL11.glPushMatrix();
+				GlStateManager.pushMatrix();
 	
-				GL11.glTranslatef(i + xSize / 2 - 40, j + (int) (percentageSkele * 125F) + 2, 0F);
+				GlStateManager.translate(i + xSize / 2 - 40, j + (int) (percentageSkele * 125F) + 2, 0F);
 				this.drawTexturedModalRect(0, 0, 176, 110, 80, 1);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				this.zLevel = 0;
 			}
 			
@@ -891,60 +890,62 @@ public class GuiSurgery extends GuiContainer
 			if (ease.boxHeight >= 35)
 			{
 				// Draw the skin cross section and box
-				GL11.glPushMatrix();
+				GlStateManager.pushMatrix();
 				
 				float height = Math.min(125, ease.boxHeight);
 				float width = Math.min(170, ease.boxWidth);
 				this.mc.getTextureManager().bindTexture(GREY_TEXTURE);
 		
 				this.zLevel = page == 0 ? 90 : 70;
-				GL11.glTranslatef(i + xSize / 2 + ease.boxX - (width / 2F), j + (125F / 2F) + 3F + ease.boxY - (height / 2F), 0F);
+				GlStateManager.translate(i + xSize / 2F + ease.boxX - (width / 2F),
+				                         j + (125F / 2F) + 3F + ease.boxY - (height / 2F), 0F);
 				
-				GL11.glPushMatrix();
-				GL11.glScalef(width,height, 1F);
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(width, height, 1F);
 				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				
 				this.mc.getTextureManager().bindTexture(BLUE_TEXTURE);
 				
-				GL11.glPushMatrix();
-				GL11.glScalef(width, 1F, 1F);
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(width, 1F, 1F);
 				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-				GL11.glTranslatef(0F, height - 1F, 0F);
+				GlStateManager.translate(0F, height - 1F, 0F);
 				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				
-				GL11.glPushMatrix();
-				GL11.glScalef(1F, height, 1F);
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(1F, height, 1F);
 				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-				GL11.glTranslatef(width - 1F, 0F, 0F);
+				GlStateManager.translate(width - 1F, 0F, 0F);
 				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				
 				if (ease.boxHeight == 35)
 				{
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					
 					// Draw the connectors for the box
-					GL11.glTranslatef(i + xSize / 2 + ease.boxX - (ease.boxWidth / 2F), j + (125F / 2F) + 3F + ease.boxY - (ease.boxHeight / 2F), 0F);
+					GlStateManager.translate(i + xSize / 2F + ease.boxX - (ease.boxWidth / 2F),
+					                         j + (125F / 2F) + 3F + ease.boxY - (ease.boxHeight / 2F), 0F);
 		
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-					GL11.glTranslatef((configs[0].boxWidth / 2F), -12F, 0F);
-					GL11.glScalef(1F, 12F, 1F);
+					GlStateManager.translate((configs[0].boxWidth / 2F), -12F, 0F);
+					GlStateManager.scale(1F, 12F, 1F);
 					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 					
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-					GL11.glTranslatef((configs[0].boxWidth / 2F) + 1, -12F, 0F);
-					GL11.glScalef(25F, 1F, 1F);
+					GlStateManager.translate((configs[0].boxWidth / 2F) + 1, -12F, 0F);
+					GlStateManager.scale(25F, 1F, 1F);
 					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 					
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 				}
 				
 				this.zLevel = 0;
@@ -1007,7 +1008,7 @@ public class GuiSurgery extends GuiContainer
 		
 		drawSlots(mouseX, mouseY);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 	
 	@Override
@@ -1170,9 +1171,8 @@ public class GuiSurgery extends GuiContainer
 		
 		RenderHelper.enableGUIStandardItemLighting();
 		
-		
-		GL11.glPushMatrix();
-		GL11.glTranslatef(0, 0, 900F);
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0, 900F);
 		if (page == 0 && this.transitionStart == 0)
 		{
 			String s = "_" + Minecraft.getMinecraft().player.getName().toUpperCase();
@@ -1191,23 +1191,21 @@ public class GuiSurgery extends GuiContainer
 			this.fontRenderer.drawString(s, 18, 6, 0x1DA9C1);
 		}
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
-		
-		GL11.glEnable(GL11.GL_BLEND);
+		GlStateManager.enableBlend();
 
 		this.zLevel = 500;
 		this.itemRender.zLevel = 500;
 		
 		this.mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
-
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		// Draw red 'slot' items and ghost items
 		for (SlotSurgery pos : visibleSlots)
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 
 			ItemStack stack = pos.getPlayerStack();
 			this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, stack, pos.xPos, pos.yPos - 26);
@@ -1223,8 +1221,8 @@ public class GuiSurgery extends GuiContainer
 			if (pos.getStack().isEmpty() && !pos.slotDiscarded())
 			{
 				this.itemRender.zLevel = 50;
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				GL11.glColorMask(true, true, true, false);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.colorMask(true, true, true, false);
 				
 				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, pos.getPlayerStack(), pos.xPos, pos.yPos);
 				
@@ -1236,7 +1234,7 @@ public class GuiSurgery extends GuiContainer
 					this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos, Integer.toString(stack.getCount()));
 				}
 				
-				GL11.glColorMask(true, true, true, true);
+				GlStateManager.colorMask(true, true, true, true);
 				this.itemRender.zLevel = 500;
 			}
 			else if (CyberwareAPI.areCyberwareStacksEqual(stack, pos.getStack()))
@@ -1248,8 +1246,7 @@ public class GuiSurgery extends GuiContainer
 				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos - width, pos.yPos, str);
 			}
 			
-			
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 		
 		if (page == index.id)
@@ -1261,8 +1258,8 @@ public class GuiSurgery extends GuiContainer
 				int x = (zee % 8) * 20 + 9;
 				int y = (zee / 8) * 20 + 24;
 				this.itemRender.zLevel = 0;
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				GL11.glColorMask(true, true, true, false);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.colorMask(true, true, true, false);
 				
 				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, draw, x, y);
 				
@@ -1286,7 +1283,7 @@ public class GuiSurgery extends GuiContainer
 					this.itemRender.renderItemOverlayIntoGUI(font, draw, x - 10, y - 10, "-");
 				}
 				
-				GL11.glColorMask(true, true, true, true);
+				GlStateManager.colorMask(true, true, true, true);
 				this.itemRender.zLevel = 500;
 			}
 		}
@@ -1339,8 +1336,7 @@ public class GuiSurgery extends GuiContainer
 				}
 			}
 			
-			
-			GL11.glDisable(GL11.GL_BLEND);
+			GlStateManager.disableBlend();
 
 			boolean ghost = false;
 			boolean add = false;
@@ -1431,7 +1427,7 @@ public class GuiSurgery extends GuiContainer
 			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.index")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
-		GL11.glDisable(GL11.GL_BLEND);
+		GlStateManager.disableBlend();
 
 		this.zLevel = 0;
 		this.itemRender.zLevel = 0;

@@ -13,8 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.CyberwareHudDataEvent;
@@ -132,9 +130,9 @@ public class GuiHudConfiguration extends GuiScreen
 		int elemX = getAbsoluteX(sr, element) - 1;
 		int elemY = getAbsoluteY(sr, element) - 1;
 		
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		float[] color = CyberwareAPI.getHUDColor();
-		GL11.glColor3f(color[0], color[1], color[2]);
+		GlStateManager.color(color[0], color[1], color[2]);
 		
 		if ( element == dragging
 		  || element == hoveredElement )
@@ -211,8 +209,8 @@ public class GuiHudConfiguration extends GuiScreen
 		ClientUtils.drawTexturedModalRect(elemX, elemY + pos, one, 0, 1, height);
 		ClientUtils.drawTexturedModalRect(elemX + element.getWidth() + 1, elemY + pos, two, 0, 1, height);
 		
-		GL11.glPopMatrix();
-		GL11.glColor3f(1F, 1F, 1F);
+		GlStateManager.popMatrix();
+		GlStateManager.color(1.0F, 1.0F, 1.0F);
 	}
 	
 	protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY)

@@ -35,8 +35,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.collect.HashMultimap;
 
 import flaxbeard.cyberware.Cyberware;
@@ -388,7 +386,7 @@ public class EssentialsMissingHandler
 			{
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.color(1F, 1F, 1F, .9F);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 0.9F);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(BLACK_PX);
 				ClientUtils.drawTexturedModalRect(0, 0, 0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
 				GlStateManager.popMatrix();
@@ -406,12 +404,12 @@ public class EssentialsMissingHandler
 				{
 					trans = (80F - ticks) / 20F;
 				}
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, trans);
+				GlStateManager.enableBlend();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 				Minecraft.getMinecraft().getTextureManager().bindTexture(BLACK_PX);
 				ClientUtils.drawTexturedModalRect(0, 0, 0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				GL11.glDisable(GL11.GL_BLEND);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.disableBlend();
 			}
 		}
 	}
