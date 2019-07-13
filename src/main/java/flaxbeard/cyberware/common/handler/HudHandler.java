@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -101,6 +102,13 @@ public class HudHandler
 		event.addElement(notificationDisplay);
 	}
 	
+	private int cache_tickExisted = 0;
+	private float cache_floatingFactor = 0.0F;
+	private List<IHudElement> cache_hudElements = new ArrayList<>();
+	private boolean cache_isHUDjackAvailable = false;
+	private boolean cache_promptToOpenMenu = false;
+	private int cache_hudColorHex = 0x00FFFF;
+	
 	private int lastTickExisted = 0;
 	private double lastVelX = 0;
 	private double lastVelY = 0;
@@ -119,42 +127,51 @@ public class HudHandler
 		EntityPlayerSP entityPlayerSP = mc.player;
 		if (entityPlayerSP == null) return;
 		
-		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayerSP);
-		if (cyberwareUserData == null) return;
+		ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
+		
+		if (entityPlayerSP.ticksExisted != cache_tickExisted) {
+			cache_tickExisted = entityPlayerSP.ticksExisted;
+			
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayerSP);
+			if (cyberwareUserData == null) return;
+			
+			cache_floatingFactor = 0.0F;
+			boolean isHUDjackAvailable = false;
+			
+			List<ItemStack> listHUDjackItems = cyberwareUserData.getHudjackItems();
+			for (ItemStack stack : listHUDjackItems) {
+				if (((IHudjack) CyberwareAPI.getCyberware(stack)).isActive(stack)) {
+					isHUDjackAvailable = true;
+					if (CyberwareConfig.ENABLE_FLOAT) {
+						if (CyberwareAPI.getCyberware(stack) == CyberwareContent.eyeUpgrades) {
+							cache_floatingFactor = CyberwareConfig.HUDLENS_FLOAT;
+						} else {
+							cache_floatingFactor = CyberwareConfig.HUDJACK_FLOAT;
+						}
+					}
+					break;
+				}
+			}
+			
+			CyberwareHudEvent hudEvent = new CyberwareHudEvent(scaledResolution, isHUDjackAvailable);
+			MinecraftForge.EVENT_BUS.post(hudEvent);
+			cache_hudElements = hudEvent.getElements();
+			cache_isHUDjackAvailable = hudEvent.isHudjackAvailable();
+			cache_promptToOpenMenu = cyberwareUserData.getActiveItems().size() > 0
+			                      && !cyberwareUserData.hasOpenedRadialMenu();
+			cache_hudColorHex = cyberwareUserData.getHudColorHex();
+		}
 		
 		GlStateManager.pushMatrix();
-		float floatAmt = 0.0F;
-		boolean isHUDjackAvailable = false;
-		
-		List<ItemStack> listHUDjackItems = cyberwareUserData.getHudjackItems();
-		for (ItemStack stack : listHUDjackItems)
-		{
-			if (((IHudjack) CyberwareAPI.getCyberware(stack)).isActive(stack))
-			{
-				isHUDjackAvailable = true;
-				if (CyberwareConfig.ENABLE_FLOAT)
-				{
-					if (CyberwareAPI.getCyberware(stack) == CyberwareContent.eyeUpgrades)
-					{
-						floatAmt = CyberwareConfig.HUDLENS_FLOAT;
-					}
-					else
-					{
-						floatAmt = CyberwareConfig.HUDJACK_FLOAT;
-					}
-				}
-				break;
-			}
-		}
 		
 		double accelLastY = lastVelY - lastLastVelY;
 		double accelY = entityPlayerSP.motionY - lastVelY;
 		double accelPitch = accelLastY + (accelY - accelLastY) * (event.renderTickTime + entityPlayerSP.ticksExisted - lastTickExisted) / 2F;
 		
-		double pitchCameraMove = floatAmt * ((entityPlayerSP.prevRenderArmPitch + (entityPlayerSP.renderArmPitch - entityPlayerSP.prevRenderArmPitch) * event.renderTickTime) - entityPlayerSP.rotationPitch);
-		double yawCameraMove   = floatAmt * ((entityPlayerSP.prevRenderArmYaw   + (entityPlayerSP.renderArmYaw   - entityPlayerSP.prevRenderArmYaw  ) * event.renderTickTime) - entityPlayerSP.rotationYaw  );
+		double pitchCameraMove = cache_floatingFactor * ((entityPlayerSP.prevRenderArmPitch + (entityPlayerSP.renderArmPitch - entityPlayerSP.prevRenderArmPitch) * event.renderTickTime) - entityPlayerSP.rotationPitch);
+		double yawCameraMove   = cache_floatingFactor * ((entityPlayerSP.prevRenderArmYaw   + (entityPlayerSP.renderArmYaw   - entityPlayerSP.prevRenderArmYaw  ) * event.renderTickTime) - entityPlayerSP.rotationYaw  );
 		
-		GlStateManager.translate(yawCameraMove, pitchCameraMove + accelPitch * 50F * floatAmt, 0);
+		GlStateManager.translate(yawCameraMove, pitchCameraMove + accelPitch * 50F * cache_floatingFactor, 0);
 		
 		if (entityPlayerSP.ticksExisted > lastTickExisted + 1)
 		{
@@ -167,13 +184,7 @@ public class HudHandler
 			lastVelZ = entityPlayerSP.motionZ;
 		}
 		
-		ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-		CyberwareHudEvent hudEvent = new CyberwareHudEvent(scaledResolution, isHUDjackAvailable);
-		MinecraftForge.EVENT_BUS.post(hudEvent);
-		List<IHudElement> hudElements = hudEvent.getElements();
-		isHUDjackAvailable = hudEvent.isHudjackAvailable();
-		
-		for (IHudElement hudElement : hudElements)
+		for (IHudElement hudElement : cache_hudElements)
 		{
 			if (hudElement.getHeight() + GuiHudConfiguration.getAbsoluteY(scaledResolution, hudElement) <= 3)
 			{
@@ -195,16 +206,15 @@ public class HudHandler
 				GuiHudConfiguration.setXFromAbsolute(scaledResolution, hudElement, scaledResolution.getScaledWidth() - 4);
 			}
 			
-			hudElement.render(entityPlayerSP, scaledResolution, isHUDjackAvailable, mc.currentScreen instanceof GuiHudConfiguration, event.renderTickTime);
+			hudElement.render(entityPlayerSP, scaledResolution, cache_isHUDjackAvailable, mc.currentScreen instanceof GuiHudConfiguration, event.renderTickTime);
 		}
 		
 		// Display a prompt to the user to open the radial menu if they haven't yet
-		if ( cyberwareUserData.getActiveItems().size() > 0
-		  && !cyberwareUserData.hasOpenedRadialMenu() )
+		if (cache_promptToOpenMenu)
 		{
 			String textOpenMenu = I18n.format("cyberware.gui.open_menu", KeyBinds.menu.getDisplayName());
 			FontRenderer fontRenderer = mc.fontRenderer;
-			fontRenderer.drawStringWithShadow(textOpenMenu, scaledResolution.getScaledWidth() - fontRenderer.getStringWidth(textOpenMenu) - 5, 5, CyberwareAPI.getHUDColorHex());
+			fontRenderer.drawStringWithShadow(textOpenMenu, scaledResolution.getScaledWidth() - fontRenderer.getStringWidth(textOpenMenu) - 5, 5, cache_hudColorHex);
 		}
 		
 		GlStateManager.popMatrix();

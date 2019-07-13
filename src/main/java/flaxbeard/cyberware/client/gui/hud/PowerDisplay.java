@@ -17,14 +17,16 @@ import flaxbeard.cyberware.common.handler.HudHandler;
 public class PowerDisplay extends HudElementBase
 {
 
+	private final static float[] colorLowPowerFloats = { 1.0F, 0.0F, 0.125F };
+	private final static int colorLowPowerHex = 0xFF0020;
+	
 	private static float cache_percentFull = 0;
 	private static int cache_power_capacity = 0;
 	private static int cache_power_stored = 0;
 	private static int cache_power_production = 0;
  	private static int cache_power_consumption = 0;
- 	
- 	private final static float[] colorLowPowerFloats = { 1.0F, 0.0F, 0.125F };
- 	private final static int colorLowPowerHex = 0xFF0020;
+	private static float[] cache_hudColor = colorLowPowerFloats;
+	private static int cache_hudColorHex = 0x00FFFF;
 	
 	public PowerDisplay()
 	{
@@ -55,6 +57,8 @@ public class PowerDisplay extends HudElementBase
 			cache_power_stored = cyberwareUserData.getStoredPower();
 			cache_power_production = cyberwareUserData.getProduction();
 			cache_power_consumption = cyberwareUserData.getConsumption();
+			cache_hudColor = cyberwareUserData.getHudColor();
+			cache_hudColorHex = cyberwareUserData.getHudColorHex();
 		}
 		
 		if (cache_power_capacity == 0) return;
@@ -68,8 +72,8 @@ public class PowerDisplay extends HudElementBase
 			return;
 		}
 		
-		float[] colorFloats = isLowPower ? colorLowPowerFloats : CyberwareAPI.getHUDColor();
-		int colorHex = isLowPower ? colorLowPowerHex : CyberwareAPI.getHUDColorHex();
+		float[] colorFloats = isLowPower ? colorLowPowerFloats : cache_hudColor;
+		int colorHex = isLowPower ? colorLowPowerHex : cache_hudColorHex;
 		
 		GlStateManager.pushMatrix();
 		
