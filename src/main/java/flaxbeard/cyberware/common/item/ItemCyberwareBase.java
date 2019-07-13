@@ -65,7 +65,7 @@ public class ItemCyberwareBase extends Item
 		if ( itemStack != null
 		  && ( itemStack.getItem() != this
 		    || itemStack.getCount() != 1
-		    || itemStack.getItemDamage() != damage ) )
+		    || getDamage(itemStack) != damage ) )
 		{
 			Cyberware.logger.error(String.format("Corrupted item stack cache: found %s as %s:%d, expected %s:%d",
 			                                     itemStack, itemStack.getItem(), itemStack.getItemDamage(),

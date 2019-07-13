@@ -121,7 +121,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public EnumSlot getSlot(ItemStack stack)
 	{
-		return slots[Math.min(slots.length - 1, stack.getItemDamage())];
+		return slots[Math.min(slots.length - 1, getDamage(stack))];
 	}
 
 	@Override
