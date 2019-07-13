@@ -27,15 +27,17 @@ public class CyberwareMenuHandler
 
 	int wasInScreen = 0;
 	public static boolean wasSprinting = false;
-	private static List<Integer> lastPressed = new ArrayList<Integer>();
-	private static List<Integer> pressed = new ArrayList<Integer>();
+	private static List<Integer> lastPressed = new ArrayList<>();
+	private static List<Integer> pressed = new ArrayList<>();
 	
 	@SubscribeEvent
 	public void tick(ClientTickEvent event)
 	{
-		if(event.phase == Phase.START)
+		if (event.phase == Phase.START)
 		{
-			if (!KeyBinds.menu.isPressed() && mc.currentScreen == null && wasInScreen > 0)
+			if ( !KeyBinds.menu.isPressed()
+			  && mc.currentScreen == null
+			  && wasInScreen > 0 )
 			{
 				KeyConflictContext inGame = KeyConflictContext.IN_GAME;
 				mc.gameSettings.keyBindForward.setKeyConflictContext(inGame);
@@ -52,37 +54,35 @@ public class CyberwareMenuHandler
 				}
 				wasInScreen--;
 			}
-
 		}
 		if(event.phase == Phase.END)
 		{
-			
-			if (mc.player != null && mc.currentScreen == null)
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
+			if ( mc.player != null
+			  && mc.currentScreen == null
+			  && cyberwareUserData != null )
 			{
-
-				ICyberwareUserData data = CyberwareAPI.getCapability(mc.player);
-				
-				for (int keyCode : data.getHotkeys())
+				for (int keyCode : cyberwareUserData.getHotkeys())
 				{
-					if (isPressed(data, keyCode))
+					if (isPressed(cyberwareUserData, keyCode))
 					{
 						pressed.add(keyCode);
 						if (!lastPressed.contains(keyCode))
 						{
-							ClientUtils.useActiveItemClient(mc.player, data.getHotkey(keyCode));
+							ClientUtils.useActiveItemClient(mc.player, cyberwareUserData.getHotkey(keyCode));
 						}
 					}
 				}
 				
 				lastPressed = pressed;
-				pressed = new ArrayList<Integer>();
-			
-				
+				pressed = new ArrayList<>();
 			}
 			
-			if (mc.player != null && CyberwareAPI.getCapability(mc.player).getNumActiveItems() > 0 && KeyBinds.menu.isPressed() && mc.currentScreen == null)
+			if ( mc.player != null
+			  && cyberwareUserData.getNumActiveItems() > 0
+			  && KeyBinds.menu.isPressed()
+			  && mc.currentScreen == null )
 			{
-
 				KeyConflictContext gui = KeyConflictContext.GUI;
 				mc.gameSettings.keyBindForward.setKeyConflictContext(gui);
 				mc.gameSettings.keyBindLeft.setKeyConflictContext(gui);
@@ -93,20 +93,20 @@ public class CyberwareMenuHandler
 				mc.gameSettings.keyBindSprint.setKeyConflictContext(gui);
 				
 				mc.displayGuiScreen(new GuiCyberwareMenu());
-				CyberwareAPI.getCapability(mc.player).setOpenedRadialMenu(true);
+				cyberwareUserData.setOpenedRadialMenu(true);
 				CyberwarePacketHandler.INSTANCE.sendToServer(new OpenRadialMenuPacket());
 
 				wasInScreen = 5;
 			}
-			else if (wasInScreen > 0 && mc.currentScreen instanceof GuiCyberwareMenu)
+			else if ( wasInScreen > 0
+			       && mc.currentScreen instanceof GuiCyberwareMenu )
 			{
 				wasSprinting = mc.player.isSprinting();
 			}
-			
 		}
 	}
 
-	private boolean isPressed(ICyberwareUserData data, int keyCode)
+	private boolean isPressed(ICyberwareUserData cyberwareUserData, int keyCode)
 	{
 		if (keyCode < 0)
 		{
@@ -122,7 +122,7 @@ public class CyberwareMenuHandler
 		}
 		else
 		{
-			if (data.getHotkey(keyCode + 900) != null)
+			if (cyberwareUserData.getHotkey(keyCode + 900) != null)
 			{
 				boolean shiftPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
 

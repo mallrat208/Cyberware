@@ -30,7 +30,6 @@ public class RecipeHandler
      */
     public static void addRecipe(IRecipe recipe)
     {
-        //CraftingManager.getInstance().getRecipeList().add(recipe);
         ForgeRegistries.RECIPES.register(recipe);
     }
 
@@ -82,7 +81,7 @@ public class RecipeHandler
     public static void addShapelessRecipe(ItemStack output, Object... input)
     {
         ResourceLocation location = getNameForRecipe(output);
-        ShapelessRecipes recipe = new ShapelessRecipes(location.getResourceDomain(), output, buildInput(input));
+        ShapelessRecipes recipe = new ShapelessRecipes(location.getNamespace(), output, buildInput(input));
         recipe.setRegistryName(location);
         ForgeRegistries.RECIPES.register(recipe);
     }
@@ -96,12 +95,12 @@ public class RecipeHandler
     public static ResourceLocation getNameForRecipe(ItemStack output)
     {
         ModContainer activeContainer = Loader.instance().activeModContainer();
-        ResourceLocation baseLoc = new ResourceLocation(activeContainer.getModId(), output.getItem().getRegistryName().getResourcePath());
+        ResourceLocation baseLoc = new ResourceLocation(activeContainer.getModId(), output.getItem().getRegistryName().getPath());
         ResourceLocation recipeLoc = baseLoc;
         int index = 0;
         while (CraftingManager.REGISTRY.containsKey(recipeLoc)) {
             index++;
-            recipeLoc = new ResourceLocation(activeContainer.getModId(), baseLoc.getResourcePath() + "_" + index);
+            recipeLoc = new ResourceLocation(activeContainer.getModId(), baseLoc.getPath() + "_" + index);
         }
         return recipeLoc;
     }
@@ -143,16 +142,16 @@ public class RecipeHandler
 
     public static void addSmelting(ItemStack input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 
     public static void addSmelting(Item input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 
     public static void addSmelting(Block input, ItemStack output)
     {
-        addSmelting(input, output, 1F);
+        addSmelting(input, output, 1.0F);
     }
 }

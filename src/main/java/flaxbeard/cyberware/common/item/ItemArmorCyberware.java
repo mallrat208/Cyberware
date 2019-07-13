@@ -1,6 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -19,7 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
@@ -36,33 +35,32 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		public ModelTrenchcoat(float modelSize)
 		{
 			super(modelSize);
-			this.bottomThing = new ModelRenderer(this, 16, 0);
-			this.bottomThing.addBox(-4.0F, 0F, -1.7F, 8, 12, 4, modelSize);
-			this.bottomThing.setRotationPoint(0, 12.0F, 0.0F);
+			bottomThing = new ModelRenderer(this, 16, 0);
+			bottomThing.addBox(-4.0F, 0F, -1.7F, 8, 12, 4, modelSize);
+			bottomThing.setRotationPoint(0, 12.0F, 0.0F);
 		}
-		
 		
 		@Override
 		public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn)
 		{
 			super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
 			
-			this.bottomThing.setRotationPoint(0, this.bipedLeftLeg.rotationPointY, this.bipedLeftLeg.rotationPointZ);
-			this.bottomThing.rotateAngleX = Math.max(this.bipedLeftLeg.rotateAngleX, this.bipedRightLeg.rotateAngleX) + .05F * 1.1F;
+			bottomThing.setRotationPoint(0, bipedLeftLeg.rotationPointY, bipedLeftLeg.rotationPointZ);
+			bottomThing.rotateAngleX = Math.max(bipedLeftLeg.rotateAngleX, bipedRightLeg.rotateAngleX) + .05F * 1.1F;
 		}
 		
 		@Override
-		public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
+		public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 		{
 			super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 			GlStateManager.pushMatrix();
 
-			if (this.isChild)
+			if (isChild)
 			{
 				float f = 2.0F;
 				GlStateManager.scale(1.0F / f, 1.0F / f, 1.0F / f);
 				GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-				this.bottomThing.render(scale);
+				bottomThing.render(scale);
 		
 			}
 			else
@@ -72,25 +70,23 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 					GlStateManager.translate(0.0F, 0.2F, 0.0F);
 				}
 
-				this.bottomThing.render(scale);
+				bottomThing.render(scale);
 			}
 
 			GlStateManager.popMatrix();
 		}
 	}
-
 	
 	public ItemArmorCyberware(String name, ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn)
 	{
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
 		
-		this.setCreativeTab(Cyberware.creativeTab);
-				
-
+		setCreativeTab(Cyberware.creativeTab);
+		
 		CyberwareContent.items.add(this);
 	}
 
@@ -126,17 +122,15 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		l.add(new ItemStack(CyberwareContent.component, 1, 4));
 		return l;
 	}
-
-
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ModelBiped getArmorModel(EntityLivingBase entityLiving, ItemStack itemStack, EntityEquipmentSlot armorSlot, net.minecraft.client.model.ModelBiped _default)
+	public ModelBiped getArmorModel(EntityLivingBase entityLivingBase, ItemStack itemStack, EntityEquipmentSlot armorSlot, net.minecraft.client.model.ModelBiped _default)
 	{
 		ClientUtils.trench.setModelAttributes(_default);
 		ClientUtils.armor.setModelAttributes(_default);
-		ClientUtils.trench.bipedRightArm.isHidden = !(entityLiving instanceof EntityPlayer) && !(entityLiving instanceof EntityArmorStand);
-		ClientUtils.trench.bipedLeftArm.isHidden = !(entityLiving instanceof EntityPlayer) && !(entityLiving instanceof EntityArmorStand);
+		ClientUtils.trench.bipedRightArm.isHidden = !(entityLivingBase instanceof EntityPlayer) && !(entityLivingBase instanceof EntityArmorStand);
+		ClientUtils.trench.bipedLeftArm.isHidden = !(entityLivingBase instanceof EntityPlayer) && !(entityLivingBase instanceof EntityArmorStand);
 		ClientUtils.armor.bipedRightArm.isHidden = ClientUtils.trench.bipedRightArm.isHidden;
 		ClientUtils.armor.bipedLeftArm.isHidden = ClientUtils.trench.bipedLeftArm.isHidden;
 
@@ -145,36 +139,40 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		return ClientUtils.armor;
 	}
 	
-	public boolean hasColor(ItemStack stack)
+	@Override
+	public boolean hasColor(@Nonnull ItemStack stack)
 	{
-		if (this.getArmorMaterial() != CyberwareContent.trenchMat)
+		if (getArmorMaterial() != CyberwareContent.trenchMat)
 		{
 			return false;
 		}
 		else
 		{
-			NBTTagCompound nbttagcompound = stack.getTagCompound();
-			return nbttagcompound != null && nbttagcompound.hasKey("display", 10) ? nbttagcompound.getCompoundTag("display").hasKey("color", 3) : false;
+			NBTTagCompound tagCompound = stack.getTagCompound();
+			return tagCompound != null
+			    && tagCompound.hasKey("display", 10)
+			    && tagCompound.getCompoundTag("display").hasKey("color", 3);
 		}
 	}
 	
-	public int getColor(ItemStack stack)
+	@Override
+	public int getColor(@Nonnull ItemStack stack)
 	{
-		if (this.getArmorMaterial() != CyberwareContent.trenchMat)
+		if (getArmorMaterial() != CyberwareContent.trenchMat)
 		{
 			return 16777215;
 		}
 		else
 		{
-			NBTTagCompound nbttagcompound = stack.getTagCompound();
+			NBTTagCompound tagCompound = stack.getTagCompound();
 
-			if (nbttagcompound != null)
+			if (tagCompound != null)
 			{
-				NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("display");
+				NBTTagCompound tagCompoundDisplay = tagCompound.getCompoundTag("display");
 
-				if (nbttagcompound1 != null && nbttagcompound1.hasKey("color", 3))
+				if (tagCompoundDisplay.hasKey("color", 3))
 				{
-					return nbttagcompound1.getInteger("color");
+					return tagCompoundDisplay.getInteger("color");
 				}
 			}
 
@@ -182,19 +180,20 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 		}
 	}
 
-	public void removeColor(ItemStack stack)
+	@Override
+	public void removeColor(@Nonnull ItemStack stack)
 	{
-		if (this.getArmorMaterial() == CyberwareContent.trenchMat)
+		if (getArmorMaterial() == CyberwareContent.trenchMat)
 		{
-			NBTTagCompound nbttagcompound = stack.getTagCompound();
+			NBTTagCompound tagCompound = stack.getTagCompound();
 
-			if (nbttagcompound != null)
+			if (tagCompound != null)
 			{
-				NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("display");
+				NBTTagCompound tagCompoundDisplay = tagCompound.getCompoundTag("display");
 
-				if (nbttagcompound1.hasKey("color"))
+				if (tagCompoundDisplay.hasKey("color"))
 				{
-					nbttagcompound1.removeTag("color");
+					tagCompoundDisplay.removeTag("color");
 				}
 			}
 		}
@@ -202,49 +201,47 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 
 	public void setColor(ItemStack stack, int color)
 	{
-		if (this.getArmorMaterial() != CyberwareContent.trenchMat)
+		if (getArmorMaterial() != CyberwareContent.trenchMat)
 		{
 			throw new UnsupportedOperationException("Can\'t dye non-leather!");
 		}
 		else
 		{
-			NBTTagCompound nbttagcompound = stack.getTagCompound();
+			NBTTagCompound tagCompound = stack.getTagCompound();
 
-			if (nbttagcompound == null)
+			if (tagCompound == null)
 			{
-				nbttagcompound = new NBTTagCompound();
-				stack.setTagCompound(nbttagcompound);
+				tagCompound = new NBTTagCompound();
+				stack.setTagCompound(tagCompound);
 			}
 
-			NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("display");
+			NBTTagCompound tagCompoundDisplay = tagCompound.getCompoundTag("display");
 
-			if (!nbttagcompound.hasKey("display", 10))
+			if (!tagCompound.hasKey("display", 10))
 			{
-				nbttagcompound.setTag("display", nbttagcompound1);
+				tagCompound.setTag("display", tagCompoundDisplay);
 			}
 
-			nbttagcompound1.setInteger("color", color);
+			tagCompoundDisplay.setInteger("color", color);
 		}
 	}
 	
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
-		if (this.isInCreativeTab(tab)) {
-			if (this.getArmorMaterial() == CyberwareContent.trenchMat)
+		if (isInCreativeTab(tab)) {
+			if (getArmorMaterial() == CyberwareContent.trenchMat)
 			{
-				//super.getSubItems(item, tab, list);
 				super.getSubItems(tab, list);
 				ItemStack brown = new ItemStack(this);
-				this.setColor(brown, 0x664028);
+				setColor(brown, 0x664028);
 				list.add(brown);
 				ItemStack white = new ItemStack(this);
-				this.setColor(white, 0xEAEAEA);
+				setColor(white, 0xEAEAEA);
 				list.add(white);
 			}
 			else
 			{
-				//super.getSubItems(item, tab, list);
 				super.getSubItems(tab, list);
 			}
 		}

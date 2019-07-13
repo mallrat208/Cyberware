@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common.block;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
@@ -11,7 +12,6 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
@@ -19,7 +19,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,6 +27,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -43,13 +43,16 @@ public class BlockSurgeryChamber extends BlockContainer
 {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
 	public static final PropertyBool OPEN = PropertyBool.create("open");
-	public static final PropertyEnum<EnumChamberHalf> HALF = PropertyEnum.<EnumChamberHalf>create("half", EnumChamberHalf.class);
+	public static final PropertyEnum<EnumChamberHalf> HALF = PropertyEnum.create("half", EnumChamberHalf.class);
 	public final Item ib;
 	
 	public BlockSurgeryChamber()
 	{
 		super(Material.IRON);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(OPEN, Boolean.valueOf(false)).withProperty(HALF, EnumChamberHalf.LOWER));
+		this.setDefaultState(this.blockState.getBaseState()
+		                                    .withProperty(FACING, EnumFacing.NORTH)
+		                                    .withProperty(OPEN, Boolean.FALSE)
+		                                    .withProperty(HALF, EnumChamberHalf.LOWER));
 		
 		setHardness(5.0F);
 		setResistance(10.0F);
@@ -64,29 +67,31 @@ public class BlockSurgeryChamber extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
-		ib.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
+		ib.setTranslationKey(Cyberware.MODID + "." + name);
 
 		ib.setCreativeTab(Cyberware.creativeTab);
 		
-		GameRegistry.registerTileEntity(TileEntitySurgeryChamber.class, Cyberware.MODID + ":" + name);
+		GameRegistry.registerTileEntity(TileEntitySurgeryChamber.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.items.add(ib);
 	}
 	
-	private static final AxisAlignedBB top = new AxisAlignedBB(0F, 15F / 16F, 0F, 1F, 1F, 1F);
-	private static final AxisAlignedBB south = new AxisAlignedBB(0F, 0F, 0F, 1F, 1F, 1F / 16F);
-	private static final AxisAlignedBB north = new AxisAlignedBB(0F, 0F, 15F / 16F, 1F, 1F, 1F);
-	private static final AxisAlignedBB east = new AxisAlignedBB(0F, 0F, 0F, 1F / 16F, 1F, 1F);
-	private static final AxisAlignedBB west = new AxisAlignedBB(15F / 16F, 0F, 0F, 1F, 1F, 1F);
-	private static final AxisAlignedBB bottom = new AxisAlignedBB(0F, 0F, 0F, 1F, 1F / 16F, 1F);
+	private static final AxisAlignedBB top    = new AxisAlignedBB(       0F, 15F / 16F,        0F,       1F,       1F,       1F);
+	private static final AxisAlignedBB south  = new AxisAlignedBB(       0F,        0F,        0F,       1F,       1F, 1F / 16F);
+	private static final AxisAlignedBB north  = new AxisAlignedBB(       0F,        0F, 15F / 16F,       1F,       1F,       1F);
+	private static final AxisAlignedBB east   = new AxisAlignedBB(       0F,        0F,        0F, 1F / 16F,       1F,       1F);
+	private static final AxisAlignedBB west   = new AxisAlignedBB(15F / 16F,        0F,        0F,       1F,       1F,       1F);
+	private static final AxisAlignedBB bottom = new AxisAlignedBB(       0F,        0F,        0F,       1F, 1F / 16F,       1F);
 	
+	@Nonnull
 	@Override
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
 	{
 		return new ItemStack(ib);
 	}
-
+	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
 	{
@@ -136,9 +141,8 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		ItemStack heldItem = playerIn.getHeldItem(hand);
 		boolean top = state.getValue(HALF) == EnumChamberHalf.UPPER;
 		if (canOpen(top ? pos : pos.up(), worldIn))
 		{
@@ -210,7 +214,6 @@ public class BlockSurgeryChamber extends BlockContainer
 		}
 		else
 		{
-			boolean shouldBreak = false;
 			BlockPos blockpos1 = pos.up();
 			IBlockState iblockstate1 = worldIn.getBlockState(blockpos1);
 
@@ -225,47 +228,39 @@ public class BlockSurgeryChamber extends BlockContainer
 		}
 	}
 	
-	@Nullable
+	@Nonnull
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(HALF) == EnumChamberHalf.UPPER ? null : this.ib;
+		return state.getValue(HALF) == EnumChamberHalf.UPPER ? Items.AIR : this.ib;
 	}
 	
 	@Override
 	public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
 	{
-		return pos.getY() >= worldIn.getHeight() - 1 ? false : worldIn.getBlockState(pos.down()).isSideSolid(worldIn,  pos.down(), EnumFacing.UP) && super.canPlaceBlockAt(worldIn, pos) && super.canPlaceBlockAt(worldIn, pos.up());
+		return pos.getY() < worldIn.getHeight() - 1
+		    && worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos.down(), EnumFacing.UP)
+		    && super.canPlaceBlockAt(worldIn, pos)
+		    && super.canPlaceBlockAt(worldIn, pos.up());
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
-	public EnumPushReaction getMobilityFlag(IBlockState state)
+	public EnumPushReaction getPushReaction(IBlockState state)
 	{
 		return EnumPushReaction.DESTROY;
 	}
 	
-	/*public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-	{
-		if (state.getValue(HALF) == EnumChamberHalf.UPPER)
-		{
-			IBlockState iblockstate1 = worldIn.getBlockState(pos.down());
-
-			if (iblockstate1.getBlock() == this)
-			{
-				state = state.withProperty(FACING, iblockstate1.getValue(FACING)).withProperty(OPEN, iblockstate1.getValue(OPEN));
-			}
-		}
-
-		return state;
-	}*/
-	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
 		return this.getDefaultState()
 				.withProperty(HALF, (meta & 1) > 0 ? EnumChamberHalf.UPPER : EnumChamberHalf.LOWER)
-				.withProperty(OPEN, (meta & 2) > 0 ? true : false)
-				.withProperty(FACING, EnumFacing.getHorizontal(meta >> 2));
+				.withProperty(OPEN, (meta & 2) > 0)
+				.withProperty(FACING, EnumFacing.byHorizontalIndex(meta >> 2));
 	}
 	
 	@Override
@@ -274,26 +269,27 @@ public class BlockSurgeryChamber extends BlockContainer
 		return (state.getValue(FACING).getHorizontalIndex() << 2) + (state.getValue(HALF) == EnumChamberHalf.UPPER ? 1 : 0) + (state.getValue(OPEN) ? 2 : 0);
 	}
 	
+	@Nonnull
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] {HALF, FACING, OPEN});
+		return new BlockStateContainer(this, HALF, FACING, OPEN);
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
+	public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer)
 	{
 		BlockPos blockpos = pos.down();
 		BlockPos blockpos1 = pos.up();
 
-		if (player.capabilities.isCreativeMode && state.getValue(HALF) == EnumChamberHalf.UPPER && worldIn.getBlockState(blockpos).getBlock() == this)
+		if (entityPlayer.capabilities.isCreativeMode && state.getValue(HALF) == EnumChamberHalf.UPPER && worldIn.getBlockState(blockpos).getBlock() == this)
 		{
 			worldIn.setBlockToAir(blockpos);
 		}
 
 		if (state.getValue(HALF) == EnumChamberHalf.LOWER && worldIn.getBlockState(blockpos1).getBlock() == this)
 		{
-			if (player.capabilities.isCreativeMode)
+			if (entityPlayer.capabilities.isCreativeMode)
 			{
 				worldIn.setBlockToAir(pos);
 			}
@@ -302,12 +298,14 @@ public class BlockSurgeryChamber extends BlockContainer
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isFullCube(IBlockState state)
 	{
@@ -315,7 +313,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 	
 	
-	public static enum EnumChamberHalf implements IStringSerializable
+	public enum EnumChamberHalf implements IStringSerializable
 	{
 		UPPER,
 		LOWER;
@@ -331,6 +329,8 @@ public class BlockSurgeryChamber extends BlockContainer
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{

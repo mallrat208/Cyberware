@@ -1,15 +1,8 @@
 package flaxbeard.cyberware.common.network;
 
-import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.CyberwareConfig;
-import flaxbeard.cyberware.common.item.ItemCybereyeUpgrade;
 import io.netty.buffer.ByteBuf;
 
-import java.util.concurrent.Callable;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;

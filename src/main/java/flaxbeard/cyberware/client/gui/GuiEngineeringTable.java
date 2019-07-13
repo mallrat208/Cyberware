@@ -1,6 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -44,18 +43,15 @@ public class GuiEngineeringTable extends GuiContainer
 		}
 
 		@Override
-		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
-			if (this.visible)
+			if (visible)
 			{
-				float trans = 0.4F;
 				boolean down = Mouse.isButtonDown(0);
-				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			
+				boolean flag = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 				
 				mc.getTextureManager().bindTexture(ENGINEERING_GUI_TEXTURES);
-
-	
+				
 				int i = 39;
 				int j = 34;
 				if (down && flag)
@@ -63,7 +59,7 @@ public class GuiEngineeringTable extends GuiContainer
 					i = 0;
 					j = 166;
 				}
-				this.drawTexturedModalRect(this.x, this.y, i, j, 21, 21);
+				drawTexturedModalRect(x, y, i, j, 21, 21);
 			}
 		}
 	}
@@ -72,18 +68,18 @@ public class GuiEngineeringTable extends GuiContainer
 	{
 		private final boolean isForward;
 	
-		public NextPageButton(int p_i46316_1_, int p_i46316_2_, int p_i46316_3_, boolean p_i46316_4_)
+		public NextPageButton(int buttonId, int x, int y, boolean isForward)
 		{
-			super(p_i46316_1_, p_i46316_2_, p_i46316_3_, 23, 13, "");
-			this.isForward = p_i46316_4_;
+			super(buttonId, x, y, 23, 13, "");
+			this.isForward = isForward;
 		}
 
 		@Override
-		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
-			if (this.visible)
+			if (visible)
 			{
-				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+				boolean flag = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				mc.getTextureManager().bindTexture(ENGINEERING_GUI_TEXTURES);
 				int i = 21;
@@ -94,12 +90,12 @@ public class GuiEngineeringTable extends GuiContainer
 					i += 23;
 				}
 	
-				if (!this.isForward)
+				if (!isForward)
 				{
 					j += 13;
 				}
 	
-				this.drawTexturedModalRect(this.x, this.y, i, j, 23, 13);
+				drawTexturedModalRect(x, y, i, j, 23, 13);
 			}
 		}
 	}
@@ -108,7 +104,7 @@ public class GuiEngineeringTable extends GuiContainer
 
 	private InventoryPlayer playerInventory;
 
-	private TileEntityEngineeringTable engineering;
+	private TileEntityEngineeringTable tileEntityEngineeringTable;
 
 	private SmashButton smash;
 	private GuiButton next;
@@ -117,21 +113,19 @@ public class GuiEngineeringTable extends GuiContainer
 	private GuiButton prevC;
 	private final int offset;
 
-	public GuiEngineeringTable(InventoryPlayer playerInv, TileEntityEngineeringTable engineering)
+	public GuiEngineeringTable(InventoryPlayer playerInventory, TileEntityEngineeringTable tileEntityEngineeringTable)
 	{
-		super(new ContainerEngineeringTable(Minecraft.getMinecraft().player.getCachedUniqueIdString(), playerInv, engineering));
-		this.playerInventory = playerInv;
-		this.engineering = engineering;
-		
-		BlockPos pos = engineering.getPos().add(0, -1, 0);
+		super(new ContainerEngineeringTable(Minecraft.getMinecraft().player.getCachedUniqueIdString(), playerInventory, tileEntityEngineeringTable));
+		this.playerInventory = playerInventory;
+		this.tileEntityEngineeringTable = tileEntityEngineeringTable;
 		
 		if (archive() != null)
 		{
-			this.xSize += 65;
+			xSize += 65;
 		}
 		if (componentBox() != null)
 		{
-			this.xSize += 65;
+			xSize += 65;
 			offset = 65;
 		}
 		else
@@ -144,26 +138,26 @@ public class GuiEngineeringTable extends GuiContainer
 	public void drawScreen(int mouseX, int mouseY, float partialTicks)
 	{
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		this.renderHoveredToolTip(mouseX, mouseY);
+		renderHoveredToolTip(mouseX, mouseY);
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		String s = this.engineering.getDisplayName().getUnformattedText();
-		this.fontRenderer.drawString(s, offset + 8, 6, 4210752);
-		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), offset + 8, this.ySize - 96 + 2, 4210752);
+		int i = (width - xSize) / 2;
+		int j = (height - ySize) / 2;
+		String s = tileEntityEngineeringTable.getDisplayName().getUnformattedText();
+		fontRenderer.drawString(s, offset + 8, 6, 4210752);
+		fontRenderer.drawString(playerInventory.getDisplayName().getUnformattedText(), offset + 8, ySize - 96 + 2, 4210752);
 		
-		next.visible = prev.visible = (archive() != null && ((ContainerEngineeringTable) this.inventorySlots).archiveList.size() > 1);
-		nextC.visible = prevC.visible = (componentBox() != null && ((ContainerEngineeringTable) this.inventorySlots).componentBoxList.size() > 1);
+		next.visible = prev.visible = (archive() != null && ((ContainerEngineeringTable) inventorySlots).archiveList.size() > 1);
+		nextC.visible = prevC.visible = (componentBox() != null && ((ContainerEngineeringTable) inventorySlots).componentBoxList.size() > 1);
 
-		((ContainerEngineeringTable) this.inventorySlots).canInteractWith(mc.player);
+		inventorySlots.canInteractWith(mc.player);
 		
 		if (archive() != null)
 		{
-			String ogName = this.archive().getDisplayName().getUnformattedText();
+			String ogName = archive().getDisplayName().getUnformattedText();
 			
 			String name = ogName.substring(0, Math.min(9, ogName.length())).trim();
 			if (ogName.length() > 9)
@@ -176,13 +170,13 @@ public class GuiEngineeringTable extends GuiContainer
 				name = ogName.substring(0, Math.min(11, ogName.length())).trim();
 			}
 			
-			this.fontRenderer.drawString(name, offset + 180, 10, 4210752);
+			fontRenderer.drawString(name, offset + 180, 10, 4210752);
 		}
 		
 		Object cb = componentBox();
 		if (cb != null)
 		{
-			String ogName = "";
+			String ogName;
 			if (cb instanceof TileEntityComponentBox)
 			{
 				ogName = ((TileEntityComponentBox) cb).getDisplayName().getUnformattedText();
@@ -203,45 +197,48 @@ public class GuiEngineeringTable extends GuiContainer
 				name = ogName.substring(0, Math.min(11, ogName.length())).trim();
 			}
 			
-			this.fontRenderer.drawString(name, 7, 10, 4210752);
+			fontRenderer.drawString(name, 7, 10, 4210752);
 		}
 		
-		if (this.isPointInRegion(offset + 39, 34, 21, 21, mouseX, mouseY))
+		if (isPointInRegion(offset + 39, 34, 21, 21, mouseX, mouseY))
 		{
 			String[] tooltip;
-			if (!engineering.slots.getStackInSlot(1).isEmpty())
+			if (!tileEntityEngineeringTable.slots.getStackInSlot(1).isEmpty())
 			{
 				float chance = CyberwareConfig.ENGINEERING_CHANCE;
-				if (!engineering.slots.getStackInSlot(0).isEmpty() && engineering.slots.getStackInSlot(0).isItemStackDamageable())
+				if (!tileEntityEngineeringTable.slots.getStackInSlot(0).isEmpty()
+				    && tileEntityEngineeringTable.slots.getStackInSlot(0).isItemStackDamageable() )
 				{
-					chance = Math.min(100F, CyberwareConfig.ENGINEERING_CHANCE * 5F * (1F - (engineering.slots.getStackInSlot(0).getItemDamage() * 1F  / engineering.slots.getStackInSlot(0).getMaxDamage())));
+					chance = Math.min(100F, CyberwareConfig.ENGINEERING_CHANCE * 5F * (1F - (tileEntityEngineeringTable.slots.getStackInSlot(0).getItemDamage() * 1F / tileEntityEngineeringTable.slots.getStackInSlot(0).getMaxDamage())));
 				}
-				tooltip = new String[] { I18n.format("cyberware.gui.destroy"), I18n.format("cyberware.gui.destroy_chance", Float.toString(Math.round(chance * 100F) / 100F) + "%") };
+				tooltip = new String[] { I18n.format("cyberware.gui.destroy"),
+				                         I18n.format("cyberware.gui.destroy_chance", Math.round(chance * 100F) / 100F + "%") };
 			}
 			else
 			{
 				tooltip = new String[] { I18n.format("cyberware.gui.destroy") };
 			}
-			this.drawHoveringText(Arrays.asList(tooltip), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Arrays.asList(tooltip), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
-		if (this.isPointInRegion(offset + 15, 20, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(0).isEmpty())
+		if (isPointInRegion(offset + 15, 20, 16, 16, mouseX, mouseY) && tileEntityEngineeringTable.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_destroy") } ), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.to_destroy")), mouseX - i, mouseY - j, fontRenderer);
 		}
-		if (this.isPointInRegion(offset + 15, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(1).isEmpty())
+		if (isPointInRegion(offset + 15, 53, 16, 16, mouseX, mouseY) && tileEntityEngineeringTable.slots.getStackInSlot(1).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.paper")), mouseX - i, mouseY - j, fontRenderer);
 		}
-		if (this.isPointInRegion(offset + 115, 53, 16, 16, mouseX, mouseY) && engineering.slots.getStackInSlot(8).isEmpty())
+		if (isPointInRegion(offset + 115, 53, 16, 16, mouseX, mouseY) && tileEntityEngineeringTable.slots.getStackInSlot(8).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.blueprint") } ), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.blueprint")), mouseX - i, mouseY - j, fontRenderer);
 		}
 
 		GlStateManager.pushMatrix();
 		ShaderUtil.alpha(0.35F);
-		ItemStack blueprintStack = engineering.slots.getStackInSlot(8);
-		if (blueprintStack != ItemStack.EMPTY && blueprintStack.getItem() instanceof IBlueprint)
+		ItemStack blueprintStack = tileEntityEngineeringTable.slots.getStackInSlot(8);
+		if ( !blueprintStack.isEmpty()
+		  && blueprintStack.getItem() instanceof IBlueprint )
 		{
 			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
 			NonNullList<ItemStack> nnlReq = blueprint.getRequirementsForDisplay(blueprintStack);
@@ -253,28 +250,27 @@ public class GuiEngineeringTable extends GuiContainer
 			}
 			if (requiredItems.length!=0)
 			{
-				for (int h = 0; h < requiredItems.length; h++)
+				for (ItemStack requiredItem : requiredItems)
 				{
-					for (int k = 2; k < 8; k++)
+					if (!requiredItem.isEmpty())
 					{
-						ItemStack required = requiredItems[h];
-						ItemStack crafting = engineering.slots.getStackInSlot(k);
-						if (crafting != ItemStack.EMPTY && required != ItemStack.EMPTY)
-						{
-							if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting))))
-							{
-								requiredItems[h].setCount(Math.max(0, requiredItems[h].getCount() - crafting.getCount()));
+						for (int k = 2; k < 8; k++) {
+							ItemStack crafting = tileEntityEngineeringTable.slots.getStackInSlot(k);
+							if (!crafting.isEmpty()) {
+								if ( crafting.getItem() == requiredItem.getItem()
+								  && crafting.getItemDamage() == requiredItem.getItemDamage()
+								  && ( !requiredItem.hasTagCompound()
+								    || ItemStack.areItemStackTagsEqual(requiredItem, crafting) ) ) {
+									requiredItem.setCount(Math.max(0, requiredItem.getCount() - crafting.getCount()));
+								}
 							}
 						}
 					}
 				}
 
-				List<ItemStack> toRender = new ArrayList<ItemStack>();
-				for (int h = 0; h < requiredItems.length; h++)
-				{
-					ItemStack required = requiredItems[h];
-					if (required.getCount() > 0)
-					{
+				List<ItemStack> toRender = new ArrayList<>();
+				for (ItemStack required : requiredItems) {
+					if (required.getCount() > 0) {
 						toRender.add(required);
 					}
 				}
@@ -282,14 +278,15 @@ public class GuiEngineeringTable extends GuiContainer
 				int index = 0;
 				for (int k = 2; k < 8 && index < toRender.size(); k++)
 				{
-					if (engineering.slots.getStackInSlot(k) == ItemStack.EMPTY)
+					if (tileEntityEngineeringTable.slots.getStackInSlot(k) == ItemStack.EMPTY)
 					{
-						this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2));
+						itemRender.renderItemAndEffectIntoGUI(mc.player, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2));
 
 						FontRenderer font = toRender.get(index).getItem().getFontRenderer(toRender.get(index));
 						if (font == null) font = fontRenderer;
 
-						this.itemRender.renderItemOverlayIntoGUI(font, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2), "+" + Integer.toString(toRender.get(index).getCount()));
+						itemRender.renderItemOverlayIntoGUI(font, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2),
+						                                    "+" + toRender.get(index).getCount());
 
 						index++;
 					}
@@ -299,7 +296,7 @@ public class GuiEngineeringTable extends GuiContainer
 		ShaderUtil.releaseShader();
 		GlStateManager.popMatrix();
 
-		if (this.archive() != null)
+		if (archive() != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0, 0, 100F);
@@ -313,29 +310,27 @@ public class GuiEngineeringTable extends GuiContainer
 				{
 					IBlueprint blueprint = (IBlueprint) item.getItem();
 					ItemStack prod = blueprint.getIconForDisplay(item);
-					this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, prod, offset + 181 + 18 * (h % 3), 22 + 18 * (h / 3));
+					itemRender.renderItemAndEffectIntoGUI(mc.player, prod, offset + 181 + 18 * (h % 3), 22 + 18 * (h / 3));
 				}
 			}
-
-
+			
 			GlStateManager.popMatrix();
 		}
-
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.getTextureManager().bindTexture(ENGINEERING_GUI_TEXTURES);
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		this.drawTexturedModalRect(offset + i, j, 0, 0, archive() == null ? 176 : 241, this.ySize);
+		mc.getTextureManager().bindTexture(ENGINEERING_GUI_TEXTURES);
+		int i = (width - xSize) / 2;
+		int j = (height - ySize) / 2;
+		drawTexturedModalRect(offset + i, j, 0, 0, archive() == null ? 176 : 241, ySize);
 		
-		if (this.componentBox() != null)
+		if (componentBox() != null)
 		{
-			this.mc.getTextureManager().bindTexture(GuiComponentBox.BOX_GUI_TEXTURE);
-			this.drawTexturedModalRect(i, j, 176, 0, 65, this.ySize);
+			mc.getTextureManager().bindTexture(GuiComponentBox.BOX_GUI_TEXTURE);
+			drawTexturedModalRect(i, j, 176, 0, 65, ySize);
 		}
 	}
 	
@@ -343,25 +338,25 @@ public class GuiEngineeringTable extends GuiContainer
 	public void initGui()
 	{
 		super.initGui();
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		this.buttonList.add(smash = new SmashButton(0, offset + i + 39, j + 34));
+		int i = (width - xSize) / 2;
+		int j = (height - ySize) / 2;
+		buttonList.add(smash = new SmashButton(0, offset + i + 39, j + 34));
 
-		this.buttonList.add(next = new NextPageButton(1, offset + i + 180, j + 131, false));
-		this.buttonList.add(prev = new NextPageButton(2, offset + i + 216, j + 131, true));
-		this.buttonList.add(nextC = new NextPageButton(3, i + 7, j + 131, false));
-		this.buttonList.add(prevC = new NextPageButton(4, i + 43, j + 131, true));
+		buttonList.add(next = new NextPageButton(1, offset + i + 180, j + 131, false));
+		buttonList.add(prev = new NextPageButton(2, offset + i + 216, j + 131, true));
+		buttonList.add(nextC = new NextPageButton(3, i + 7, j + 131, false));
+		buttonList.add(prevC = new NextPageButton(4, i + 43, j + 131, true));
 
-		next.visible = prev.visible = (archive() != null && ((ContainerEngineeringTable) this.inventorySlots).archiveList.size() > 1);
-		nextC.visible = prevC.visible = (componentBox() != null && ((ContainerEngineeringTable) this.inventorySlots).componentBoxList.size() > 1);
+		next.visible = prev.visible = (archive() != null && ((ContainerEngineeringTable) inventorySlots).archiveList.size() > 1);
+		nextC.visible = prevC.visible = (componentBox() != null && ((ContainerEngineeringTable) inventorySlots).componentBoxList.size() > 1);
 
 	}
 	
-	protected void actionPerformed(GuiButton button) throws IOException
+	protected void actionPerformed(GuiButton button)
 	{
 		if (button.id == 0)
 		{
-			CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringDestroyPacket(engineering.getPos(), engineering.getWorld().provider.getDimension()));
+			CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringDestroyPacket(tileEntityEngineeringTable.getPos(), tileEntityEngineeringTable.getWorld().provider.getDimension()));
 		}
 		
 		if (button.id == 2)
@@ -387,18 +382,18 @@ public class GuiEngineeringTable extends GuiContainer
 	
 	private TileEntityBlueprintArchive archive()
 	{
-		return ((ContainerEngineeringTable) this.inventorySlots).archive;
+		return ((ContainerEngineeringTable) inventorySlots).archive;
 	}
 	
 	
 	private Object componentBox()
 	{
-		return ((ContainerEngineeringTable) this.inventorySlots).componentBox;
+		return ((ContainerEngineeringTable) inventorySlots).componentBox;
 	}
 	
 	private String name()
 	{
-		ContainerEngineeringTable table = ((ContainerEngineeringTable) this.inventorySlots);
+		ContainerEngineeringTable table = ((ContainerEngineeringTable) inventorySlots);
 		if (table.componentBox instanceof Integer)
 		{
 			ItemStack stack = table.playerInv.mainInventory.get((Integer) table.componentBox);
@@ -413,37 +408,33 @@ public class GuiEngineeringTable extends GuiContainer
 	
 	private void nextComponentBox()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, true, true));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(tileEntityEngineeringTable.getPos(), mc.player, true, true));
 
-		((ContainerEngineeringTable) this.inventorySlots).nextComponentBox();
-		//engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
-
+		((ContainerEngineeringTable) inventorySlots).nextComponentBox();
+		//tileEntityEngineeringTable.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
 	}
 	
 	private void prevComponentBox()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, false, true));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(tileEntityEngineeringTable.getPos(), mc.player, false, true));
 
-		((ContainerEngineeringTable) this.inventorySlots).prevComponentBox();
-		//engineering.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
-
+		((ContainerEngineeringTable) inventorySlots).prevComponentBox();
+		//tileEntityEngineeringTable.lastPlayerArchive.put(mc.thePlayer.getCachedUniqueIdString(), archive().getPos());
 	}
 	
 	private void nextArchive()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, true, false));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(tileEntityEngineeringTable.getPos(), mc.player, true, false));
 
-		((ContainerEngineeringTable) this.inventorySlots).nextArchive();
-		engineering.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
-
+		((ContainerEngineeringTable) inventorySlots).nextArchive();
+		tileEntityEngineeringTable.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
 	}
 	
 	private void prevArchive()
 	{
-		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(engineering.getPos(), mc.player, false, false));
+		CyberwarePacketHandler.INSTANCE.sendToServer(new EngineeringSwitchArchivePacket(tileEntityEngineeringTable.getPos(), mc.player, false, false));
 
-		((ContainerEngineeringTable) this.inventorySlots).prevArchive();
-		engineering.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
-
+		((ContainerEngineeringTable) inventorySlots).prevArchive();
+		tileEntityEngineeringTable.lastPlayerArchive.put(mc.player.getCachedUniqueIdString(), archive().getPos());
 	}
 }

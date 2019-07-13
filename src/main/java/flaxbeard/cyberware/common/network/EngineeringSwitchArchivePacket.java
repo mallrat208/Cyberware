@@ -22,10 +22,10 @@ public class EngineeringSwitchArchivePacket implements IMessage
 	private boolean direction;
 	private boolean isComponent;
 
-	public EngineeringSwitchArchivePacket(BlockPos pos, EntityPlayer player, boolean direction, boolean isComponent)
+	public EngineeringSwitchArchivePacket(BlockPos pos, EntityPlayer entityPlayer, boolean direction, boolean isComponent)
 	{
-		this.dimensionId = player.world.provider.getDimension();
-		this.entityId = player.getEntityId();
+		this.dimensionId = entityPlayer.world.provider.getDimension();
+		this.entityId = entityPlayer.getEntityId();
 		this.pos = pos;
 		this.direction = direction;
 		this.isComponent = isComponent;
@@ -58,7 +58,6 @@ public class EngineeringSwitchArchivePacket implements IMessage
 	
 	public static class EngineeringSwitchArchivePacketHandler implements IMessageHandler<EngineeringSwitchArchivePacket, IMessage>
 	{
-
 		@Override
 		public IMessage onMessage(EngineeringSwitchArchivePacket message, MessageContext ctx)
 		{
@@ -66,7 +65,6 @@ public class EngineeringSwitchArchivePacket implements IMessage
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
@@ -90,41 +88,41 @@ public class EngineeringSwitchArchivePacket implements IMessage
 		public void run()
 		{
 			World world = DimensionManager.getWorld(dimensionId);
-			Entity e = world.getEntityByID(entityId);
-			if (e instanceof EntityPlayer)
+			Entity entity = world.getEntityByID(entityId);
+			if (entity instanceof EntityPlayer)
 			{
-				EntityPlayer p = (EntityPlayer) e;
+				EntityPlayer entityPlayer = (EntityPlayer) entity;
 				
 				if (isComponent)
 				{
-					if (p.openContainer instanceof ContainerEngineeringTable)
+					if (entityPlayer.openContainer instanceof ContainerEngineeringTable)
 					{
 						if (direction)
 						{
-							((ContainerEngineeringTable) p.openContainer).nextComponentBox();
+							((ContainerEngineeringTable) entityPlayer.openContainer).nextComponentBox();
 						}
 						else
 						{
-							((ContainerEngineeringTable) p.openContainer).prevComponentBox();
+							((ContainerEngineeringTable) entityPlayer.openContainer).prevComponentBox();
 						}
 						TileEntityEngineeringTable te = (TileEntityEngineeringTable) world.getTileEntity(pos);
-						//te.lastPlayerArchive.put(p.getCachedUniqueIdString(), ((ContainerEngineeringTable) p.openContainer).archive.getPos());
+						//te.lastPlayerArchive.put(entityPlayer.getCachedUniqueIdString(), ((ContainerEngineeringTable) entityPlayer.openContainer).archive.getPos());
 					}
 				}
 				else
 				{
-					if (p.openContainer instanceof ContainerEngineeringTable)
+					if (entityPlayer.openContainer instanceof ContainerEngineeringTable)
 					{
 						if (direction)
 						{
-							((ContainerEngineeringTable) p.openContainer).nextArchive();
+							((ContainerEngineeringTable) entityPlayer.openContainer).nextArchive();
 						}
 						else
 						{
-							((ContainerEngineeringTable) p.openContainer).prevArchive();
+							((ContainerEngineeringTable) entityPlayer.openContainer).prevArchive();
 						}
 						TileEntityEngineeringTable te = (TileEntityEngineeringTable) world.getTileEntity(pos);
-						te.lastPlayerArchive.put(p.getCachedUniqueIdString(), ((ContainerEngineeringTable) p.openContainer).archive.getPos());
+						te.lastPlayerArchive.put(entityPlayer.getCachedUniqueIdString(), ((ContainerEngineeringTable) entityPlayer.openContainer).archive.getPos());
 					}
 				}
 			}

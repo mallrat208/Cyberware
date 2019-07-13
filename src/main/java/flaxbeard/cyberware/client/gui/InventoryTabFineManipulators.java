@@ -2,21 +2,22 @@ package flaxbeard.cyberware.client.gui;
 
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.CyberwareContent;
+import flaxbeard.cyberware.common.item.ItemHandUpgrade;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
 import flaxbeard.cyberware.common.network.GuiPacket;
 import micdoodle8.mods.galacticraft.api.client.tabs.AbstractTab;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 public class InventoryTabFineManipulators extends AbstractTab
 {
+	
 	public InventoryTabFineManipulators()
 	{
-		super(0,0,0, new ItemStack(CyberwareContent.handUpgrades,1,0));
+		super(0, 0, 0, new ItemStack(CyberwareContent.handUpgrades, 1, ItemHandUpgrade.META_CRAFT_HANDS));
 	}
 	
 	@Override
@@ -29,7 +30,11 @@ public class InventoryTabFineManipulators extends AbstractTab
 	@Override
 	public boolean shouldAddToList()
 	{
-		EntityPlayerSP playerSP = Minecraft.getMinecraft().player;
-		return CyberwareAPI.hasCapability(playerSP) && CyberwareAPI.isCyberwareInstalled(playerSP, new ItemStack(CyberwareContent.handUpgrades,1,0));
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) {
+			return false;
+		}
+		return cyberwareUserData.isCyberwareInstalled(CyberwareContent.handUpgrades.getCachedStack(ItemHandUpgrade.META_CRAFT_HANDS));
 	}
 }

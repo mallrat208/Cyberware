@@ -1,7 +1,5 @@
 package flaxbeard.cyberware.common.network;
 
-import flaxbeard.cyberware.client.ClientUtils;
-import flaxbeard.cyberware.common.item.ItemCybereyeUpgrade;
 import io.netty.buffer.ByteBuf;
 
 import java.util.concurrent.Callable;
@@ -77,7 +75,7 @@ public class ParticlePacket implements IMessage
 		}
 		
 		@Override
-		public Void call() throws Exception
+		public Void call()
 		{
 			World world = Minecraft.getMinecraft().world;
 			
@@ -89,26 +87,24 @@ public class ParticlePacket implements IMessage
 						for (int i = 0; i < 5; i++)
 						{
 							world.spawnParticle(EnumParticleTypes.HEART,
-									x + 1F * (world.rand.nextFloat() - .5F),
-									y + 1F * (world.rand.nextFloat() - .5F),
-									z + 1F * (world.rand.nextFloat() - .5F),
-									2F * (world.rand.nextFloat() - .5F),
-									.5F,
-									2F * (world.rand.nextFloat() - .5F),
-									new int[0]);
+									x + world.rand.nextFloat() - 0.5F,
+									y + world.rand.nextFloat() - 0.5F,
+									z + world.rand.nextFloat() - 0.5F,
+									2.0F * (world.rand.nextFloat() - 0.5F),
+									0.5F,
+									2.0F * (world.rand.nextFloat() - 0.5F) );
 						}
 						break;
 					case 1:
 						for (int i = 0; i < 5; i++)
 						{
 							world.spawnParticle(EnumParticleTypes.VILLAGER_ANGRY,
-									x + 1F * (world.rand.nextFloat() - .5F),
-									y + 1F * (world.rand.nextFloat() - .5F),
-									z + 1F * (world.rand.nextFloat() - .5F),
-									2F * (world.rand.nextFloat() - .5F),
+									x + world.rand.nextFloat() - 0.5F,
+									y + world.rand.nextFloat() - 0.5F,
+									z + world.rand.nextFloat() - 0.5F,
+									2.0F * (world.rand.nextFloat() - 0.5F),
 									.5F,
-									2F * (world.rand.nextFloat() - .5F),
-									new int[0]);
+									2.0F * (world.rand.nextFloat() - 0.5F) );
 						}
 						break;
 				}
@@ -116,9 +112,5 @@ public class ParticlePacket implements IMessage
 			
 			return null;
 		}
-		
-
 	}
-	
-
 }

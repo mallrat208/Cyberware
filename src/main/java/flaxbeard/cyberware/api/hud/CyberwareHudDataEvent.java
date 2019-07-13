@@ -3,12 +3,11 @@ package flaxbeard.cyberware.api.hud;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class CyberwareHudDataEvent extends Event
 {
-	private List<IHudElement> elements = new ArrayList<IHudElement>();
+	private List<IHudElement> elements = new ArrayList<>();
 
 	public CyberwareHudDataEvent()
 	{

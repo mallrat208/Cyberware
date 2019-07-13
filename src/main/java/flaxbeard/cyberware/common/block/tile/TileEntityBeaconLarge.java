@@ -1,6 +1,5 @@
 package flaxbeard.cyberware.common.block.tile;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.block.state.IBlockState;
@@ -70,7 +69,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 								ns ? xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 						
 						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
 								pos.getX() + .5F - (ns ? xOffset : 0), 
@@ -79,7 +78,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 								ns ? -xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : -xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 	
 						degrees += 5;
 					}
@@ -87,34 +86,19 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 			}
 		}
 	}
-
 	
 	private void disable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
-		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (map.containsKey(this.getPos()))
-		{
-			map.remove(this.getPos());
-		}
-	
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		mapBeaconPosition.remove(getPos());
 	}
 
 	private void enable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		if (!mapBeaconPosition.containsKey(getPos()))
 		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (!map.containsKey(this.getPos()))
-		{
-			map.put(this.getPos(), LibConstants.LARGE_BEACON_RANGE);
+			mapBeaconPosition.put(getPos(), LibConstants.LARGE_BEACON_RANGE);
 		}
 	}
 	

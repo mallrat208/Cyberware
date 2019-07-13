@@ -2,9 +2,7 @@ package flaxbeard.cyberware.common.block.item;
 
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
-import net.minecraftforge.registries.ForgeRegistry;
 
 public class ItemSurgeryTable extends Item
 {
@@ -14,16 +12,16 @@ public class ItemSurgeryTable extends Item
 		
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
         this.setMaxDamage(0);
         
 		this.setCreativeTab(Cyberware.creativeTab);
 	}
 
-	/**
-	 * Called when a Block is right-clicked with this Item
-	 */
-	/*public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	/*
+	@Nonnull
+	@Override
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer entityPlayer, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		if (worldIn.isRemote)
 		{
@@ -44,11 +42,11 @@ public class ItemSurgeryTable extends Item
 				pos = pos.up();
 			}
 
-			int i = MathHelper.floor_double((double)(playerIn.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-			EnumFacing enumfacing = EnumFacing.getHorizontal(i);
+			int i = MathHelper.floor_double((entityPlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+			EnumFacing enumfacing = EnumFacing.byHorizontalIndex(i);
 			BlockPos blockpos = pos.offset(enumfacing);
 
-			if (playerIn.canPlayerEdit(pos, facing, stack) && playerIn.canPlayerEdit(blockpos, facing, stack))
+			if (entityPlayer.canPlayerEdit(pos, facing, stack) && entityPlayer.canPlayerEdit(blockpos, facing, stack))
 			{
 				boolean flag1 = worldIn.getBlockState(blockpos).getBlock().isReplaceable(worldIn, blockpos);
 				boolean flag2 = flag || worldIn.isAirBlock(pos);

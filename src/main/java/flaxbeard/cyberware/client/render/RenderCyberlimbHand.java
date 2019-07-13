@@ -206,7 +206,7 @@ public class RenderCyberlimbHand
 	
 	private boolean isBlockTranslucent(@Nullable Block blockIn)
 	{
-		return blockIn != null && blockIn.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+		return blockIn != null && blockIn.getRenderLayer() == BlockRenderLayer.TRANSLUCENT;
 	}
 	
 	private void renderMapFirstPersonSide(float p_187465_1_, EnumHandSide p_187465_2_, float p_187465_3_, ItemStack p_187465_4_)
@@ -279,7 +279,6 @@ public class RenderCyberlimbHand
 		GlStateManager.disableLighting();
 		this.mc.getTextureManager().bindTexture(RES_MAP_BACKGROUND);
 		Tessellator tessellator = Tessellator.getInstance();
-		//VertexBuffer vertexbuffer = tessellator.getBuffer();
 		BufferBuilder vertexbuffer = tessellator.getBuffer();
 		GlStateManager.translate(-0.5F, -0.5F, 0.0F);
 		GlStateManager.scale(0.0078125F, 0.0078125F, 0.0078125F);

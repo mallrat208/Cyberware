@@ -1,6 +1,6 @@
 package flaxbeard.cyberware.common.block;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
@@ -12,10 +12,10 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -24,7 +24,6 @@ import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.block.item.ItemBlockCyberware;
-import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable;
 import flaxbeard.cyberware.common.block.tile.TileEntityScanner;
 
 public class BlockScanner extends BlockContainer
@@ -46,20 +45,22 @@ public class BlockScanner extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
 		this.setCreativeTab(Cyberware.creativeTab);
-		GameRegistry.registerTileEntity(TileEntityScanner.class, Cyberware.MODID + ":" + name);
+		GameRegistry.registerTileEntity(TileEntityScanner.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isFullCube(IBlockState state)
 	{
@@ -72,6 +73,8 @@ public class BlockScanner extends BlockContainer
 		return new TileEntityScanner();
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
@@ -93,17 +96,17 @@ public class BlockScanner extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		if (tileentity instanceof TileEntityScanner)
 		{
-			if (player.isCreative() && player.isSneaking())
+			if (entityPlayer.isCreative() && entityPlayer.isSneaking())
 			{
 				TileEntityScanner scanner = ((TileEntityScanner) tileentity);
 				scanner.ticks = CyberwareConfig.SCANNER_TIME - 200;
 			}
-			player.openGui(Cyberware.INSTANCE, 3, worldIn, pos.getX(), pos.getY(), pos.getZ());
+			entityPlayer.openGui(Cyberware.INSTANCE, 3, worldIn, pos.getX(), pos.getY(), pos.getZ());
 		}
 		
 		return true;

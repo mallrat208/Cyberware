@@ -2,7 +2,7 @@ package flaxbeard.cyberware.common.misc;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.init.Items;
@@ -39,7 +39,6 @@ public class CyberwareDyingHandler implements IRecipe
 	public ResourceLocation getRegistryName()
 	{
 		return new ResourceLocation(Cyberware.MODID, "dying");
-		//return this.realRecipe.getRegistryName();
 	}
 
 	@Override
@@ -60,14 +59,11 @@ public class CyberwareDyingHandler implements IRecipe
 		return this.realRecipe.getRegistryType();
 	}
 
-	/**
-	 * Used to check if a recipe matches current crafting inventory
-	 */
 	@Override
 	public boolean matches(InventoryCrafting inv, World worldIn)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		List<ItemStack> list = Lists.<ItemStack>newArrayList();
+		List<ItemStack> list = Lists.newArrayList();
 
 		for (int i = 0; i < inv.getSizeInventory(); ++i)
 		{
@@ -101,10 +97,8 @@ public class CyberwareDyingHandler implements IRecipe
 		return !itemstack.isEmpty() && !list.isEmpty();
 	}
 
-	/**
-	 * Returns an Item that is the result of this recipe
-	 */
-	@Nullable
+	@Nonnull
+	@Override
 	public ItemStack getCraftingResult(InventoryCrafting inv)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
@@ -184,21 +178,16 @@ public class CyberwareDyingHandler implements IRecipe
 			return itemstack;
 		}
 	}
-
-	/**
-	 * Returns the size of the recipe area
-	 */
-	public int getRecipeSize()
-	{
-		return 10;
-	}
-
-	@Nullable
+	
+	@Nonnull
+	@Override
 	public ItemStack getRecipeOutput()
 	{
 		return ItemStack.EMPTY;
 	}
-
+	
+	@Nonnull
+	@Override
 	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
 	{
 		NonNullList<ItemStack> aitemstack = NonNullList.create();

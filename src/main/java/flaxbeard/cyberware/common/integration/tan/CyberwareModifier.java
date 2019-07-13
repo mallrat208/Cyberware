@@ -4,6 +4,8 @@ import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import toughasnails.api.config.GameplayOption;
 import toughasnails.api.config.SyncedConfig;
 import toughasnails.api.stat.capability.IThirst;
@@ -19,55 +21,54 @@ import javax.annotation.Nonnull;
 public class CyberwareModifier extends TemperatureModifier
 {
 	private final Type cyberwareType;
+	private final String description;
 	
-	CyberwareModifier(Type type)
+	CyberwareModifier(@Nonnull Type type)
 	{
 		super(Cyberware.MODID + ":" + type.name);
-		this.cyberwareType = type;
+		cyberwareType = type;
+		description = Cyberware.MODNAME + ": " + cyberwareType.name;
 	}
 	
 	@Override
 	public Temperature applyPlayerModifiers(@Nonnull EntityPlayer entityPlayer, @Nonnull Temperature temperature, @Nonnull IModifierMonitor iModifierMonitor)
 	{
-		int newTemperatureLevel = temperature.getRawValue();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null) return temperature;
+		ItemStack itemStackCyberware = cyberwareUserData.getCyberware(cyberwareType.getCyberware());
+		if (itemStackCyberware.isEmpty()) return temperature;
 		
-		switch(this.cyberwareType)
+		Temperature temperatureToReturn = temperature;
+		switch(cyberwareType)
 		{
-			case SWEAT:
+		case SWEAT:
+		{
+			boolean needCooling = temperature.getRange() == TemperatureRange.WARM
+			                   || temperature.getRange() == TemperatureRange.HOT;
+			
+			if ( needCooling
+			  && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0) )
+			{
+				if (SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
 				{
-					if(CyberwareAPI.isCyberwareInstalled(entityPlayer, this.cyberwareType.getCyberware()))
-					{
-						boolean needCooling = temperature.getRange() == TemperatureRange.WARM || temperature.getRange() == TemperatureRange.HOT;
-						
-						if(needCooling && (ThirstHelper.getThirstData(entityPlayer).getThirst() > 0))
-						{
-							if(SyncedConfig.getBooleanValue(GameplayOption.ENABLE_THIRST))
-							{
-								IThirst data = ThirstHelper.getThirstData(entityPlayer);
-								data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
-							}
-							
-							newTemperatureLevel += this.cyberwareType.modifier;
-						}
-						
-						iModifierMonitor.addEntry(new Context(this.getId(), Cyberware.MODNAME + ": " + this.cyberwareType.name, temperature, new Temperature(newTemperatureLevel)));
-					}
-				
-					return new Temperature(newTemperatureLevel);
+					IThirst data = ThirstHelper.getThirstData(entityPlayer);
+					data.setExhaustion(Math.min(data.getExhaustion() + 0.008F, 40.0F));
 				}
-			case BLUBBER:
-				{
-					if(CyberwareAPI.isCyberwareInstalled(entityPlayer, this.cyberwareType.getCyberware()))
-					{
-						newTemperatureLevel += this.cyberwareType.modifier;
-						iModifierMonitor.addEntry(new Context(this.getId(), Cyberware.MODNAME + ": " + this.cyberwareType.name, temperature, new Temperature(newTemperatureLevel)));
-					}
-					
-					return new Temperature(newTemperatureLevel);
-				}
+				temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
+			}
+			
+			iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
+			break;
+		}
+		case BLUBBER:
+		{
+			temperatureToReturn = new Temperature(temperature.getRawValue() + cyberwareType.modifier);
+			iModifierMonitor.addEntry(new Context(getId(), getDescription(), temperature, temperatureToReturn));
+			break;
+		}
 		}
 		
-		return temperature;
+		return temperatureToReturn;
 	}
 	
 	@Override
@@ -76,11 +77,17 @@ public class CyberwareModifier extends TemperatureModifier
 		return true;
 	}
 	
+	/* done by ancestor
 	@Nonnull
 	@Override
 	public String getId()
 	{
-		return Cyberware.MODID + this.cyberwareType.name;
+		return Cyberware.MODID + cyberwareType.name;
+	}
+	*/
+	
+	public String getDescription() {
+		return description;
 	}
 	
 	enum Type
@@ -101,7 +108,7 @@ public class CyberwareModifier extends TemperatureModifier
 		
 		public ItemStack getCyberware()
 		{
-			return new ItemStack(ToughAsNailsIntegration.sweat, 1, this.meta);
+			return new ItemStack(ToughAsNailsIntegration.sweat, 1, meta);
 		}
 	}
 }

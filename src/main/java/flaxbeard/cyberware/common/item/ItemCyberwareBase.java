@@ -1,31 +1,30 @@
 package flaxbeard.cyberware.common.item;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
 import flaxbeard.cyberware.Cyberware;
-import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
-import flaxbeard.cyberware.api.item.ICyberwareTabItem;
 import flaxbeard.cyberware.common.CyberwareContent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ItemCyberwareBase extends Item
 {
 	public String[] subnames;
+	private ItemStack[] itemStackCache;
 
 	public ItemCyberwareBase(String name, String... subnames)
 	{
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
         
 		this.setCreativeTab(Cyberware.creativeTab);
 				
 		this.subnames = subnames;
+		this.itemStackCache = new ItemStack[Math.max(subnames.length, 1)];
 
 		this.setHasSubtypes(this.subnames.length > 0);
 		this.setMaxDamage(0);
@@ -33,19 +32,20 @@ public class ItemCyberwareBase extends Item
         CyberwareContent.items.add(this);
 	}
 	
+	@Nonnull
 	@Override
-	public String getUnlocalizedName(ItemStack itemstack)
+	public String getTranslationKey(ItemStack itemstack)
 	{
 		int damage = itemstack.getItemDamage();
 		if (damage >= subnames.length)
 		{
-			return super.getUnlocalizedName();
+			return super.getTranslationKey();
 		}
-		return super.getUnlocalizedName(itemstack) + "." + subnames[damage];
+		return super.getTranslationKey(itemstack) + "." + subnames[damage];
 	}
 	
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
 		if (this.isInCreativeTab(tab)) {
 			if (subnames.length == 0)
@@ -59,4 +59,24 @@ public class ItemCyberwareBase extends Item
 		}
 	}
 
+	public ItemStack getCachedStack(int damage)
+	{
+		ItemStack itemStack = itemStackCache[damage];
+		if ( itemStack != null
+		  && ( itemStack.getItem() != this
+		    || itemStack.getCount() != 1
+		    || getDamage(itemStack) != damage ) )
+		{
+			Cyberware.logger.error(String.format("Corrupted item stack cache: found %s as %s:%d, expected %s:%d",
+			                                     itemStack, itemStack.getItem(), itemStack.getItemDamage(),
+			                                     this, damage ));
+			itemStack = null;
+		}
+		if (itemStack == null)
+		{
+			itemStack = new ItemStack(this, 1, damage);
+			itemStackCache[damage] = itemStack;
+		}
+		return itemStack;
+	}
 }

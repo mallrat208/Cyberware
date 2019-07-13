@@ -30,202 +30,221 @@ import flaxbeard.cyberware.common.network.ParticlePacket;
 
 public class ItemHeartUpgrade extends ItemCyberware
 {
-
+	
+	public static final int META_INTERNAL_DEFIBRILLATOR  = 0;
+	public static final int META_PLATELET_DISPATCHER     = 1;
+	public static final int META_STEM_CELL_SYNTHESIZER   = 2;
+	public static final int META_CARDIOVASCULAR_COUPLER  = 3;
+	
 	public ItemHeartUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
 	@Override
 	public boolean isIncompatible(ItemStack stack, ItemStack other)
 	{
-		return other.getItem() == CyberwareContent.cyberheart && (stack.getItemDamage() == 0 || stack.getItemDamage() == 3);
+		return other.getItem() == CyberwareContent.cyberheart
+		    && ( stack.getItemDamage() == META_INTERNAL_DEFIBRILLATOR
+		      || stack.getItemDamage() == META_CARDIOVASCULAR_COUPLER );
 	}
 	
 	@SubscribeEvent
 	public void handleDeath(LivingDeathEvent event)
 	{
-
-		EntityLivingBase e = event.getEntityLiving();
-		ItemStack test = new ItemStack(this, 1, 0);
-		if (CyberwareAPI.isCyberwareInstalled(e, test) && !event.isCanceled())
+		if (event.isCanceled()) return;
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackInternalDefibrillator = cyberwareUserData.getCyberware(getCachedStack(META_INTERNAL_DEFIBRILLATOR));
+		if (!itemStackInternalDefibrillator.isEmpty())
 		{
-			ICyberwareUserData cyberware = CyberwareAPI.getCapability(e);
-			ItemStack stack = CyberwareAPI.getCyberware(e, test);
-			if ((!CyberwareAPI.getCyberwareNBT(stack).hasKey("used")) && cyberware.usePower(test, this.getPowerConsumption(test), false))
+			if ( (!CyberwareAPI.getCyberwareNBT(itemStackInternalDefibrillator).hasKey("used"))
+			  && cyberwareUserData.usePower(itemStackInternalDefibrillator, getPowerConsumption(itemStackInternalDefibrillator), false) )
 			{
-				NonNullList<ItemStack> items = cyberware.getInstalledCyberware(EnumSlot.HEART);
-				NonNullList<ItemStack> itemsNew = NonNullList.create();
-				itemsNew.addAll(items);
-				for (int i = 0; i < items.size(); i++)
+				if (entityLivingBase instanceof EntityPlayer)
 				{
-					ItemStack item = items.get(i);
-					if (!item.isEmpty() && item.getItem() == this && item.getItemDamage() == 0)
+					NonNullList<ItemStack> items = cyberwareUserData.getInstalledCyberware(EnumSlot.HEART);
+					NonNullList<ItemStack> itemsNew = NonNullList.create();
+					itemsNew.addAll(items);
+					for (int i = 0; i < items.size(); i++)
 					{
-						itemsNew.set(i,ItemStack.EMPTY);
-						break;
+						ItemStack item = items.get(i);
+						if ( !item.isEmpty()
+						  && item.getItem() == this
+						  && item.getItemDamage() == META_INTERNAL_DEFIBRILLATOR )
+						{
+							itemsNew.set(i, ItemStack.EMPTY);
+							break;
+						}
 					}
-				}
-				if (e instanceof EntityPlayer)
-				{
-					cyberware.setInstalledCyberware(e, EnumSlot.HEART, itemsNew);
-					cyberware.updateCapacity();
-					if (!e.world.isRemote)
+					cyberwareUserData.setInstalledCyberware(entityLivingBase, EnumSlot.HEART, itemsNew);
+					cyberwareUserData.updateCapacity();
+					if (!entityLivingBase.world.isRemote)
 					{
-						CyberwareAPI.updateData(e);
+						CyberwareAPI.updateData(entityLivingBase);
 					}
 				}
 				else
 				{
-					stack = CyberwareAPI.getCyberware(e, test);
-					NBTTagCompound com = CyberwareAPI.getCyberwareNBT(stack);
-					com.setBoolean("used", true);
-					stack.getTagCompound().setTag(CyberwareAPI.DATA_TAG, com);
+					itemStackInternalDefibrillator = cyberwareUserData.getCyberware(itemStackInternalDefibrillator);
+					NBTTagCompound tagCompoundCyberware = CyberwareAPI.getCyberwareNBT(itemStackInternalDefibrillator);
+					tagCompoundCyberware.setBoolean("used", true);
 
-					CyberwareAPI.updateData(e);
+					CyberwareAPI.updateData(entityLivingBase);
 				}
-				e.setHealth(e.getMaxHealth() / 3F);
-				CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(1, (float) e.posX, (float) e.posY + e.height / 2F, (float) e.posZ), 
-						new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
+				entityLivingBase.setHealth(entityLivingBase.getMaxHealth() / 3F);
+				CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(1, (float) entityLivingBase.posX, (float) entityLivingBase.posY + entityLivingBase.height / 2F, (float) entityLivingBase.posZ), 
+						new TargetPoint(entityLivingBase.world.provider.getDimension(), entityLivingBase.posX, entityLivingBase.posY, entityLivingBase.posZ, 20));
 				event.setCanceled(true);
 			}
 		}
 	}
 	
-	private static Map<UUID, Integer> timesPlatelets = new HashMap<UUID, Integer>();
+	private static Map<UUID, Integer> timesPlatelets = new HashMap<>();
 
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
-		
-		ItemStack test = new ItemStack(this, 1, 2);
-		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
+		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			isStemWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
-		}
-		
-		
-		test = new ItemStack(this, 1, 1);
-		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
-		{
-			isPlateletWorking.put(e.getUniqueID(), CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)));
-		}
-		if (e != null && isPlateletWorking(e) && CyberwareAPI.isCyberwareInstalled(e, test))
-		{
-			if (e.getHealth() >= e.getMaxHealth() * .8F && e.getHealth() != e.getMaxHealth())
+			if (!itemStackStemCellSynthesizer.isEmpty())
 			{
-				int t = getPlateletTime(e);
+				isStemWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackStemCellSynthesizer, getPowerConsumption(itemStackStemCellSynthesizer)));
+			}
+		}
+		
+		ItemStack itemStackPlateletDispatcher = cyberwareUserData.getCyberware(getCachedStack(META_PLATELET_DISPATCHER));
+		if ( entityLivingBase.ticksExisted % 20 == 0
+		  && !itemStackPlateletDispatcher.isEmpty() )
+		{
+			isPlateletWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackPlateletDispatcher, getPowerConsumption(itemStackPlateletDispatcher)));
+		}
+		
+		if ( isPlateletWorking(entityLivingBase)
+		  && !itemStackPlateletDispatcher.isEmpty() )
+		{
+			if ( entityLivingBase.getHealth() >= entityLivingBase.getMaxHealth() * .8F
+			  && entityLivingBase.getHealth() != entityLivingBase.getMaxHealth() )
+			{
+				int t = getPlateletTime(entityLivingBase);
 				if (t >= 40)
 				{
-					timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
-					e.heal(1);
+					timesPlatelets.put(entityLivingBase.getUniqueID(), entityLivingBase.ticksExisted);
+					entityLivingBase.heal(1);
 				}
 			}
 			else
 			{
-				timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
+				timesPlatelets.put(entityLivingBase.getUniqueID(), entityLivingBase.ticksExisted);
 			}
 		}
 		else
 		{
-			if (timesPlatelets.containsKey(e.getUniqueID()))
-			{
-				timesPlatelets.remove(e.getUniqueID());
-			}
+			timesPlatelets.remove(entityLivingBase.getUniqueID());
 		}
 		
-		if (CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)))
+		if (!itemStackStemCellSynthesizer.isEmpty())
 		{
-			if (isStemWorking(e))
+			if (isStemWorking(entityLivingBase))
 			{
-				int t = getMedkitTime(e);
-				if (t >= 100 && damageMedkit.get(e.getUniqueID()) > 0F)
+				int t = getMedkitTime(entityLivingBase);
+				if ( t >= 100
+				  && damageMedkit.get(entityLivingBase.getUniqueID()) > 0F )
 				{
-					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(0, (float) e.posX, (float) e.posY + e.height / 2F, (float) e.posZ), 
-							new TargetPoint(e.world.provider.getDimension(), e.posX, e.posY, e.posZ, 20));
+					CyberwarePacketHandler.INSTANCE.sendToAllAround(new ParticlePacket(0, (float) entityLivingBase.posX, (float) entityLivingBase.posY + entityLivingBase.height / 2F, (float) entityLivingBase.posZ), 
+							new TargetPoint(entityLivingBase.world.provider.getDimension(), entityLivingBase.posX, entityLivingBase.posY, entityLivingBase.posZ, 20));
 
-					e.heal(damageMedkit.get(e.getUniqueID()));
-					timesMedkit.put(e.getUniqueID(), 0);
-					damageMedkit.put(e.getUniqueID(), 0F);
+					entityLivingBase.heal(damageMedkit.get(entityLivingBase.getUniqueID()));
+					timesMedkit.put(entityLivingBase.getUniqueID(), 0);
+					damageMedkit.put(entityLivingBase.getUniqueID(), 0F);
 				}
 			}
-
 		}
+		/*
 		else
 		{
-			if (timesMedkit.containsKey(e.getEntityId()))
+			if (timesMedkit.containsKey(entityLivingBase.getEntityId()))
 			{
-				//timesMedkit.remove(e);
-				//damageMedkit.remove(e);
+				timesMedkit.remove(entityLivingBase);
+				damageMedkit.remove(entityLivingBase);
 			}
 		}
+		*/
 	}
 	
-	private static Map<UUID, Boolean> isPlateletWorking = new HashMap<UUID, Boolean>();
+	private static Map<UUID, Boolean> isPlateletWorking = new HashMap<>();
 	
-	private boolean isPlateletWorking(EntityLivingBase e)
+	private boolean isPlateletWorking(EntityLivingBase entityLivingBase)
 	{
-		if (!isPlateletWorking.containsKey(e.getUniqueID()))
+		if (!isPlateletWorking.containsKey(entityLivingBase.getUniqueID()))
 		{
-			isPlateletWorking.put(e.getUniqueID(), false);
+			isPlateletWorking.put(entityLivingBase.getUniqueID(), false);
 			return false;
 		}
 		
-		return isPlateletWorking.get(e.getUniqueID());
+		return isPlateletWorking.get(entityLivingBase.getUniqueID());
 	}
 	
-	private static Map<UUID, Boolean> isStemWorking = new HashMap<UUID, Boolean>();
+	private static Map<UUID, Boolean> isStemWorking = new HashMap<>();
 	
-	private boolean isStemWorking(EntityLivingBase e)
+	private boolean isStemWorking(EntityLivingBase entityLivingBase)
 	{
-		if (!isStemWorking.containsKey(e.getUniqueID()))
+		if (!isStemWorking.containsKey(entityLivingBase.getUniqueID()))
 		{
-			isStemWorking.put(e.getUniqueID(), false);
+			isStemWorking.put(entityLivingBase.getUniqueID(), false);
 			return false;
 		}
 		
-		return isStemWorking.get(e.getUniqueID());
+		return isStemWorking.get(entityLivingBase.getUniqueID());
 	}
 	
 	
-	private static Map<UUID, Integer> timesMedkit = new HashMap<UUID, Integer>();
-	private static Map<UUID, Float> damageMedkit = new HashMap<UUID, Float>();
+	private static Map<UUID, Integer> timesMedkit = new HashMap<>();
+	private static Map<UUID, Float> damageMedkit = new HashMap<>();
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleHurt(LivingHurtEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-		if (!event.isCanceled() && CyberwareAPI.isCyberwareInstalled(e, new ItemStack(this, 1, 2)))
+		if (event.isCanceled()) return;
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
+		if (!itemStackStemCellSynthesizer.isEmpty())
 		{
 			float damageAmount = event.getAmount();
 			DamageSource damageSrc = event.getSource();
 
-			damageAmount = applyArmorCalculations(e, damageSrc, damageAmount);
-			damageAmount = applyPotionDamageCalculations(e, damageSrc, damageAmount);
-			damageAmount = Math.max(damageAmount - e.getAbsorptionAmount(), 0.0F);
+			damageAmount = applyArmorCalculations(entityLivingBase, damageSrc, damageAmount);
+			damageAmount = applyPotionDamageCalculations(entityLivingBase, damageSrc, damageAmount);
+			damageAmount = Math.max(damageAmount - entityLivingBase.getAbsorptionAmount(), 0.0F);
 			
-			damageMedkit.put(e.getUniqueID(), damageAmount);
-			timesMedkit.put(e.getUniqueID(), e.ticksExisted);
+			damageMedkit.put(entityLivingBase.getUniqueID(), damageAmount);
+			timesMedkit.put(entityLivingBase.getUniqueID(), entityLivingBase.ticksExisted);
 		}
 	}
 	
 	// Stolen from EntityLivingBase
-    protected float applyArmorCalculations(EntityLivingBase e, DamageSource source, float damage)
+    protected float applyArmorCalculations(EntityLivingBase entityLivingBase, DamageSource source, float damage)
     {
         if (!source.isUnblockable())
         {
-            damage = CombatRules.getDamageAfterAbsorb(damage, (float)e.getTotalArmorValue(), (float)e.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+            damage = CombatRules.getDamageAfterAbsorb(damage, (float)entityLivingBase.getTotalArmorValue(), (float)entityLivingBase.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
         }
 
         return damage;
     }
 	
 	// Stolen from EntityLivingBase
-	protected float applyPotionDamageCalculations(EntityLivingBase e, DamageSource source, float damage)
+	protected float applyPotionDamageCalculations(EntityLivingBase entityLivingBase, DamageSource source, float damage)
 	{
 		if (source.isDamageAbsolute())
 		{
@@ -233,9 +252,9 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 		else
 		{
-			if (e.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD)
+			if (entityLivingBase.isPotionActive(MobEffects.RESISTANCE) && source != DamageSource.OUT_OF_WORLD)
 			{
-				int i = (e.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
+				int i = (entityLivingBase.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
 				int j = 25 - i;
 				float f = damage * (float)j;
 				damage = f / 25.0F;
@@ -247,7 +266,7 @@ public class ItemHeartUpgrade extends ItemCyberware
 			}
 			else
 			{
-				int k = EnchantmentHelper.getEnchantmentModifierDamage(e.getArmorInventoryList(), source);
+				int k = EnchantmentHelper.getEnchantmentModifierDamage(entityLivingBase.getArmorInventoryList(), source);
 
 				if (k > 0)
 				{
@@ -259,31 +278,31 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 	}
 	
-	private int getPlateletTime(EntityLivingBase e)
+	private int getPlateletTime(EntityLivingBase entityLivingBase)
 	{
-		if (e != null)
+		if (entityLivingBase != null)
 		{
-			if (!timesPlatelets.containsKey(e.getUniqueID()))
+			if (!timesPlatelets.containsKey(entityLivingBase.getUniqueID()))
 			{
-				timesPlatelets.put(e.getUniqueID(), e.ticksExisted);
+				timesPlatelets.put(entityLivingBase.getUniqueID(), entityLivingBase.ticksExisted);
 				return 0;
 			}
-			return e.ticksExisted - timesPlatelets.get(e.getUniqueID());
+			return entityLivingBase.ticksExisted - timesPlatelets.get(entityLivingBase.getUniqueID());
 		}
 		return 0;
 	}
 	
-	private int getMedkitTime(EntityLivingBase e)
+	private int getMedkitTime(EntityLivingBase entityLivingBase)
 	{
-		if (e != null)
+		if (entityLivingBase != null)
 		{
-			if (!timesMedkit.containsKey(e.getUniqueID()))
+			if (!timesMedkit.containsKey(entityLivingBase.getUniqueID()))
 			{
-				timesMedkit.put(e.getUniqueID(), e.ticksExisted);
-				damageMedkit.put(e.getUniqueID(), 0F);
+				timesMedkit.put(entityLivingBase.getUniqueID(), entityLivingBase.ticksExisted);
+				damageMedkit.put(entityLivingBase.getUniqueID(), 0F);
 				return 0;
 			}
-			return e.ticksExisted - timesMedkit.get(e.getUniqueID());
+			return entityLivingBase.ticksExisted - timesMedkit.get(entityLivingBase.getUniqueID());
 		}
 		return 0;
 	}
@@ -291,39 +310,43 @@ public class ItemHeartUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void power(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-		ItemStack test = new ItemStack(this, 1, 3);
-		if (e.ticksExisted % 20 == 0 && CyberwareAPI.isCyberwareInstalled(e, test))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (entityLivingBase.ticksExisted % 20 != 0) return;
+		
+		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
+		
+		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(getCachedStack(META_CARDIOVASCULAR_COUPLER));
+		if (!itemStackCardiovascularCoupler.isEmpty())
 		{
-			CyberwareAPI.getCapability(e).addPower(getPowerProduction(test), test);
+			cyberwareUserData.addPower(getPowerProduction(itemStackCardiovascularCoupler), itemStackCardiovascularCoupler);
 		}
-
 	}
 	
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? LibConstants.DEFIBRILLATOR_CONSUMPTION :
-			stack.getItemDamage() == 1 ? LibConstants.PLATELET_CONSUMPTION :
-			stack.getItemDamage() == 2 ? LibConstants.STEMCELL_CONSUMPTION : 0;
+		return stack.getItemDamage() == META_INTERNAL_DEFIBRILLATOR ? LibConstants.DEFIBRILLATOR_CONSUMPTION
+		     : stack.getItemDamage() == META_PLATELET_DISPATCHER ? LibConstants.PLATELET_CONSUMPTION
+		     : stack.getItemDamage() == META_STEM_CELL_SYNTHESIZER ? LibConstants.STEMCELL_CONSUMPTION
+		     : 0;
 	}
 	
 	@Override
 	public int getCapacity(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? LibConstants.DEFIBRILLATOR_CONSUMPTION: 0;
+		return stack.getItemDamage() == META_INTERNAL_DEFIBRILLATOR ? LibConstants.DEFIBRILLATOR_CONSUMPTION: 0;
 	}
 	
 	@Override
 	public boolean hasCustomPowerMessage(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? true : false;
+		return stack.getItemDamage() == META_INTERNAL_DEFIBRILLATOR;
 	}
 	
 	@Override
 	public int getPowerProduction(ItemStack stack)
 	{
-		return stack.getItemDamage() == 3 ? LibConstants.COUPLER_PRODUCTION + 1 : 0;
+		return stack.getItemDamage() == META_CARDIOVASCULAR_COUPLER ? LibConstants.COUPLER_PRODUCTION + 1 : 0;
 	}
 
 }

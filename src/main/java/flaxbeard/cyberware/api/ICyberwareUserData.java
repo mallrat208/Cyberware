@@ -12,13 +12,13 @@ import flaxbeard.cyberware.api.item.ICyberware.ISidedLimb.EnumSide;
 public interface ICyberwareUserData
 {	
 	public NonNullList<ItemStack> getInstalledCyberware(EnumSlot slot);
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, List<ItemStack> cyberware);
-	public void setInstalledCyberware(EntityLivingBase entity, EnumSlot slot, NonNullList<ItemStack> cyberware);
+	public void setInstalledCyberware(EntityLivingBase entityLivingBase, EnumSlot slot, List<ItemStack> cyberware);
+	public void setInstalledCyberware(EntityLivingBase entityLivingBase, EnumSlot slot, NonNullList<ItemStack> cyberware);
 	public boolean isCyberwareInstalled(ItemStack cyberware);
 	public int getCyberwareRank(ItemStack cyberware);
 	
 	public NBTTagCompound serializeNBT();
-	public void deserializeNBT(NBTTagCompound tag);
+	public void deserializeNBT(NBTTagCompound tagCompound);
 	
 	
 	public boolean hasEssential(EnumSlot slot);
@@ -40,7 +40,7 @@ public interface ICyberwareUserData
 	public void setImmune();
 	public boolean usePower(ItemStack stack, int amount, boolean isPassive);
 	public boolean hasEssential(EnumSlot slot, EnumSide side);
-	public void resetWare(EntityLivingBase e);
+	public void resetWare(EntityLivingBase entityLivingBase);
 	public int getNumActiveItems();
 	public List<ItemStack> getActiveItems();
 	public void removeHotkey(int i);
@@ -48,7 +48,7 @@ public interface ICyberwareUserData
 	public ItemStack getHotkey(int i);
 	public Iterable<Integer> getHotkeys();
 	public List<ItemStack> getHudjackItems();
-	public void setHudData(NBTTagCompound comp);
+	public void setHudData(NBTTagCompound tagCompound);
 	public NBTTagCompound getHudData();
 	public boolean hasOpenedRadialMenu();
 	public void setOpenedRadialMenu(boolean hasOpenedRadialMenu);
@@ -56,9 +56,9 @@ public interface ICyberwareUserData
 	public void setHudColor(float[] color);
 	public int getHudColorHex();
 	public float[] getHudColor();
-	public int getMaxTolerance(EntityLivingBase e);
-	public void setTolerance(EntityLivingBase e, int amnt);
-	public int getTolerance(EntityLivingBase e);
+	public int getMaxTolerance(EntityLivingBase entityLivingBase);
+	public void setTolerance(EntityLivingBase entityLivingBase, int amount);
+	public int getTolerance(EntityLivingBase entityLivingBase);
 
 	@Deprecated
 	public int getEssence();

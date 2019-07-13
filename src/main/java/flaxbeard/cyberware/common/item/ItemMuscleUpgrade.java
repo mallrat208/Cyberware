@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
 
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
 import flaxbeard.cyberware.api.item.IMenuItem;
 import flaxbeard.cyberware.common.lib.LibConstants;
@@ -37,105 +38,105 @@ import flaxbeard.cyberware.common.network.SwitchHeldItemAndRotationPacket;
 public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 {
 
+	private static final int META_WIRED_REFLEXES          = 0;
+	private static final int META_MUSCLE_REPLACEMENTS     = 1;
+	
+	private static final UUID idMuscleSpeedAttribute = UUID.fromString("f0ab4766-4be1-11e6-beb8-9e71128cae77");
+	private static final UUID idMuscleDamageAttribute = UUID.fromString("f63d6916-4be1-11e6-beb8-9e71128cae77");
+	private static final HashMultimap<String, AttributeModifier> multimapMuscleSpeedAttribute;
+	private static final HashMultimap<String, AttributeModifier> multimapMuscleDamageAttribute;
+	
+	static {
+		multimapMuscleSpeedAttribute = HashMultimap.create();
+		multimapMuscleSpeedAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(idMuscleSpeedAttribute, "Muscle speed upgrade", 1.5F, 0));
+		multimapMuscleDamageAttribute = HashMultimap.create();
+		multimapMuscleDamageAttribute.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(idMuscleDamageAttribute, "Muscle damage upgrade", 3F, 0));
+	}
+	
 	public ItemMuscleUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
 		MinecraftForge.EVENT_BUS.register(this);
-
 	}
 	
-	private static final UUID speedId = UUID.fromString("f0ab4766-4be1-11e6-beb8-9e71128cae77");
-	private static final UUID strengthId = UUID.fromString("f63d6916-4be1-11e6-beb8-9e71128cae77");
-
 	@Override
-	public void onAdded(EntityLivingBase entity, ItemStack stack)
+	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_WIRED_REFLEXES)
 		{
-			//System.out.println("ADDED0");
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
-			entity.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMuscleSpeedAttribute);
 		}
-		else if (stack.getItemDamage() == 1)
+		else if (stack.getItemDamage() == META_MUSCLE_REPLACEMENTS)
 		{
-			//System.out.println("ADDED1");
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
-			entity.getAttributeMap().applyAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMuscleDamageAttribute);
 		}
 	}
 
 	@Override
-	public void onRemoved(EntityLivingBase entity, ItemStack stack)
+	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_WIRED_REFLEXES)
 		{
-			//System.out.println("REMOVED0");
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(speedId, "Muscle speed upgrade", 1.5F, 0));
-			entity.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMuscleSpeedAttribute);
 		}
-		else if (stack.getItemDamage() == 1)
+		else if (stack.getItemDamage() == META_MUSCLE_REPLACEMENTS)
 		{
-			//System.out.println("REMOVED1");
-			HashMultimap<String, AttributeModifier> multimap = HashMultimap.<String, AttributeModifier>create();
-			
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(strengthId, "Muscle damage upgrade", 3F, 0));
-			entity.getAttributeMap().removeAttributeModifiers(multimap);
+			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMuscleDamageAttribute);
 		}
 	}
 	
 	@Override
 	public int installedStackSize(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? 3 : 1;
+		return stack.getItemDamage() == META_WIRED_REFLEXES ? 3 : 1;
 	}
 	
 	@SubscribeEvent
 	public void handleHurt(LivingHurtEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-		if (e == null)
-			return;
-
-		ItemStack test = new ItemStack(this, 1, 0);
-		int rank = CyberwareAPI.getCyberwareRank(e, test);
-		if (!event.isCanceled() && e instanceof EntityPlayer && (rank > 1) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)) && lastBoostStrength.contains(e.getUniqueID()))
+		if (event.isCanceled()) return;
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+		if (!(entityLivingBase instanceof EntityPlayer)) return;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
+		if (cyberwareUserData == null) return;
+		
+		ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(getCachedStack(META_WIRED_REFLEXES));
+		int rank = itemStackWiredReflexes.getCount();
+		if ( rank > 1
+		  && EnableDisableHelper.isEnabled(itemStackWiredReflexes)
+		  && setIsStrengthPowered.contains(entityLivingBase.getUniqueID()) )
 		{
-			EntityPlayer p = (EntityPlayer) e;
-			if (event.getSource() instanceof EntityDamageSource && !(event.getSource() instanceof EntityDamageSourceIndirect))
+			EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
+			if ( event.getSource() instanceof EntityDamageSource
+			  && !(event.getSource() instanceof EntityDamageSourceIndirect) )
 			{
 				EntityDamageSource source = (EntityDamageSource) event.getSource();
-				//Entity attacker = source.getEntity();
 				Entity attacker = source.getTrueSource();
-				int lastAttacked = ReflectionHelper.getPrivateValue(CombatTracker.class, p.getCombatTracker(), 2);
+				int lastAttacked = ReflectionHelper.getPrivateValue(CombatTracker.class, entityPlayer.getCombatTracker(), 2);
 				
-				if (p.ticksExisted - lastAttacked > 120)
+				if (entityPlayer.ticksExisted - lastAttacked > 120)
 				{
-					ItemStack weapon = p.getHeldItemMainhand();
-					int loc = -1;
-					if (!weapon.isEmpty())
+					int indexWeapon = -1;
+					ItemStack itemMainhand = entityPlayer.getHeldItemMainhand();
+					if (!itemMainhand.isEmpty())
 					{
-						if (p.getItemInUseCount() > 0 || weapon.getItem() instanceof ItemSword || weapon.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, weapon).containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
+						if ( entityPlayer.getItemInUseCount() > 0
+						  || itemMainhand.getItem() instanceof ItemSword
+						  || itemMainhand.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, itemMainhand).containsKey(SharedMonsterAttributes.ATTACK_DAMAGE.getName()) )
 						{
-							loc = p.inventory.currentItem;
+							indexWeapon = entityPlayer.inventory.currentItem;
 						}
 					}
 					
-					if (loc == -1)
+					if (indexWeapon == -1)
 					{
 						double mostDamage = 0F;
 						
-						for (int i = 0; i < 10; i++)
+						for (int indexHotbar = 0; indexHotbar < 10; indexHotbar++)
 						{
-							if (i != p.inventory.currentItem)
+							if (indexHotbar != entityPlayer.inventory.currentItem)
 							{
-								ItemStack potentialWeapon = p.inventory.mainInventory.get(i);
+								ItemStack potentialWeapon = entityPlayer.inventory.mainInventory.get(indexHotbar);
 								if (!potentialWeapon.isEmpty())
 								{
 									Multimap<String, AttributeModifier> modifiers = potentialWeapon.getItem().getAttributeModifiers(EntityEquipmentSlot.MAINHAND, potentialWeapon);
@@ -143,10 +144,10 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 									{
 										double damage = modifiers.get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()).iterator().next().getAmount();
 										
-										if (damage > mostDamage || loc == -1)
+										if (damage > mostDamage || indexWeapon == -1)
 										{
 											mostDamage = damage;
-											loc = i;
+											indexWeapon = indexHotbar;
 										}
 									}
 								}
@@ -154,107 +155,110 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 						}
 					}
 					
-					if (loc != -1)
+					if (indexWeapon != -1)
 					{
-						//System.out.println("LOC " + loc);
-
-						p.inventory.currentItem = loc;
-
-			
-						CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(loc, p.getEntityId(), rank > 2 ? attacker.getEntityId() : -1), (EntityPlayerMP) p);
+						entityPlayer.inventory.currentItem = indexWeapon;
 						
-						WorldServer world = (WorldServer) p.world;
+						CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(indexWeapon, entityPlayer.getEntityId(),
+						                                                                           rank > 2 && attacker != null ? attacker.getEntityId() : -1 ),
+						                                       (EntityPlayerMP) entityPlayer);
 						
-						for (EntityPlayer trackingPlayer : world.getEntityTracker().getTrackingPlayers(p))
+						WorldServer worldServer = (WorldServer) entityPlayer.world;
+						
+						for (EntityPlayer trackingPlayer : worldServer.getEntityTracker().getTrackingPlayers(entityPlayer))
 						{
-							CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(loc, p.getEntityId(), rank > 2 ? attacker.getEntityId() : -1), (EntityPlayerMP) trackingPlayer);
+							CyberwarePacketHandler.INSTANCE.sendTo(new SwitchHeldItemAndRotationPacket(indexWeapon, entityPlayer.getEntityId(),
+							                                                                           rank > 2 && attacker != null ? attacker.getEntityId() : -1 ),
+							                                       (EntityPlayerMP) trackingPlayer);
 						}
-						
 					}
 				}
-
 			}
-
 		}
 	}
 	
-	private Set<UUID> lastBoostSpeed = new HashSet<>();
-	private Set<UUID> lastBoostStrength = new HashSet<>();
+	private Set<UUID> setIsSpeedPowered = new HashSet<>();
+	private Set<UUID> setIsStrengthPowered = new HashSet<>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
-		EntityLivingBase e = event.getEntityLiving();
-
-        if (e == null)
-            return;
-
-		ItemStack test = new ItemStack(this, 1, 1);
-		if (CyberwareAPI.isCyberwareInstalled(e, test))
+		EntityLivingBase entityLivingBase = event.getEntityLiving();
+        ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
+		
+		ItemStack itemStackMuscleReplacement = cyberwareUserData.getCyberware(getCachedStack(META_MUSCLE_REPLACEMENTS));
+		if (!itemStackMuscleReplacement.isEmpty())
 		{
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastBoostStrength.contains(e.getUniqueID());
-			if (powerUsed)
+			boolean wasPowered = setIsStrengthPowered.contains(entityLivingBase.getUniqueID());
+			boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
+			                  ? cyberwareUserData.usePower(itemStackMuscleReplacement, getPowerConsumption(itemStackMuscleReplacement))
+			                  : wasPowered;
+			if (isPowered)
 			{
-				if (!e.isInWater() && e.onGround && e.moveForward > 0)
+				if ( !entityLivingBase.isInWater()
+				  && entityLivingBase.onGround
+				  && entityLivingBase.moveForward > 0 )
 				{
-					//e.moveRelative(0F, .5F, 0.075F);
-					e.moveRelative(0F, 0.0F,.5F, 0.075F);
+					entityLivingBase.moveRelative(0F, 0.0F,.5F, 0.075F);
 				}
 
-				this.onAdded(e, test);
-
+				if (!wasPowered)
+				{
+					onAdded(entityLivingBase, itemStackMuscleReplacement);
+					setIsStrengthPowered.add(entityLivingBase.getUniqueID());
+				}
 			}
-			else
+			else if (wasPowered)
 			{
-				this.onRemoved(e, test);
+				onRemoved(entityLivingBase, itemStackMuscleReplacement);
+				setIsStrengthPowered.remove(entityLivingBase.getUniqueID());
 			}
-			
-			if(powerUsed)
-				lastBoostStrength.add(e.getUniqueID());
-			else
-				lastBoostStrength.remove(e.getUniqueID());
 		}
-		else
+		else if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			this.onRemoved(e, test);
-			lastBoostStrength.remove(e.getUniqueID());
+			onRemoved(entityLivingBase, itemStackMuscleReplacement);
+			setIsStrengthPowered.remove(entityLivingBase.getUniqueID());
 		}
 		
-		test = new ItemStack(this, 1, 0);
-		if (CyberwareAPI.isCyberwareInstalled(e, test) && EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(e, test)))
+		if (entityLivingBase.ticksExisted % 20 == 0)
 		{
-			boolean powerUsed = e.ticksExisted % 20 == 0 ? CyberwareAPI.getCapability(e).usePower(test, getPowerConsumption(test)) : lastBoostSpeed.contains(e.getUniqueID());
-			if (powerUsed)
+			ItemStack itemStackWiredReflexes = cyberwareUserData.getCyberware(getCachedStack(META_WIRED_REFLEXES));
+			if ( !itemStackWiredReflexes.isEmpty()
+			  && EnableDisableHelper.isEnabled(itemStackWiredReflexes) )
 			{
-				this.onAdded(e, test);
+				boolean wasPowered = setIsSpeedPowered.contains(entityLivingBase.getUniqueID());
+				boolean isPowered = cyberwareUserData.usePower(itemStackWiredReflexes, getPowerConsumption(itemStackWiredReflexes));
+				if ( !wasPowered
+				  && isPowered )
+				{
+					onAdded(entityLivingBase, itemStackWiredReflexes);
+					setIsSpeedPowered.add(entityLivingBase.getUniqueID());
+				}
+				else if ( wasPowered
+				       && !isPowered )
+				{
+					onRemoved(entityLivingBase, itemStackWiredReflexes);
+					setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
+				}
 			}
 			else
 			{
-				this.onRemoved(e, test);
+				onRemoved(entityLivingBase, itemStackWiredReflexes);
+				setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
 			}
-			
-			if(powerUsed)
-				lastBoostSpeed.add(e.getUniqueID());
-			else
-				lastBoostSpeed.remove(e.getUniqueID());
-		}
-		else 
-		{
-			this.onRemoved(e, test);
-			lastBoostSpeed.remove(e.getUniqueID());
 		}
 	}
 	
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0 ? LibConstants.REFLEXES_CONSUMPTION : LibConstants.REPLACEMENTS_CONSUMPTION;
+		return stack.getItemDamage() == META_WIRED_REFLEXES ? LibConstants.REFLEXES_CONSUMPTION : LibConstants.REPLACEMENTS_CONSUMPTION;
 	}
 	
 	@Override
 	protected int getUnmodifiedEssenceCost(ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_WIRED_REFLEXES)
 		{
 			switch (stack.getCount())
 			{
@@ -272,11 +276,11 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	@Override
 	public boolean hasMenu(ItemStack stack)
 	{
-		return stack.getItemDamage() == 0;
+		return stack.getItemDamage() == META_WIRED_REFLEXES;
 	}
 
 	@Override
-	public void use(Entity e, ItemStack stack)
+	public void use(Entity entity, ItemStack stack)
 	{
 		EnableDisableHelper.toggle(stack);
 	}
@@ -288,7 +292,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	}
 	
 
-	private static final float[] f = new float[] { 1F, 0F, 0F };
+	private static final float[] f = new float[] { 1.0F, 0.0F, 0.0F };
 	
 	@Override
 	public float[] getColor(ItemStack stack)
@@ -299,12 +303,13 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 	@Override
 	public boolean isEssential(ItemStack stack)
 	{
-		return stack.getItemDamage() == 1;
+		return stack.getItemDamage() == META_MUSCLE_REPLACEMENTS;
 	}
 
 	@Override
 	public boolean isIncompatible(ItemStack stack, ItemStack other)
 	{
-		return stack.getItemDamage() == 1 && CyberwareAPI.getCyberware(other).isEssential(other);
+		return stack.getItemDamage() == META_MUSCLE_REPLACEMENTS
+		    && CyberwareAPI.getCyberware(other).isEssential(other);
 	}
 }

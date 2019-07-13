@@ -3,13 +3,8 @@ package flaxbeard.cyberware.common.network;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.HotkeyHelper;
-import flaxbeard.cyberware.client.ClientUtils;
-import flaxbeard.cyberware.common.item.ItemCybereyeUpgrade;
 import io.netty.buffer.ByteBuf;
 
-import java.util.concurrent.Callable;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.DimensionManager;
@@ -46,7 +41,6 @@ public class SyncHotkeyPacket implements IMessage
 	
 	public static class SyncHotkeyPacketHandler implements IMessageHandler<SyncHotkeyPacket, IMessage>
 	{
-
 		@Override
 		public IMessage onMessage(SyncHotkeyPacket message, MessageContext ctx)
 		{
@@ -55,45 +49,37 @@ public class SyncHotkeyPacket implements IMessage
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
 	{
 		private int selectedPart;
 		private int key;
-		private EntityPlayer p;
+		private EntityPlayer entityPlayer;
 
-		public DoSync(int selectedPart, int key, EntityPlayer p)
+		public DoSync(int selectedPart, int key, EntityPlayer entityPlayer)
 		{
 			this.selectedPart = selectedPart;
 			this.key = key;
-			this.p = p;
+			this.entityPlayer = entityPlayer;
 		}
-
 		
 		@Override
 		public void run()
 		{
-			if (p != null && CyberwareAPI.hasCapability(p))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData d = CyberwareAPI.getCapability(p);
-				
 				if (key == Integer.MAX_VALUE)
 				{
-					HotkeyHelper.removeHotkey(d, d.getActiveItems().get(selectedPart));
+					HotkeyHelper.removeHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart));
 				}
 				else
 				{
-					HotkeyHelper.removeHotkey(d, key);
-					HotkeyHelper.assignHotkey(d, d.getActiveItems().get(selectedPart), key);
+					HotkeyHelper.removeHotkey(cyberwareUserData, key);
+					HotkeyHelper.assignHotkey(cyberwareUserData, cyberwareUserData.getActiveItems().get(selectedPart), key);
 				}
-
 			}
-
 		}
-		
-
 	}
-	
 }

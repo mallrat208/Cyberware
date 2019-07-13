@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.item.ItemBrainUpgrade;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -27,28 +28,40 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 
 public class TileEntityBeacon extends TileEntity implements ITickable
 {
-	private static List<Integer> tiers = new ArrayList<Integer>();
-	private static Map<Integer, Map<Integer, Map<BlockPos, Integer>>> beaconPos = new HashMap<Integer, Map<Integer, Map<BlockPos, Integer>>>();
-	public boolean initialized = false;
+	private static List<Integer> tiers = new ArrayList<>();
+	private static Map<Integer, Map<Integer, Map<BlockPos, Integer>>> mapBeaconPositionByTierDimension = new HashMap<>();
 	private boolean wasWorking = false;
 	private int count = 0;
 	
 	private static int TIER = 2;
 	
-	public static Map<Integer, Map<BlockPos, Integer>> posForTier(int tier)
+	private static Map<Integer, Map<BlockPos, Integer>> getBeaconPositionsForTier(int tier)
 	{
-		Map<Integer, Map<BlockPos, Integer>> map = beaconPos.get(tier);
-
-		if (map == null)
+		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
+		if (mapBeaconPositionByDimension == null)
 		{
-			beaconPos.put(tier, new HashMap<Integer, Map<BlockPos, Integer>>());
-			map = beaconPos.get(tier);
+			mapBeaconPositionByTierDimension.put(tier, new HashMap<>());
+			mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
 			tiers.add(tier);
 			Collections.sort(tiers);
 			Collections.reverse(tiers);
 		}
 		
-		return map;
+		return mapBeaconPositionByDimension;
+	}
+	
+	public static Map<BlockPos, Integer> getBeaconPositionsForTierAndDimension(int tier, World world)
+	{
+		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = getBeaconPositionsForTier(tier);
+		int idDimension = world.provider.getDimension();
+		Map<BlockPos, Integer> mapBeaconPosition = mapBeaconPositionByDimension.get(idDimension);
+		if (mapBeaconPosition == null)
+		{
+			mapBeaconPosition = new HashMap<>();
+			mapBeaconPositionByDimension.put(idDimension, mapBeaconPosition);
+		}
+		
+		return mapBeaconPosition;
 	}
 	
 	@Override
@@ -58,7 +71,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		
 		if (!wasWorking && working)
 		{
-			this.enable();
+			enable();
 		}
 		
 		if (wasWorking && !working)
@@ -67,7 +80,6 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		}
 		
 		wasWorking = working;
-
 		
 		if (world.isRemote && working)
 		{
@@ -77,8 +89,10 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 				IBlockState state = world.getBlockState(pos);
 				if (state.getBlock() == CyberwareContent.radio)
 				{
-					boolean ns = state.getValue(BlockBeaconLarge.FACING) == EnumFacing.NORTH || state.getValue(BlockBeaconLarge.FACING) == EnumFacing.SOUTH;
-					boolean backwards = state.getValue(BlockBeaconLarge.FACING) == EnumFacing.SOUTH || state.getValue(BlockBeaconLarge.FACING) == EnumFacing.EAST;
+					boolean ns = state.getValue(BlockBeaconLarge.FACING) == EnumFacing.NORTH
+					          || state.getValue(BlockBeaconLarge.FACING) == EnumFacing.SOUTH;
+					boolean backwards = state.getValue(BlockBeaconLarge.FACING) == EnumFacing.SOUTH
+					                 || state.getValue(BlockBeaconLarge.FACING) == EnumFacing.EAST;
 					float dist = .2F;
 					float speedMod = .08F;
 					int degrees = 45;
@@ -100,7 +114,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 								ns ? xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 						
 						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
 								pos.getX() + .5F + (ns ? -xOffset + backOffsetX : backOffsetZ), 
@@ -109,7 +123,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 								ns ? -xSpeed : 0, 
 								ySpeed, 
 								ns ? 0 : -xSpeed,
-								new int[] {255, 255, 255});
+								255, 255, 255 );
 	
 						degrees += 18;
 					}
@@ -120,30 +134,16 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 
 	private void disable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
-		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (map.containsKey(this.getPos()))
-		{
-			map.remove(this.getPos());
-		}
-	
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		mapBeaconPosition.remove(getPos());
 	}
 
 	private void enable()
 	{
-		Map<BlockPos, Integer> map = posForTier(TIER).get(world.provider.getDimension());
-		if (map == null)
+		Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(TIER, world);
+		if (!mapBeaconPosition.containsKey(getPos()))
 		{
-			posForTier(TIER).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
-			map = posForTier(TIER).get(world.provider.getDimension());
-		}
-		if (!map.containsKey(this.getPos()))
-		{
-			map.put(this.getPos(), LibConstants.BEACON_RANGE);
+			mapBeaconPosition.put(getPos(), LibConstants.BEACON_RANGE);
 		}
 	}
 	
@@ -158,41 +158,39 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 	{
 		for (int tier : tiers)
 		{
-			Map<BlockPos, Integer> map = posForTier(tier).get(world.provider.getDimension());
-			if (map == null)
+			Map<BlockPos, Integer> mapBeaconPosition = getBeaconPositionsForTierAndDimension(tier, world);
+			for (Entry<BlockPos, Integer> entry : mapBeaconPosition.entrySet())
 			{
-				posForTier(tier).put(world.provider.getDimension(), new HashMap<BlockPos, Integer>());
-				map = posForTier(tier).get(world.provider.getDimension());
-			}
-			
-			for (Entry<BlockPos, Integer> entry : map.entrySet())
-			{
-				float distance = (float) Math.sqrt((posX - entry.getKey().getX()) * (posX - entry.getKey().getX()) + (posZ - entry.getKey().getZ()) * (posZ - entry.getKey().getZ()));
-				if (distance < entry.getValue())
+				double squareDistance = (posX - entry.getKey().getX()) * (posX - entry.getKey().getX())
+				                      + (posZ - entry.getKey().getZ()) * (posZ - entry.getKey().getZ());
+				if (squareDistance < entry.getValue() * entry.getValue())
 				{
 					return tier;
 				}
 			}
 		}
 		
-		List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityPlayer.class,
-				new AxisAlignedBB(posX - LibConstants.BEACON_RANGE_INTERNAL, 0, posZ - LibConstants.BEACON_RANGE_INTERNAL, posX + LibConstants.BEACON_RANGE_INTERNAL, 255, posZ + LibConstants.BEACON_RANGE_INTERNAL));
+		List<EntityLivingBase> entitiesInRange = world.getEntitiesWithinAABB(EntityPlayer.class,
+				new AxisAlignedBB(posX - LibConstants.BEACON_RANGE_INTERNAL, 0, posZ - LibConstants.BEACON_RANGE_INTERNAL,
+				                  posX + LibConstants.BEACON_RANGE_INTERNAL, 255, posZ + LibConstants.BEACON_RANGE_INTERNAL) );
 		
-		ItemStack test = new ItemStack(CyberwareContent.brainUpgrades, 1, 5);
-		for (EntityLivingBase entity : entities)
+		ItemStack itemStackRadioRaw = CyberwareContent.brainUpgrades.getCachedStack(ItemBrainUpgrade.META_RADIO);
+		for (EntityLivingBase entityInRange : entitiesInRange)
 		{
-			if (CyberwareAPI.hasCapability(entity))
+			if (ItemBrainUpgrade.isRadioWorking(entityInRange))
 			{
-				if (CyberwareAPI.isCyberwareInstalled(entity, test) && ItemBrainUpgrade.isRadioWorking(entity))
+				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityInRange);
+				if (cyberwareUserData != null)
 				{
-					if (EnableDisableHelper.isEnabled(CyberwareAPI.getCyberware(entity, test)))
+					ItemStack itemStackRadio = cyberwareUserData.getCyberware(itemStackRadioRaw);
+					if ( !itemStackRadio.isEmpty()
+					  && EnableDisableHelper.isEnabled(itemStackRadio) )
 					{
 						return 1;
 					}
 				}
 			}
 		}
-				
 		
 		return -1;
 	}

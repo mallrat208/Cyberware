@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.item;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
@@ -103,7 +103,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
 		if (this.isInCreativeTab(tab)) {
 			if (subnames.length == 0)
@@ -121,7 +121,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public EnumSlot getSlot(ItemStack stack)
 	{
-		return slots[Math.min(slots.length - 1, stack.getItemDamage())];
+		return slots[Math.min(slots.length - 1, getDamage(stack))];
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	@Override
 	public List<String> getInfo(ItemStack stack)
 	{
-		List<String> ret = new ArrayList<String>();
+		List<String> ret = new ArrayList<>();
 		List<String> desc = this.getDesciption(stack);
 		if (desc != null && desc.size() > 0)
 		{
@@ -160,7 +160,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	{
 		String[] toReturnArray = I18n.format("cyberware.tooltip." + this.getRegistryName().toString().substring(10)
 				+ (this.subnames.length > 0 ? "." + stack.getItemDamage() : "")).split("\\\\n");
-		List<String> toReturn = new ArrayList<String>(Arrays.asList(toReturnArray));
+		List<String> toReturn = new ArrayList<>(Arrays.asList(toReturnArray));
 		
 		if (toReturn.size() > 0 && toReturn.get(0).length() == 0)
 		{
@@ -325,10 +325,10 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public void onAdded(EntityLivingBase entity, ItemStack stack) {}
+	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack) {}
 
 	@Override
-	public void onRemoved(EntityLivingBase entity, ItemStack stack) {}
+	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack) {}
 
 	@Override
 	public boolean canDestroy(ItemStack stack)
@@ -360,7 +360,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 			if (!stack.isEmpty() && stack.hasTagCompound())
 			{
 				stack.getTagCompound().removeTag(CyberwareAPI.QUALITY_TAG);
-				if (stack.getTagCompound().hasNoTags())
+				if (stack.getTagCompound().isEmpty())
 				{
 					stack.setTagCompound(null);
 				}
@@ -370,8 +370,9 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 		return this.canHoldQuality(stack, quality) ? CyberwareAPI.writeQualityTag(stack, quality) : stack;
 	}
 	
-	@Override
 	@SideOnly(Side.CLIENT)
+	@Nonnull
+	@Override
 	public String getItemStackDisplayName(ItemStack stack)
 	{
 		Quality q = getQuality(stack);

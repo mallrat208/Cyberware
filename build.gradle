@@ -131,8 +131,6 @@ version = "${mc_version}-${mod_version}" + buildNumber()
 archivesBaseName = "${mod_name}"
 
 minecraft {
-    //version = "1.12.1-14.22.0.2450"
-    //version = config.mc_version + "-" + config.forge_version + "-" + config.forge_suffix
     version = "${mc_version}" + "-" + "${forge_version}"
     runDir = "run"
 
@@ -147,7 +145,6 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     // Replace
-    //replace '1.0.0.0', project.forge_version
     replace '@MOD_VERSION@', "${mod_version}" + buildNumber()
     replace '@MOD_SIGNATURE@', project.findProperty('mod_signature')
     replaceIn 'Cyberware.java'
@@ -197,7 +194,7 @@ dependencies {
     //compile "CraftTweaker2:CraftTweaker2-MC1120-Main:${craftweaker_version}"
 
     // Baubles
-    compile "com.github.azanor:baubles:-SNAPSHOT"
+    provided "com.github.azanor:baubles:-SNAPSHOT"
 
     // APPLECORE
     // https://github.com/squeek502/AppleCore/wiki
@@ -216,23 +213,23 @@ dependencies {
     //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
 
     // Matter Overdrive 
-    deobfCompile 'matteroverdrive:MatterOverdrive-1.12.2:0.7.1.0:universal'
+    provided 'matteroverdrive:MatterOverdrive-1.12.2:0.7.1.0:universal'
 
-    compileOnly "com.enderio.core:EnderCore:${mc_version}-${endercore_version}:core"
-    deobfCompile "com.enderio:EnderIO:${mc_version}-${enderio_version}"
-    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
+    provided "com.enderio.core:EnderCore:${mc_version}-${endercore_version}:core"
+    provided "com.enderio:EnderIO:${mc_version}-${enderio_version}"
+    provided "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
     //Given we are only compiling EnderCore we also need a reference to auto save
-    compile "info.loenwind.autosave:AutoSave:${mc_version}-1.0.10"
+    provided "info.loenwind.autosave:AutoSave:${mc_version}-1.0.10"
     
     // ToughAsNails
-    deobfCompile "tough-as-nails:ToughAsNails-1.12.2:3.1.0.140:universal"
+    provided "tough-as-nails:ToughAsNails-1.12.2:3.1.0.140:universal"
 
     // TESLA
     // https://github.com/Darkhax-Minecraft/Tesla/blob/master/README.md
-    compile "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
+    provided "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
 
     // RF
-    deobfCompile "cofh:RedstoneFlux:1.12-2.0.2.3:universal"
+    provided "cofh:RedstoneFlux:1.12-2.0.2.3:universal"
 
     // Compile Included JARs
 }

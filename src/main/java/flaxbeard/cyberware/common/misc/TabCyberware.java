@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.misc;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -27,14 +28,9 @@ public class TabCyberware extends CreativeTabs
 		super(label);
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack getTabIconItem()
-	{
-		return ItemStack.EMPTY;
-	}
-	@Override
-	public ItemStack getIconItemStack()
-	{
+	public ItemStack createIcon() {
 		return new ItemStack(CyberwareContent.cybereyes);
 	}
 	
@@ -42,10 +38,10 @@ public class TabCyberware extends CreativeTabs
 	@SideOnly(Side.CLIENT)
 	public void displayAllRelevantItems(NonNullList<ItemStack> list)
 	{
-		Map<EnumCategory, List<ItemStack>> subLists = new EnumMap<EnumCategory, List<ItemStack>>(EnumCategory.class);
+		Map<EnumCategory, List<ItemStack>> subLists = new EnumMap<>(EnumCategory.class);
 		for (EnumCategory category : EnumCategory.values())
 		{
-			subLists.put(category, new ArrayList<ItemStack>());
+			subLists.put(category, new ArrayList<>());
 		}
 		NonNullList<ItemStack> unsorted = NonNullList.create();
 		
@@ -64,7 +60,6 @@ public class TabCyberware extends CreativeTabs
 					if (item instanceof ICyberwareTabItem)
 					{
 						NonNullList<ItemStack> tempList = NonNullList.create();	
-						//item.getSubItems(item, this, tempList);
 						item.getSubItems(this, tempList);
 
 						for (ItemStack stack : tempList)
@@ -86,7 +81,6 @@ public class TabCyberware extends CreativeTabs
 					}
 					else
 					{
-						//item.getSubItems(item, this, unsorted);
 						item.getSubItems(this, unsorted);
 					}
 				}
@@ -96,19 +90,17 @@ public class TabCyberware extends CreativeTabs
 		for (EnumCategory category : EnumCategory.values())
 		{
 			List<ItemStack> toAdd = subLists.get(category);
-			int blank = 9 - (toAdd.size() % 9);
-
 			list.addAll(toAdd);
-
-			
 		}
 		
 		list.addAll(unsorted);
-
+/*
 		if (this.getRelevantEnchantmentTypes() != null)
 		{
 			//this.addEnchantmentBooksToList(list, this.getRelevantEnchantmentTypes());
 			//this.ad(list, this.getRelevantEnchantmentTypes());
 		}
+		
+ */
 	}
 }

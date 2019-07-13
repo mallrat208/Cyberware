@@ -18,7 +18,7 @@ import java.util.List;
 
 public class TabRegistry
 {
-	private static ArrayList<AbstractTab> tabList = new ArrayList<AbstractTab>();
+	private static ArrayList<AbstractTab> tabList = new ArrayList<>();
 	private static Class<?> clazzJEIConfig = null;
 	public static Class<?> clazzNEIConfig = null;
 	

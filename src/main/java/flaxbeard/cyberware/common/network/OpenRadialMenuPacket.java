@@ -5,9 +5,7 @@ import flaxbeard.cyberware.api.ICyberwareUserData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -32,31 +30,25 @@ public class OpenRadialMenuPacket implements IMessage
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
 	{
-		private EntityPlayer p;
+		private EntityPlayer entityPlayer;
 
-		public DoSync(EntityPlayer p)
+		public DoSync(EntityPlayer entityPlayer)
 		{
-			this.p = p;
+			this.entityPlayer = entityPlayer;
 		}
-
 		
 		@Override
 		public void run()
 		{
-			if (p != null && CyberwareAPI.hasCapability(p))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData d = CyberwareAPI.getCapability(p);
-				d.setOpenedRadialMenu(true);
+				cyberwareUserData.setOpenedRadialMenu(true);
 			}
 		}
-		
-
 	}
-
-
 }

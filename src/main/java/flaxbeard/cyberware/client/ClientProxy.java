@@ -65,10 +65,8 @@ public class ClientProxy extends CommonProxy
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityScanner.class, new TileEntityScannerRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEngineeringTable.class, new TileEntityEngineeringRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBeaconPostMaster.class, new TileEntityBeaconLargeRenderer());
-
 	}
-
-
+	
 	@Override
 	public void init()
 	{
@@ -89,13 +87,10 @@ public class ClientProxy extends CommonProxy
 				{
 					return tintIndex > 0 ? -1 : ((ItemArmorCyberware)stack.getItem()).getColor(stack);
 				}
-			}, new Item[] { CyberwareContent.trenchcoat });
+			}, CyberwareContent.trenchcoat);
 		}
 	}
 	
-	
-
-
 	@Override
 	public void postInit()
 	{
@@ -123,17 +118,18 @@ public class ClientProxy extends CommonProxy
 		if (item instanceof ItemCyberware)
 		{
 			ItemCyberware ware = (ItemCyberware) item;
-			List<ModelResourceLocation> models = new ArrayList<ModelResourceLocation>();
+			List<ModelResourceLocation> models = new ArrayList<>();
 			if (ware.subnames.length > 0)
 			{
-				for (int i = 0; i < ware.subnames.length; i++)
+				for (int indexSubname = 0; indexSubname < ware.subnames.length; indexSubname++)
 				{
-					String name = ware.getRegistryName() + "_" + ware.subnames[i];
-					for (Quality q : Quality.qualities)
+					String name = ware.getRegistryName() + "_" + ware.subnames[indexSubname];
+					for (Quality quality : Quality.qualities)
 					{
-						if (q.getSpriteSuffix() != null && ware.canHoldQuality(new ItemStack(ware, 1, i), q))
+						if ( quality.getSpriteSuffix() != null
+						  && ware.canHoldQuality(new ItemStack(ware, 1, indexSubname), quality) )
 						{
-							models.add(new ModelResourceLocation(name + "_" + q.getSpriteSuffix(), "inventory"));
+							models.add(new ModelResourceLocation(name + "_" + quality.getSpriteSuffix(), "inventory"));
 						}
 					}
 					models.add(new ModelResourceLocation(name, "inventory"));
@@ -143,11 +139,12 @@ public class ClientProxy extends CommonProxy
 			{
 				String name = ware.getRegistryName() + "";
 
-				for (Quality q : Quality.qualities)
+				for (Quality quality : Quality.qualities)
 				{
-					if (q.getSpriteSuffix() != null && ware.canHoldQuality(new ItemStack(ware), q))
+					if ( quality.getSpriteSuffix() != null
+					  && ware.canHoldQuality(new ItemStack(ware), quality) )
 					{
-						models.add(new ModelResourceLocation(name + "_" + q.getSpriteSuffix(), "inventory"));
+						models.add(new ModelResourceLocation(name + "_" + quality.getSpriteSuffix(), "inventory"));
 					}
 				}
 				models.add(new ModelResourceLocation(name, "inventory"));
@@ -169,10 +166,10 @@ public class ClientProxy extends CommonProxy
 			ItemCyberwareBase base = ((ItemCyberwareBase) item);
 			if (base.subnames.length > 0)
 			{
-				for (int i = 0; i < base.subnames.length; i++)
+				for (int indexSubname = 0; indexSubname < base.subnames.length; indexSubname++)
 				{
 					ModelLoader.setCustomModelResourceLocation(item, 
-							i, new ModelResourceLocation(item.getRegistryName() + "_" + base.subnames[i], "inventory"));
+							indexSubname, new ModelResourceLocation(item.getRegistryName() + "_" + base.subnames[indexSubname], "inventory"));
 				}
 			}
 			else
@@ -195,8 +192,8 @@ public class ClientProxy extends CommonProxy
 	}
 	
 	@Override
-	public boolean workingOnPlayer(EntityLivingBase targetEntity)
+	public boolean workingOnPlayer(EntityLivingBase entityLivingBase)
 	{
-		return targetEntity == Minecraft.getMinecraft().player;
+		return entityLivingBase == Minecraft.getMinecraft().player;
 	}
 }

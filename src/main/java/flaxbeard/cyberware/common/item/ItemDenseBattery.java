@@ -13,13 +13,13 @@ public class ItemDenseBattery extends ItemCyberware implements ISpecialBattery
 	public ItemDenseBattery(String name, EnumSlot slot)
 	{
 		super(name, slot);
-
 	}
 	
 	@Override
 	public boolean isIncompatible(ItemStack stack, ItemStack other)
 	{
-		return other.getItem() == CyberwareContent.lowerOrgansUpgrades && (stack.getItemDamage() == 2);
+		return other.getItem() == CyberwareContent.lowerOrgansUpgrades
+		    && stack.getItemDamage() == ItemLowerOrgansUpgrade.META_BATTERY;
 	}
 
 	@Override

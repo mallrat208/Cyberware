@@ -37,43 +37,35 @@ public class TriggerActiveAbilityPacket implements IMessage
 	
 	public static class TriggerActiveAbilityPacketHandler implements IMessageHandler<TriggerActiveAbilityPacket, IMessage>
 	{
-
 		@Override
 		public IMessage onMessage(TriggerActiveAbilityPacket message, MessageContext ctx)
 		{
-			//EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 			EntityPlayerMP player = ctx.getServerHandler().player;
 			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.stack, player));
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
 	{
 		private ItemStack stack;
-		private EntityPlayer p;
+		private EntityPlayer entityPlayer;
 
-		public DoSync(ItemStack stack, EntityPlayer p)
+		public DoSync(ItemStack stack, EntityPlayer entityPlayer)
 		{
 			this.stack = stack;
-			this.p = p;
+			this.entityPlayer = entityPlayer;
 		}
-
 		
 		@Override
 		public void run()
 		{
-			if (p != null && CyberwareAPI.hasCapability(p))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData d = CyberwareAPI.getCapability(p);
-				CyberwareAPI.useActiveItem(p, d.getCyberware(stack));
+				CyberwareAPI.useActiveItem(entityPlayer, cyberwareUserData.getCyberware(stack));
 			}
 		}
-		
-
 	}
-
-
 }

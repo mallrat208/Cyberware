@@ -7,37 +7,58 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class CyberwareSurgeryEvent extends EntityEvent
 {
-	private final EntityLivingBase entityLiving;
 	
-	public CyberwareSurgeryEvent(EntityLivingBase entity)
+	public CyberwareSurgeryEvent(EntityLivingBase entityLivingBase)
 	{
-		super(entity);
-		entityLiving = entity;
+		super(entityLivingBase);
 	}
 	
 	/**
 	 * Fired when the Surgery Chamber starts the process of altering an entities installed Cyberware
+	 * Changing inventories isn't supported.
 	 * Cancel to prevent any changes
 	 */
 	@Cancelable
 	public static class Pre extends CyberwareSurgeryEvent
 	{
-		public Pre(EntityLivingBase entity)
+		public ItemStackHandler inventoryActual;
+		public ItemStackHandler inventoryTarget;
+		
+		public Pre(EntityLivingBase entityLivingBase, ItemStackHandler inventoryActual, ItemStackHandler inventoryTarget)
 		{
-			super(entity);
-			if (isAndroid(entity)){
+			super(entityLivingBase);
+			
+			this.inventoryActual = new ItemStackHandler(120);
+			this.inventoryActual.deserializeNBT(inventoryActual.serializeNBT());
+			this.inventoryTarget = new ItemStackHandler(120);
+			this.inventoryTarget.deserializeNBT(inventoryTarget.serializeNBT());
+			
+			if (isAndroid(entityLivingBase)){
 				setCanceled(true);
 			}
 		}
 
-		private boolean isAndroid(EntityLivingBase entity){
-			if (CyberwareConfig.INT_MATTER_OVERDRIVE && Loader.isModLoaded("matteroverdrive") && entity instanceof EntityPlayer){
-				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entity);
+		private boolean isAndroid(EntityLivingBase entityLivingBase){
+			if ( CyberwareConfig.INT_MATTER_OVERDRIVE
+			  && Loader.isModLoaded("matteroverdrive")
+			  && entityLivingBase instanceof EntityPlayer ){
+				return CyberwareMatterOverdriveCheck.isPlayerAndroid((EntityPlayer)entityLivingBase);
 			}
 			return false;
+		}
+		
+		public ItemStackHandler getActualCyberwares()
+		{
+			return inventoryActual;
+		}
+		
+		public ItemStackHandler getTargetCyberwares()
+		{
+			return inventoryActual;
 		}
 	}
 	
@@ -46,10 +67,9 @@ public class CyberwareSurgeryEvent extends EntityEvent
 	 */
 	public static class Post extends CyberwareSurgeryEvent
 	{
-		
-		public Post(EntityLivingBase entity)
+		public Post(EntityLivingBase entityLivingBase)
 		{
-			super(entity);
+			super(entityLivingBase);
 		}
 	}
 }

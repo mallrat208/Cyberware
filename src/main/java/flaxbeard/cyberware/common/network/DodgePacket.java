@@ -65,7 +65,7 @@ public class DodgePacket implements IMessage
 		}
 		
 		@Override
-		public Void call() throws Exception
+		public Void call()
 		{
 			Entity targetEntity = Minecraft.getMinecraft().world.getEntityByID(entityId);
 			
@@ -78,7 +78,7 @@ public class DodgePacket implements IMessage
 							(rand.nextFloat() - .5F) * .2F,
 							0,
 							(rand.nextFloat() - .5F) * .2F,
-							new int[] {255, 255, 255});
+							255, 255, 255 );
 				
 				}
 				

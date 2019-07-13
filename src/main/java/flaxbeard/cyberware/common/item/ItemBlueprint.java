@@ -7,15 +7,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -36,7 +33,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 	{
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 		
 		this.setCreativeTab(Cyberware.creativeTab);
 				
@@ -50,15 +47,15 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if (comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
 				GameSettings settings = Minecraft.getMinecraft().gameSettings;
 				if (settings.isKeyDown(settings.keyBindSneak))
 				{
-					ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
+					ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 					if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 					{
 						NonNullList<ItemStack> items = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
@@ -84,7 +81,7 @@ public class ItemBlueprint extends Item implements IBlueprint
 	}
 	
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
 	{
 		if (this.isInCreativeTab(tab)) {
 			list.add(new ItemStack(this, 1, 1));
@@ -106,12 +103,10 @@ public class ItemBlueprint extends Item implements IBlueprint
 			toBlue.setTagCompound(null);
 			
 			ItemStack ret = new ItemStack(CyberwareContent.blueprint);
-			NBTTagCompound tag = new NBTTagCompound();
-			NBTTagCompound itemTag = new NBTTagCompound();
-			toBlue.writeToNBT(itemTag);
-			tag.setTag("blueprintItem", itemTag);
+			NBTTagCompound tagCompound = new NBTTagCompound();
+			tagCompound.setTag("blueprintItem", toBlue.writeToNBT(new NBTTagCompound()));
 			
-			ret.setTagCompound(tag);
+			ret.setTagCompound(tagCompound);
 			return ret;
 		}
 		else
@@ -121,15 +116,16 @@ public class ItemBlueprint extends Item implements IBlueprint
 	}
 	
 	@SideOnly(Side.CLIENT)
+	@Nonnull
 	@Override
 	public String getItemStackDisplayName(ItemStack stack)
 	{
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if (comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
-				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
+				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 				if (!blueprintItem.isEmpty())
 				{
 					return I18n.format("item.cyberware.blueprint.not_blank.name", blueprintItem.getDisplayName()).trim();
@@ -142,29 +138,24 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@Override
 	public ItemStack getResult(ItemStack stack, NonNullList<ItemStack> craftingItems)
 	{
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if (comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
-				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
+				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 				{
 					NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
-					for (int i = 0; i < requiredItems.size(); i++)
-					{
-						ItemStack required = requiredItems.get(i).copy();
+					for (ItemStack requiredItem : requiredItems) {
+						ItemStack required = requiredItem.copy();
 						boolean satisfied = false;
-						for (ItemStack crafting : craftingItems)
-						{
-							if (!crafting.isEmpty() && !required.isEmpty())
-							{
-								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting))))
-								{
+						for (ItemStack crafting : craftingItems) {
+							if (!crafting.isEmpty() && !required.isEmpty()) {
+								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
 									required.shrink(crafting.getCount());
 								}
-								if (required.getCount() <= 0)
-								{
+								if (required.getCount() <= 0) {
 									satisfied = true;
 									break;
 								}
@@ -183,42 +174,32 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@Override
 	public NonNullList<ItemStack> consumeItems(ItemStack stack, NonNullList<ItemStack> craftingItems)
 	{
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if (comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
-				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
+				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 				{
 					NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
 					NonNullList<ItemStack> newCrafting = NonNullList.create();
-					for (int c = 0; c < craftingItems.size(); c++)
-					{
-						newCrafting.add(craftingItems.get(c));
-					}
-					for (int i = 0; i < requiredItems.size(); i++)
-					{
-						ItemStack required = requiredItems.get(i).copy();
-						boolean satisfied = false;
-						for (int c = 0; c < newCrafting.size(); c++)
-						{
+					newCrafting.addAll(craftingItems);
+					for (ItemStack requiredItem : requiredItems) {
+						ItemStack required = requiredItem.copy();
+						for (int c = 0; c < newCrafting.size(); c++) {
 							ItemStack crafting = newCrafting.get(c);
-							if (!crafting.isEmpty() && !required.isEmpty())
-							{
-								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting))))
-								{
+							if (!crafting.isEmpty() && !required.isEmpty()) {
+								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
 									int toSubtract = Math.min(required.getCount(), crafting.getCount());
 									required.shrink(toSubtract);
 									crafting.shrink(toSubtract);
-									if (crafting.getCount() <= 0)
-									{
+									if (crafting.getCount() <= 0) {
 										crafting = ItemStack.EMPTY;
 									}
-									newCrafting.set(c,crafting);
+									newCrafting.set(c, crafting);
 								}
-								if (required.getCount() <= 0)
-								{
+								if (required.getCount() <= 0) {
 									break;
 								}
 							}
@@ -235,13 +216,13 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@Override
 	public NonNullList<ItemStack> getRequirementsForDisplay(ItemStack stack)
 	{
-		if(stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if(comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
-				ItemStack blueprintItem = new ItemStack(comp.getCompoundTag("blueprintItem"));
-				if(blueprintItem!=ItemStack.EMPTY && CyberwareAPI.canDeconstruct(blueprintItem))
+				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 				{
 					return CyberwareAPI.getComponents(blueprintItem);
 				}
@@ -254,12 +235,12 @@ public class ItemBlueprint extends Item implements IBlueprint
 	@Override
 	public ItemStack getIconForDisplay(ItemStack stack)
 	{
-		if (stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound != null)
 		{
-			NBTTagCompound comp = stack.getTagCompound();
-			if (comp.hasKey("blueprintItem"))
+			if (tagCompound.hasKey("blueprintItem"))
 			{
-				return new ItemStack(comp.getCompoundTag("blueprintItem"));
+				return new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 			}
 		}
 

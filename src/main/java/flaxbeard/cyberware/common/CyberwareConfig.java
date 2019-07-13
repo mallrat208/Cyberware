@@ -288,12 +288,12 @@ public class CyberwareConfig
     @SubscribeEvent
     public void onPlayerLogin(PlayerLoggedInEvent event)
     {
-        EntityPlayer player = event.player;
-        World world = player.world;
+        EntityPlayer entityPlayer = event.player;
+        World world = entityPlayer.world;
 
         if (!world.isRemote)
         {
-            CyberwarePacketHandler.INSTANCE.sendTo(new UpdateConfigPacket(), (EntityPlayerMP) player);
+            CyberwarePacketHandler.INSTANCE.sendTo(new UpdateConfigPacket(), (EntityPlayerMP) entityPlayer);
         }
     }
 

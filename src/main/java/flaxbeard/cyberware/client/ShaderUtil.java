@@ -10,6 +10,8 @@ import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
 
+import flaxbeard.cyberware.Cyberware;
+
 public class ShaderUtil
 {
 	private static final int VERT = ARBVertexShader.GL_VERTEX_SHADER_ARB;
@@ -68,13 +70,13 @@ public class ShaderUtil
 		ARBShaderObjects.glLinkProgramARB(program);
 		if(ARBShaderObjects.glGetObjectParameteriARB(program, ARBShaderObjects.GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE)
 		{
-			System.out.println("BAD: " + getLogInfo(program));
+			Cyberware.logger.error("Shader objectLinkStatus: " + getLogInfo(program));
 			return 0;
 		}
 
 		if (ARBShaderObjects.glGetObjectParameteriARB(program, ARBShaderObjects.GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE)
 		{
-			System.out.println("BAD: " + getLogInfo(program));
+			Cyberware.logger.error("Shader objectValidateStatus: " + getLogInfo(program));
 			return 0;
 		}
 

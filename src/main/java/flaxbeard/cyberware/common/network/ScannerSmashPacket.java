@@ -1,18 +1,12 @@
 package flaxbeard.cyberware.common.network;
 
-import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable;
-import flaxbeard.cyberware.common.item.ItemCybereyeUpgrade;
 import io.netty.buffer.ByteBuf;
 
 import java.util.concurrent.Callable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -77,7 +71,7 @@ public class ScannerSmashPacket implements IMessage
 		}
 		
 		@Override
-		public Void call() throws Exception
+		public Void call()
 		{
 			World world = Minecraft.getMinecraft().world;
 			

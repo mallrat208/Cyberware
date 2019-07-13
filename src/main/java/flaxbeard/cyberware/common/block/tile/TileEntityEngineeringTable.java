@@ -1,11 +1,13 @@
 package flaxbeard.cyberware.common.block.tile;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -99,7 +101,8 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 				table.updateRecipe();
 			}
 	    }
-
+		
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 		{
@@ -126,6 +129,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			return result;
 		}
 		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
@@ -196,13 +200,15 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		{
 			return slots.getSlots();
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot)
 		{
 			return slots.getStackInSlot(slot);
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 		{
@@ -211,7 +217,8 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			slots.overrideExtract = false;
 			return res;
 		}
-
+		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
@@ -243,7 +250,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	public String customName = null;
 	public float clickedTime = -100F;
 	private int time;
-	public HashMap<String, BlockPos> lastPlayerArchive = new HashMap<String, BlockPos>();
+	public HashMap<String, BlockPos> lastPlayerArchive = new HashMap<>();
 	
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
@@ -274,47 +281,48 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
-		slots.deserializeNBT(compound.getCompoundTag("inv"));
+		slots.deserializeNBT(tagCompound.getCompoundTag("inv"));
 		
-		if (compound.hasKey("CustomName", 8))
+		if (tagCompound.hasKey("CustomName", 8))
 		{
-			customName = compound.getString("CustomName");
+			customName = tagCompound.getString("CustomName");
 		}
 		
-		this.time = compound.getInteger("time");
+		this.time = tagCompound.getInteger("time");
 		
-		lastPlayerArchive = new HashMap<String, BlockPos>();
-		NBTTagList list = (NBTTagList) compound.getTag("playerArchive");
+		lastPlayerArchive = new HashMap<>();
+		NBTTagList list = (NBTTagList) tagCompound.getTag("playerArchive");
 		for (int i = 0; i < list.tagCount(); i++)
 		{
-			NBTTagCompound comp = list.getCompoundTagAt(i);
-			String name = comp.getString("name");
-			int x = comp.getInteger("x");
-			int y = comp.getInteger("y");
-			int z = comp.getInteger("z");
+			NBTTagCompound tagCompoundAt = list.getCompoundTagAt(i);
+			String name = tagCompoundAt.getString("name");
+			int x = tagCompoundAt.getInteger("x");
+			int y = tagCompoundAt.getInteger("y");
+			int z = tagCompoundAt.getInteger("z");
 			BlockPos pos = new BlockPos(x, y, z);
 			lastPlayerArchive.put(name, pos);
 		}
 
 	}
 	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
+		tagCompound = super.writeToNBT(tagCompound);
 		
-		compound.setTag("inv", this.slots.serializeNBT());
+		tagCompound.setTag("inv", this.slots.serializeNBT());
 		
 		if (this.hasCustomName())
 		{
-			compound.setString("CustomName", customName);
+			tagCompound.setString("CustomName", customName);
 		}
 		
-		compound.setInteger("time", time);
+		tagCompound.setInteger("time", time);
 		NBTTagList list = new NBTTagList();
 		for (String name : this.lastPlayerArchive.keySet())
 		{
@@ -326,8 +334,8 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			entry.setInteger("z", pos.getZ());
 			list.appendTag(entry);
 		}
-		compound.setTag("playerArchive", list);
-		return compound;
+		tagCompound.setTag("playerArchive", list);
+		return tagCompound;
 	}
 	
 	@Override
@@ -345,15 +353,17 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		return new SPacketUpdateTileEntity(pos, 0, data);
 	}
 	
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	public boolean isUseableByPlayer(EntityPlayer player)
+	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) == this
+		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -373,7 +383,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 	
 	public ITextComponent getDisplayName()
 	{
-		return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
+		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
 	}
 
 	public void updateRecipe()
@@ -432,11 +442,11 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.getCount() > 0)
 		{
 			ItemStack paperSlot = slots.getStackInSlot(1);
-			boolean doBlueprint = paperSlot != null && paperSlot.getCount() > 0;
+			boolean doBlueprint = !paperSlot.isEmpty() && paperSlot.getCount() > 0 && paperSlot.getItem() == Items.PAPER;
 			
 			NonNullList<ItemStack> components = CyberwareAPI.getComponents(toDestroy);
 
-			List<ItemStack> random = new ArrayList<ItemStack>();
+			List<ItemStack> random = new ArrayList<>();
 			for (ItemStack component : components)
 			{
 				if (!component.isEmpty())
@@ -637,8 +647,10 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		world.playSound(x, y, z, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1F, .5F, false);
 		for (int i = 0; i < 10; i++)
 		{
-			world.spawnParticle(EnumParticleTypes.ITEM_CRACK, x + .5F, y, z + .5F, .25F * (world.rand.nextFloat() - .5F), .1F, .25F * (world.rand.nextFloat() - .5F), 
-					new int[] { Item.getIdFromItem(slots.getStackInSlot(0).getItem()) } );
+			world.spawnParticle(EnumParticleTypes.ITEM_CRACK,
+			                    x + .5F, y, z + .5F,
+			                    .25F * (world.rand.nextFloat() - .5F), .1F, .25F * (world.rand.nextFloat() - .5F),
+			                    Item.getIdFromItem(slots.getStackInSlot(0).getItem()));
 		}
 	}
 

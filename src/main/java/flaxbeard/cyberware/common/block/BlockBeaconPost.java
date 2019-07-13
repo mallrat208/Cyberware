@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common.block;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
@@ -9,7 +10,6 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -26,6 +26,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -83,21 +84,21 @@ public class BlockBeaconPost extends BlockContainer
 		ib.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
 		this.setCreativeTab(Cyberware.creativeTab);
 		
 		CyberwareContent.blocks.add(this);
 		
-		GameRegistry.registerTileEntity(TileEntityBeaconPost.class, Cyberware.MODID + ":" + name);
-		GameRegistry.registerTileEntity(TileEntityBeaconPostMaster.class, Cyberware.MODID + ":" + name + "_master");
+		GameRegistry.registerTileEntity(TileEntityBeaconPost.class, new ResourceLocation(Cyberware.MODID, name));
+		GameRegistry.registerTileEntity(TileEntityBeaconPostMaster.class, new ResourceLocation(Cyberware.MODID, name + "_master"));
 
 		this.setDefaultState(this.blockState.getBaseState()
 				.withProperty(TRANSFORMED, 0)
-				.withProperty(NORTH, Boolean.valueOf(false))
-				.withProperty(EAST, Boolean.valueOf(false))
-				.withProperty(SOUTH, Boolean.valueOf(false))
-				.withProperty(WEST, Boolean.valueOf(false)));
+				.withProperty(NORTH, Boolean.FALSE)
+				.withProperty(EAST, Boolean.FALSE)
+				.withProperty(SOUTH, Boolean.FALSE)
+				.withProperty(WEST, Boolean.FALSE));
 	}
 	
 	@Override
@@ -189,9 +190,9 @@ public class BlockBeaconPost extends BlockContainer
 		}
 		return start;
 	}
-
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
-	{
+	
+	@Override
+	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
 		state = state.getActualState(worldIn, pos);
 		
 		if (state.getValue(TRANSFORMED) > 0)
@@ -202,27 +203,30 @@ public class BlockBeaconPost extends BlockContainer
 		
 		addCollisionBoxToList(pos, entityBox, collidingBoxes, PILLAR_AABB);
 
-		if (((Boolean)state.getValue(NORTH)).booleanValue())
+		if (state.getValue(NORTH))
 		{
 			addCollisionBoxToList(pos, entityBox, collidingBoxes, NORTH_AABB);
 		}
 
-		if (((Boolean)state.getValue(EAST)).booleanValue())
+		if (state.getValue(EAST))
 		{
 			addCollisionBoxToList(pos, entityBox, collidingBoxes, EAST_AABB);
 		}
 
-		if (((Boolean)state.getValue(SOUTH)).booleanValue())
+		if (state.getValue(SOUTH))
 		{
 			addCollisionBoxToList(pos, entityBox, collidingBoxes, SOUTH_AABB);
 		}
 
-		if (((Boolean)state.getValue(WEST)).booleanValue())
+		if (state.getValue(WEST))
 		{
 			addCollisionBoxToList(pos, entityBox, collidingBoxes, WEST_AABB);
 		}
 	}
-
+	
+	@SuppressWarnings("deprecation")
+	@Nonnull
+	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
 		state = this.getActualState(state, source, pos);
@@ -236,22 +240,22 @@ public class BlockBeaconPost extends BlockContainer
 	{
 		int i = 0;
 
-		if (((Boolean)state.getValue(NORTH)).booleanValue())
+		if (state.getValue(NORTH))
 		{
 			i |= 1 << EnumFacing.NORTH.getHorizontalIndex();
 		}
 
-		if (((Boolean)state.getValue(EAST)).booleanValue())
+		if (state.getValue(EAST))
 		{
 			i |= 1 << EnumFacing.EAST.getHorizontalIndex();
 		}
 
-		if (((Boolean)state.getValue(SOUTH)).booleanValue())
+		if (state.getValue(SOUTH))
 		{
 			i |= 1 << EnumFacing.SOUTH.getHorizontalIndex();
 		}
 
-		if (((Boolean)state.getValue(WEST)).booleanValue())
+		if (state.getValue(WEST))
 		{
 			i |= 1 << EnumFacing.WEST.getHorizontalIndex();
 		}
@@ -262,11 +266,15 @@ public class BlockBeaconPost extends BlockContainer
 	/**
 	 * Used to determine ambient occlusion and culling when rebuilding chunks for render
 	 */
+	@SuppressWarnings("deprecation")
+	@Override
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
 	}
-
+	
+	@SuppressWarnings("deprecation")
+	@Override
 	public boolean isFullCube(IBlockState state)
 	{
 		return false;
@@ -281,47 +289,52 @@ public class BlockBeaconPost extends BlockContainer
 	{
 		IBlockState iblockstate = worldIn.getBlockState(pos);
 		Block block = iblockstate.getBlock();
-		return block == Blocks.BARRIER ? false : ((!(block instanceof BlockBeaconPost) || block.getMaterial(iblockstate) != this.blockMaterial) && !(block instanceof BlockFenceGate) ? (block.getMaterial(iblockstate).isOpaque() && iblockstate.isFullCube() ? block.getMaterial(iblockstate) != Material.GOURD : false) : true);
+		return block != Blocks.BARRIER
+		    && ( (block instanceof BlockBeaconPost && block.getMaterial(iblockstate) == this.material)
+		      || block instanceof BlockFenceGate
+		      || ((block.getMaterial(iblockstate).isOpaque() && iblockstate.isFullCube()) && block.getMaterial(iblockstate) != Material.GOURD) );
 	}
 
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings("deprecation")
+	@Override
 	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
 	{
 		return true;
 	}
-
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-	{
-		return worldIn.isRemote ? true : ItemLead.attachToFence(playerIn, worldIn, pos);
+	
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		return worldIn.isRemote || ItemLead.attachToFence(entityPlayer, worldIn, pos);
 	}
 
-	/**
-	 * Convert the BlockState into the correct metadata value
-	 */
 	public int getMetaFromState(IBlockState state)
 	{
 		return state.getValue(TRANSFORMED);
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
 		return this.getDefaultState().withProperty(TRANSFORMED, meta);
 	}
-
-	/**
-	 * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-	 * metadata, such as fence connections.
-	 */
+	
+	@SuppressWarnings("deprecation")
+	@Nonnull
+	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
 	{
-		return state.withProperty(NORTH, Boolean.valueOf(this.canConnectTo(worldIn, pos.north()))).withProperty(EAST, Boolean.valueOf(this.canConnectTo(worldIn, pos.east()))).withProperty(SOUTH, Boolean.valueOf(this.canConnectTo(worldIn, pos.south()))).withProperty(WEST, Boolean.valueOf(this.canConnectTo(worldIn, pos.west())));
+		return state.withProperty(NORTH, this.canConnectTo(worldIn, pos.north()))
+		            .withProperty(EAST, this.canConnectTo(worldIn, pos.east()))
+		            .withProperty(SOUTH, this.canConnectTo(worldIn, pos.south()))
+		            .withProperty(WEST, this.canConnectTo(worldIn, pos.west()));
 	}
-
-	/**
-	 * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
-	 * blockstate.
-	 */
+	
+	@SuppressWarnings("deprecation")
+	@Nonnull
+	@Override
 	public IBlockState withRotation(IBlockState state, Rotation rot)
 	{
 		switch (rot)
@@ -336,11 +349,10 @@ public class BlockBeaconPost extends BlockContainer
 				return state;
 		}
 	}
-
-	/**
-	 * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
-	 * blockstate.
-	 */
+	
+	@SuppressWarnings("deprecation")
+	@Nonnull
+	@Override
 	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
 	{
 		switch (mirrorIn)
@@ -353,12 +365,16 @@ public class BlockBeaconPost extends BlockContainer
 				return super.withMirror(state, mirrorIn);
 		}
 	}
-
+	
+	@Nonnull
+	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, new IProperty[] {NORTH, EAST, WEST, SOUTH, TRANSFORMED});
+		return new BlockStateContainer(this, NORTH, EAST, WEST, SOUTH, TRANSFORMED);
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Nonnull
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
 	{
@@ -386,7 +402,7 @@ public class BlockBeaconPost extends BlockContainer
 		{
 
 			TileEntity te = world.getTileEntity(pos);
-			if (te != null && te instanceof TileEntityBeaconPost)
+			if (te instanceof TileEntityBeaconPost)
 			{
 				TileEntityBeaconPost post = (TileEntityBeaconPost) te;
 				if (state.getValue(TRANSFORMED) == 2)
@@ -397,7 +413,7 @@ public class BlockBeaconPost extends BlockContainer
 				{
 					TileEntity masterTe = world.getTileEntity(post.master);
 					
-					if (masterTe != null && masterTe instanceof TileEntityBeaconPost)
+					if (masterTe instanceof TileEntityBeaconPost)
 					{
 						TileEntityBeaconPost post2 = (TileEntityBeaconPost) masterTe;
 						
@@ -412,7 +428,7 @@ public class BlockBeaconPost extends BlockContainer
 	}
 	
     @Override
-    public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity)
+    public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entityLivingBase)
     {
     	return state.getValue(TRANSFORMED) > 0;
     }

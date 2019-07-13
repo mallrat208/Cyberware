@@ -8,9 +8,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Biomes;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
@@ -34,17 +34,16 @@ public class BlockSurgeryTable extends BlockBed
 		this.setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 		
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
 
-		GameRegistry.registerTileEntity(TileEntitySurgery.class, Cyberware.MODID + ":" + name);
+		GameRegistry.registerTileEntity(TileEntitySurgery.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		ItemStack heldItem = playerIn.getHeldItem(hand);
 		if (worldIn.isRemote)
 		{
 			return true;
@@ -53,7 +52,7 @@ public class BlockSurgeryTable extends BlockBed
 		{
 			if (state.getValue(PART) != BlockBed.EnumPartType.HEAD)
 			{
-				pos = pos.offset((EnumFacing)state.getValue(FACING));
+				pos = pos.offset(state.getValue(FACING));
 				state = worldIn.getBlockState(pos);
 
 				if (state.getBlock() != this)
@@ -64,25 +63,25 @@ public class BlockSurgeryTable extends BlockBed
 
 			if (worldIn.provider.canRespawnHere() && worldIn.getBiome(pos) != Biomes.HELL)
 			{
-				if (((Boolean)state.getValue(OCCUPIED)).booleanValue())
+				if (state.getValue(OCCUPIED))
 				{
 					EntityPlayer entityplayer = this.getPlayerInBed(worldIn, pos);
 
 					if (entityplayer != null)
 					{
-						playerIn.sendMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]));
+						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.occupied"));
 						return true;
 					}
 
-					state = state.withProperty(OCCUPIED, Boolean.valueOf(false));
+					state = state.withProperty(OCCUPIED, Boolean.FALSE);
 					worldIn.setBlockState(pos, state, 4);
 				}
 
-				EntityPlayer.SleepResult entityplayer$sleepresult = playerIn.trySleep(pos);
+				EntityPlayer.SleepResult entityplayer$sleepresult = entityPlayer.trySleep(pos);
 
 				if (entityplayer$sleepresult == EntityPlayer.SleepResult.OK)
 				{
-					state = state.withProperty(OCCUPIED, Boolean.valueOf(true));
+					state = state.withProperty(OCCUPIED, Boolean.TRUE);
 					worldIn.setBlockState(pos, state, 4);
 					return true;
 				}
@@ -90,11 +89,11 @@ public class BlockSurgeryTable extends BlockBed
 				{
 					if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_POSSIBLE_NOW)
 					{
-						playerIn.sendMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]));
+						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.noSleep"));
 					}
 					else if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_SAFE)
 					{
-						playerIn.sendMessage(new TextComponentTranslation("tile.bed.notSafe", new Object[0]));
+						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.notSafe"));
 					}
 
 					return true;
@@ -103,23 +102,23 @@ public class BlockSurgeryTable extends BlockBed
 			else
 			{
 				worldIn.setBlockToAir(pos);
-				BlockPos blockpos = pos.offset(((EnumFacing)state.getValue(FACING)).getOpposite());
+				BlockPos blockpos = pos.offset(state.getValue(FACING).getOpposite());
 
 				if (worldIn.getBlockState(blockpos).getBlock() == this)
 				{
 					worldIn.setBlockToAir(blockpos);
 				}
 
-				worldIn.newExplosion((Entity)null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, true);
+				worldIn.newExplosion(null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, true);
 				return true;
 			}
 		}
 	}
 
-/*	@Nullable
+/*	@Nonnull
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(PART) == BlockBed.EnumPartType.HEAD ? null : CyberwareContent.surgeryTableItem;
+		return state.getValue(PART) == BlockBed.EnumPartType.HEAD ? Items.AIR : CyberwareContent.surgeryTableItem;
 	}
 
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
@@ -152,26 +151,4 @@ public class BlockSurgeryTable extends BlockBed
 	{
 
 	}
-	
-	private void setRenderOffsetForSleep(EntityPlayer player, EnumFacing p_175139_1_)
-    {
-		player.renderOffsetX = 0.0F;
-		player.renderOffsetZ = 0.0F;
-
-        switch (p_175139_1_)
-        {
-            case SOUTH:
-            	player.renderOffsetZ = -1.8F;
-                break;
-            case NORTH:
-            	player.renderOffsetZ = 1.8F;
-                break;
-            case WEST:
-            	player.renderOffsetX = 1.8F;
-                break;
-            case EAST:
-            	player.renderOffsetX = -1.8F;
-        }
-    }
-
 }

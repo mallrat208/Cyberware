@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import flaxbeard.cyberware.common.CyberwareConfig;
@@ -21,6 +22,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -59,12 +61,9 @@ public final class CyberwareAPI
 	/**
 	 * Maximum Tolerance, per-player
 	 */
- 	public static final IAttribute TOLERANCE_ATTR = new RangedAttribute(null, "cyberware.tolerance", CyberwareConfig.ESSENCE, 0.0f, Double.MAX_VALUE).setDescription("Tolerance").setShouldWatch(true);
+ 	public static final IAttribute TOLERANCE_ATTR = new RangedAttribute(null, "cyberware.tolerance", CyberwareConfig.ESSENCE, 0.0F, Double.MAX_VALUE).setDescription("Tolerance").setShouldWatch(true);
 
-	public static Map<ItemStack, ICyberware> linkedWare = new HashMap<ItemStack, ICyberware>();
-	
-	
-	private static float[] mainColor = new float[] { 0F, 1F, 1F };
+	public static Map<ItemStack, ICyberware> linkedWare = new HashMap<>();
 	
 	public static SimpleNetworkWrapper PACKET_HANDLER;
 	
@@ -76,10 +75,11 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(float[] color)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(p))
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			CyberwareAPI.getCapability(p).setHudColor(color);
+			cyberwareUserData.setHudColor(color);
 		}
 	}
 	
@@ -96,10 +96,11 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static void setHUDColor(int hexVal)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(p))
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			CyberwareAPI.getCapability(p).setHudColor(hexVal);
+			cyberwareUserData.setHudColor(hexVal);
 		}
 	}
 	
@@ -112,10 +113,11 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static int getHUDColorHex()
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(p))
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			return CyberwareAPI.getCapability(p).getHudColorHex();
+			return cyberwareUserData.getHudColorHex();
 		}
 		return 0;
 	}
@@ -123,10 +125,11 @@ public final class CyberwareAPI
 	@SideOnly(Side.CLIENT)
 	public static float[] getHUDColor()
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
-		if (CyberwareAPI.hasCapability(p))
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData != null)
 		{
-			return CyberwareAPI.getCapability(p).getHudColor();
+			return cyberwareUserData.getHudColor();
 		}
 		return new float[] { 0F, 0F, 0F };
 	}
@@ -138,21 +141,26 @@ public final class CyberwareAPI
 	 * @param stack	The stack to write to
 	 * @return		The modified stack
 	 */
-	public static ItemStack writeQualityTag(ItemStack stack, Quality quality)
+	public static ItemStack writeQualityTag(@Nonnull ItemStack stack, @Nonnull Quality quality)
 	{
 		if (stack.isEmpty()) return stack;
-		if (!stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound == null)
 		{
+			tagCompound = new NBTTagCompound();
 			stack.setTagCompound(new NBTTagCompound());
 		}
-		stack.getTagCompound().setString(QUALITY_TAG, quality.getUnlocalizedName());
+		tagCompound.setString(QUALITY_TAG, quality.getUnlocalizedName());
 		return stack;
 	}
 	
-	public static Quality getQualityTag(ItemStack stack)
+	@Nullable
+	public static Quality getQualityTag(@Nonnull ItemStack stack)
 	{
 		if (stack.isEmpty()) return null;
-		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey(QUALITY_TAG))
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if ( tagCompound == null
+		  || !tagCompound.hasKey(QUALITY_TAG, NBT.TAG_STRING) )
 		{
 			return null;
 		}
@@ -167,15 +175,16 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to sanitize
 	 * @return		A sanitized version of the stack
 	 */
-	public static ItemStack sanitize(ItemStack stack)
+	public static ItemStack sanitize(@Nonnull ItemStack stack)
 	{
 		if (!stack.isEmpty())
 		{
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey(DATA_TAG))
+			NBTTagCompound tagCompound = stack.getTagCompound();
+			if (tagCompound != null && tagCompound.hasKey(DATA_TAG))
 			{
-				stack.getTagCompound().removeTag(DATA_TAG);
+				tagCompound.removeTag(DATA_TAG);
 			}
-			if (stack.hasTagCompound() && stack.getTagCompound().hasNoTags())
+			if (tagCompound != null && tagCompound.isEmpty())
 			{
 				stack.setTagCompound(null);
 			}
@@ -192,27 +201,32 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack for which you want the data
 	 * @return		The data, in the form of an NBTTagCompound
 	 */
-	public static NBTTagCompound getCyberwareNBT(ItemStack stack)
+	@Nonnull
+	public static NBTTagCompound getCyberwareNBT(@Nonnull ItemStack stack)
 	{
-		if (!stack.hasTagCompound())
+		NBTTagCompound tagCompound = stack.getTagCompound();
+		if (tagCompound == null)
 		{
-			stack.setTagCompound(new NBTTagCompound());
+			tagCompound = new NBTTagCompound();
+			stack.setTagCompound(tagCompound);
 		}
-		if (!stack.getTagCompound().hasKey(DATA_TAG))
+		if (!tagCompound.hasKey(DATA_TAG))
 		{
-			stack.getTagCompound().setTag(DATA_TAG, new NBTTagCompound());
+			tagCompound.setTag(DATA_TAG, new NBTTagCompound());
 		}
 		
-		return stack.getTagCompound().getCompoundTag(DATA_TAG);
+		return tagCompound.getCompoundTag(DATA_TAG);
 	}
 	
-	public static boolean areCyberwareStacksEqual(ItemStack stack1, ItemStack stack2)
+	public static boolean areCyberwareStacksEqual(@Nonnull ItemStack stack1,@Nonnull  ItemStack stack2)
 	{
 		if (stack1.isEmpty() || stack2.isEmpty()) return false;
 		
 		ItemStack sanitized1 = sanitize(stack1.copy());
 		ItemStack sanitized2 = sanitize(stack2.copy());
-		return sanitized1.getItem() == sanitized2.getItem() && sanitized1.getItemDamage() == sanitized2.getItemDamage() && ItemStack.areItemStackTagsEqual(stack1, stack2);
+		return sanitized1.getItem() == sanitized2.getItem()
+		    && sanitized1.getItemDamage() == sanitized2.getItemDamage()
+		    && ItemStack.areItemStackTagsEqual(stack1, stack2);
 	}
 	
 	/**
@@ -223,7 +237,7 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to link
 	 * @param link	An instance of ICyberware to link it to
 	 */
-	public static void linkCyberware(ItemStack stack, ICyberware link)
+	public static void linkCyberware(@Nonnull ItemStack stack, ICyberware link)
 	{
 		if (stack.isEmpty()) return;
 		
@@ -254,10 +268,13 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to test
 	 * @return		If the stack is valid Cyberware
 	 */
-	public static boolean isCyberware(ItemStack stack)
+	public static boolean isCyberware(@Nullable ItemStack stack)
 	{
-		if (stack != null){
-			return !stack.isEmpty() && (stack.getItem() instanceof ICyberware || getLinkedWare(stack) != null);
+		if (stack != null)
+		{
+			return !stack.isEmpty()
+			    && ( stack.getItem() instanceof ICyberware
+			      || getLinkedWare(stack) != null );
 		}
 		return false;
 	}
@@ -270,7 +287,7 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack, from which the linked ICyberware is found
 	 * @return		The linked instance of ICyberware
 	 */
-	public static ICyberware getCyberware(ItemStack stack)
+	public static ICyberware getCyberware(@Nonnull ItemStack stack)
 	{
 		if (!stack.isEmpty())
 		{
@@ -294,9 +311,11 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to test
 	 * @return		If the stack can be deconstructed.
 	 */
-	public static boolean canDeconstruct(ItemStack stack)
+	public static boolean canDeconstruct(@Nonnull ItemStack stack)
 	{
-		return !stack.isEmpty() && (stack.getItem() instanceof IDeconstructable) && ((IDeconstructable) stack.getItem()).canDestroy(stack);
+		return !stack.isEmpty()
+		    && (stack.getItem() instanceof IDeconstructable)
+		    && ((IDeconstructable) stack.getItem()).canDestroy(stack);
 	}
 
 	/**
@@ -306,7 +325,7 @@ public final class CyberwareAPI
 	 * @param stack	The ItemStack to test
 	 * @return		The components of the item
 	 */
-	public static NonNullList<ItemStack> getComponents(ItemStack stack)
+	public static NonNullList<ItemStack> getComponents(@Nonnull ItemStack stack)
 	{
 		if (!stack.isEmpty())
 		{
@@ -316,37 +335,26 @@ public final class CyberwareAPI
 			}
 		}
 		
-		throw new RuntimeException("Cannot call getComponents on a non-cyberware item!");
+		throw new RuntimeException("Cannot call getComponents on a non-cyberware or non deconstructable item!");
 	}
 	
-	private static ICyberware getLinkedWare(ItemStack stack)
+	@Nullable
+	private static ICyberware getLinkedWare(@Nonnull ItemStack stack)
 	{
 		if (stack.isEmpty()) return null;
 		
-		ItemStack test = new ItemStack(stack.getItem(), 1, stack.getItemDamage());
-		ICyberware result = getWareFromKey(test);
-		if (result != null)
-		{
-			return result;
-		}
-		
-		ItemStack testGeneric = new ItemStack(stack.getItem(), 1, OreDictionary.WILDCARD_VALUE);
-		result = getWareFromKey(testGeneric);
-		if (result != null)
-		{
-			return result;
-		}
-		
-		return null;
+		return getWareFromKey(stack);
 	}
 	
-	private static ICyberware getWareFromKey(ItemStack key)
+	@Nullable
+	private static ICyberware getWareFromKey(@Nonnull ItemStack key)
 	{
 		for (Entry<ItemStack, ICyberware> entry : linkedWare.entrySet())
 		{
 			ItemStack entryKey = entry.getKey();
-			if (key.getItem() == entryKey.getItem() && key.getItemDamage() == entryKey.getItemDamage())
-			{
+			if ( key.getItem() == entryKey.getItem()
+			  && ( entryKey.getItemDamage() == OreDictionary.WILDCARD_VALUE
+				|| entryKey.getItemDamage() == key.getItemDamage() ) ) {
 				return entry.getValue();
 			}
 		}
@@ -354,79 +362,96 @@ public final class CyberwareAPI
 	}
 	
 	/**
+	 * A shortcut method to get you the ICyberwareUserData of a specific entity.
+	 * This will return null if the entity is null or has no capability.
+	 *
+	 * @param targetEntity	The entity whose ICyberwareUserData you want
+	 * @return				The ICyberwareUserData associated with the entity
+	 */
+	@Nullable
+	public static ICyberwareUserData getCapabilityOrNull(@Nullable Entity targetEntity)
+	{
+		if (targetEntity == null) return null;
+		return targetEntity.getCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+	}
+	
+	/**
 	 * A shortcut method to determine if the entity that is inputted
 	 * has ICyberwareUserData. Works with null entites.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity to test
 	 * @return				If the entity has ICyberwareUserData
 	 */
+	@Deprecated
 	public static boolean hasCapability(@Nullable Entity targetEntity)
 	{
-		if (targetEntity == null) return false;
-		return targetEntity.hasCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+		return getCapabilityOrNull(targetEntity) != null;
 	}
 	
 	/**
 	 * Assistant method to hasCapability. A shortcut to get you the ICyberwareUserData
 	 * of a specific entity. Note that you must verify if it has the capability first.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity whose ICyberwareUserData you want
 	 * @return				The ICyberwareUserData associated with the entity
 	 */
-	public static ICyberwareUserData getCapability(Entity targetEntity)
+	@Deprecated
+	public static ICyberwareUserData getCapability(@Nonnull Entity targetEntity)
 	{
-		return targetEntity.getCapability(CYBERWARE_CAPABILITY, EnumFacing.EAST);
+		return getCapabilityOrNull(targetEntity);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to quickly tell if an entity
 	 * has a piece of Cyberware installed. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				If the entity has the Cyberware
 	 */
+	@Deprecated
 	public static boolean isCyberwareInstalled(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return false;
-		
-		ICyberwareUserData cyberware = getCapability(targetEntity);
-		return cyberware.isCyberwareInstalled(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData != null && cyberwareUserData.isCyberwareInstalled(stack);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to quickly determine what level of
 	 * Cyberware is installed. Returns 0 if none. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				If the entity has the Cyberware, the level, or 0 if not
 	 */
+	@Deprecated
 	public static int getCyberwareRank(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return 0;
-		
-		ICyberwareUserData cyberware = getCapability(targetEntity);
-		return cyberware.getCyberwareRank(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData == null ? 0 : cyberwareUserData.getCyberwareRank(stack);
 	}
 	
 	/**
 	 * A shortcut method for event handlers and the like to get the itemstack for a piece
 	 * of cyberware. Useful for NBT data. Can handle null entites and entities without
 	 * ICyberwareUserData.
+	 * This is very CPU intensive, consider using getCapabilityOrNull() instead.
 	 * 
 	 * @param targetEntity	The entity you want to check
 	 * @param stack			The Cyberware you want to check for
 	 * @return				The ItemStack found, or null if none
 	 */
+	@Deprecated
 	public static ItemStack getCyberware(@Nullable Entity targetEntity, ItemStack stack)
 	{
-		if (!hasCapability(targetEntity)) return ItemStack.EMPTY;
-		
-		ICyberwareUserData cyberware = getCapability(targetEntity);
-		return cyberware.getCyberware(stack);
+		ICyberwareUserData cyberwareUserData = getCapabilityOrNull(targetEntity);
+		return cyberwareUserData == null ? ItemStack.EMPTY : cyberwareUserData.getCyberware(stack);
 	}
 	
 	public static void updateData(Entity targetEntity)
@@ -435,25 +460,27 @@ public final class CyberwareAPI
 		{
 			WorldServer world = (WorldServer) targetEntity.world;
 			
-			NBTTagCompound nbt = CyberwareAPI.getCapability(targetEntity).serializeNBT();
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(targetEntity);
+			if (cyberwareUserData == null) return;
+			NBTTagCompound tagCompound = cyberwareUserData.serializeNBT();
 			
 			if (targetEntity instanceof EntityPlayer)
 			{
-				PACKET_HANDLER.sendTo(new CyberwareSyncPacket(nbt, targetEntity.getEntityId()), (EntityPlayerMP) targetEntity);
-				//System.out.println("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to that player's client");
+				PACKET_HANDLER.sendTo(new CyberwareSyncPacket(tagCompound, targetEntity.getEntityId()), (EntityPlayerMP) targetEntity);
+				// Cyberware.logger.info("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to that player's client");
 			}
 
 			for (EntityPlayer trackingPlayer : world.getEntityTracker().getTrackingPlayers(targetEntity))
 			{
-				PACKET_HANDLER.sendTo(new CyberwareSyncPacket(nbt, targetEntity.getEntityId()), (EntityPlayerMP) trackingPlayer);
-				
+				PACKET_HANDLER.sendTo(new CyberwareSyncPacket(tagCompound, targetEntity.getEntityId()), (EntityPlayerMP) trackingPlayer);
+				/*
 				if (targetEntity instanceof EntityPlayer)
 				{
-					//System.out.println("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to player " + trackingPlayer.getName());
+					Cyberware.logger.info("Sent data for player " + ((EntityPlayer) targetEntity).getName() + " to player " + trackingPlayer.getName());
 				}
+				*/
 			}
 		}
-
 	}
 	
 	public static void useActiveItem(Entity entity, ItemStack stack)

@@ -22,7 +22,7 @@ public class GuiFineManipulators extends InventoryEffectRenderer
 	private int potionOffsetLast;
 	private boolean initWithPotion;
 	
-	public GuiFineManipulators(EntityPlayer player, ContainerFineManipulators fineManipulators)
+	public GuiFineManipulators(EntityPlayer entityPlayer, ContainerFineManipulators fineManipulators)
 	{
 		super(fineManipulators);
 		this.inventorySlots = fineManipulators;

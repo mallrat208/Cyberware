@@ -1,7 +1,5 @@
 package flaxbeard.cyberware.client.render;
 
-import java.util.List;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -9,7 +7,6 @@ import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;

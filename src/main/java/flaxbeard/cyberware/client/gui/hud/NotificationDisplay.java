@@ -9,23 +9,16 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.common.ISpecialArmor;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.api.CyberwareAPI;
-import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.hud.HudElementBase;
-import flaxbeard.cyberware.api.hud.IHudElement;
 import flaxbeard.cyberware.api.hud.INotification;
 import flaxbeard.cyberware.api.hud.NotificationInstance;
 import flaxbeard.cyberware.client.ClientUtils;
+import flaxbeard.cyberware.common.ArmorClass;
 import flaxbeard.cyberware.common.block.tile.TileEntityBeacon;
 import flaxbeard.cyberware.common.handler.HudHandler;
 
@@ -42,134 +35,110 @@ public class NotificationDisplay extends HudElementBase
 		setDefaultVerticalAnchor(EnumAnchorVertical.BOTTOM);
 	}
 	
-	private static Iterable<ItemStack> inv;
-	private static int radioRange = -1;
-	private static boolean lightArmor = false;
-	private static final NotificationInstance[] examples = new NotificationInstance[] { new NotificationInstance(0, new NotificationArmor(true)),
-		new NotificationInstance(0, new NotificationArmor(false)),
-		new NotificationInstance(0, new NotificationArmor(true)),
-		new NotificationInstance(0, new NotificationArmor(false))
+	private static int tierRadio = -1;
+	private static boolean isWearingLightArmor = false;
+	private static final NotificationInstance[] examples = new NotificationInstance[] {
+			new NotificationInstance(0, new NotificationArmor(true)),
+			new NotificationInstance(0, new NotificationArmor(false)),
+			new NotificationInstance(0, new NotificationArmor(true)),
+			new NotificationInstance(0, new NotificationArmor(false))
 	};
 
 	@Override
-	public void renderElement(int x, int y, EntityPlayer p, ScaledResolution resolution, boolean hudjackAvailable, boolean isConfigOpen, float partialTicks)
+	public void renderElement(int x, int y, EntityPlayer entityPlayer, ScaledResolution resolution, boolean isHUDjackAvailable, boolean isConfigOpen, float partialTicks)
 	{
-		if (!isHidden() && hudjackAvailable)
-		{
-			boolean flipVert = getVerticalAnchor() == EnumAnchorVertical.TOP;
-			boolean flipHoriz = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
-
-			float currTime = p.ticksExisted + partialTicks;
-			
-			GL11.glPushMatrix();
-			GlStateManager.enableBlend();
-			ICyberwareUserData data = CyberwareAPI.getCapability(p);
-			
-			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
-	
-			Iterable<ItemStack> currInv = p.getArmorInventoryList();
-			if (currInv != inv)
-			{
-				inv = currInv;
-				boolean temp = lightArmor;
-				lightArmor = updateLightArmor();
-				if (lightArmor != temp)
-				{
-					HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(lightArmor)));
-				}
-			}
-			
-			int temp = radioRange;
-			radioRange = TileEntityBeacon.isInRange(p.world, p.posX, p.posY, p.posZ);
-			if (radioRange != temp)
-			{
-				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationRadio(radioRange)));
-			}
-			// Render some placeholder notifications if the Hud config GUI is open so that the player can see what it'll look like in use
-			if (isConfigOpen)
-			{
-				for (int i = 0; i < examples.length; i++)
-				{
-					NotificationInstance ni = examples[i];
-					INotification notification = ni.getNotification();
-					double pct = 0F;
-					if (i == 0)
-					{
-						pct = (p.ticksExisted % 40F) / 40F;
-					}
-	
-					float move = (float) ((20 * Math.sin(pct * (Math.PI / 2F))));
-					
-					GL11.glPushMatrix();
-					GL11.glColor3f(1.0F, 1.0F, 1.0F);
-					GL11.glTranslatef(0F, flipVert ? -move : move, 0F);
-					int index = (examples.length - 1) - i;
-					int xPos = flipHoriz ? (x + getWidth() - ((index + 1) * 18)) : (x + index * 18);
-					notification.render(xPos, y + (flipVert ? 20 : 0));
-					GL11.glPopMatrix();
-					
-				}
-			}
-			else
-			{
-				List<NotificationInstance> nTR = new ArrayList<NotificationInstance>();
-				for (int i = 0; i < HudHandler.notifications.size(); i++)
-				{
-					NotificationInstance ni = HudHandler.notifications.get(i);
-					INotification notification = ni.getNotification();
-					if (currTime - ni.getCreatedTime() < notification.getDuration() + 25)
-					{
-						double pct = Math.max(0F, ((currTime - ni.getCreatedTime() - notification.getDuration()) / 30F));
+		if ( isHidden()
+		  || !isHUDjackAvailable ) {
+			return;
+		}
 		
-						float move = (float) ((20 * Math.sin(pct * (Math.PI / 2F))));
-						
-						GL11.glPushMatrix();
-						GL11.glColor3f(1.0F, 1.0F, 1.0F);
-						GL11.glTranslatef(0F, flipVert ? -move : move, 0F);
-						int index = (HudHandler.notifications.size() - 1) - i;
-						int xPos = flipHoriz ? (x + getWidth() - ((index + 1) * 18)) : (x + index * 18);
-						notification.render(xPos, y + (flipVert ? 20 : 0));
-						GL11.glPopMatrix();
-					}
-					else
-					{
-						nTR.add(ni);
-					}
-				}
-				
-				for (NotificationInstance ni : nTR)
+		boolean isTopAnchored = getVerticalAnchor() == EnumAnchorVertical.TOP;
+		boolean isRightAnchored = getHorizontalAnchor() == EnumAnchorHorizontal.RIGHT;
+		
+		float currTime = entityPlayer.ticksExisted + partialTicks;
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
+		
+		if (entityPlayer.ticksExisted % 20 == 0)
+		{
+			boolean wasWearingLightArmor = isWearingLightArmor;
+			isWearingLightArmor = ArmorClass.isWearingLightOrNone(entityPlayer);
+			if (isWearingLightArmor != wasWearingLightArmor)
+			{
+				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(isWearingLightArmor)));
+			}
+		}
+		
+		int tierRadioPrevious = tierRadio;
+		tierRadio = TileEntityBeacon.isInRange(entityPlayer.world, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ);
+		if (tierRadio != tierRadioPrevious)
+		{
+			HudHandler.addNotification(new NotificationInstance(currTime, new NotificationRadio(tierRadio)));
+		}
+		
+		// Render some placeholder notifications if the Hud config GUI is open so that the player can see what it'll look like in use
+		if (isConfigOpen)
+		{
+			for (int indexNotification = 0; indexNotification < examples.length; indexNotification++)
+			{
+				NotificationInstance notificationInstance = examples[indexNotification];
+				INotification notification = notificationInstance.getNotification();
+				double percentVisible = 0F;
+				if (indexNotification == 0)
 				{
-					HudHandler.notifications.remove(ni);
+					percentVisible = (entityPlayer.ticksExisted % 40F) / 40F;
+				}
+
+				float yOffset = (float) (20F * Math.sin(percentVisible * Math.PI / 2F));
+				
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F);
+				GlStateManager.translate(0F, isTopAnchored ? -yOffset : yOffset, 0F);
+				int index = (examples.length - 1) - indexNotification;
+				int xPos = isRightAnchored ? (x + getWidth() - ((index + 1) * 18)) : (x + index * 18);
+				notification.render(xPos, y + (isTopAnchored ? 20 : 0));
+				GlStateManager.popMatrix();
+			}
+		}
+		else
+		{
+			List<NotificationInstance> notificationsElapsed = new ArrayList<>();
+			for (int indexNotification = 0; indexNotification < HudHandler.notifications.size(); indexNotification++)
+			{
+				NotificationInstance notificationInstance = HudHandler.notifications.get(indexNotification);
+				INotification notification = notificationInstance.getNotification();
+				if (currTime - notificationInstance.getCreatedTime() < notification.getDuration() + 25)
+				{
+					double percentVisible = Math.max(0F, (currTime - notificationInstance.getCreatedTime() - notification.getDuration()) / 30F);
+	
+					float yOffset = (float) (20F * Math.sin(percentVisible * Math.PI / 2F));
+					
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0F, 1.0F, 1.0F);
+					GlStateManager.translate(0F, isTopAnchored ? -yOffset : yOffset, 0F);
+					int index = (HudHandler.notifications.size() - 1) - indexNotification;
+					int xPos = isRightAnchored ? (x + getWidth() - ((index + 1) * 18)) : (x + index * 18);
+					notification.render(xPos, y + (isTopAnchored ? 20 : 0));
+					GlStateManager.popMatrix();
+				}
+				else
+				{
+					notificationsElapsed.add(notificationInstance);
 				}
 			}
 			
-			GL11.glPopMatrix();
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private boolean updateLightArmor()
-	{
-		for (ItemStack stack : inv)
-		{
-			if (!stack.isEmpty() && stack.getItem() instanceof ItemArmor)
+			for (NotificationInstance notificationInstance : notificationsElapsed)
 			{
-				if (((ItemArmor) stack.getItem()).getArmorMaterial().getDamageReductionAmount(EntityEquipmentSlot.CHEST) > 4)
-				{
-					return false;
-				}
-			}
-			else if (!stack.isEmpty() && stack.getItem() instanceof ISpecialArmor)
-			{
-				if (((ISpecialArmor) stack.getItem()).getProperties(Minecraft.getMinecraft().player, stack, DamageSource.CACTUS, 1, 1).AbsorbRatio * 25D > 4)
-				{
-					return false;
-				}
+				HudHandler.notifications.remove(notificationInstance);
 			}
 		}
-		return true;
+		
+		// GlStateManager.popMatrix();
+		GlStateManager.popMatrix();
 	}
-	
 	
 	@SideOnly(Side.CLIENT)
 	private static class NotificationArmor implements INotification
@@ -185,12 +154,12 @@ public class NotificationDisplay extends HudElementBase
 		public void render(int x, int y)
 		{
 			Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 			float[] color = CyberwareAPI.getHUDColor();
-			GL11.glColor3f(color[0], color[1], color[2]);
+			GlStateManager.color(color[0], color[1], color[2]);
 			ClientUtils.drawTexturedModalRect(x, y + 1, 0, 25, 15, 14);
-			GL11.glPopMatrix();
-			GL11.glColor3f(1F, 1F, 1F);
+			GlStateManager.popMatrix();
+			GlStateManager.color(1.0F, 1.0F, 1.0F);
 
 			if (light)
 			{
@@ -227,20 +196,19 @@ public class NotificationDisplay extends HudElementBase
 			{
 				GlStateManager.pushMatrix();
 				float[] color = CyberwareAPI.getHUDColor();
-				GL11.glColor3f(color[0], color[1], color[2]);
+				GlStateManager.color(color[0], color[1], color[2]);
 				ClientUtils.drawTexturedModalRect(x, y + 1, 13, 39, 15, 14);
 				GlStateManager.popMatrix();
 				
-				String v = tier == 1 ? I18n.format("cyberware.gui.radio_internal") : Integer.toString(tier - 1);
-				FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-				fr.drawStringWithShadow(v, x + 15 - fr.getStringWidth(v), y + 9, 0xFFFFFF);
+				String textRadioTier = tier == 1 ? I18n.format("cyberware.gui.radio_internal") : Integer.toString(tier - 1);
+				FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+				fontRenderer.drawStringWithShadow(textRadioTier, x + 15 - fontRenderer.getStringWidth(textRadioTier), y + 9, 0xFFFFFF);
 			}
 			else
 			{
 				float[] color = CyberwareAPI.getHUDColor();
-				GL11.glColor3f(color[0], color[1], color[2]);
+				GlStateManager.color(color[0], color[1], color[2]);
 				ClientUtils.drawTexturedModalRect(x, y + 1, 28, 39, 15, 14);
-
 			}
 		}
 

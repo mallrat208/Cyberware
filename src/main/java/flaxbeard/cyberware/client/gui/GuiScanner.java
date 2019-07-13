@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -51,8 +48,8 @@ public class GuiScanner extends GuiContainer
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-		//GL11.glEnable(GL11.GL_BLEND);
-		//GL11.glColor4f(1.0F, 1.0F, 1.0F, 1F);
+		//GlStateManager.enableBlend();
+		//GlStateManager.color(1.0F, 1.0F, 1.0F, 1F);
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
 		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
@@ -104,23 +101,23 @@ public class GuiScanner extends GuiContainer
 		int progress = (int) Math.ceil(scanner.getProgress() * 162);
 		
 		this.mc.getTextureManager().bindTexture(SCANNER_TEXTURES);
-
-		GL11.glEnable(GL11.GL_BLEND);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.6F);
+		GlStateManager.enableBlend();
+		
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 0.6F);
 		this.drawTexturedModalRect(5, 32, 0, 175, progress, 9);
 
 		this.drawTexturedModalRect(5 + progress, 32, 0 + progress, 166, 162 - progress, 9);
 		
-		GL11.glDisable(GL11.GL_BLEND);
+		GlStateManager.disableBlend();
 
 		if (this.isPointInRegion(35, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(0).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.to_scan") } ), mouseX - i, mouseY - j, fontRenderer);
+			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.to_scan")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		if (this.isPointInRegion(15, 53, 16, 16, mouseX, mouseY) && scanner.slots.getStackInSlot(1).isEmpty())
 		{
-			this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.paper") } ), mouseX - i, mouseY - j, fontRenderer);
+			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.paper")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
 		if (scanner.ticks > 0)
@@ -130,12 +127,12 @@ public class GuiScanner extends GuiContainer
 				int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
 				int seconds = (ticksLeft % 1200) / 20;
 				int minutes = (ticksLeft / 1200);
-				this.drawHoveringText(Arrays.asList(new String[] { I18n.format("cyberware.gui.time_left", minutes, seconds) } ), mouseX - i, mouseY - j, fontRenderer);
+				this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.time_left", minutes, seconds)), mouseX - i, mouseY - j, fontRenderer);
 			}
 		}
 	}
 
-	private static Map<String, Integer> langMax = new HashMap<String, Integer>();
+	private static Map<String, Integer> langMax = new HashMap<>();
 
 	private int getMaxMessage(String language)
 	{

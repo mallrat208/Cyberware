@@ -1,12 +1,10 @@
 package flaxbeard.cyberware.common.item;
 
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.item.IDeconstructable;
 import flaxbeard.cyberware.common.CyberwareContent;
@@ -21,7 +19,7 @@ public class ItemSwordCyberware extends ItemSword implements IDeconstructable
 		
 		this.setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setUnlocalizedName(Cyberware.MODID + "." + name);
+		this.setTranslationKey(Cyberware.MODID + "." + name);
         
 		this.setCreativeTab(Cyberware.creativeTab);
 				

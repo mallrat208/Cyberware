@@ -6,23 +6,21 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.common.CyberwareContent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemNeuropozyne extends Item
@@ -31,7 +29,7 @@ public class ItemNeuropozyne extends Item
     {
         this.setRegistryName(name);
         ForgeRegistries.ITEMS.register(this);
-        this.setUnlocalizedName(Cyberware.MODID + "." + name);
+        this.setTranslationKey(Cyberware.MODID + "." + name);
 
         this.setCreativeTab(Cyberware.creativeTab);
 
@@ -40,19 +38,20 @@ public class ItemNeuropozyne extends Item
         CyberwareContent.items.add(this);
     }
 
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer entityPlayer, @Nonnull EnumHand hand)
     {
-        ItemStack stack = player.getHeldItem(hand);
+        ItemStack stack = entityPlayer.getHeldItem(hand);
 
-        if (!player.capabilities.isCreativeMode)
+        if (!entityPlayer.capabilities.isCreativeMode)
         {
             stack.shrink(1);
         }
 
-        player.addPotionEffect(new PotionEffect(CyberwareContent.neuropozyneEffect, 24000, 0, false, false));
+        entityPlayer.addPotionEffect(new PotionEffect(CyberwareContent.neuropozyneEffect, 24000, 0, false, false));
 
-        return new ActionResult(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override

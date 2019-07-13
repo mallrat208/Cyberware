@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.block.tile;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import cofh.redstoneflux.api.IEnergyReceiver;
@@ -42,19 +43,20 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
+	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		super.readFromNBT(compound);
+		super.readFromNBT(tagCompound);
 		
-		container.deserializeNBT(compound.getCompoundTag("power"));
+		container.deserializeNBT(tagCompound.getCompoundTag("power"));
 	}
 	
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
-		compound = super.writeToNBT(compound);
-		compound.setTag("power", container.serializeNBT());
-		return compound;
+		tagCompound = super.writeToNBT(tagCompound);
+		tagCompound.setTag("power", container.serializeNBT());
+		return tagCompound;
 	}
 	
 	@Override
@@ -72,6 +74,7 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 		return new SPacketUpdateTileEntity(pos, 0, data);
 	}
 	
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag()
 	{
@@ -106,33 +109,31 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 	@Override
 	public void update()
 	{
-		List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1F, pos.getY() + 2.5F, pos.getZ() + 1F));
-		for (EntityLivingBase entity : entities)
+		List<EntityLivingBase> entitiesInRange = world.getEntitiesWithinAABB(EntityLivingBase.class,
+		                                                                       new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(),
+		                                                                                         pos.getX() + 1F, pos.getY() + 2.5F, pos.getZ() + 1F) );
+		for (EntityLivingBase entityInRange : entitiesInRange)
 		{
-			
-			if (CyberwareAPI.hasCapability(entity))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityInRange);
+			if (cyberwareUserData != null)
 			{
-				
-				ICyberwareUserData data = CyberwareAPI.getCapability(entity);
-				
-				if(!data.isAtCapacity(ItemStack.EMPTY, 20) && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER))
+				if ( !cyberwareUserData.isAtCapacity(ItemStack.EMPTY, 20)
+				  && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER) )
 				{
 					if (!world.isRemote)
 					{
 						container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
 					}
-					data.addPower(20, ItemStack.EMPTY);
+					cyberwareUserData.addPower(20, ItemStack.EMPTY);
 					
-					if (entity.ticksExisted % 5 == 0)
+					if (entityInRange.ticksExisted % 5 == 0)
 					{
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, new int[] { 255, 150, 255 } );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, new int[] { 255, 150, 255 } );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, new int[] { 255, 150, 255 } );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, new int[] { 255, 150, 255 } );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, new int[] { 255, 150, 255 } );
-
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, 255, 150, 255 );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, 255, 150, 255 );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, 255, 150, 255 );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, 255, 150, 255 );
+						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, 255, 150, 255 );
 					}
-
 				}
 			}
 		}

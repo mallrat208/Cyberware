@@ -22,8 +22,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
 import vazkii.botania.api.subtile.ISubTileContainer;
 import vazkii.botania.api.subtile.RadiusDescriptor;
 import vazkii.botania.api.subtile.SubTileEntity;
@@ -75,20 +73,22 @@ public class ItemManaLens //extends ItemCyberware
 		return stack.getItemDamage() == 0 ? other.getItem() == CyberwareContent.cybereyes : false;
 	}
 	
-	private boolean hasLensNotMonocle(EntityPlayer p)
+	private boolean hasLensNotMonocle(EntityPlayer entityPlayer)
 	{
-		return !Botania.proxy.isClientPlayerWearingMonocle() && CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this)) || CyberwareAPI.isCyberwareInstalled(p, new ItemStack(this, 1, 1));
+		return !Botania.proxy.isClientPlayerWearingMonocle()
+		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(0))
+		    || CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(1));
 	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onDrawScreenPost(RenderGameOverlayEvent.Post event)
 	{
-		EntityPlayer p = Minecraft.getMinecraft().player;
+		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 		
-		if (hasLensNotMonocle(p))
+		if (hasLensNotMonocle(entityPlayer))
 		{
-			//ItemMonocle.renderHUD(event.getResolution(), p);
+			//ItemMonocle.renderHUD(event.getResolution(), entityPlayer);
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class ItemManaLens //extends ItemCyberware
 
 		GlStateManager.pushMatrix();
 		GlStateManager.disableTexture2D();
-		GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+		GlStateManager.pushAttrib(GL11.GL_LIGHTING_BIT);
 		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -152,7 +152,7 @@ public class ItemManaLens //extends ItemCyberware
 
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
-		GL11.glPopAttrib();
+		GlStateManager.popAttrib();
 		GlStateManager.popMatrix();
 	} **/
 }

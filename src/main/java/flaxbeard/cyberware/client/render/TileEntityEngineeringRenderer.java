@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
-import org.lwjgl.opengl.GL11;
-
 import flaxbeard.cyberware.client.ClientUtils;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.block.BlockSurgeryChamber;
@@ -33,10 +31,10 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 			if (state.getBlock() == CyberwareContent.engineering)
 			{
 				boolean showIcon = true;
-				GL11.glPushMatrix();
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				GL11.glTranslated(x+.5, y+.5, z+.5);
-				GL11.glPushMatrix();
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.translate(x+.5, y+.5, z+.5);
+				GlStateManager.pushMatrix();
 				float timeElapsed = Math.max(Math.min(22, Minecraft.getMinecraft().player.ticksExisted + partialTicks - te.clickedTime), 0);
 				float amount;
 				if (timeElapsed < 2)
@@ -53,17 +51,17 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 					}
 					amount = 1F - (timeElapsed / 20F);
 				}
-				GL11.glTranslatef(0F, amount * (-6F / 16F), 0F);
+				GlStateManager.translate(0F, amount * (-6F / 16F), 0F);
 				ClientUtils.bindTexture(texture);
 				model.render(null, 0, 0, 0, 0, 0, 0.0625F);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 				
 				ItemStack stack = te.slots.getStackInSlot(0);
 				if (!stack.isEmpty() && showIcon)
 				{
 					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-					GL11.glPushMatrix();
-					GlStateManager.color(1F, 1F, 1F, 1F);
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 					
 					
 					EnumFacing facing = state.getValue(BlockSurgeryChamber.FACING);
@@ -71,34 +69,34 @@ public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<Til
 					switch (facing)
 					{
 						case EAST:
-							GL11.glRotatef(90F, 0F, 1F, 0F);
+							GlStateManager.rotate(90F, 0F, 1F, 0F);
 							break;
 						case NORTH:
-							GL11.glRotatef(180F, 0F, 1F, 0F);
+							GlStateManager.rotate(180F, 0F, 1F, 0F);
 							break;
 						case SOUTH:
 							break;
 						case WEST:
-							GL11.glRotatef(270F, 0F, 1F, 0F);
+							GlStateManager.rotate(270F, 0F, 1F, 0F);
 							break;
 						default:
 							break;
 					}
-					GL11.glTranslatef(0F, 0F, -1.8F / 16F);
+					GlStateManager.translate(0F, 0F, -1.8F / 16F);
 
-					GL11.glTranslatef(0F, -7.6F / 16F, 0F);
-					GL11.glScalef(.8F, .8F, .8F);
-					GL11.glRotatef(90F, 1F, 0F, 0F);
+					GlStateManager.translate(0F, -7.6F / 16F, 0F);
+					GlStateManager.scale(0.8F, 0.8F, 0.8F);
+					GlStateManager.rotate(90F, 1F, 0F, 0F);
 					
 
 					
 					Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.NONE);
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 				}
 			
 
 					
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		}
 	}

@@ -20,6 +20,7 @@ import flaxbeard.cyberware.common.block.BlockEngineeringTable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -33,13 +34,12 @@ public class ItemEngineeringTable extends Item implements ICyberwareTabItem
 		this.block = block;
 		this.tt = tooltip;
 	}
-
-	/**
-	 * Called when a Block is right-clicked with this Item
-	 */
-	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	
+	@Nonnull
+	@Override
+	public EnumActionResult onItemUse(EntityPlayer entityPlayer, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		ItemStack stack = playerIn.getHeldItem(hand);
+		ItemStack stack = entityPlayer.getHeldItem(hand);
 		if (facing != EnumFacing.UP)
 		{
 			return EnumActionResult.FAIL;
@@ -54,14 +54,12 @@ public class ItemEngineeringTable extends Item implements ICyberwareTabItem
 				pos = pos.offset(facing);
 			}
 
-			if (playerIn.canPlayerEdit(pos, facing, stack) && this.block.canPlaceBlockAt(worldIn, pos))
+			if (entityPlayer.canPlayerEdit(pos, facing, stack) && this.block.canPlaceBlockAt(worldIn, pos))
 			{
-				EnumFacing enumfacing = EnumFacing.fromAngle((double)playerIn.rotationYaw);
-				int i = enumfacing.getFrontOffsetX();
-				int j = enumfacing.getFrontOffsetZ();
+				EnumFacing enumfacing = EnumFacing.fromAngle(entityPlayer.rotationYaw);
 				placeDoor(worldIn, pos, enumfacing, this.block);
 				SoundType soundtype = this.block.getSoundType();
-				worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+				worldIn.playSound(entityPlayer, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 				stack.shrink(1);
 				return EnumActionResult.SUCCESS;
 			}
@@ -74,10 +72,6 @@ public class ItemEngineeringTable extends Item implements ICyberwareTabItem
 
 	public static void placeDoor(World worldIn, BlockPos pos, EnumFacing facing, Block door)
 	{
-		BlockPos blockpos = pos.offset(facing.rotateY());
-		BlockPos blockpos1 = pos.offset(facing.rotateYCCW());
-		int i = (worldIn.getBlockState(blockpos1).isNormalCube() ? 1 : 0) + (worldIn.getBlockState(blockpos1.up()).isNormalCube() ? 1 : 0);
-		int j = (worldIn.getBlockState(blockpos).isNormalCube() ? 1 : 0) + (worldIn.getBlockState(blockpos.up()).isNormalCube() ? 1 : 0);
 		BlockPos blockpos2 = pos.up();
 		
 		IBlockState iblockstate = door.getDefaultState().withProperty(BlockEngineeringTable.FACING, facing);

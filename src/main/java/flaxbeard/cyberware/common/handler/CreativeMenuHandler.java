@@ -2,7 +2,7 @@ package flaxbeard.cyberware.common.handler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,6 @@ import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
-import net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -33,14 +32,13 @@ public class CreativeMenuHandler
 {
 	private static class CEXButton extends GuiButton
 	{
-		private Minecraft mc = Minecraft.getMinecraft();
 		public final int offset;
 		public final int baseX;
 		public final int baseY;
 		
-		public CEXButton(int p_i46316_1_, int p_i46316_2_, int p_i46316_3, int offset)
+		public CEXButton(int buttonId, int x, int y, int offset)
 		{
-			super(p_i46316_1_, p_i46316_2_, p_i46316_3, 21, 21, "");
+			super(buttonId, x, y, 21, 21, "");
 			this.offset = offset;
 			this.baseX = this.x;
 			this.baseY = this.y;
@@ -51,10 +49,8 @@ public class CreativeMenuHandler
 		{
 			if (this.visible)
 			{
-				float trans = 0.4F;
 				boolean down = Mouse.isButtonDown(0);
 				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			
 				
 				mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
 
@@ -81,7 +77,6 @@ public class CreativeMenuHandler
 	public static int pageSelected = 1;
 	private static CEXButton salvaged;
 	private static CEXButton manufactured;
-
 	
 	@SubscribeEvent
 	public void handleButtons(InitGuiEvent event)
@@ -94,11 +89,10 @@ public class CreativeMenuHandler
 			int j = (gui.height - 195) / 2;
 			
 			List<GuiButton> buttons = event.getButtonList();
-			buttons.add(salvaged = new CEXButton(355, i + 166 + 4, j + 29 + 8, 0));
-			buttons.add(manufactured = new CEXButton(356, i + 166 + 4, j + 29 + 31, 1));
+			buttons.add(salvaged     = new CEXButton(355, i + 166 + 4, j + 30 + 8, 0));
+			buttons.add(manufactured = new CEXButton(356, i + 166 + 4, j + 30 + 31, 1));
 			
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) gui, 2);
-			if (selectedTabIndex != Cyberware.creativeTab.getTabIndex())
+			if (isCorrectGui(event.getGui()))
 			{
 				salvaged.visible = false;
 				manufactured.visible = false;
@@ -119,12 +113,18 @@ public class CreativeMenuHandler
 			int j = (gui.height - 195) / 2;
 			if (isPointInRegion(i, j, salvaged.x - i, 29 + 8, 18, 18, mouseX, mouseY))
 			{
-				ClientUtils.drawHoveringText(gui, Arrays.asList(new String[] { I18n.format(CyberwareAPI.QUALITY_SCAVENGED.getUnlocalizedName()) } ), mouseX, mouseY, mc.getRenderManager().getFontRenderer());
+				ClientUtils.drawHoveringText(gui,
+				                             Collections.singletonList(I18n.format(CyberwareAPI.QUALITY_SCAVENGED.getUnlocalizedName())),
+				                             mouseX, mouseY,
+				                             mc.getRenderManager().getFontRenderer());
 			}
 			
 			if (isPointInRegion(i, j, manufactured.x - i, 29 + 8 + 23, 18, 18, mouseX, mouseY))
 			{
-				ClientUtils.drawHoveringText(gui, Arrays.asList(new String[] { I18n.format(CyberwareAPI.QUALITY_MANUFACTURED.getUnlocalizedName()) } ), mouseX, mouseY, mc.getRenderManager().getFontRenderer());
+				ClientUtils.drawHoveringText(gui,
+				                             Collections.singletonList(I18n.format(CyberwareAPI.QUALITY_MANUFACTURED.getUnlocalizedName())),
+				                             mouseX, mouseY,
+				                             mc.getRenderManager().getFontRenderer());
 			}
 		}
 	}
@@ -132,48 +132,43 @@ public class CreativeMenuHandler
 	@SubscribeEvent
 	public void handleCreativeInventory(BackgroundDrawnEvent event)
 	{
-		if (event.getGui() instanceof GuiContainerCreative)
+		if (isCorrectGui(event.getGui()))
 		{
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) event.getGui(), 2);
-
-			if (selectedTabIndex == Cyberware.creativeTab.getTabIndex())
+			GuiContainerCreative gui = (GuiContainerCreative) event.getGui();
+			int i = (gui.width - 136) / 2;
+			int j = (gui.height - 195) / 2;
+			
+			int xSize = 29;
+			int ySize = 129;
+			
+			int xOffset = 0;
+			boolean hasVisibleEffect = false;
+			for(PotionEffect potioneffect : mc.player.getActivePotionEffects())
 			{
-				GuiContainerCreative gui = (GuiContainerCreative) event.getGui();
-				int i = (gui.width - 136) / 2;
-				int j = (gui.height - 195) / 2;
-				
-				int xSize = 29;
-				int ySize = 129;
-				
-				int xOffset = 0;
-				boolean hasVisibleEffect = false;
-				for(PotionEffect potioneffect : mc.player.getActivePotionEffects())
-				{
-					Potion potion = potioneffect.getPotion();
-					if(potion.shouldRender(potioneffect)) {
-						hasVisibleEffect = true; break;
-					}
+				Potion potion = potioneffect.getPotion();
+				if(potion.shouldRender(potioneffect)) {
+					hasVisibleEffect = true; break;
 				}
-				if (!this.mc.player.getActivePotionEffects().isEmpty() && hasVisibleEffect)
-				{
-					xOffset = 59;
-				}
-				salvaged.x = salvaged.baseX + xOffset;
-				manufactured.x = manufactured.baseX + xOffset;
-
-				
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				this.mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
-				gui.drawTexturedModalRect(i + 166 + xOffset, j + 29, 0, 0, xSize, ySize);
-				
-				salvaged.visible = true;
-				manufactured.visible = true;
 			}
-			else
+			if (!this.mc.player.getActivePotionEffects().isEmpty() && hasVisibleEffect)
 			{
-				salvaged.visible = false;
-				manufactured.visible = false;
+				xOffset = 59;
 			}
+			salvaged.x = salvaged.baseX + xOffset;
+			manufactured.x = manufactured.baseX + xOffset;
+
+			
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			this.mc.getTextureManager().bindTexture(CEX_GUI_TEXTURES);
+			gui.drawTexturedModalRect(i + 166 + xOffset, j + 30, 0, 0, xSize, ySize);
+			
+			salvaged.visible = true;
+			manufactured.visible = true;
+		}
+		else
+		{
+			if (salvaged != null) salvaged.visible = false;
+			if (manufactured != null) manufactured.visible = false;
 		}
 	}
 	
@@ -192,26 +187,16 @@ public class CreativeMenuHandler
 			{
 				pageSelected = manufactured.offset;
 			}
-
-			// TODO: Reflection
-			Method tab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", "func_147050_b", CreativeTabs.class);
+			
+			// force a refresh of the page
+			// note: this only called client side, when clicking, hence there's no need to cache it
+			Method methodGuiContainerCreative_setCurrentCreativeTab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", "func_147050_b", CreativeTabs.class);
 			try
 			{
-				tab.invoke(gui, Cyberware.creativeTab);
+				methodGuiContainerCreative_setCurrentCreativeTab.invoke(gui, Cyberware.creativeTab);
 			}
-			catch (IllegalAccessException e)
+			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (IllegalArgumentException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (InvocationTargetException e)
-			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -221,11 +206,7 @@ public class CreativeMenuHandler
 	{
 		if (gui instanceof GuiContainerCreative)
 		{
-			int selectedTabIndex = ReflectionHelper.getPrivateValue(GuiContainerCreative.class, (GuiContainerCreative) gui, 2);
-			if (selectedTabIndex == Cyberware.creativeTab.getTabIndex())
-			{
-				return true;
-			}
+			return ((GuiContainerCreative) gui).getSelectedTabIndex() == Cyberware.creativeTab.getIndex();
 		}
 		return false;
 	}

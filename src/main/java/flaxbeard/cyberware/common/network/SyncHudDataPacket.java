@@ -16,64 +16,56 @@ public class SyncHudDataPacket implements IMessage
 {
 	public SyncHudDataPacket() {}
 	
-	private NBTTagCompound comp;
+	private NBTTagCompound tagCompound;
 
-	public SyncHudDataPacket(NBTTagCompound comp)
+	public SyncHudDataPacket(NBTTagCompound tagCompound)
 	{
-		this.comp = comp;
+		this.tagCompound = tagCompound;
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		ByteBufUtils.writeTag(buf, comp);
+		ByteBufUtils.writeTag(buf, tagCompound);
 	}
 	
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
-		comp = ByteBufUtils.readTag(buf);
+		tagCompound = ByteBufUtils.readTag(buf);
 	}
 	
 	public static class SyncHudDataPacketHandler implements IMessageHandler<SyncHudDataPacket, IMessage>
 	{
-
 		@Override
 		public IMessage onMessage(SyncHudDataPacket message, MessageContext ctx)
 		{
 			EntityPlayerMP player = ctx.getServerHandler().player;
-			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.comp, player));
+			DimensionManager.getWorld(player.world.provider.getDimension()).addScheduledTask(new DoSync(message.tagCompound, player));
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
 	{
-		private NBTTagCompound comp;
-		private EntityPlayer p;
+		private NBTTagCompound tagCompound;
+		private EntityPlayer entityPlayer;
 
-		public DoSync(NBTTagCompound comp, EntityPlayer p)
+		public DoSync(NBTTagCompound tagCompound, EntityPlayer entityPlayer)
 		{
-			this.comp = comp;
-			this.p = p;
+			this.tagCompound = tagCompound;
+			this.entityPlayer = entityPlayer;
 		}
-
 		
 		@Override
 		public void run()
 		{
-			if (p != null && CyberwareAPI.hasCapability(p))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData d = CyberwareAPI.getCapability(p);
-				
-				d.setHudData(comp);
+				cyberwareUserData.setHudData(tagCompound);
 			}
-
 		}
-		
-
 	}
-	
 }

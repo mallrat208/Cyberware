@@ -35,7 +35,6 @@ public class UpdateHudColorPacket implements IMessage
 	
 	public static class UpdateHudColorPacketHandler implements IMessageHandler<UpdateHudColorPacket, IMessage>
 	{
-
 		@Override
 		public IMessage onMessage(UpdateHudColorPacket message, MessageContext ctx)
 		{
@@ -44,33 +43,27 @@ public class UpdateHudColorPacket implements IMessage
 
 			return null;
 		}
-		
 	}
 	
 	private static class DoSync implements Runnable
 	{
 		private int color;
-		private EntityPlayer p;
+		private EntityPlayer entityPlayer;
 
-		public DoSync(int color, EntityPlayer p)
+		public DoSync(int color, EntityPlayer entityPlayer)
 		{
 			this.color = color;
-			this.p = p;
+			this.entityPlayer = entityPlayer;
 		}
-
 		
 		@Override
 		public void run()
 		{
-			if (p != null && CyberwareAPI.hasCapability(p))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+			if (cyberwareUserData != null)
 			{
-				ICyberwareUserData d = CyberwareAPI.getCapability(p);
-				d.setHudColor(color);
+				cyberwareUserData.setHudColor(color);
 			}
 		}
-		
-
 	}
-
-
 }
