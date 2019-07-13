@@ -197,7 +197,8 @@ public class EssentialsMissingHandler
 		{
 			entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapMissingLegSpeedAttribute);
 		}
-		else
+		else if ( numMissingLegs >= 1
+		       || entityLivingBase.ticksExisted % 20 == 0 )
 		{
 			entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapMissingLegSpeedAttribute);
 		}
@@ -225,7 +226,7 @@ public class EssentialsMissingHandler
 				entityLivingBase.attackEntityFrom(DamageSource.DROWN, 2F);
 			}
 		}
-		else
+		else if (entityLivingBase.ticksExisted % 20 == 0)
 		{
 			timesLungs.remove(entityLivingBase.getEntityId());
 		}
