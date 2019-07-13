@@ -153,7 +153,7 @@ public class ItemSkinUpgrade extends ItemCyberware
 			
 			mapPotions.put(entityLivingBase.getUniqueID(), entityLivingBase.getActivePotionEffects());
 		}
-		else
+		else if (entityLivingBase.ticksExisted % 20 == 0)
 		{
 			setIsImmunosuppressantPowered.remove(entityLivingBase.getUniqueID());
 			mapPotions.remove(entityLivingBase.getUniqueID());
