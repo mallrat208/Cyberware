@@ -80,39 +80,41 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
     {
         EntityLivingBase entityLivingBase = event.getEntityLiving();
 	    ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
-	    
-        ItemStack itemStackAqua = cyberwareUserData.getCyberware(getCachedStack(META_AQUA));
-        if ( !itemStackAqua.isEmpty()
-          && !entityLivingBase.onGround
+    
+        if ( !entityLivingBase.onGround
           && entityLivingBase.isInWater() )
         {
-            int numLegs = 0;
-            if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
+            ItemStack itemStackAqua = cyberwareUserData.getCyberware(getCachedStack(META_AQUA));
+            if (!itemStackAqua.isEmpty())
             {
-                numLegs++;
-            }
-            if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
-            {
-                numLegs++;
-            }
-            boolean wasPowered = getIsAquaPowered(entityLivingBase);
-
-            boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
-                              ? cyberwareUserData.usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
-                              : wasPowered;
-            if (isPowered)
-            {
-                if (entityLivingBase.moveForward > 0)
+                int numLegs = 0;
+                if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
                 {
-                    entityLivingBase.moveRelative(0F, 0F, numLegs * 0.4F, 0.075F);
+                    numLegs++;
                 }
+                if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+                {
+                    numLegs++;
+                }
+                boolean wasPowered = mapIsAquaPowered.computeIfAbsent(entityLivingBase.getUniqueID(), k -> Boolean.TRUE);
+                
+                boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
+                                  ? cyberwareUserData.usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
+                                  : wasPowered;
+                if (isPowered)
+                {
+                    if (entityLivingBase.moveForward > 0)
+                    {
+                        entityLivingBase.moveRelative(0F, 0F, numLegs * 0.4F, 0.075F);
+                    }
+                }
+                
+                mapIsAquaPowered.put(entityLivingBase.getUniqueID(), isPowered);
             }
-
-            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), isPowered);
         }
-        else
+        else if (entityLivingBase.ticksExisted % 20 == 0)
         {
-            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), true);
+            mapIsAquaPowered.remove(entityLivingBase.getUniqueID());
         }
 
         ItemStack itemStackWheels = cyberwareUserData.getCyberware(getCachedStack(META_WHEELS));
@@ -158,23 +160,10 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
             mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), countdownWheelsPowered);
         }
     }
-
-    private boolean getIsAquaPowered(EntityLivingBase entityLivingBase)
-    {
-        if (!mapIsAquaPowered.containsKey(entityLivingBase.getUniqueID()))
-        {
-            mapIsAquaPowered.put(entityLivingBase.getUniqueID(), Boolean.TRUE);
-        }
-        return mapIsAquaPowered.get(entityLivingBase.getUniqueID());
-    }
-
+    
     private int getCountdownWheelsPowered(EntityLivingBase entityLivingBase)
     {
-        if (!mapCountdownWheelsPowered.containsKey(entityLivingBase.getUniqueID()))
-        {
-            mapCountdownWheelsPowered.put(entityLivingBase.getUniqueID(), 10);
-        }
-        return mapCountdownWheelsPowered.get(entityLivingBase.getUniqueID());
+        return mapCountdownWheelsPowered.computeIfAbsent(entityLivingBase.getUniqueID(), k -> 10);
     }
 
     @Override
