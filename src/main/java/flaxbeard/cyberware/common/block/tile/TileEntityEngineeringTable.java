@@ -296,9 +296,9 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		
 		lastPlayerArchive = new HashMap<>();
 		NBTTagList list = (NBTTagList) tagCompound.getTag("playerArchive");
-		for (int i = 0; i < list.tagCount(); i++)
+		for (int indexArchive = 0; indexArchive < list.tagCount(); indexArchive++)
 		{
-			NBTTagCompound tagCompoundAt = list.getCompoundTagAt(i);
+			NBTTagCompound tagCompoundAt = list.getCompoundTagAt(indexArchive);
 			String name = tagCompoundAt.getString("name");
 			int x = tagCompoundAt.getInteger("x");
 			int y = tagCompoundAt.getInteger("y");
@@ -360,10 +360,10 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
+	public boolean isUsableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) == this
-		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(pos) == this
+		    && entityPlayer.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -376,11 +376,12 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		return this.customName != null && !this.customName.isEmpty();
 	}
 
-	public void setCustomInventoryName(String p_145951_1_)
+	public void setCustomInventoryName(String name)
 	{
-		this.customName = p_145951_1_;
+		this.customName = name;
 	}
 	
+	@Override
 	public ITextComponent getDisplayName()
 	{
 		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
@@ -393,9 +394,9 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		{
 			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
 			NonNullList<ItemStack> toCheck = NonNullList.create();
-			for (int i = 0; i < 6; i++)
+			for (int indexSlot = 0; indexSlot < 6; indexSlot++)
 			{
-				toCheck.add(slots.getStackInSlot(i + 2).copy());
+				toCheck.add(slots.getStackInSlot(indexSlot + 2).copy());
 			}
 			ItemStack result = blueprint.getResult(blueprintStack, toCheck).copy();
 			if (!result.isEmpty())
@@ -417,14 +418,14 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		{
 			IBlueprint blueprint = (IBlueprint) blueprintStack.getItem();
 			NonNullList<ItemStack> toCheck = NonNullList.create();
-			for (int i = 0; i < 6; i++)
+			for (int indexSlot = 0; indexSlot < 6; indexSlot++)
 			{
-				toCheck.add(slots.getStackInSlot(i + 2).copy());
+				toCheck.add(slots.getStackInSlot(indexSlot + 2).copy());
 			}
 			NonNullList<ItemStack> result = blueprint.consumeItems(blueprintStack, toCheck);
-			for (int i = 0; i < 6; i++)
+			for (int indexSlot = 0; indexSlot < 6; indexSlot++)
 			{
-				slots.setStackInSlot(i + 2, result.get(i));
+				slots.setStackInSlot(indexSlot + 2, result.get(indexSlot));
 			}
 			this.updateRecipe();
 		}
@@ -451,7 +452,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			{
 				if (!component.isEmpty())
 				{
-					for (int i = 0; i < component.getCount(); i++)
+					for (int indexComponent = 0; indexComponent < component.getCount(); indexComponent++)
 					{
 						ItemStack copy = component.copy();
 						copy.setCount(1);
@@ -488,15 +489,15 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 			}
 			
 			numToRemove = Math.min(numToRemove, random.size() - 1);
-			for (int i = 0; i < numToRemove; i++)
+			for (int index = 0; index < numToRemove; index++)
 			{
 				random.remove(world.rand.nextInt(random.size()));
 			}
 
 			ItemStackHandler handler = new ItemStackHandler(6);
-			for (int i = 0; i < 6; i++)
+			for (int indexSlot = 0; indexSlot < 6; indexSlot++)
 			{
-				handler.setStackInSlot(i, slots.getStackInSlot(i + 2).copy());
+				handler.setStackInSlot(indexSlot, slots.getStackInSlot(indexSlot + 2).copy());
 			}
 			boolean canInsert = true;
 			
@@ -645,7 +646,7 @@ public class TileEntityEngineeringTable extends TileEntity implements ITickable
 		clickedTime = Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks();
 		world.playSound(x, y, z, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 1F, 1F, false);
 		world.playSound(x, y, z, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1F, .5F, false);
-		for (int i = 0; i < 10; i++)
+		for (int index = 0; index < 10; index++)
 		{
 			world.spawnParticle(EnumParticleTypes.ITEM_CRACK,
 			                    x + .5F, y, z + .5F,

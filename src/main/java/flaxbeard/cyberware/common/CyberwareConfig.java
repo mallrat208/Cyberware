@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import net.minecraft.client.Minecraft;
@@ -29,47 +30,47 @@ import flaxbeard.cyberware.common.network.UpdateConfigPacket;
 public class CyberwareConfig
 {
     public static CyberwareConfig INSTANCE = new CyberwareConfig();
-
+    
     public static float ENGINEERING_CHANCE = 15F;
     public static float SCANNER_CHANCE = 10F;
     public static float SCANNER_CHANCE_ADDL = 10F;
     public static int SCANNER_TIME = 24000;
-
+    
     public static int ESSENCE = 100;
     public static int CRITICAL_ESSENCE = 25;
-
+    
     public static float DROP_RARITY = 50F;
     public static int ZOMBIE_WEIGHT = 15;
     public static int ZOMBIE_MIN_PACK = 1;
     public static int ZOMBIE_MAX_PACK = 1;
     public static boolean NO_ZOMBIES = false;
     public static boolean NO_CLOTHES = false;
-
+    
     public static int HUDR = 76;
     public static int HUDG = 255;
     public static int HUDB = 0;
-
+    
     public static boolean ENABLE_FLOAT = false;
     public static float HUDLENS_FLOAT = 0.1F;
     public static float HUDJACK_FLOAT = 0.05F;
-
+    
     public static boolean SURGERY_CRAFTING = false;
-
+    
     private static String[][] defaultStartingItems;
     private static String[][] startingItems;
     private static NonNullList<NonNullList<ItemStack>> startingStacks;
-
+    
     public static boolean DEFAULT_DROP = false;
     public static boolean DEFAULT_KEEP = false;
-
+    
     public static float DROP_CHANCE = 100F;
-
+    
     public static boolean KATANA = true;
     public static boolean CLOTHES = true;
     public static boolean RENDER = true;
-
+    
     public static int TESLA_PER_POWER = 1;
-
+    
     public static int FIST_MINING_LEVEL = 2;
 
     public static boolean INT_ENDER_IO = true;
@@ -90,43 +91,45 @@ public class CyberwareConfig
     private static final String C_INTEGRATION = "Integration";
 
 
-    public static void preInit(FMLPreInitializationEvent event)
+    public static void preInit(@Nonnull FMLPreInitializationEvent event)
     {
         configDirectory = event.getModConfigurationDirectory();
         config = new Configuration(new File(event.getModConfigurationDirectory(), Cyberware.MODID + ".cfg"));
         startingItems = defaultStartingItems = new String[EnumSlot.values().length][0];
         startingStacks = NonNullList.create();
-        for (int i = 0; i < EnumSlot.values().length; i ++){
-            NonNullList<ItemStack> slot = NonNullList.create();
-            for (int j = 0; j < LibConstants.WARE_PER_SLOT; j ++){
-                slot.add(ItemStack.EMPTY);
-            }
-            startingStacks.add(slot);
-        }
-
-        int j = 0;
-        for (int i = 0; i < EnumSlot.values().length; i++)
+        for (EnumSlot slot : EnumSlot.values())
         {
-            if (EnumSlot.values()[i].hasEssential())
+            NonNullList<ItemStack> nnlCyberwaresInSlot = NonNullList.create();
+            for (int indexSlot = 0; indexSlot < LibConstants.WARE_PER_SLOT; indexSlot++)
             {
-                if (EnumSlot.values()[i].isSided())
+                nnlCyberwaresInSlot.add(ItemStack.EMPTY);
+            }
+            startingStacks.add(nnlCyberwaresInSlot);
+        }
+        
+        int metadata = 0;
+        for (int index = 0; index < EnumSlot.values().length; index++)
+        {
+            if (EnumSlot.values()[index].hasEssential())
+            {
+                if (EnumSlot.values()[index].isSided())
                 {
-                    defaultStartingItems[i] = new String[] { "cyberware:body_part 1 " + j, "cyberware:body_part 1 " + (j + 1)  };
-                    j += 2;
+                    defaultStartingItems[index] = new String[] { "cyberware:body_part 1 " + metadata, "cyberware:body_part 1 " + (metadata + 1)  };
+                    metadata += 2;
                 }
                 else
                 {
-                    defaultStartingItems[i] = new String[] { "cyberware:body_part 1 " + j };
-                    j++;
+                    defaultStartingItems[index] = new String[] { "cyberware:body_part 1 " + metadata };
+                    metadata++;
                 }
             }
             else
             {
-                defaultStartingItems[i] = new String[0];
+                defaultStartingItems[index] = new String[0];
             }
         }
         loadConfig();
-
+        
         config.load();
         for (int index = 0; index < EnumSlot.values().length; index++)
         {
@@ -141,48 +144,48 @@ public class CyberwareConfig
     public static void loadConfig()
     {
         config.load();
-
+        
         NO_ZOMBIES = config.getBoolean("Disable cyberzombies", C_MOBS, NO_ZOMBIES, "");
         ZOMBIE_WEIGHT = config.getInt("Spawning weight of Cyberzombies", C_MOBS, ZOMBIE_WEIGHT, 0, Integer.MAX_VALUE, "Vanilla Zombie = 100, Enderman = 10, Witch = 5");
         ZOMBIE_MIN_PACK = config.getInt("Minimum Cyberzombie pack size", C_MOBS, ZOMBIE_MIN_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 1, Witch = 1");
         ZOMBIE_MAX_PACK = config.getInt("Maximum Cyberzombie pack size", C_MOBS, ZOMBIE_MAX_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 4, Witch = 1");
-
+        
         NO_CLOTHES = config.getBoolean("Prevent mobs from spawning with Cyberware clothing", C_MOBS, NO_CLOTHES, "");
         DROP_RARITY = config.getFloat("Percent chance a Cyberzombie drops an item", C_MOBS, DROP_RARITY, 0F, 100F, "");
-
+        
         SURGERY_CRAFTING = config.getBoolean("Enable crafting recipe for Robosurgeon", C_OTHER, SURGERY_CRAFTING, "Normally only found in Nether fortresses");
         TESLA_PER_POWER = config.getInt("RF/Tesla per internal power unit", C_OTHER, TESLA_PER_POWER, 0, Integer.MAX_VALUE, "");
-
+        
         ESSENCE = config.getInt("Maximum Essence", C_ESSENCE, ESSENCE, 0, Integer.MAX_VALUE, "");
         CRITICAL_ESSENCE = config.getInt("Critical Essence value, where rejection begins", C_ESSENCE, CRITICAL_ESSENCE, 0, Integer.MAX_VALUE, "");
-
+        
         DEFAULT_DROP = config.getBoolean("Default for gamerule cyberware_dropCyberware", C_GAMERULES, DEFAULT_DROP, "Determines if players drop their Cyberware on death. Does not change settings on existing worlds, use /gamerule for that. Overridden if cyberware_keepCyberware is true");
         DEFAULT_KEEP = config.getBoolean("Default for gamerule cyberware_keepCyberware", C_GAMERULES, DEFAULT_KEEP, "Determines if players keep their Cyberware between lives. Does not change settings on existing worlds, use /gamerule for that.");
-
+        
         DROP_CHANCE = config.getFloat("Chance of successful drop", C_GAMERULES, DROP_CHANCE, 0F, 100F, "If dropCyberware enabled, chance for a piece of Cyberware to successfuly drop instead of being destroyed.");
-
+        
         ENGINEERING_CHANCE = config.getFloat("Chance of blueprint from Engineering Table", C_MACHINES, ENGINEERING_CHANCE, 0, 100F, "");
         SCANNER_CHANCE = config.getFloat("Chance of blueprint from Scanner", C_MACHINES, SCANNER_CHANCE, 0, 100F, "");
         SCANNER_CHANCE_ADDL = config.getFloat("Additive chance for Scanner per extra item", C_MACHINES, SCANNER_CHANCE_ADDL, 0, 100F, "");
         SCANNER_TIME = config.getInt("Ticks taken per Scanner operation", C_MACHINES, SCANNER_TIME, 0, Integer.MAX_VALUE, "24000 is one Minecraft day, 1200 is one real-life minute");
-
+        
         KATANA = config.getBoolean("Enable Katana", C_OTHER, KATANA, "");
         CLOTHES = config.getBoolean("Enable Trenchcoat, Mirrorshades, and Biker Jacket", C_OTHER, CLOTHES, "");
-
+        
         RENDER = config.getBoolean("Enable changes to player model (missing skin, missing limbs, Cybernetic limbs)", C_OTHER, RENDER, "");
-
+        
         ENABLE_FLOAT = config.getBoolean("Enable hudlens and hudjack float.", C_HUD, ENABLE_FLOAT, "Experimental, defaults to false.");
-
+        
         HUDJACK_FLOAT = config.getFloat("Amount hudjack HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDJACK_FLOAT, 0F, 100F, "");
         HUDLENS_FLOAT = config.getFloat("Amount hudlens HUD will 'float' with movement. Set to 0 for no float.", C_HUD, HUDLENS_FLOAT, 0F, 100F, "");
-
+        
         INT_ENDER_IO = config.getBoolean("Enable EnderIO Integration if the mod is Loaded", C_INTEGRATION, INT_ENDER_IO, "Requires EnderIO" );
         INT_TOUGH_AS_NAILS = config.getBoolean("Enable Tough As Nails Integration if the mod is Loaded", C_INTEGRATION, INT_TOUGH_AS_NAILS, "Requires Tough as Nails" );
         INT_BOTANIA = config.getBoolean("Enable Botania Integration if the mod is Loaded", C_INTEGRATION, INT_BOTANIA, "Requires Botania");
         INT_MATTER_OVERDRIVE = config.getBoolean("Enable Matter Overdrive Integration if the mod is Loaded", C_INTEGRATION, INT_MATTER_OVERDRIVE, "Requires Matter Overdrive");
-
+        
         FIST_MINING_LEVEL = config.getInt("Configure the mining level for the reinforced fist", C_OTHER, FIST_MINING_LEVEL, 1, 3, "");
-
+        
         config.save();
     }
 
@@ -190,54 +193,54 @@ public class CyberwareConfig
     public static void postInit()
     {
         int index = 0;
-        for (String[] itemSet : startingItems)
+        for (String[] items : startingItems)
         {
             EnumSlot slot = EnumSlot.values()[index];
-            if (itemSet.length > LibConstants.WARE_PER_SLOT)
+            if (items.length > LibConstants.WARE_PER_SLOT)
             {
                 throw new RuntimeException("Cyberware configuration error! Too many items for slot " + slot.getName());
             }
-
-            for (int i = 0; i < itemSet.length; i++)
+            
+            for (int indexItem = 0; indexItem < items.length; indexItem++)
             {
-                String itemEncoded = itemSet[i];
+                String itemEncoded = items[indexItem];
                 String[] params = itemEncoded.split("\\s+");
-
+                
                 String itemName;
-                int meta;
-                int number;
-
+                int metadata;
+                int quantity;
+                
                 if (params.length == 1)
                 {
                     itemName = params[0];
-                    meta = 0;
-                    number = 0;
+                    metadata = 0;
+                    quantity = 0;
                 }
                 else if (params.length == 3)
                 {
                     itemName = params[0];
                     try
                     {
-                        meta = Integer.parseInt(params[2]);
+                        metadata = Integer.parseInt(params[2]);
                     }
                     catch (NumberFormatException e)
                     {
-                        throw new RuntimeException("Cyberware configuration error! Item " + (i + 1) + " for "
+                        throw new RuntimeException("Cyberware configuration error! Item " + (indexItem + 1) + " for "
                                 + slot.getName() + " slot has invalid metadata: '" + params[2] + "'");
                     }
                     try
                     {
-                        number = Integer.parseInt(params[1]);
+                        quantity = Integer.parseInt(params[1]);
                     }
                     catch (NumberFormatException e)
                     {
-                        throw new RuntimeException("Cyberware configuration error! Item " + (i + 1) + " for "
-                                + slot.getName() + " slot has invalid number: '" + params[1] + "'");
+                        throw new RuntimeException("Cyberware configuration error! Item " + (indexItem + 1) + " for "
+                                + slot.getName() + " slot has invalid quantity: '" + params[1] + "'");
                     }
                 }
                 else
                 {
-                    throw new RuntimeException("Cyberware configuration error! Item " + (i + 1) + " for "
+                    throw new RuntimeException("Cyberware configuration error! Item " + (indexItem + 1) + " for "
                             + slot.getName() + " slot has too many arguments!");
                 }
 
@@ -248,11 +251,11 @@ public class CyberwareConfig
                 }
                 catch (NumberInvalidException e)
                 {
-                    throw new RuntimeException("Cyberware configuration error! Item '" + (i + 1) + "' for "
+                    throw new RuntimeException("Cyberware configuration error! Item '" + (indexItem + 1) + "' for "
                             + slot.getName() + " slot has a nonexistant item: " + itemName);
                 }
 
-                ItemStack stack = new ItemStack(item, number, meta);
+                ItemStack stack = new ItemStack(item, quantity, metadata);
 
                 if (!CyberwareAPI.isCyberware(stack))
                 {
@@ -263,42 +266,43 @@ public class CyberwareConfig
                     throw new RuntimeException("Cyberware configuration error! " + itemEncoded + " will not fit in slot " + slot.getName());
                 }
 
-                startingStacks.get(index).set(i, stack);
+                startingStacks.get(index).set(indexItem, stack);
             }
 
             index++;
         }
     }
-
-    public static NonNullList<ItemStack> getStartingItems(EnumSlot slot)
+    
+    public static NonNullList<ItemStack> getStartingItems(@Nonnull EnumSlot slot)
     {
         return startingStacks.get(slot.ordinal());
     }
-
+    
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onWorldUnload(WorldEvent.Unload event)
+    public void onWorldUnload(@Nonnull WorldEvent.Unload event)
     {
-        if (event.getWorld().isRemote && !Minecraft.getMinecraft().getConnection().getNetworkManager().isChannelOpen())
+        if ( event.getWorld().isRemote
+          && !Minecraft.getMinecraft().getConnection().getNetworkManager().isChannelOpen() )
         {
             loadConfig();
         }
     }
-
+    
     @SubscribeEvent
-    public void onPlayerLogin(PlayerLoggedInEvent event)
+    public void onPlayerLogin(@Nonnull PlayerLoggedInEvent event)
     {
         EntityPlayer entityPlayer = event.player;
         World world = entityPlayer.world;
-
+        
         if (!world.isRemote)
         {
             CyberwarePacketHandler.INSTANCE.sendTo(new UpdateConfigPacket(), (EntityPlayerMP) entityPlayer);
         }
     }
-
+    
     @SubscribeEvent
-    public void onConfigurationChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event)
+    public void onConfigurationChangedEvent(@Nonnull ConfigChangedEvent.OnConfigChangedEvent event)
     {
         if (event.getModID().equalsIgnoreCase(Cyberware.MODID))
         {

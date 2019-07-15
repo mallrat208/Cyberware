@@ -31,19 +31,19 @@ public class ModelScanner extends ModelBase
 	}
 	
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.bar.render(f5);
+		this.bar.render(scale);
 	}
 	
-	public void renderScanner(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderScanner(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.scanner.render(f5);
+		this.scanner.render(scale);
 	}
 	
-	public void renderBeam(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderBeam(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.beam.render(f5);
+		this.beam.render(scale);
 	}
 	
 	

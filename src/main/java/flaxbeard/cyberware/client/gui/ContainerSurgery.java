@@ -1,7 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -62,12 +61,14 @@ public class ContainerSurgery extends Container
 		@Override
 		public void onSlotChanged()
 		{
+			super.onSlotChanged();
+			
 			surgery.updateEssence();
 			surgery.markDirty();
 		}
 		
 		@Override
-		public void putStack(ItemStack stack)
+		public void putStack(@Nonnull ItemStack stack)
 		{
 			if (isItemValid(stack))
 			{
@@ -91,12 +92,20 @@ public class ContainerSurgery extends Container
 	    */
 		
 		@Override
-		public boolean isItemValid(@Nullable ItemStack stack)
+		public boolean isItemValid(@Nonnull ItemStack stack)
 		{
 			ItemStack playerStack = getPlayerStack();
-			//if (!stack.isEmpty() && !playerStack.isEmpty() && stack.getit) return false;
-			if (!getPlayerStack().isEmpty() && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT)) return false;
-			if (!(!stack.isEmpty() && CyberwareAPI.isCyberware(stack) && CyberwareAPI.getCyberware(stack).getSlot(stack) == this.slot)) return false;
+			if ( !getPlayerStack().isEmpty()
+			  && !surgery.canDisableItem(playerStack, slot, index % LibConstants.WARE_PER_SLOT) )
+			{
+				return false;
+			}
+			if ( !( !stack.isEmpty()
+			     && CyberwareAPI.isCyberware(stack)
+			     && CyberwareAPI.getCyberware(stack).getSlot(stack) == slot ) )
+			{
+				return false;
+			}
 			
 			if (CyberwareAPI.areCyberwareStacksEqual(stack, playerStack))
 			{
@@ -105,23 +114,25 @@ public class ContainerSurgery extends Container
 			}
 			
 			
-			return !doesItemConflict(stack) && areRequirementsFulfilled(stack);
+			return !doesItemConflict(stack)
+			    && areRequirementsFulfilled(stack);
 		}
 		
-		public boolean doesItemConflict(@Nullable ItemStack stack)
+		public boolean doesItemConflict(@Nonnull ItemStack stack)
 		{
 			return surgery.doesItemConflict(stack, slot, index % LibConstants.WARE_PER_SLOT);
 		}
 		
-		public boolean areRequirementsFulfilled(@Nullable ItemStack stack)
+		public boolean areRequirementsFulfilled(@Nonnull ItemStack stack)
 		{
 			return surgery.areRequirementsFulfilled(stack, slot, index % LibConstants.WARE_PER_SLOT);
 		}
 		
 		@Override
-		public int getItemStackLimit(ItemStack stack)
+		public int getItemStackLimit(@Nonnull ItemStack stack)
 		{
-			if (stack.isEmpty() || !(CyberwareAPI.isCyberware(stack)))
+			if ( stack.isEmpty()
+			  || !CyberwareAPI.isCyberware(stack) )
 			{
 				return 1;
 			}
@@ -136,76 +147,76 @@ public class ContainerSurgery extends Container
 	}
 	
 	private final TileEntitySurgery surgery;
-	public GuiSurgery gui;
 	
 	public ContainerSurgery(InventoryPlayer playerInventory, TileEntitySurgery surgery)
 	{
 		this.surgery = surgery;
 		
-		int c = 0;
+		int indexContainerSlot = 0;
 		for (EnumSlot slot : EnumSlot.values())
 		{
-			for (int n = 0; n < 8; n++)
+			for (int indexCyberwareSlot = 0; indexCyberwareSlot < 8; indexCyberwareSlot++)
 			{
-				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, 9 + 20 * n, 109, slot));
-				c++;
+				addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, indexContainerSlot, 9 + 20 * indexCyberwareSlot, 109, slot));
+				indexContainerSlot++;
 			}
-			for (int n = 0; n < LibConstants.WARE_PER_SLOT - 8; n++)
+			for (int indexCyberwareSlot = 0; indexCyberwareSlot < LibConstants.WARE_PER_SLOT - 8; indexCyberwareSlot++)
 			{
-				this.addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, c, Integer.MIN_VALUE, Integer.MIN_VALUE, slot));
-				c++;
-			}
-		}
-
-		for (int l = 0; l < 3; ++l)
-		{
-			for (int j1 = 0; j1 < 9; ++j1)
-			{
-				this.addSlotToContainer(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + 37));
+				addSlotToContainer(new SlotSurgery(surgery.slots, surgery.slotsPlayer, indexContainerSlot, Integer.MIN_VALUE, Integer.MIN_VALUE, slot));
+				indexContainerSlot++;
 			}
 		}
-
-		for (int i1 = 0; i1 < 9; ++i1)
+		
+		for (int indexRow = 0; indexRow < 3; indexRow++)
 		{
-			this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 161 + 37));
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
+			{
+				addSlotToContainer(new Slot(playerInventory, indexColumn + indexRow * 9 + 9, 8 + indexColumn * 18, 103 + indexRow * 18 + 37));
+			}
+		}
+		
+		for (int indexColumn = 0; indexColumn < 9; indexColumn++)
+		{
+			addSlotToContainer(new Slot(playerInventory, indexColumn, 8 + indexColumn * 18, 161 + 37));
 		}
 	}
 	
 	@Override
-	public boolean canInteractWith(EntityPlayer entityPlayer)
+	public boolean canInteractWith(@Nonnull EntityPlayer entityPlayer)
 	{
-		return surgery.isUseableByPlayer(entityPlayer);
+		return surgery.isUsableByPlayer(entityPlayer);
 	}
 	
 	@Nonnull
 	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = inventorySlots.get(index);
 	
-		if (slot != null && slot.getHasStack())
+		if ( slot != null
+		  && slot.getHasStack() )
 		{
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
 	
 			if (!(slot instanceof SlotSurgery))
 			{
-			
-				
-				if (index >= 3 && index < 30)
+				if ( index >= 3
+				  && index < 30 )
 				{
-					if (!this.mergeItemStack(itemstack1, 30, 39, false))
+					if (!mergeItemStack(itemstack1, 30, 39, false))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
-				else if (index >= 30 && index < 39 && !this.mergeItemStack(itemstack1, 3, 30, false))
+				else if ( index >= 30
+				       && index < 39
+				       && !mergeItemStack(itemstack1, 3, 30, false) )
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-		
-	
+			
 			if (itemstack1.getCount() == 0)
 			{
 				slot.putStack(ItemStack.EMPTY);

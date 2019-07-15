@@ -1,40 +1,47 @@
 package flaxbeard.cyberware.common.misc;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
 public class NNLUtil {
-	public static NonNullList<ItemStack> copyList(NonNullList<ItemStack> l){
-		NonNullList<ItemStack> l2 = NonNullList.create();
-		l2.addAll(l);
-		return l2;
+	
+	public static NonNullList<ItemStack> copyList(NonNullList<ItemStack> nnl){
+		NonNullList<ItemStack> nnlCopy = NonNullList.create();
+		nnlCopy.addAll(nnl);
+		return nnlCopy;
 	}
 	
-	public static NonNullList<ItemStack> fromArray(ItemStack[] array){
-		NonNullList<ItemStack> l = NonNullList.create();
-		for (ItemStack s : array){
-			l.add(s);
+	public static NonNullList<ItemStack> fromArray(@Nonnull ItemStack[] array){
+		NonNullList<ItemStack> nnl = NonNullList.create();
+		for (ItemStack stack : array)
+		{
+			nnl.add(stack);
 		}
-		return l;
+		return nnl;
 	}
 	
-	public static NonNullList<NonNullList<ItemStack>> fromArray(ItemStack[][] array){
-		NonNullList<NonNullList<ItemStack>> l = NonNullList.create();
-		for (ItemStack[] a : array){
-			NonNullList<ItemStack> l2 = NonNullList.create();
-			for (ItemStack s : a){
-				l2.add(s);
+	public static NonNullList<NonNullList<ItemStack>> fromArray(@Nonnull ItemStack[][] array){
+		NonNullList<NonNullList<ItemStack>> nnlRoot = NonNullList.create();
+		for (ItemStack[] arraySub : array)
+		{
+			NonNullList<ItemStack> nnlSub = NonNullList.create();
+			for (ItemStack stack : arraySub)
+			{
+				nnlSub.add(stack);
 			}
-			l.add(l2);
+			nnlRoot.add(nnlSub);
 		}
-		return l;
+		return nnlRoot;
 	}
 	
-	public static NonNullList<ItemStack> initListOfSize(int l){
-		NonNullList<ItemStack> l2 = NonNullList.create();
-		for (int i = 0; i < l; i ++){
-			l2.add(ItemStack.EMPTY);
+	public static NonNullList<ItemStack> initListOfSize(int size){
+		NonNullList<ItemStack> nnl = NonNullList.create();
+		for (int index = 0; index < size; index++)
+		{
+			nnl.add(ItemStack.EMPTY);
 		}
-		return l2;
+		return nnl;
 	}
 }

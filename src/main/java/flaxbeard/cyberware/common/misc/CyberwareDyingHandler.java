@@ -60,46 +60,47 @@ public class CyberwareDyingHandler implements IRecipe
 	}
 
 	@Override
-	public boolean matches(InventoryCrafting inv, World worldIn)
+	public boolean matches(InventoryCrafting inventoryCrafting, @Nonnull World world)
 	{
-		ItemStack itemstack = ItemStack.EMPTY;
+		ItemStack itemStackArmor = ItemStack.EMPTY;
 		List<ItemStack> list = Lists.newArrayList();
-
-		for (int i = 0; i < inv.getSizeInventory(); ++i)
+		
+		for (int indexSlot = 0; indexSlot < inventoryCrafting.getSizeInventory(); indexSlot++)
 		{
-			ItemStack itemstack1 = inv.getStackInSlot(i);
-
-			if (!itemstack1.isEmpty())
+			ItemStack itemStackInSlot = inventoryCrafting.getStackInSlot(indexSlot);
+			
+			if (!itemStackInSlot.isEmpty())
 			{
-				if (itemstack1.getItem() instanceof ItemArmor)
+				if (itemStackInSlot.getItem() instanceof ItemArmor)
 				{
-					ItemArmor itemarmor = (ItemArmor)itemstack1.getItem();
+					ItemArmor itemarmor = (ItemArmor)itemStackInSlot.getItem();
 
-					if (itemarmor.getArmorMaterial() != CyberwareContent.trenchMat || !itemstack.isEmpty())
+					if ( itemarmor.getArmorMaterial() != CyberwareContent.trenchMat
+					  || !itemStackArmor.isEmpty() )
 					{
 						return false;
 					}
-
-					itemstack = itemstack1;
+					
+					itemStackArmor = itemStackInSlot;
 				}
 				else
 				{
-					if (itemstack1.getItem() != Items.DYE)
+					if (itemStackInSlot.getItem() != Items.DYE)
 					{
 						return false;
 					}
-
-					list.add(itemstack1);
+					
+					list.add(itemStackInSlot);
 				}
 			}
 		}
-
-		return !itemstack.isEmpty() && !list.isEmpty();
+		
+		return !itemStackArmor.isEmpty() && !list.isEmpty();
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack getCraftingResult(InventoryCrafting inv)
+	public ItemStack getCraftingResult(InventoryCrafting inventoryCrafting)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
 		int[] aint = new int[3];
@@ -107,9 +108,9 @@ public class CyberwareDyingHandler implements IRecipe
 		int j = 0;
 		ItemArmor itemarmor = null;
 
-		for (int k = 0; k < inv.getSizeInventory(); ++k)
+		for (int indexSlot = 0; indexSlot < inventoryCrafting.getSizeInventory(); indexSlot++)
 		{
-			ItemStack itemstack1 = inv.getStackInSlot(k);
+			ItemStack itemstack1 = inventoryCrafting.getStackInSlot(indexSlot);
 
 			if (!itemstack1.isEmpty())
 			{
@@ -188,16 +189,16 @@ public class CyberwareDyingHandler implements IRecipe
 	
 	@Nonnull
 	@Override
-	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
+	public NonNullList<ItemStack> getRemainingItems(@Nonnull InventoryCrafting inventoryCrafting)
 	{
-		NonNullList<ItemStack> aitemstack = NonNullList.create();
+		NonNullList<ItemStack> nnlItemStack = NonNullList.create();
 
-		for (int i = 0; i < inv.getSizeInventory(); ++i)
+		for (int indexSlot = 0; indexSlot < inventoryCrafting.getSizeInventory(); indexSlot++)
 		{
-			ItemStack itemstack = inv.getStackInSlot(i);
-			aitemstack.add(net.minecraftforge.common.ForgeHooks.getContainerItem(itemstack));
+			ItemStack itemstack = inventoryCrafting.getStackInSlot(indexSlot);
+			nnlItemStack.add(net.minecraftforge.common.ForgeHooks.getContainerItem(itemstack));
 		}
 
-		return aitemstack;
+		return nnlItemStack;
 	}
 }

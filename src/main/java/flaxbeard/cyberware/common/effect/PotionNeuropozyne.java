@@ -16,13 +16,13 @@ import flaxbeard.cyberware.Cyberware;
 public class PotionNeuropozyne extends Potion
 {
 	private static final ResourceLocation resource = new ResourceLocation(Cyberware.MODID + ":textures/gui/potions.png");
-	private int iconIndex = 0;
+	private int iconIndex;
 	
 	public PotionNeuropozyne(String name, boolean isBadEffectIn, int liquidColorIn, int iconIndex)
 	{
 		super(isBadEffectIn, liquidColorIn);
-		this.setPotionName("cyberware.potion." + name);
-		this.setRegistryName(new ResourceLocation(Cyberware.MODID, name));
+		setPotionName("cyberware.potion." + name);
+		setRegistryName(new ResourceLocation(Cyberware.MODID, name));
 		ForgeRegistries.POTIONS.register(this);
 		this.iconIndex = iconIndex;
 	}

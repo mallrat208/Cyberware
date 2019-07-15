@@ -17,6 +17,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
@@ -49,13 +50,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class EssentialsMissingHandlerClient
 {
+	
 	public static final EssentialsMissingHandlerClient INSTANCE = new EssentialsMissingHandlerClient();
-
+	
 	@SideOnly(Side.CLIENT)
-	private static final RenderPlayerCyberware renderT = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), true);
-
+	private static final RenderPlayerCyberware renderSmallArms = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), true);
+	
 	@SideOnly(Side.CLIENT)
-	public static final RenderPlayerCyberware renderF = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), false);
+	public static final RenderPlayerCyberware renderLargeArms = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), false);
 	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -65,203 +67,152 @@ public class EssentialsMissingHandlerClient
 		
 		EntityPlayer entityPlayer = event.getEntityPlayer();
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
-		if (cyberwareUserData != null)
+		if (cyberwareUserData == null) return;
+		
+		boolean hasLeftLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT);
+		boolean hasRightLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.RIGHT);
+		boolean hasLeftArm = cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.LEFT);
+		boolean hasRightArm = cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.RIGHT);
+		
+		boolean robotLeftArm  = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM ));
+		boolean robotRightArm = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM));
+		boolean robotLeftLeg  = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG ));
+		boolean robotRightLeg = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG));
+		
+		RenderPlayer renderer = event.getRenderer();
+		
+		if (!(renderer instanceof RenderPlayerCyberware))
 		{
-			boolean hasLeftLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.LEFT);
-			boolean hasRightLeg = cyberwareUserData.hasEssential(EnumSlot.LEG, EnumSide.RIGHT);
-			boolean hasLeftArm = cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.LEFT);
-			boolean hasRightArm = cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.RIGHT);
+			boolean useSmallArms = ReflectionHelper.getPrivateValue(RenderPlayer.class, renderer, 0);
+			RenderPlayerCyberware renderToUse = useSmallArms ? renderSmallArms : renderLargeArms;
 			
-			boolean robotLeftArm  = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM ));
-			boolean robotRightArm = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM));
-			boolean robotLeftLeg  = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG ));
-			boolean robotRightLeg = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG));
-			
-			if (!(event.getRenderer() instanceof RenderPlayerCyberware))
+			boolean hasNoSkin = false;
+			if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
 			{
-				boolean bigArms = ReflectionHelper.getPrivateValue(RenderPlayer.class, event.getRenderer(), 0);
-
-				boolean noSkin = false;
-				if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
-				{
-					event.setCanceled(true);
-					noSkin = true;
-					if (bigArms)
-					{
-						renderT.doMuscles = true;
-					}
-					else
-					{
-						renderF.doMuscles = true;
-					}
-				}
+				event.setCanceled(true);
+				hasNoSkin = true;
+				renderToUse.doMuscles = true;
+			}
+			
+			boolean hasNoLegs = false;
+			if (!hasRightLeg && !hasLeftLeg)
+			{
+				// Hide pants + shoes
+				pants.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.LEGS));
+				entityPlayer.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
+				shoes.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.FEET));
+				entityPlayer.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
+				hasNoLegs = true;
+			}
+			
+			if ( !hasRightLeg  || !hasLeftLeg  || !hasRightArm  || !hasLeftArm
+			  || robotRightLeg || robotLeftLeg || robotRightArm || robotLeftArm )
+			{
+				event.setCanceled(true);
 				
-				boolean lower = false;
-				if (!hasRightLeg && !hasLeftLeg)
-				{
-					// Hide pants + shoes
-					pants.put(entityPlayer.getEntityId(), entityPlayer.inventory.armorInventory.get(1));
-					entityPlayer.inventory.armorInventory.set(1,ItemStack.EMPTY);
-					shoes.put(entityPlayer.getEntityId(), entityPlayer.inventory.armorInventory.get(0));
-					entityPlayer.inventory.armorInventory.set(0, ItemStack.EMPTY);
-					lower = true;
-				}
+				boolean leftArmRusty  = robotLeftArm  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM ))) == CyberwareAPI.QUALITY_SCAVENGED;
+				boolean rightArmRusty = robotRightArm && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM))) == CyberwareAPI.QUALITY_SCAVENGED;
+				boolean leftLegRusty  = robotLeftLeg  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG ))) == CyberwareAPI.QUALITY_SCAVENGED;
+				boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
 				
-				if (!hasRightLeg || !hasLeftLeg || !hasRightArm || !hasLeftArm || robotLeftArm || robotRightArm || robotLeftLeg || robotRightLeg)
+				// Human/body pass
+				renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
+				
+				if (!cyberwareUserData.isCyberwareInstalled(CyberwareContent.skinUpgrades.getCachedStack(ItemSkinUpgrade.META_SYNTHETIC_SKIN)))
 				{
-					event.setCanceled(true);
+					ModelPlayer mainModel = renderToUse.getMainModel();
+					mainModel.bipedBody.isHidden = true;
+					mainModel.bipedHead.isHidden = true;
 					
-					boolean leftArmRusty  = robotLeftArm  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM ))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightArmRusty = robotRightArm && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean leftLegRusty  = robotLeftLeg  && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG ))) == CyberwareAPI.QUALITY_SCAVENGED;
-					boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
-
-					if (bigArms)
-					{
-						renderT.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					}
-					else
-					{
-						renderF.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					}
+					// Manufactured 'ware pass
+					mainModel.bipedLeftArm.isHidden = !(robotLeftArm && !leftArmRusty);
+					mainModel.bipedRightArm.isHidden = !(robotRightArm && !rightArmRusty);
+					mainModel.bipedLeftLeg.isHidden = !(robotLeftLeg && !leftLegRusty);
+					mainModel.bipedRightLeg.isHidden = !(robotRightLeg && !rightLegRusty);
 					
-					if (!cyberwareUserData.isCyberwareInstalled(CyberwareContent.skinUpgrades.getCachedStack(ItemSkinUpgrade.META_SYNTHETIC_SKIN)))
-					{
-						ModelPlayer mp = renderF.getMainModel();
-						
-						if (bigArms)
-						{
-							mp = renderT.getMainModel();
-						}
-						mp.bipedBody.isHidden = true;
-						mp.bipedHead.isHidden = true;
-						
-						// Manufactured 'ware pass
-						mp.bipedLeftArm.isHidden = !(robotLeftArm && !leftArmRusty);
-						mp.bipedRightArm.isHidden = !(robotRightArm && !rightArmRusty);
-						mp.bipedLeftLeg.isHidden = !(robotLeftLeg && !leftLegRusty);
-						mp.bipedRightLeg.isHidden = !(robotRightLeg && !rightLegRusty);
-						
-						if (bigArms)
-						{
-							renderT.doRobo = true;
-							renderT.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-							renderT.doRobo = false;
-						}
-						else
-						{
-							renderF.doRobo = true;
-							renderF.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-							renderF.doRobo = false;
-						}
-						
-						// Rusty 'ware pass
-						mp.bipedLeftArm.isHidden = !leftArmRusty;
-						mp.bipedRightArm.isHidden = !rightArmRusty;
-						mp.bipedLeftLeg.isHidden = !leftLegRusty;
-						mp.bipedRightLeg.isHidden = !rightLegRusty;
-						
-						if (bigArms)
-						{
-							renderT.doRobo = true;
-							renderT.doRusty = true;
-							renderT.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-							renderT.doRobo = false;
-							renderT.doRusty = false;
-						}
-						else
-						{
-							renderF.doRusty = true;
-							renderF.doRobo = true;
-							renderF.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (lower ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-							renderF.doRobo = false;
-							renderF.doRusty = false;
-						}
-						
-						mp.bipedBody.isHidden = false;
-						mp.bipedHead.isHidden = false;
-						mp.bipedLeftArm.isHidden = false;
-						mp.bipedRightArm.isHidden = false;
-						mp.bipedLeftLeg.isHidden = false;
-						mp.bipedRightLeg.isHidden = false;
-					}
-				
-				}
-				else if (noSkin)
-				{
-					if (bigArms)
-					{
-						renderT.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY(), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					}
-					else
-					{
-						renderF.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY(), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					}
-				}
-				
-				if (noSkin)
-				{
-					if (bigArms)
-					{
-						renderT.doMuscles = false;
-					}
-					else
-					{
-						renderF.doMuscles = false;
-					}
+					renderToUse.doRobo = true;
+					renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
+					renderToUse.doRobo = false;
+					
+					// Rusty 'ware pass
+					mainModel.bipedLeftArm.isHidden = !leftArmRusty;
+					mainModel.bipedRightArm.isHidden = !rightArmRusty;
+					mainModel.bipedLeftLeg.isHidden = !leftLegRusty;
+					mainModel.bipedRightLeg.isHidden = !rightLegRusty;
+					
+					renderToUse.doRobo = true;
+					renderToUse.doRusty = true;
+					renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
+					renderToUse.doRobo = false;
+					renderToUse.doRusty = false;
+					
+					// restore defaults
+					mainModel.bipedBody.isHidden = false;
+					mainModel.bipedHead.isHidden = false;
+					mainModel.bipedLeftArm.isHidden = false;
+					mainModel.bipedRightArm.isHidden = false;
+					mainModel.bipedLeftLeg.isHidden = false;
+					mainModel.bipedRightLeg.isHidden = false;
 				}
 			}
-			
-			RenderPlayer renderer = event.getRenderer();
-			
-			if (!hasLeftLeg)
+			else if (hasNoSkin)
 			{
-				renderer.getMainModel().bipedLeftLeg.isHidden = true;
+				renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY(), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
 			}
 			
-			if (!hasRightLeg)
+			if (hasNoSkin)
 			{
-				renderer.getMainModel().bipedRightLeg.isHidden = true;
+				renderToUse.doMuscles = false;
 			}
+		}
+		
+		if (!hasLeftLeg)
+		{
+			renderer.getMainModel().bipedLeftLeg.isHidden = true;
+		}
+		
+		if (!hasRightLeg)
+		{
+			renderer.getMainModel().bipedRightLeg.isHidden = true;
+		}
+		
+		if (!hasLeftArm)
+		{
+			renderer.getMainModel().bipedLeftArm.isHidden = true;
 			
-			if (!hasLeftArm)
+			// Hide the main or offhand item if no arm there
+			if (!mainHand.containsKey(entityPlayer.getEntityId()))
 			{
-				renderer.getMainModel().bipedLeftArm.isHidden = true;
-				
-				// Hide the main or offhand item if no arm there
-				if (!mainHand.containsKey(entityPlayer.getEntityId()))
-				{
-					mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
-					offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
-				}
-				if (mc.gameSettings.mainHand == EnumHandSide.LEFT)
-				{
-					entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
-				}
-				else
-				{
-					entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
-				}
+				mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
+				offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
 			}
-			
-			if (!hasRightArm)
+			if (mc.gameSettings.mainHand == EnumHandSide.LEFT)
 			{
-				renderer.getMainModel().bipedRightArm.isHidden = true;
-				
-				// Hide the main or offhand item if no arm there
-				if (!mainHand.containsKey(entityPlayer.getEntityId()))
-				{
-					mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
-					offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
-				}
-				if (mc.gameSettings.mainHand == EnumHandSide.RIGHT)
-				{
-					entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
-				}
-				else
-				{
-					entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
-				}
+				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
+			}
+			else
+			{
+				entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
+			}
+		}
+		
+		if (!hasRightArm)
+		{
+			renderer.getMainModel().bipedRightArm.isHidden = true;
+			
+			// Hide the main or offhand item if no arm there
+			if (!mainHand.containsKey(entityPlayer.getEntityId()))
+			{
+				mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
+				offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
+			}
+			if (mc.gameSettings.mainHand == EnumHandSide.RIGHT)
+			{
+				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
+			}
+			else
+			{
+				entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
 			}
 		}
 	}
@@ -298,7 +249,7 @@ public class EssentialsMissingHandlerClient
 				entityPlayer.inventory.armorInventory.set(0, shoes.get(entityPlayer.getEntityId()));
 				shoes.remove(entityPlayer.getEntityId());
 			}
-
+			
 			if (!cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.LEFT))
 			{
 				event.getRenderer().getMainModel().bipedLeftArm.isHidden = false;
@@ -311,7 +262,6 @@ public class EssentialsMissingHandlerClient
 				}
 			}
 			
-
 			if (!cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.RIGHT))
 			{
 				event.getRenderer().getMainModel().bipedRightArm.isHidden = false;

@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -132,7 +133,8 @@ public class CyberwareDataHandler
 					{
 						NonNullList<ItemStack> nnlInstalled = cyberwareUserData.getInstalledCyberware(slot);
 						NonNullList<ItemStack> nnlDefaults = NonNullList.create();
-						for (ItemStack itemStackDefault : CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()])){
+						for (ItemStack itemStackDefault : CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()]))
+						{
 							nnlDefaults.add(itemStackDefault.copy());
 						}
 						for (ItemStack itemStackInstalled : nnlInstalled)
@@ -156,7 +158,8 @@ public class CyberwareDataHandler
 									}
 								}
 
-								if (!found && entityPlayer.world.rand.nextFloat() < CyberwareConfig.DROP_CHANCE / 100F)
+								if ( !found
+								  && entityPlayer.world.rand.nextFloat() < CyberwareConfig.DROP_CHANCE / 100F )
 								{
 									EntityItem entityItem = new EntityItem(entityPlayer.world, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ, itemStackToDrop);
 									event.getDrops().add(entityItem);
@@ -177,10 +180,10 @@ public class CyberwareDataHandler
 		if (source == EssentialsMissingHandler.brainless) return true;
 		if (source == EssentialsMissingHandler.nomuscles) return true;
 		if (source == EssentialsMissingHandler.spineless) return true;
-
+		
 		return false;
 	}
-
+	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleCZSpawn(LivingSpawnEvent.SpecialSpawn event)
 	{
@@ -254,15 +257,15 @@ public class CyberwareDataHandler
 			if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()
 			  && chestRand < LibConstants.ZOMBIE_TRENCH_CHANCE / 100F )
 			{
-				ItemStack stack = new ItemStack(CyberwareContent.trenchcoat);
+				ItemStack stack = new ItemStack(CyberwareContent.trenchCoat);
 				int rand = entityLiving.world.rand.nextInt(3);
 				if (rand == 0)
 				{
-					CyberwareContent.trenchcoat.setColor(stack, 0x664028);
+					CyberwareContent.trenchCoat.setColor(stack, 0x664028);
 				}
 				else if (rand == 1)
 				{
-					CyberwareContent.trenchcoat.setColor(stack, 0xEAEAEA);
+					CyberwareContent.trenchCoat.setColor(stack, 0xEAEAEA);
 				}
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
@@ -306,15 +309,9 @@ public class CyberwareDataHandler
 		}
 		
 		List<ItemStack> installed = new ArrayList<>();
-
-		/*
-		ItemStack re = new ItemStack(CyberwareContent.heartUpgrades, 1, ItemHeartUpgrade.META_INTERNAL_DEFIBRILLATOR);
-		wares.get(((ICyberware) re.getItem()).getSlot(re).ordinal()).add(re);
-		installed.add(re);
-		*/
 		
 		List<ZombieItem> items = new ArrayList<>(CyberwareContent.zombieItems);
-		for (int i = 0; i < numberOfItemsToInstall; i++)
+		for (int indexItem = 0; indexItem < numberOfItemsToInstall; indexItem++)
 		{
 			int tries = 0;
 			ItemStack randomItem;
@@ -355,7 +352,7 @@ public class CyberwareDataHandler
 						req.setCount(reqWare.installedStackSize(req));
 						wares.get(reqWare.getSlot(req).ordinal()).add(req);
 						installed.add(req);
-						i++;
+						indexItem++;
 					}
 				}
 				wares.get(randomWare.getSlot(randomItem).ordinal()).add(randomItem);
@@ -385,11 +382,14 @@ public class CyberwareDataHandler
 		CyberwareAPI.updateData(cyberZombie);
 	}
 	
-	public static boolean contains(NonNullList<ItemStack> items, ItemStack item)
+	private static boolean contains(NonNullList<ItemStack> nnlHaystack, ItemStack needle)
 	{
-		for (ItemStack check : items)
+		for (ItemStack check : nnlHaystack)
 		{			
-			if (!check.isEmpty() && !item.isEmpty() && check.getItem() == item.getItem() && check.getItemDamage() == item.getItemDamage())
+			if ( !check.isEmpty()
+			  && !needle.isEmpty()
+			  && check.getItem() == needle.getItem()
+			  && check.getItemDamage() == needle.getItemDamage() )
 			{
 				return true;
 			}

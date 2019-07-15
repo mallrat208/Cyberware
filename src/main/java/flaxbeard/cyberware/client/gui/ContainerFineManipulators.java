@@ -14,31 +14,31 @@ public class ContainerFineManipulators extends ContainerPlayer
 	{
 		super(playerInventory, localWorld, entityPlayer);
 		
-		this.inventorySlots.clear();
+		inventorySlots.clear();
 		
 		craftMatrix = new InventoryCrafting(this, 3, 3);
 		
-		this.addSlotToContainer(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 124, 35));
+		addSlotToContainer(new SlotCrafting(playerInventory.player, craftMatrix, craftResult, 0, 124, 35));
 		
-		for (int i = 0; i < 3; ++i)
+		for (int indexRow = 0; indexRow < 3; indexRow++)
 		{
-			for (int j = 0; j < 3; ++j)
+			for (int indexColumn = 0; indexColumn < 3; indexColumn++)
 			{
-				this.addSlotToContainer(new Slot(this.craftMatrix, j + i * 3, 30 + j * 18, 17 + i * 18));
+				addSlotToContainer(new Slot(craftMatrix, indexColumn + indexRow * 3, 30 + indexColumn * 18, 17 + indexRow * 18));
 			}
 		}
 		
-		for (int l = 0; l < 3; ++l)
+		for (int indexRow = 0; indexRow < 3; indexRow++)
 		{
-			for (int j1 = 0; j1 < 9; ++j1)
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 			{
-				this.addSlotToContainer(new Slot(playerInventory, j1 + (l + 1) * 9, 8 + j1 * 18, 84 + l * 18));
+				addSlotToContainer(new Slot(playerInventory, indexColumn + (indexRow + 1) * 9, 8 + indexColumn * 18, 84 + indexRow * 18));
 			}
 		}
 		
-		for (int i1 = 0; i1 < 9; ++i1)
+		for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 		{
-			this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 142));
+			addSlotToContainer(new Slot(playerInventory, indexColumn, 8 + indexColumn * 18, 142));
 		}
 	}
 	
@@ -47,9 +47,9 @@ public class ContainerFineManipulators extends ContainerPlayer
 	{
 		super.onContainerClosed(entityPlayer);
 		
-		for (int i = 0; i < 9; ++i)
+		for (int indexSlot = 0; indexSlot < 9; indexSlot++)
 		{
-			ItemStack itemstack = this.craftMatrix.removeStackFromSlot(i);
+			ItemStack itemstack = craftMatrix.removeStackFromSlot(indexSlot);
 			
 			if (!itemstack.isEmpty())
 			{
@@ -57,6 +57,6 @@ public class ContainerFineManipulators extends ContainerPlayer
 			}
 		}
 		
-		this.craftResult.setInventorySlotContents(0, ItemStack.EMPTY);
+		craftResult.setInventorySlotContents(0, ItemStack.EMPTY);
 	}
 }

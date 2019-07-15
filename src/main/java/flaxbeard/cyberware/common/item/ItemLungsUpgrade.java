@@ -77,10 +77,10 @@ public class ItemLungsUpgrade extends ItemCyberware
 						g += 0.25F;
 						GlStateManager.color(r, g, b);
 						int drawAir = Math.min(300, air);
-						int full = MathHelper.ceil((double)(drawAir - 2) * 10.0D / 300.0D);
-						int partial = MathHelper.ceil((double)drawAir * 10.0D / 300.0D) - full;
+						int full = MathHelper.ceil((drawAir - 2) * 10.0D / 300.0D);
+						int partial = MathHelper.ceil(drawAir * 10.0D / 300.0D) - full;
 				
-						for (int i = 0; i < full + partial; ++i)
+						for (int i = 0; i < full + partial; i++)
 						{
 							ClientUtils.drawTexturedModalRect(left - i * 8 - 9, top, (i < full ? 16 : 25), 18, 9, 9);
 						}

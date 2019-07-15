@@ -101,7 +101,7 @@ public class CyberwareContent
     public static Item jacket;
 
     public static ArmorMaterial trenchMat;
-    public static ItemArmorCyberware trenchcoat;
+    public static ItemArmorCyberware trenchCoat;
 
     private static ToolMaterial katanaMat;
     public static Item katana;
@@ -201,7 +201,7 @@ public class CyberwareContent
 
             trenchMat = EnumHelper.addArmorMaterial("TRENCHCOAT", "cyberware:trenchcoat", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0F);
             trenchMat.repairMaterial = new ItemStack(Items.LEATHER,1,OreDictionary.WILDCARD_VALUE);
-            trenchcoat = new ItemArmorCyberware("trenchcoat", trenchMat, 0, EntityEquipmentSlot.CHEST);
+            trenchCoat = new ItemArmorCyberware("trenchcoat", trenchMat, 0, EntityEquipmentSlot.CHEST);
         }
 
         if (CyberwareConfig.KATANA)
@@ -213,7 +213,7 @@ public class CyberwareContent
                     ToolMaterial.IRON.getAttackDamage(),
                     ToolMaterial.IRON.getEnchantability());
             katanaMat.setRepairItem(new ItemStack(component, 1, 4));
-
+            
             katana = new ItemSwordCyberware("katana", katanaMat);
         }
 
@@ -489,7 +489,7 @@ public class CyberwareContent
         ItemStack plating = new ItemStack(component, 1, 4);
         ItemStack fiber = new ItemStack(component, 1, 5);
         
-        RecipeHandler.addShapedOreRecipe(new ItemStack(surgeryChamber.ib), 
+        RecipeHandler.addShapedOreRecipe(new ItemStack(surgeryChamber.itemBlock), 
                                          "III",
                                          "IBI",
                                          "IDI",
@@ -534,7 +534,7 @@ public class CyberwareContent
                 new ItemStack(blueprint, 1, OreDictionary.WILDCARD_VALUE)
         );
 
-        RecipeHandler.addShapedOreRecipe(new ItemStack(engineering.ib), 
+        RecipeHandler.addShapedOreRecipe(new ItemStack(engineering.itemBlock), 
                                          " PI",
                                          "III",
                                          "ICI",

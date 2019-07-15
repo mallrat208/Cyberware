@@ -46,16 +46,16 @@ public class BlockBeaconLarge extends BlockContainer
 		
 		String name = "beacon_large";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.beacon_large");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-
-		this.setCreativeTab(Cyberware.creativeTab);
+		ItemBlock itemBlock = new ItemBlockCyberware(this, "cyberware.tooltip.beacon_large");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
+		
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityBeaconLarge.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
@@ -66,7 +66,9 @@ public class BlockBeaconLarge extends BlockContainer
 	private static final AxisAlignedBB middle = new AxisAlignedBB(6.5F / 16F, 0F, 6.5F / 16F, 9.5F / 16F, 1F, 9.5F / 16F);
 
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
+	public void addCollisionBoxToList(IBlockState state, @Nonnull World world, @Nonnull BlockPos pos,
+	                                  @Nonnull AxisAlignedBB entityBox, @Nonnull List<AxisAlignedBB> collidingBoxes,
+	                                  @Nullable Entity entity, boolean isActualState)
 	{
 		addCollisionBoxToList(pos, entityBox, collidingBoxes, middle);
 	}
@@ -102,7 +104,7 @@ public class BlockBeaconLarge extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntityBeaconLarge();
 	}
@@ -117,7 +119,7 @@ public class BlockBeaconLarge extends BlockContainer
 	
 	@Nonnull
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
@@ -125,9 +127,9 @@ public class BlockBeaconLarge extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
-		EnumFacing enumfacing = EnumFacing.byIndex(meta);
+		EnumFacing enumfacing = EnumFacing.byIndex(metadata);
 
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
@@ -138,25 +140,25 @@ public class BlockBeaconLarge extends BlockContainer
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return state.getValue(FACING).getIndex();
+		return blockState.getValue(FACING).getIndex();
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot)
+	public IBlockState withRotation(@Nonnull IBlockState blockState, Rotation rotation)
 	{
-		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+		return blockState.withProperty(FACING, rotation.rotate(blockState.getValue(FACING)));
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+	public IBlockState withMirror(@Nonnull IBlockState blockState, Mirror mirrorIn)
 	{
-		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+		return blockState.withRotation(mirrorIn.toRotation(blockState.getValue(FACING)));
 	}
 	
 	@Nonnull

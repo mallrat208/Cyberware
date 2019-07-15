@@ -17,17 +17,17 @@ public class ItemCyberwareBase extends Item
 
 	public ItemCyberwareBase(String name, String... subnames)
 	{
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
         
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 				
 		this.subnames = subnames;
-		this.itemStackCache = new ItemStack[Math.max(subnames.length, 1)];
+		itemStackCache = new ItemStack[Math.max(subnames.length, 1)];
 
-		this.setHasSubtypes(this.subnames.length > 0);
-		this.setMaxDamage(0);
+		setHasSubtypes(this.subnames.length > 0);
+		setMaxDamage(0);
 
         CyberwareContent.items.add(this);
 	}
@@ -52,9 +52,9 @@ public class ItemCyberwareBase extends Item
 			{
 				list.add(new ItemStack(this));
 			}
-			for (int i = 0; i < subnames.length; i++)
+			for (int metadata = 0; metadata < subnames.length; metadata++)
 			{
-				list.add(new ItemStack(this, 1, i));
+				list.add(new ItemStack(this, 1, metadata));
 			}
 		}
 	}

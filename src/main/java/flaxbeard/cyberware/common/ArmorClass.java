@@ -1,5 +1,7 @@
 package flaxbeard.cyberware.common;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -20,7 +22,7 @@ public enum ArmorClass {
 		return get(entityLivingBase) != HEAVY;
 	}
 	
-	public static ArmorClass get(EntityLivingBase entityLivingBase)
+	public static ArmorClass get(@Nonnull EntityLivingBase entityLivingBase)
 	{
 		boolean hasNoArmor = true;
 		

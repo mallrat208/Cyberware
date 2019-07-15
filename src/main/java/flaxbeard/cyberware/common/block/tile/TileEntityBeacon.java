@@ -1,6 +1,6 @@
 package flaxbeard.cyberware.common.block.tile;
 
-import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +40,8 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
 		if (mapBeaconPositionByDimension == null)
 		{
-			mapBeaconPositionByTierDimension.put(tier, new HashMap<>());
-			mapBeaconPositionByDimension = mapBeaconPositionByTierDimension.get(tier);
+			mapBeaconPositionByDimension = new HashMap<>();
+			mapBeaconPositionByTierDimension.put(tier, mapBeaconPositionByDimension);
 			tiers.add(tier);
 			Collections.sort(tiers);
 			Collections.reverse(tiers);
@@ -50,18 +50,11 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		return mapBeaconPositionByDimension;
 	}
 	
-	public static Map<BlockPos, Integer> getBeaconPositionsForTierAndDimension(int tier, World world)
+	public static Map<BlockPos, Integer> getBeaconPositionsForTierAndDimension(int tier, @Nonnull World world)
 	{
 		Map<Integer, Map<BlockPos, Integer>> mapBeaconPositionByDimension = getBeaconPositionsForTier(tier);
 		int idDimension = world.provider.getDimension();
-		Map<BlockPos, Integer> mapBeaconPosition = mapBeaconPositionByDimension.get(idDimension);
-		if (mapBeaconPosition == null)
-		{
-			mapBeaconPosition = new HashMap<>();
-			mapBeaconPositionByDimension.put(idDimension, mapBeaconPosition);
-		}
-		
-		return mapBeaconPosition;
+		return mapBeaconPositionByDimension.computeIfAbsent(idDimension, k -> new HashMap<>());
 	}
 	
 	@Override
@@ -96,7 +89,7 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 					float dist = .2F;
 					float speedMod = .08F;
 					int degrees = 45;
-					for (int i = 0; i < 5; i++)
+					for (int index = 0; index < 5; index++)
 					{
 						float sin = (float) Math.sin(Math.toRadians(degrees));
 						float cos = (float) Math.cos(Math.toRadians(degrees));

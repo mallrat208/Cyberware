@@ -8,25 +8,24 @@ public class ModelEngineering extends ModelBase
 {
 	public ModelRenderer head;
 	public ModelRenderer bar;
-
+	
 	public ModelEngineering()
 	{
-		this.textureWidth = 24;
-		this.textureHeight = 17;
+		textureWidth = 24;
+		textureHeight = 17;
 		
-		this.head = new ModelRenderer(this, 0, 0);
-		this.head.addBox(-3F, -2F, -3F, 6, 2, 6);
-		this.bar = new ModelRenderer(this, 0, 8);
-		this.bar.addBox(-1F, 0F, -1F, 2, 7, 2);
-		this.head.addChild(bar);
+		head = new ModelRenderer(this, 0, 0);
+		head.addBox(-3F, -2F, -3F, 6, 2, 6);
+		bar = new ModelRenderer(this, 0, 8);
+		bar.addBox(-1F, 0F, -1F, 2, 7, 2);
+		head.addChild(bar);
 	}
 	
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.head.render(f5);
+		head.render(scale);
 	}
-	
 	
 	public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z)
 	{

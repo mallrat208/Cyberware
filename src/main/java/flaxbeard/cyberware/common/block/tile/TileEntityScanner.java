@@ -27,67 +27,50 @@ public class TileEntityScanner extends TileEntity implements ITickable
 {
 	public class ItemStackHandlerScanner extends ItemStackHandler
 	{
-		public boolean overrideExtract = false;
-		
-		public ItemStackHandlerScanner(TileEntityScanner table, int i)
+		public ItemStackHandlerScanner(int size)
 		{
-			super(i);
+			super(size);
 		}
-		
-		@Override
-	    public void setStackInSlot(int slot, ItemStack stack)
-	    {
-			super.setStackInSlot(slot, stack);
-
-	    }
 		
 		@Nonnull
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
 		{
 			if (!isItemValidForSlot(slot, stack)) return stack;
 			
-			ItemStack result = super.insertItem(slot, stack, simulate);
-			return result;
+			return super.insertItem(slot, stack, simulate);
 		}
 		
 		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
-			if (!canRemoveItem(slot)) return ItemStack.EMPTY;
-			
-
-			ItemStack result = super.extractItem(slot, amount, simulate);
-
-			return result;
+			return super.extractItem(slot, amount, simulate);
 		}
-
-		public boolean canRemoveItem(int slot)
-		{
-			if (overrideExtract) return true;
-			return true;
-		}
-
+		
 		public boolean isItemValidForSlot(int slot, ItemStack stack)
 		{
+			validateSlotIndex(slot);
+			
 			switch (slot)
 			{
-				case 0:
-					return CyberwareAPI.canDeconstruct(stack);
-				case 1:
-					int[] ids = OreDictionary.getOreIDs(stack);
-					int paperId = OreDictionary.getOreID("paper");
-					for (int id : ids)
+			case 0:
+				return CyberwareAPI.canDeconstruct(stack);
+				
+			case 1:
+				int[] idsOreDictionary = OreDictionary.getOreIDs(stack);
+				int idPaper = OreDictionary.getOreID("paper");
+				for (int idOreDictionary : idsOreDictionary)
+				{
+					if (idOreDictionary == idPaper)
 					{
-						if (id == paperId)
-						{
-							return true;
-						}
+						return true;
 					}
-					return false;
-				case 2:
-					return false;
+				}
+				return false;
+				
+			case 2:
+				return false;
 			}
 			return true;
 		}
@@ -96,12 +79,12 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	public class GuiWrapper implements IItemHandlerModifiable
 	{
 		private ItemStackHandlerScanner slots;
-
+		
 		public GuiWrapper(ItemStackHandlerScanner slots)
 		{
 			this.slots = slots;
 		}
-
+		
 		@Override
 		public int getSlots()
 		{
@@ -117,7 +100,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		
 		@Nonnull
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
 		{
 			return slots.insertItem(slot, stack, simulate);
 		}
@@ -126,18 +109,15 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate)
 		{
-			slots.overrideExtract = true;
-			ItemStack ret = slots.extractItem(slot, amount, simulate);
-			slots.overrideExtract = false;
-			return ret;
+			return slots.extractItem(slot, amount, simulate);
 		}
-
+		
 		@Override
-		public void setStackInSlot(int slot, ItemStack stack)
+		public void setStackInSlot(int slot, @Nonnull ItemStack stack)
 		{
 			slots.setStackInSlot(slot, stack);
 		}
-
+		
 		@Override
 		public int getSlotLimit(int slot) {
 			return 64;
@@ -145,7 +125,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		
 	}
 	
-	public ItemStackHandlerScanner slots = new ItemStackHandlerScanner(this, 3);
+	public ItemStackHandlerScanner slots = new ItemStackHandlerScanner(3);
 	private final RangedWrapper slotsTopSides = new RangedWrapper(slots, 0, 2);
 	private final RangedWrapper slotsBottom = new RangedWrapper(slots, 2, 3);
 	private final RangedWrapper slotsBottom2 = new RangedWrapper(slots, 0, 1);
@@ -157,7 +137,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	public int lastZ = 0, z = 0;
 	
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing)
 	{
 		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
@@ -166,15 +146,15 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		return super.hasCapability(capability, facing);
 	}
 	
-
 	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+	public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing)
 	{
 		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
 			if (facing == EnumFacing.DOWN)
 			{
-				if (!slots.getStackInSlot(2).isEmpty() && !slots.getStackInSlot(0).isEmpty())
+				if ( !slots.getStackInSlot(2).isEmpty()
+				  && !slots.getStackInSlot(0).isEmpty() )
 				{
 					return (T) slotsBottom2;
 				}
@@ -203,7 +183,7 @@ public class TileEntityScanner extends TileEntity implements ITickable
 			customName = tagCompound.getString("CustomName");
 		}
 		
-		this.ticks = tagCompound.getInteger("ticks");
+		ticks = tagCompound.getInteger("ticks");
 	}
 	
 	@Nonnull
@@ -212,9 +192,9 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	{
 		tagCompound = super.writeToNBT(tagCompound);
 		
-		tagCompound.setTag("inv", this.slots.serializeNBT());
+		tagCompound.setTag("inv", slots.serializeNBT());
 		
-		if (this.hasCustomName())
+		if (hasCustomName())
 		{
 			tagCompound.setString("CustomName", customName);
 		}
@@ -225,18 +205,18 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	}
 	
 	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
+	public void onDataPacket(NetworkManager networkManager, @Nonnull SPacketUpdateTileEntity packetUpdateTileEntity)
 	{
-		NBTTagCompound data = pkt.getNbtCompound();
-		this.readFromNBT(data);
+		NBTTagCompound tagCompound = packetUpdateTileEntity.getNbtCompound();
+		readFromNBT(tagCompound);
 	}
 	
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket()
 	{
-		NBTTagCompound data = new NBTTagCompound();
-		this.writeToNBT(data);
-		return new SPacketUpdateTileEntity(pos, 0, data);
+		NBTTagCompound tagCompound = new NBTTagCompound();
+		writeToNBT(tagCompound);
+		return new SPacketUpdateTileEntity(pos, 0, tagCompound);
 	}
 	
 	@Nonnull
@@ -246,43 +226,45 @@ public class TileEntityScanner extends TileEntity implements ITickable
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	
-	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
+	public boolean isUsableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) == this
-		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
+		return world.getTileEntity(pos) == this
+		    && entityPlayer.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
 	{
-		return this.hasCustomName() ? customName : "cyberware.container.scanner";
-	}
-
-	public boolean hasCustomName()
-	{
-		return this.customName != null && !this.customName.isEmpty();
-	}
-
-	public void setCustomInventoryName(String p_145951_1_)
-	{
-		this.customName = p_145951_1_;
+		return hasCustomName() ? customName : "cyberware.container.scanner";
 	}
 	
+	public boolean hasCustomName()
+	{
+		return customName != null && !customName.isEmpty();
+	}
+	
+	public void setCustomInventoryName(String name)
+	{
+		customName = name;
+	}
+	
+	@Override
 	public ITextComponent getDisplayName()
 	{
-		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
+		return hasCustomName() ? new TextComponentString(getName()) : new TextComponentTranslation(getName());
 	}
-
-
+	
 	@Override
 	public void update()
 	{
 		ItemStack toDestroy = slots.getStackInSlot(0);
-		if (CyberwareAPI.canDeconstruct(toDestroy) && toDestroy.getCount() > 0 && (slots.getStackInSlot(2).isEmpty() || slots.getStackInSlot(2).getCount() == 0))
+		if ( CyberwareAPI.canDeconstruct(toDestroy)
+		  && toDestroy.getCount() > 0
+		  && slots.getStackInSlot(2).isEmpty() )
 		{
 			ticks++;
 			
-			if (ticksMove > ticks || (ticks - ticksMove > Math.max((Math.abs(lastX - x) * 3), (Math.abs(lastZ - z) * 3)) + 10))
+			if ( ticksMove > ticks
+			  || (ticks - ticksMove > Math.max(Math.abs(lastX - x) * 3, Math.abs(lastZ - z) * 3) + 10) )
 			{
 				ticksMove = ticks;
 				lastX = x;
@@ -301,19 +283,21 @@ public class TileEntityScanner extends TileEntity implements ITickable
 				ticks = 0;
 				ticksMove = 0;
 
-				if (!world.isRemote && !(slots.getStackInSlot(1).isEmpty() && slots.getStackInSlot(1).getCount() > 0))
+				if ( !world.isRemote
+				  && !slots.getStackInSlot(1).isEmpty() )
 				{
-					float chance = CyberwareConfig.SCANNER_CHANCE + (CyberwareConfig.SCANNER_CHANCE_ADDL * (slots.getStackInSlot(0).getCount() - 1));
+					float chance = CyberwareConfig.SCANNER_CHANCE
+					             + CyberwareConfig.SCANNER_CHANCE_ADDL * (slots.getStackInSlot(0).getCount() - 1);
 					if (slots.getStackInSlot(0).isItemStackDamageable())
 					{
-						chance = 50F * (1F - (slots.getStackInSlot(0).getItemDamage() * 1F / slots.getStackInSlot(0).getMaxDamage()));
+						chance = 50F * (1F - (slots.getStackInSlot(0).getItemDamage() / (float) slots.getStackInSlot(0).getMaxDamage()));
 					}
 					chance = Math.min(chance, 50F);
 					
 					if (world.rand.nextFloat() < (chance / 100F))
 					{
-						ItemStack blue = ItemBlueprint.getBlueprintForItem(toDestroy);
-						slots.setStackInSlot(2, blue);
+						ItemStack stackBlueprint = ItemBlueprint.getBlueprintForItem(toDestroy);
+						slots.setStackInSlot(2, stackBlueprint);
 						ItemStack current = slots.getStackInSlot(1);
 						current.shrink(1);
 						if (current.getCount() <= 0)
@@ -322,29 +306,25 @@ public class TileEntityScanner extends TileEntity implements ITickable
 						}
 						slots.setStackInSlot(1, current);
 						world.notifyBlockUpdate(pos, world.getBlockState(getPos()), world.getBlockState(getPos()), 2);
-
 					}
-					
 				}
 			}
-			this.markDirty();
+			markDirty();
 		}
 		else
 		{
 			x = lastX = z = lastZ = 0;
 			if (ticks != 0)
 			{
-				this.ticks = 0;
-				this.markDirty();
+				ticks = 0;
+				markDirty();
 			}
 		}
 	}
-
-
+	
 	public float getProgress()
 	{
 		return ticks * 1F / CyberwareConfig.SCANNER_TIME;
 	}
-
 	
 }

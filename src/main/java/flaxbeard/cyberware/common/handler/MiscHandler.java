@@ -5,8 +5,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -57,33 +55,32 @@ public class MiscHandler
 					event.getToolTip().addAll(info);
 				}
 				
-				NonNullList<NonNullList<ItemStack>> reqs = ware.required(stack);
-				if (reqs.size() > 0)
+				NonNullList<NonNullList<ItemStack>> requirements = ware.required(stack);
+				if (requirements.size() > 0)
 				{
 					String joined = "";
-					for (int i = 0; i < reqs.size(); i++)
+					for (int indexRequirement = 0; indexRequirement < requirements.size(); indexRequirement++)
 					{
 						String toAdd = "";
 						
-						for (int j = 0; j < reqs.get(i).size(); j++)
+						for (int indexSubRequirement = 0; indexSubRequirement < requirements.get(indexRequirement).size(); indexSubRequirement++)
 						{
-							if (j != 0)
+							if (indexSubRequirement != 0)
 							{
 								toAdd += " " + I18n.format("cyberware.tooltip.joiner_or") + " ";
 							}
-							toAdd += I18n.format(reqs.get(i).get(j).getTranslationKey() + ".name");
+							toAdd += I18n.format(requirements.get(indexRequirement).get(indexSubRequirement).getTranslationKey() + ".name");
 							
 						}
 						
-						if (i != 0)
+						if (indexRequirement != 0)
 						{
 							joined += I18n.format("cyberware.tooltip.joiner") + " ";
 						}
 						joined += toAdd;
 						
 					}
-					event.getToolTip().add(ChatFormatting.AQUA + I18n.format("cyberware.tooltip.requires") + " "
-							+ joined);
+					event.getToolTip().add(ChatFormatting.AQUA + I18n.format("cyberware.tooltip.requires") + " " + joined);
 				}
 				event.getToolTip().add(ChatFormatting.RED + I18n.format("cyberware.slot." + ware.getSlot(stack).getName()));
 				
@@ -114,13 +111,13 @@ public class MiscHandler
 	@SubscribeEvent
 	public void handleNeuropozynePopulation(LootTableLoadEvent event)
 	{
-		if (event.getName() == LootTableList.CHESTS_SIMPLE_DUNGEON
-				|| event.getName() == LootTableList.CHESTS_ABANDONED_MINESHAFT
-				|| event.getName() == LootTableList.CHESTS_STRONGHOLD_CROSSING
-				|| event.getName() == LootTableList.CHESTS_STRONGHOLD_CORRIDOR
-				|| event.getName() == LootTableList.CHESTS_STRONGHOLD_LIBRARY
-				|| event.getName() == LootTableList.CHESTS_DESERT_PYRAMID
-				|| event.getName() == LootTableList.CHESTS_JUNGLE_TEMPLE)
+		if ( event.getName() == LootTableList.CHESTS_SIMPLE_DUNGEON
+		  || event.getName() == LootTableList.CHESTS_ABANDONED_MINESHAFT
+		  || event.getName() == LootTableList.CHESTS_STRONGHOLD_CROSSING
+		  || event.getName() == LootTableList.CHESTS_STRONGHOLD_CORRIDOR
+		  || event.getName() == LootTableList.CHESTS_STRONGHOLD_LIBRARY
+		  || event.getName() == LootTableList.CHESTS_DESERT_PYRAMID
+		  || event.getName() == LootTableList.CHESTS_JUNGLE_TEMPLE )
 		{
 			LootTable table = event.getTable();
 			LootPool main = event.getTable().getPool("main");

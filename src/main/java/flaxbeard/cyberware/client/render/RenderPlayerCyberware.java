@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -13,6 +12,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EnumPlayerModelParts;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
@@ -22,26 +22,27 @@ import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.api.item.EnableDisableHelper;
+import flaxbeard.cyberware.common.CyberwareConfig;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberlimb;
 import flaxbeard.cyberware.common.item.ItemHandUpgrade;
 
 public class RenderPlayerCyberware extends RenderPlayer
 {
-
+	
 	public boolean doMuscles = false;
 	public boolean doRobo = false;
 	public boolean doRusty = false;
-
+	
 	public RenderPlayerCyberware(RenderManager renderManager, boolean arms)
 	{
 		super(renderManager, arms);
 	}
-
+	
 	private static final ResourceLocation muscles = new ResourceLocation(Cyberware.MODID, "textures/models/player_muscles.png");
 	private static final ResourceLocation robo = new ResourceLocation(Cyberware.MODID, "textures/models/player_robot.png");
 	private static final ResourceLocation roboRust = new ResourceLocation(Cyberware.MODID, "textures/models/player_rusty_robot.png");
-
+	
 	@Override
 	public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
 	{
@@ -49,9 +50,9 @@ public class RenderPlayerCyberware extends RenderPlayer
 			doMuscles ? muscles : super.getEntityTexture(entity);
 	}
 	
-	public void setMainModel(ModelPlayer m)
+	public void setMainModel(ModelPlayer modelPlayer)
 	{
-		this.mainModel = m;
+		mainModel = modelPlayer;
 	}
 	
 	private static ModelClaws claws = new ModelClaws(0.0F);
@@ -77,7 +78,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();
-
+			
 			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
 			percent = Math.max(0F, percent);
@@ -90,7 +91,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 			GlStateManager.popMatrix();
 		}
 	}
-
+	
 	@Override
 	public void renderLeftArm(AbstractClientPlayer clientPlayer)
 	{
@@ -112,7 +113,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		  && EnableDisableHelper.isEnabled(itemStackClaws) )
 		{
 			GlStateManager.pushMatrix();
-
+			
 			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
 			percent = Math.min(1.0F, percent);
 			percent = Math.max(0F, percent);
@@ -125,20 +126,21 @@ public class RenderPlayerCyberware extends RenderPlayer
 			GlStateManager.popMatrix();
 		}
 	}
-
+	
 	public void doRender(@Nonnull AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
 		if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderPlayerEvent.Pre(entity, this, partialTicks, x, y, z))) return;
-		if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
+		if ( !entity.isUser()
+		  || renderManager.renderViewEntity == entity )
 		{
 			double d0 = y;
-
-			if (entity.isSneaking() && !(entity instanceof EntityPlayerSP))
+			
+			if (entity.isSneaking())
 			{
 				d0 = y - 0.125D;
 			}
-
-			this.setModelVisibilities(entity);
+			
+			setModelVisibilities(entity);
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 			doRenderELB(entity, x, d0, z, entityYaw, partialTicks);
 			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
@@ -148,141 +150,146 @@ public class RenderPlayerCyberware extends RenderPlayer
 	
 	public void doRenderELB(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
+		// if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(entity, this, partialTicks, x, y, z))) return;
 		GlStateManager.pushMatrix();
 		GlStateManager.disableCull();
-		this.mainModel.swingProgress = this.getSwingProgress(entity, partialTicks);
+		mainModel.swingProgress = getSwingProgress(entity, partialTicks);
 		boolean shouldSit = entity.isRiding() && (entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit());
-		this.mainModel.isRiding = shouldSit;
-		this.mainModel.isChild = entity.isChild();
+		mainModel.isRiding = shouldSit;
+		mainModel.isChild = entity.isChild();
 		
-		ItemStack head = entity.inventory.armorInventory.get(3);
-		ItemStack body = entity.inventory.armorInventory.get(2);
-		ItemStack legs = entity.inventory.armorInventory.get(1);
-		ItemStack shoes = entity.inventory.armorInventory.get(0);
+		ItemStack head  = entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
+		ItemStack body  = entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+		ItemStack legs  = entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
+		ItemStack shoes = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
 		ItemStack heldItem = entity.getHeldItemMainhand();
 		ItemStack offHand = entity.getHeldItemOffhand();
-
-		if (this.doRobo)
+		
+		if (doRobo)
 		{
-			entity.inventory.armorInventory.set(0,ItemStack.EMPTY);	
-			entity.inventory.armorInventory.set(1,ItemStack.EMPTY);
-			entity.inventory.mainInventory.set(entity.inventory.currentItem,ItemStack.EMPTY);
-			entity.inventory.offHandInventory.set(0,ItemStack.EMPTY);
+			entity.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
+			entity.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
+			entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStack.EMPTY);
+			entity.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
 		}
+		
 		try
 		{
-			float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-			float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
-			float f2 = f1 - f;
-
-			if (shouldSit && entity.getRidingEntity() instanceof EntityLivingBase)
+			float f = interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
+			float f1 = interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+			float netHeadYaw = f1 - f;
+			
+			if ( shouldSit
+			  && entity.getRidingEntity() instanceof EntityLivingBase )
 			{
 				EntityLivingBase entitylivingbase = (EntityLivingBase) entity.getRidingEntity();
-				f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
-				f2 = f1 - f;
-				float f3 = MathHelper.wrapDegrees(f2);
-
+				f = interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
+				netHeadYaw = f1 - f;
+				float f3 = MathHelper.wrapDegrees(netHeadYaw);
+				
 				if (f3 < -85.0F)
 				{
 					f3 = -85.0F;
 				}
-
+				
 				if (f3 >= 85.0F)
 				{
 					f3 = 85.0F;
 				}
-
+				
 				f = f1 - f3;
-
+				
 				if (f3 * f3 > 2500.0F)
 				{
 					f += f3 * 0.2F;
 				}
+				
+				netHeadYaw = f1 - f;
 			}
-
-			float f7 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
-			this.renderLivingAt(entity, x, y, z);
-			float f8 = this.handleRotationFloat(entity, partialTicks);
-			this.applyRotations(entity, f8, f, partialTicks);
-			float f4 = this.prepareScale(entity, partialTicks);
-			float f5 = 0.0F;
-			float f6 = 0.0F;
-
+			
+			float headPitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+			renderLivingAt(entity, x, y, z);
+			float ageInTicks = handleRotationFloat(entity, partialTicks);
+			applyRotations(entity, ageInTicks, f, partialTicks);
+			float scaleFactor = prepareScale(entity, partialTicks);
+			float limbSwingAmount = 0.0F;
+			float limbSwing = 0.0F;
+			
 			if (!entity.isRiding())
 			{
-				f5 = entity.prevLimbSwingAmount + (entity.limbSwingAmount - entity.prevLimbSwingAmount) * partialTicks;
-				f6 = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
-
+				limbSwingAmount = entity.prevLimbSwingAmount + (entity.limbSwingAmount - entity.prevLimbSwingAmount) * partialTicks;
+				limbSwing = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
+				
 				if (entity.isChild())
 				{
-					f6 *= 3.0F;
+					limbSwing *= 3.0F;
 				}
-
-				if (f5 > 1.0F)
+				
+				if (limbSwingAmount > 1.0F)
 				{
-					f5 = 1.0F;
+					limbSwingAmount = 1.0F;
 				}
+				netHeadYaw = f1 - f;
 			}
-
+			
 			GlStateManager.enableAlpha();
-			this.mainModel.setLivingAnimations(entity, f6, f5, partialTicks);
-			this.mainModel.setRotationAngles(f6, f5, f8, f2, f7, f4, entity);
-
-			if (this.renderOutlines)
+			mainModel.setLivingAnimations(entity, limbSwing, limbSwingAmount, partialTicks);
+			mainModel.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity);
+			
+			if (renderOutlines)
 			{
-				boolean flag1 = this.setScoreTeamColor(entity);
+				boolean wasTeamColorChanged = setScoreTeamColor(entity);
 				GlStateManager.enableColorMaterial();
-				GlStateManager.enableOutlineMode(this.getTeamColor(entity));
-
-				if (!this.renderMarker)
+				GlStateManager.enableOutlineMode(getTeamColor(entity));
+				
+				if (!renderMarker)
 				{
-					this.renderModel(entity, f6, f5, f8, f2, f7, f4);
+					renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 				}
-
+				
 				if (!entity.isSpectator())
 				{
-					this.renderLayers(entity, f6, f5, partialTicks, f8, f2, f7, f4);
+					renderLayers(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 				}
-
+				
 				GlStateManager.disableOutlineMode();
 				GlStateManager.disableColorMaterial();
-
-				if (flag1)
+				
+				if (wasTeamColorChanged)
 				{
-					this.unsetScoreTeamColor();
+					unsetScoreTeamColor();
 				}
 			}
 			else
 			{
-				boolean flag = this.setDoRenderBrightness(entity, partialTicks);
-				this.renderModel(entity, f6, f5, f8, f2, f7, f4);
-
-				if (flag)
+				boolean wasBrightnessChanged = setDoRenderBrightness(entity, partialTicks);
+				renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
+				if (wasBrightnessChanged)
 				{
-					this.unsetBrightness();
+					unsetBrightness();
 				}
-
+				
 				GlStateManager.depthMask(true);
-
+				
 				if (!entity.isSpectator())
 				{
-					this.renderLayers(entity, f6, f5, partialTicks, f8, f2, f7, f4);
+					renderLayers(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 				}
 			}
-
+			
 			GlStateManager.disableRescaleNormal();
 		}
 		catch (Exception exception)
 		{
 		}
-
-		entity.inventory.armorInventory.set(3, head);
-		entity.inventory.armorInventory.set(2, body);
-		entity.inventory.armorInventory.set(1, legs);
-		entity.inventory.armorInventory.set(0, shoes);
-		entity.inventory.mainInventory.set(entity.inventory.currentItem,heldItem);
-		entity.inventory.offHandInventory.set(0, offHand);
-
+		
+		entity.setItemStackToSlot(EntityEquipmentSlot.HEAD, head);
+		entity.setItemStackToSlot(EntityEquipmentSlot.CHEST, body);
+		entity.setItemStackToSlot(EntityEquipmentSlot.LEGS, legs);
+		entity.setItemStackToSlot(EntityEquipmentSlot.FEET, shoes);
+		entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, heldItem);
+		entity.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, offHand);
+		
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.enableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
@@ -290,16 +297,17 @@ public class RenderPlayerCyberware extends RenderPlayer
 		GlStateManager.popMatrix();
 		
 		// From Render.class
-		if (!this.renderOutlines)
+		if (!renderOutlines)
 		{
-			this.renderName(entity, x, y, z);
+			renderName(entity, x, y, z);
 		}
+		// net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Post<>(entity, this, partialTicks, x, y, z));
 	}
-
-	private void setModelVisibilities(AbstractClientPlayer clientPlayer)
+	
+	private void setModelVisibilities(@Nonnull AbstractClientPlayer clientPlayer)
 	{
-		ModelPlayer modelplayer = this.getMainModel();
-
+		ModelPlayer modelplayer = getMainModel();
+		
 		if (clientPlayer.isSpectator())
 		{
 			modelplayer.setVisible(false);
@@ -311,24 +319,30 @@ public class RenderPlayerCyberware extends RenderPlayer
 			ItemStack itemstack = clientPlayer.getHeldItemMainhand();
 			ItemStack itemstack1 = clientPlayer.getHeldItemOffhand();
 			modelplayer.setVisible(true);
-			modelplayer.bipedHeadwear.showModel = !modelplayer.bipedHead.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.HAT);
-			modelplayer.bipedBodyWear.showModel = !modelplayer.bipedBody.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
-			modelplayer.bipedLeftLegwear.showModel = !modelplayer.bipedLeftLeg.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
-			modelplayer.bipedRightLegwear.showModel = !modelplayer.bipedRightLeg.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
-			modelplayer.bipedLeftArmwear.showModel = !modelplayer.bipedLeftArm.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
-			modelplayer.bipedRightArmwear.showModel = !modelplayer.bipedRightArm.isHidden && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
+			modelplayer.bipedHeadwear.showModel = !modelplayer.bipedHead.isHidden
+			                                   && clientPlayer.isWearing(EnumPlayerModelParts.HAT);
+			modelplayer.bipedBodyWear.showModel = !modelplayer.bipedBody.isHidden
+			                                   && clientPlayer.isWearing(EnumPlayerModelParts.JACKET);
+			modelplayer.bipedLeftLegwear.showModel = !modelplayer.bipedLeftLeg.isHidden
+			                                      && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_PANTS_LEG);
+			modelplayer.bipedRightLegwear.showModel = !modelplayer.bipedRightLeg.isHidden
+			                                       && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_PANTS_LEG);
+			modelplayer.bipedLeftArmwear.showModel = !modelplayer.bipedLeftArm.isHidden
+			                                      && clientPlayer.isWearing(EnumPlayerModelParts.LEFT_SLEEVE);
+			modelplayer.bipedRightArmwear.showModel = !modelplayer.bipedRightArm.isHidden
+			                                       && clientPlayer.isWearing(EnumPlayerModelParts.RIGHT_SLEEVE);
 			modelplayer.isSneak = clientPlayer.isSneaking();
 			ModelBiped.ArmPose modelbiped$armpose = ModelBiped.ArmPose.EMPTY;
 			ModelBiped.ArmPose modelbiped$armpose1 = ModelBiped.ArmPose.EMPTY;
-
+			
 			if (!itemstack.isEmpty())
 			{
 				modelbiped$armpose = ModelBiped.ArmPose.ITEM;
-
+				
 				if (clientPlayer.getItemInUseCount() > 0)
 				{
 					EnumAction enumaction = itemstack.getItemUseAction();
-
+					
 					if (enumaction == EnumAction.BLOCK)
 					{
 						modelbiped$armpose = ModelBiped.ArmPose.BLOCK;
@@ -339,22 +353,22 @@ public class RenderPlayerCyberware extends RenderPlayer
 					}
 				}
 			}
-
+			
 			if (!itemstack1.isEmpty())
 			{
 				modelbiped$armpose1 = ModelBiped.ArmPose.ITEM;
-
+				
 				if (clientPlayer.getItemInUseCount() > 0)
 				{
 					EnumAction enumaction1 = itemstack1.getItemUseAction();
-
+					
 					if (enumaction1 == EnumAction.BLOCK)
 					{
 						modelbiped$armpose1 = ModelBiped.ArmPose.BLOCK;
 					}
 				}
 			}
-
+			
 			if (clientPlayer.getPrimaryHand() == EnumHandSide.RIGHT)
 			{
 				modelplayer.rightArmPose = modelbiped$armpose;
@@ -367,5 +381,5 @@ public class RenderPlayerCyberware extends RenderPlayer
 			}
 		}
 	}
-
+	
 }

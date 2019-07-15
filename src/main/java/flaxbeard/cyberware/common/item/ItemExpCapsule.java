@@ -29,14 +29,14 @@ public class ItemExpCapsule extends Item
 {
 	public ItemExpCapsule(String name)
 	{
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
 		
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 				
-		this.setMaxDamage(0);
-		this.setMaxStackSize(1);
+		setMaxDamage(0);
+		setMaxStackSize(1);
 
 		CyberwareContent.items.add(this);
 	}

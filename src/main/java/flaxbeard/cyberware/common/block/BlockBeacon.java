@@ -46,16 +46,16 @@ public class BlockBeacon extends BlockContainer
 		
 		String name = "beacon";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.beacon");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		ItemBlock itemBlock = new ItemBlockCyberware(this, "cyberware.tooltip.beacon");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
 
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityBeacon.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
@@ -100,7 +100,7 @@ public class BlockBeacon extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntityBeacon();
 	}
@@ -120,19 +120,10 @@ public class BlockBeacon extends BlockContainer
 	{
 		return BlockRenderLayer.CUTOUT;
 	}
-
-	
-	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
-	{ 
-
-		super.breakBlock(worldIn, pos, state);
-
-	}
 	
 	@Nonnull
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
@@ -140,9 +131,9 @@ public class BlockBeacon extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
-		EnumFacing enumfacing = EnumFacing.byIndex(meta);
+		EnumFacing enumfacing = EnumFacing.byIndex(metadata);
 
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
@@ -153,25 +144,25 @@ public class BlockBeacon extends BlockContainer
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return state.getValue(FACING).getIndex();
+		return blockState.getValue(FACING).getIndex();
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot)
+	public IBlockState withRotation(@Nonnull IBlockState blockState, Rotation rotation)
 	{
-		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+		return blockState.withProperty(FACING, rotation.rotate(blockState.getValue(FACING)));
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+	public IBlockState withMirror(@Nonnull IBlockState blockState, Mirror mirrorIn)
 	{
-		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+		return blockState.withRotation(mirrorIn.toRotation(blockState.getValue(FACING)));
 	}
 	
 	@Nonnull

@@ -87,7 +87,7 @@ public class ClientProxy extends CommonProxy
 				{
 					return tintIndex > 0 ? -1 : ((ItemArmorCyberware)stack.getItem()).getColor(stack);
 				}
-			}, CyberwareContent.trenchcoat);
+			}, CyberwareContent.trenchCoat);
 		}
 	}
 	
