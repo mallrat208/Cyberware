@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import flaxbeard.cyberware.api.ICyberwareUserData;
 import flaxbeard.cyberware.common.item.ItemBrainUpgrade;
@@ -28,7 +29,7 @@ import flaxbeard.cyberware.common.lib.LibConstants;
 
 public class TileEntityBeacon extends TileEntity implements ITickable
 {
-	private static List<Integer> tiers = new ArrayList<>();
+	private static List<Integer> tiers = new CopyOnWriteArrayList<>();
 	private static Map<Integer, Map<Integer, Map<BlockPos, Integer>>> mapBeaconPositionByTierDimension = new HashMap<>();
 	private boolean wasWorking = false;
 	private int count = 0;
@@ -42,9 +43,12 @@ public class TileEntityBeacon extends TileEntity implements ITickable
 		{
 			mapBeaconPositionByDimension = new HashMap<>();
 			mapBeaconPositionByTierDimension.put(tier, mapBeaconPositionByDimension);
-			tiers.add(tier);
-			Collections.sort(tiers);
-			Collections.reverse(tiers);
+			if (!tiers.contains(tier))
+			{
+				tiers.add(tier);
+				Collections.sort(tiers);
+				Collections.reverse(tiers);
+			}
 		}
 		
 		return mapBeaconPositionByDimension;

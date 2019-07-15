@@ -35,8 +35,9 @@ public class NotificationDisplay extends HudElementBase
 		setDefaultVerticalAnchor(EnumAnchorVertical.BOTTOM);
 	}
 	
-	private static int tierRadio = -1;
-	private static boolean isWearingLightArmor = false;
+	private static int cache_tickExisted = -1;
+	private static int cache_tierRadio = -1;
+	private static boolean cache_isWearingLightArmor = false;
 	private static final NotificationInstance[] examples = new NotificationInstance[] {
 			new NotificationInstance(0, new NotificationArmor(true)),
 			new NotificationInstance(0, new NotificationArmor(false)),
@@ -62,21 +63,22 @@ public class NotificationDisplay extends HudElementBase
 		
 		Minecraft.getMinecraft().getTextureManager().bindTexture(HudHandler.HUD_TEXTURE);
 		
-		if (entityPlayer.ticksExisted % 20 == 0)
+		if (entityPlayer.ticksExisted != cache_tickExisted)
 		{
-			boolean wasWearingLightArmor = isWearingLightArmor;
-			isWearingLightArmor = ArmorClass.isWearingLightOrNone(entityPlayer);
-			if (isWearingLightArmor != wasWearingLightArmor)
+			cache_tickExisted = entityPlayer.ticksExisted;
+			boolean wasWearingLightArmor = cache_isWearingLightArmor;
+			cache_isWearingLightArmor = ArmorClass.isWearingLightOrNone(entityPlayer);
+			if (cache_isWearingLightArmor != wasWearingLightArmor)
 			{
-				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(isWearingLightArmor)));
+				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationArmor(cache_isWearingLightArmor)));
 			}
-		}
-		
-		int tierRadioPrevious = tierRadio;
-		tierRadio = TileEntityBeacon.isInRange(entityPlayer.world, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ);
-		if (tierRadio != tierRadioPrevious)
-		{
-			HudHandler.addNotification(new NotificationInstance(currTime, new NotificationRadio(tierRadio)));
+			
+			int tierRadioPrevious = cache_tierRadio;
+			cache_tierRadio = TileEntityBeacon.isInRange(entityPlayer.world, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ);
+			if (cache_tierRadio != tierRadioPrevious)
+			{
+				HudHandler.addNotification(new NotificationInstance(currTime, new NotificationRadio(cache_tierRadio)));
+			}
 		}
 		
 		// Render some placeholder notifications if the Hud config GUI is open so that the player can see what it'll look like in use
