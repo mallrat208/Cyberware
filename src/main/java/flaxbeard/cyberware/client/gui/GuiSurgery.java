@@ -1540,9 +1540,7 @@ public class GuiSurgery extends GuiContainer
 
 	protected void renderToolTip(@Nonnull ItemStack stack, int x, int y, int extras)
 	{
-		// TODO: ITooltipFlag
-		//List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
-		List<String> list = stack.getTooltip(this.mc.player, ITooltipFlag.TooltipFlags.ADVANCED);
+		List<String> listTooltips = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 
 		for (int indexTooltip = 0; indexTooltip < listTooltips.size(); indexTooltip++)
 		{
