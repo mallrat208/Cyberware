@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -24,8 +23,6 @@ import flaxbeard.cyberware.common.network.TriggerActiveAbilityPacket;
 
 public class ClientUtils
 {
-	@SideOnly(Side.CLIENT)
-	public static final ModelBiped modelBikerJacket = new ModelBiped(0.51F);
 	
 	@SideOnly(Side.CLIENT)
 	public static final ModelTrenchCoat modelTrenchCoat = new ModelTrenchCoat(0.51F);

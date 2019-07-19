@@ -5,8 +5,6 @@ import javax.annotation.Nonnull;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityArmorStand;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -75,22 +73,14 @@ public class ItemArmorCyberware extends ItemArmor implements IDeconstructable
 	@SideOnly(Side.CLIENT)
 	public ModelBiped getArmorModel(EntityLivingBase entityLivingBase, ItemStack itemStack, EntityEquipmentSlot armorSlot, ModelBiped _default)
 	{
-		ClientUtils.modelTrenchCoat.setModelAttributes(_default);
-		ClientUtils.modelBikerJacket.setModelAttributes(_default);
-		ClientUtils.modelTrenchCoat.bipedRightArm.isHidden = !(entityLivingBase instanceof EntityPlayer)
-		                                                  && !(entityLivingBase instanceof EntityArmorStand);
-		ClientUtils.modelTrenchCoat.bipedLeftArm.isHidden = !(entityLivingBase instanceof EntityPlayer)
-		                                                 && !(entityLivingBase instanceof EntityArmorStand);
-		ClientUtils.modelBikerJacket.bipedRightArm.isHidden = ClientUtils.modelTrenchCoat.bipedRightArm.isHidden;
-		ClientUtils.modelBikerJacket.bipedLeftArm.isHidden = ClientUtils.modelTrenchCoat.bipedLeftArm.isHidden;
-		
 		if ( !itemStack.isEmpty()
 		  && itemStack.getItem() == CyberwareContent.trenchCoat)
 		{
+			ClientUtils.modelTrenchCoat.setDefaultModel(_default);
 			return ClientUtils.modelTrenchCoat;
 		}
 		
-		return ClientUtils.modelBikerJacket;
+		return null;
 	}
 	
 	@Override
