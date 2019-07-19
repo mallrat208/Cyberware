@@ -8,6 +8,8 @@ public class ItemSurgeryTable extends Item
 {
 	public ItemSurgeryTable()
 	{
+		super();
+		
 		String name = "surgery_table";
 		
 		setRegistryName(name);

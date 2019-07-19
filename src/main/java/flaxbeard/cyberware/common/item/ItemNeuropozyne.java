@@ -27,6 +27,8 @@ public class ItemNeuropozyne extends Item
 {
     public ItemNeuropozyne(String name)
     {
+        super();
+        
         setRegistryName(name);
         ForgeRegistries.ITEMS.register(this);
         setTranslationKey(Cyberware.MODID + "." + name);

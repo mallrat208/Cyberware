@@ -17,6 +17,8 @@ public class ItemCyberwareBase extends Item
 
 	public ItemCyberwareBase(String name, String... subnames)
 	{
+		super();
+		
 		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
 		setTranslationKey(Cyberware.MODID + "." + name);

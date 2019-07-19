@@ -31,6 +31,8 @@ public class ItemBlueprint extends Item implements IBlueprint
 {
 	public ItemBlueprint(String name)
 	{
+		super();
+		
 		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
 		setTranslationKey(Cyberware.MODID + "." + name);

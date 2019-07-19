@@ -29,6 +29,8 @@ public class ItemExpCapsule extends Item
 {
 	public ItemExpCapsule(String name)
 	{
+		super();
+		
 		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
 		setTranslationKey(Cyberware.MODID + "." + name);
