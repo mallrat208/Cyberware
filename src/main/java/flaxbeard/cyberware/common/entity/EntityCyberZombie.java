@@ -78,8 +78,8 @@ public class EntityCyberZombie extends EntityZombie
 	
 	protected void setSizeNormal(float width, float height)
 	{
-		if ( width != width
-		  || height != height )
+		if ( width != this.width
+		  || height != this.height )
 		{
 			float widthPrevious = this.width;
 			this.width = width;
@@ -88,7 +88,7 @@ public class EntityCyberZombie extends EntityZombie
 			setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ,
 			                                       axisalignedbb.minX + width, axisalignedbb.minY + height, axisalignedbb.minZ + width ));
 			
-			if ( width > widthPrevious
+			if ( this.width > widthPrevious
 			  && !firstUpdate
 			  && !world.isRemote )
 			{
