@@ -167,6 +167,8 @@ public class RenderPlayerCyberware extends RenderPlayer
 		
 		if (doRobo)
 		{
+			entity.setItemStackToSlot(EntityEquipmentSlot.HEAD, ItemStack.EMPTY);
+			entity.setItemStackToSlot(EntityEquipmentSlot.CHEST, ItemStack.EMPTY);
 			entity.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
 			entity.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
 			entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStack.EMPTY);
@@ -295,7 +297,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, heldItem);
 		entity.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, offHand);
 		
-		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+//		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.enableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 		GlStateManager.enableCull();
