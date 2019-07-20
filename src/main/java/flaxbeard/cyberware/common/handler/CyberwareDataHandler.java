@@ -224,10 +224,14 @@ public class CyberwareDataHandler
 						boolean works = entityCyberZombie.setBrute();
 					}
 					entityCyberZombie.setLocationAndAngles(entityLiving.posX, entityLiving.posY, entityLiving.posZ, entityLiving.rotationYaw, entityLiving.rotationPitch);
+					entityCyberZombie.onInitialSpawn(event.getWorld().getDifficultyForLocation(entityCyberZombie.getPosition()), null);
 					
 					for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-						entityCyberZombie.setItemStackToSlot(slot, entityLiving.getItemStackFromSlot(slot));
-						// @TODO: transfer drop chance, see Halloween in Vanilla
+						if (entityCyberZombie.getItemStackFromSlot(slot).isEmpty())
+						{
+							entityCyberZombie.setItemStackToSlot(slot, entityLiving.getItemStackFromSlot(slot));
+							// @TODO: transfer drop chance, see Halloween in Vanilla
+						}
 					}
 					event.getWorld().spawnEntity(entityCyberZombie);
 					entityLiving.deathTime = 19;
