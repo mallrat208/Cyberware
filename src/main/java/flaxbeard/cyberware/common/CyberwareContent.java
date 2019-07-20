@@ -208,10 +208,10 @@ public class CyberwareContent
         {
             katanaMat = EnumHelper.addToolMaterial("KATANA",
                     ToolMaterial.IRON.getHarvestLevel(),
-                    ToolMaterial.IRON.getMaxUses(),
-                    ToolMaterial.IRON.getEfficiency(),
-                    ToolMaterial.IRON.getAttackDamage(),
-                    ToolMaterial.IRON.getEnchantability());
+                    ToolMaterial.DIAMOND.getMaxUses(),
+                    ToolMaterial.DIAMOND.getEfficiency(),
+                    ToolMaterial.DIAMOND.getAttackDamage(),
+                    ToolMaterial.GOLD.getEnchantability());
             katanaMat.setRepairItem(new ItemStack(component, 1, 4));
             
             katana = new ItemSwordCyberware("katana", katanaMat);
