@@ -116,6 +116,8 @@ public class EssentialsMissingHandlerClient
 				boolean rightLegRusty = robotRightLeg && CyberwareContent.cyberlimbs.getQuality(cyberwareUserData.getCyberware(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG))) == CyberwareAPI.QUALITY_SCAVENGED;
 				
 				// Human/body pass
+				renderToUse.doRobo = false;
+				renderToUse.doRusty = false;
 				renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
 				
 				if (!cyberwareUserData.isCyberwareInstalled(CyberwareContent.skinUpgrades.getCachedStack(ItemSkinUpgrade.META_SYNTHETIC_SKIN)))
@@ -130,9 +132,15 @@ public class EssentialsMissingHandlerClient
 					mainModel.bipedLeftLeg.isHidden = !(robotLeftLeg && !leftLegRusty);
 					mainModel.bipedRightLeg.isHidden = !(robotRightLeg && !rightLegRusty);
 					
-					renderToUse.doRobo = true;
-					renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					renderToUse.doRobo = false;
+					if ( !mainModel.bipedLeftArm.isHidden
+					  || !mainModel.bipedRightArm.isHidden
+					  || !mainModel.bipedLeftLeg.isHidden
+					  || !mainModel.bipedRightLeg.isHidden )
+					{
+						renderToUse.doRobo = true;
+						renderToUse.doRusty = false;
+						renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
+					}
 					
 					// Rusty 'ware pass
 					mainModel.bipedLeftArm.isHidden = !leftArmRusty;
@@ -140,11 +148,15 @@ public class EssentialsMissingHandlerClient
 					mainModel.bipedLeftLeg.isHidden = !leftLegRusty;
 					mainModel.bipedRightLeg.isHidden = !rightLegRusty;
 					
-					renderToUse.doRobo = true;
-					renderToUse.doRusty = true;
-					renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
-					renderToUse.doRobo = false;
-					renderToUse.doRusty = false;
+					if ( !mainModel.bipedLeftArm.isHidden
+					  || !mainModel.bipedRightArm.isHidden
+					  || !mainModel.bipedLeftLeg.isHidden
+					  || !mainModel.bipedRightLeg.isHidden )
+					{
+						renderToUse.doRobo = true;
+						renderToUse.doRusty = true;
+						renderToUse.doRender((AbstractClientPlayer) entityPlayer, event.getX(), event.getY() - (hasNoLegs ? (11F / 16F) : 0), event.getZ(), entityPlayer.rotationYaw, event.getPartialRenderTick());
+					}
 					
 					// restore defaults
 					mainModel.bipedBody.isHidden = false;
