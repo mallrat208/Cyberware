@@ -281,6 +281,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 		}
 		catch (Exception exception)
 		{
+			Cyberware.logger.error("Disabling custom render until next restart");
+			CyberwareConfig.RENDER = false;
+			exception.printStackTrace();
+			Cyberware.logger.error(String.format("Exception while rendering %s with %s",
+			                                     entity, this));
 		}
 		
 		entity.setItemStackToSlot(EntityEquipmentSlot.HEAD, head);
