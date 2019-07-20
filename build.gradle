@@ -257,6 +257,7 @@ idea { module { inheritOutputDirs = true } }
 jar {
     exclude "**/TODO.txt"
     exclude "**/update-dist.json"
+    destinationDir = file 'output'
 }
 
 task devJar(type: Jar) {
