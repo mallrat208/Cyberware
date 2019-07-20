@@ -2,6 +2,7 @@ package flaxbeard.cyberware.common;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.util.HashSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -39,12 +40,18 @@ public class CyberwareConfig
     public static int ESSENCE = 100;
     public static int CRITICAL_ESSENCE = 25;
     
-    public static float DROP_RARITY = 50F;
-    public static int ZOMBIE_WEIGHT = 15;
-    public static int ZOMBIE_MIN_PACK = 1;
-    public static int ZOMBIE_MAX_PACK = 1;
-    public static boolean NO_ZOMBIES = false;
-    public static boolean NO_CLOTHES = false;
+    public static boolean MOBS_ENABLE_CYBER_ZOMBIES = true;
+    public static int MOBS_CYBER_ZOMBIE_WEIGHT = 15;
+    public static int MOBS_CYBER_ZOMBIE_MIN_PACK = 1;
+    public static int MOBS_CYBER_ZOMBIE_MAX_PACK = 1;
+    public static HashSet<Integer> MOBS_DIMENSION_IDS = new HashSet<>();
+    public static boolean MOBS_IS_DIMENSION_BLACKLIST = true;
+    public static boolean MOBS_APPLY_DIMENSION_TO_SPAWNING = true;
+    public static boolean MOBS_APPLY_DIMENSION_TO_BEACON = true;
+    
+    public static boolean MOBS_ADD_CLOTHES = true;
+    public static float MOBS_CYBER_ZOMBIE_DROP_RARITY = 50.0F;
+    public static float MOBS_CLOTH_DROP_RARITY = 50.0F;
     
     public static int HUDR = 76;
     public static int HUDG = 255;
@@ -65,8 +72,8 @@ public class CyberwareConfig
     
     public static float DROP_CHANCE = 100F;
     
-    public static boolean KATANA = true;
-    public static boolean CLOTHES = true;
+    public static boolean ENABLE_KATANA = true;
+    public static boolean ENABLE_CLOTHES = true;
     public static boolean RENDER = true;
     
     public static int TESLA_PER_POWER = 1;
@@ -145,13 +152,20 @@ public class CyberwareConfig
     {
         config.load();
         
-        NO_ZOMBIES = config.getBoolean("Disable cyberzombies", C_MOBS, NO_ZOMBIES, "");
-        ZOMBIE_WEIGHT = config.getInt("Spawning weight of Cyberzombies", C_MOBS, ZOMBIE_WEIGHT, 0, Integer.MAX_VALUE, "Vanilla Zombie = 100, Enderman = 10, Witch = 5");
-        ZOMBIE_MIN_PACK = config.getInt("Minimum Cyberzombie pack size", C_MOBS, ZOMBIE_MIN_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 1, Witch = 1");
-        ZOMBIE_MAX_PACK = config.getInt("Maximum Cyberzombie pack size", C_MOBS, ZOMBIE_MAX_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 4, Witch = 1");
+        MOBS_ENABLE_CYBER_ZOMBIES = config.getBoolean("CyberZombies are enabled", C_MOBS, MOBS_ENABLE_CYBER_ZOMBIES, "");
+        MOBS_CYBER_ZOMBIE_WEIGHT = config.getInt("CyberZombies spawning weight", C_MOBS, MOBS_CYBER_ZOMBIE_WEIGHT, 0, Integer.MAX_VALUE, "Vanilla Zombie = 100, Enderman = 10, Witch = 5");
+        MOBS_CYBER_ZOMBIE_MIN_PACK = config.getInt("CyberZombies minimum pack size", C_MOBS, MOBS_CYBER_ZOMBIE_MIN_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 1, Witch = 1");
+        MOBS_CYBER_ZOMBIE_MAX_PACK = config.getInt("CyberZombies maximum pack size", C_MOBS, MOBS_CYBER_ZOMBIE_MAX_PACK, 0, Integer.MAX_VALUE, "Vanilla Zombie = 4, Enderman = 4, Witch = 1");
+        int[] dimensionIds = config.get(C_MOBS, "Dimensions ids", new int[] {}).getIntList();
+        MOBS_DIMENSION_IDS = new HashSet<>(dimensionIds.length);
+        for (int dimensionId : dimensionIds) MOBS_DIMENSION_IDS.add(dimensionId);
+        MOBS_IS_DIMENSION_BLACKLIST = config.getBoolean("Dimension ids is a blacklist?", C_MOBS, MOBS_IS_DIMENSION_BLACKLIST, "");
+        MOBS_APPLY_DIMENSION_TO_SPAWNING = config.getBoolean("Dimension ids applies to natural spawning?", C_MOBS, MOBS_APPLY_DIMENSION_TO_SPAWNING, "");
+        MOBS_APPLY_DIMENSION_TO_BEACON = config.getBoolean("Dimension ids applies to beacon, radio & cranial broadcaster?", C_MOBS, MOBS_APPLY_DIMENSION_TO_BEACON, "");
         
-        NO_CLOTHES = config.getBoolean("Prevent mobs from spawning with Cyberware clothing", C_MOBS, NO_CLOTHES, "");
-        DROP_RARITY = config.getFloat("Percent chance a Cyberzombie drops an item", C_MOBS, DROP_RARITY, 0F, 100F, "");
+        MOBS_ADD_CLOTHES = config.getBoolean("Add Cyberware clothing to mobs", C_MOBS, MOBS_ADD_CLOTHES, "");
+        MOBS_CYBER_ZOMBIE_DROP_RARITY = config.getFloat("Percent chance a CyberZombie drops a cyberware", C_MOBS, MOBS_CYBER_ZOMBIE_DROP_RARITY, 0F, 100F, "");
+        MOBS_CLOTH_DROP_RARITY = config.getFloat("Percent chance a Cyberware clothing is dropped", C_MOBS, MOBS_CLOTH_DROP_RARITY, 0F, 100F, "");
         
         SURGERY_CRAFTING = config.getBoolean("Enable crafting recipe for Robosurgeon", C_OTHER, SURGERY_CRAFTING, "Normally only found in Nether fortresses");
         TESLA_PER_POWER = config.getInt("RF/Tesla per internal power unit", C_OTHER, TESLA_PER_POWER, 0, Integer.MAX_VALUE, "");
@@ -169,8 +183,8 @@ public class CyberwareConfig
         SCANNER_CHANCE_ADDL = config.getFloat("Additive chance for Scanner per extra item", C_MACHINES, SCANNER_CHANCE_ADDL, 0, 100F, "");
         SCANNER_TIME = config.getInt("Ticks taken per Scanner operation", C_MACHINES, SCANNER_TIME, 0, Integer.MAX_VALUE, "24000 is one Minecraft day, 1200 is one real-life minute");
         
-        KATANA = config.getBoolean("Enable Katana", C_OTHER, KATANA, "");
-        CLOTHES = config.getBoolean("Enable Trenchcoat, Mirrorshades, and Biker Jacket", C_OTHER, CLOTHES, "");
+        ENABLE_KATANA = config.getBoolean("Enable Katana", C_OTHER, ENABLE_KATANA, "");
+        ENABLE_CLOTHES = config.getBoolean("Enable Trench Coat, Mirror Shades, and Biker Jacket", C_OTHER, ENABLE_CLOTHES, "");
         
         RENDER = config.getBoolean("Enable changes to player model (missing skin, missing limbs, Cybernetic limbs)", C_OTHER, RENDER, "");
         

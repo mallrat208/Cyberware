@@ -78,7 +78,7 @@ public class ClientProxy extends CommonProxy
 		MinecraftForge.EVENT_BUS.register(HudHandler.INSTANCE);
 		ShaderUtil.init();
 
-		if (CyberwareConfig.CLOTHES)
+		if (CyberwareConfig.ENABLE_CLOTHES)
 		{
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(new IItemColor()
 			{

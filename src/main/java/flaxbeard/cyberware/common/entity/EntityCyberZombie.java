@@ -153,8 +153,8 @@ public class EntityCyberZombie extends EntityZombie
 	{
 		super.dropEquipment(wasRecentlyHit, lootingModifier);
 		
-		if ( CyberwareConfig.KATANA
-		  && !CyberwareConfig.NO_CLOTHES
+		if ( CyberwareConfig.ENABLE_KATANA
+		  && CyberwareConfig.MOBS_ADD_CLOTHES
 		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
 		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana )
 		{
@@ -182,7 +182,7 @@ public class EntityCyberZombie extends EntityZombie
 		
 		if (hasRandomWare)
 		{
-			float rarity = Math.min(100.0F, CyberwareConfig.DROP_RARITY + lootingModifier * 5.0F);
+			float rarity = Math.min(100.0F, CyberwareConfig.MOBS_CYBER_ZOMBIE_DROP_RARITY + lootingModifier * 5.0F);
 			if (world.rand.nextFloat() < (rarity / 100.0F))
 			{
 				List<ItemStack> allWares = new ArrayList<>();
@@ -228,8 +228,8 @@ public class EntityCyberZombie extends EntityZombie
 	{
 		super.setEquipmentBasedOnDifficulty(difficulty);
 		
-		if ( CyberwareConfig.KATANA
-		  && !CyberwareConfig.NO_CLOTHES
+		if ( CyberwareConfig.ENABLE_KATANA
+		  && CyberwareConfig.MOBS_ADD_CLOTHES
 		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
 		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD )
 		{

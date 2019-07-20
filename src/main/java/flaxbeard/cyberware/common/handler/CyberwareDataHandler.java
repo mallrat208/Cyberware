@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntityZombie;
@@ -23,6 +24,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome.SpawnListEntry;
 
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -204,8 +207,10 @@ public class CyberwareDataHandler
 			}
 		}
 		
-		if ( !CyberwareConfig.NO_ZOMBIES
-		  && !(entityLiving instanceof EntityCyberZombie) )
+		if ( CyberwareConfig.MOBS_ENABLE_CYBER_ZOMBIES
+		  && !(entityLiving instanceof EntityCyberZombie)
+		  && ( !CyberwareConfig.MOBS_APPLY_DIMENSION_TO_BEACON
+		    || isValidDimension(event.getWorld()) ) )
 		{
 			int tier = TileEntityBeacon.isInRange(entityLiving.world, entityLiving.posX, entityLiving.posY, entityLiving.posZ);
 			if (tier > 0)
@@ -234,8 +239,8 @@ public class CyberwareDataHandler
 			}
 		}
 		
-		if ( CyberwareConfig.CLOTHES
-		  && !CyberwareConfig.NO_CLOTHES )
+		if ( CyberwareConfig.ENABLE_CLOTHES
+		  && CyberwareConfig.MOBS_ADD_CLOTHES )
 		{
 			if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmpty()
 			  && entityLiving.world.rand.nextFloat() < LibConstants.ZOMBIE_SHADES_CHANCE / 100F )
@@ -249,7 +254,7 @@ public class CyberwareDataHandler
 					entityLiving.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(CyberwareContent.shades2));
 				}
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 			
 			float chestRand = entityLiving.world.rand.nextFloat();
@@ -270,7 +275,7 @@ public class CyberwareDataHandler
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 			else if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()
 			       && chestRand - (LibConstants.ZOMBIE_TRENCH_CHANCE / 100F) < LibConstants.ZOMBIE_BIKER_CHANCE / 100F )
@@ -279,7 +284,7 @@ public class CyberwareDataHandler
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 		}
 	}
@@ -395,6 +400,33 @@ public class CyberwareDataHandler
 			}
 		}
 		return false;
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onPotentialSpawns(@Nonnull WorldEvent.PotentialSpawns event)
+	{
+		if (event.getType() != EnumCreatureType.MONSTER) return;
+		
+		if (!CyberwareConfig.MOBS_APPLY_DIMENSION_TO_SPAWNING) return;
+		
+		if (isValidDimension(event.getWorld())) return;
+		
+		List<SpawnListEntry> spawnListEntriesToRemove = new ArrayList<>(4);
+		for (SpawnListEntry spawnListEntry : event.getList())
+		{
+			if (spawnListEntry.entityClass.equals(EntityCyberZombie.class))
+			{
+				spawnListEntriesToRemove.add(spawnListEntry);
+			}
+		}
+		event.getList().removeAll(spawnListEntriesToRemove);
+	}
+	
+	public boolean isValidDimension(@Nonnull World world)
+	{
+		boolean isListed = CyberwareConfig.MOBS_DIMENSION_IDS.contains(world.provider.getDimension());
+		return (CyberwareConfig.MOBS_IS_DIMENSION_BLACKLIST && !isListed)
+		    || (!CyberwareConfig.MOBS_IS_DIMENSION_BLACKLIST && isListed);
 	}
 	
 	@SubscribeEvent

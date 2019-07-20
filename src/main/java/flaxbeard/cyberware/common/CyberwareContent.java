@@ -157,7 +157,7 @@ public class CyberwareContent
 
         zombieItems = new ArrayList<>();
 
-        if (!CyberwareConfig.NO_ZOMBIES)
+        if (CyberwareConfig.MOBS_ENABLE_CYBER_ZOMBIES)
         {
             EntityRegistry.registerModEntity(new ResourceLocation(Cyberware.MODID+":cyberzombie"), EntityCyberZombie.class, "cyberzombie", 0, Cyberware.INSTANCE, 80, 3, true);
             EntityRegistry.registerEgg(new ResourceLocation(Cyberware.MODID+":cyberzombie"), 0x6B6B6B, 0x799C65);
@@ -186,7 +186,7 @@ public class CyberwareContent
         blueprint = new ItemBlueprint("blueprint");
         component = new ItemCyberwareBase("component", "actuator", "reactor", "titanium", "ssc", "plating", "fiberoptics", "fullerene", "synthnerves", "storage", "microelectric");
 
-        if (CyberwareConfig.CLOTHES)
+        if (CyberwareConfig.ENABLE_CLOTHES)
         {
             shadesMat1 = EnumHelper.addArmorMaterial("SHADES", "cyberware:vanity", 5, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0.0F);
             shadesMat1.repairMaterial = new ItemStack(Item.getItemFromBlock(Blocks.GLASS),1,OreDictionary.WILDCARD_VALUE);
@@ -204,7 +204,7 @@ public class CyberwareContent
             trenchCoat = new ItemArmorCyberware("trenchcoat", trenchMat, 0, EntityEquipmentSlot.CHEST);
         }
 
-        if (CyberwareConfig.KATANA)
+        if (CyberwareConfig.ENABLE_KATANA)
         {
             katanaMat = EnumHelper.addToolMaterial("KATANA",
                     ToolMaterial.IRON.getHarvestLevel(),
@@ -623,24 +623,32 @@ public class CyberwareContent
 
     public static void postInit()
     {
-
-        if (!CyberwareConfig.NO_ZOMBIES)
+        if (CyberwareConfig.MOBS_ENABLE_CYBER_ZOMBIES)
         {
-            List<Biome> biomes = new ArrayList<>();
-
+            List<Biome> listBiomes = new ArrayList<>();
+            StringBuilder strBiomes = new StringBuilder();
+            
             for (Biome biome : Biome.REGISTRY)
             {
                 for (SpawnListEntry entry : biome.getSpawnableList(EnumCreatureType.MONSTER))
                 {
                     if (entry.entityClass == EntityZombie.class)
                     {
-                        biomes.add(biome);
+                        listBiomes.add(biome);
+                        if (strBiomes.length() > 0) strBiomes.append(", ");
+                        strBiomes.append(biome.getRegistryName());
+                        break;
                     }
                 }
             }
+            Cyberware.logger.info(String.format("Adding CyberZombies spawning to the following biomes: %s",
+                                                strBiomes.toString()));
             EntityRegistry.addSpawn(EntityCyberZombie.class,
-                                    CyberwareConfig.ZOMBIE_WEIGHT, CyberwareConfig.ZOMBIE_MIN_PACK, CyberwareConfig.ZOMBIE_MAX_PACK, EnumCreatureType.MONSTER,
-                                    biomes.toArray(new Biome[0]));
+                                    CyberwareConfig.MOBS_CYBER_ZOMBIE_WEIGHT,
+                                    CyberwareConfig.MOBS_CYBER_ZOMBIE_MIN_PACK,
+                                    CyberwareConfig.MOBS_CYBER_ZOMBIE_MAX_PACK,
+                                    EnumCreatureType.MONSTER,
+                                    listBiomes.toArray(new Biome[0]));
         }
 
     }
