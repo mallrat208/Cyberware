@@ -58,7 +58,7 @@ public class CyberwareSurgeryEvent extends EntityEvent
 		
 		public ItemStackHandler getTargetCyberwares()
 		{
-			return inventoryActual;
+			return inventoryTarget;
 		}
 	}
 	

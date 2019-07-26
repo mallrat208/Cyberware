@@ -3,7 +3,6 @@ package flaxbeard.cyberware.client.gui;
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -14,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -25,9 +25,9 @@ import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable;
 
 public class ContainerEngineeringTable extends Container
 {
+	
 	public class SlotEngineering extends SlotItemHandler
 	{
-
 		public SlotEngineering(IItemHandler itemHandler, int index, int xPosition, int yPosition)
 		{
 			super(itemHandler, index, xPosition, yPosition);
@@ -39,41 +39,31 @@ public class ContainerEngineeringTable extends Container
 			return true;
 		}
 		
-		
 		@Override
 		public void onSlotChanged()
 		{
 			super.onSlotChanged();
 			engineering.markDirty();
 			
-			if (this.slotNumber >= 2 && this.slotNumber <= 8)
+			if (slotNumber >= 2 && slotNumber <= 8)
 			{
 				engineering.updateRecipe();
 			}
 		}
 		
-		/*
 		@Override
-		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
-		{
-			super.onPickupFromSlot(entityPlayer, stack);
-			engineering.markDirty();
-		}
-		*/
-		
-		@Override
-		public void putStack(@Nullable ItemStack stack)
+		public void putStack(@Nonnull ItemStack stack)
 		{
 			engineering.slots.overrideExtract = true;
 			super.putStack(stack);
 			engineering.slots.overrideExtract = false;
-			engineering.markDirty();
 		}
 		
 		@Override
-		public boolean isItemValid(@Nullable ItemStack stack)
+		public boolean isItemValid(@Nonnull ItemStack stack)
 		{
-			return (this.slotNumber >= 2 && this.slotNumber < 8) || engineering.slots.isItemValidForSlot(this.slotNumber, stack);
+			return (slotNumber >= 2 && slotNumber < 8)
+			    || engineering.slots.isItemValidForSlot(slotNumber, stack);
 		}
 	}
 	
@@ -83,7 +73,7 @@ public class ContainerEngineeringTable extends Container
 		{
 			super(inventoryIn, index, xPosition, yPosition);
 		}
-
+		
 		@Override
 		public void onSlotChanged()
 		{
@@ -91,17 +81,8 @@ public class ContainerEngineeringTable extends Container
 			seeIfCheckNewBox();
 		}
 		
-		/*
 		@Override
-		public ItemStack onTake(EntityPlayer entityPlayer, ItemStack stack)
-		{
-			seeIfCheckNewBox();
-			return super.onTake(entityPlayer, stack);
-		}
-		*/
-		
-		@Override
-		public void putStack(ItemStack stack)
+		public void putStack(@Nonnull ItemStack stack)
 		{
 			super.putStack(stack);
 			seeIfCheckNewBox();
@@ -132,35 +113,22 @@ public class ContainerEngineeringTable extends Container
 			updateNBT();
 		}
 		
-		/*
-		@Override
-		public void onPickupFromSlot(EntityPlayer entityPlayer, ItemStack stack)
-		{
-			super.onPickupFromSlot(entityPlayer, stack);
-			updateNBT();
-		}
-		*/
-		
-		@Override
-		public void putStack(ItemStack stack)
-		{
-			super.putStack(stack);
-			updateNBT();
-		}
-		
 		private void updateNBT()
 		{
-			if (componentBox != null && componentBox instanceof Integer)
+			if ( componentBox != null
+			  && componentBox instanceof Integer )
 			{
 				ItemStack item = playerInv.mainInventory.get((Integer) componentBox);
-				if (!item.isEmpty() && item.getItem() == CyberwareContent.componentBox.ib)
+				if (!item.isEmpty() && item.getItem() == CyberwareContent.componentBox.itemBlock)
 				{
-					NBTTagCompound tagCompound = componentHandler.serializeNBT();
-					if (!item.hasTagCompound())
+					NBTTagCompound tagCompoundContents = componentHandler.serializeNBT();
+					NBTTagCompound tagCompoundItem = item.getTagCompound();
+					if (tagCompoundItem == null)
 					{
-						item.setTagCompound(new NBTTagCompound());
+						tagCompoundItem = new NBTTagCompound();
+						item.setTagCompound(tagCompoundItem);
 					}
-					item.getTagCompound().setTag("contents", tagCompound);
+					tagCompoundItem.setTag("contents", tagCompoundContents);
 				}
 			}
 		}
@@ -179,7 +147,7 @@ public class ContainerEngineeringTable extends Container
 	ItemStackHandler componentHandler = null;
 	public InventoryPlayer playerInv;
 	
-	public ContainerEngineeringTable(String uuid, InventoryPlayer playerInventory, TileEntityEngineeringTable engineering)
+	public ContainerEngineeringTable(String uuid, InventoryPlayer playerInventory, @Nonnull TileEntityEngineeringTable engineering)
 	{
 		this.playerInv = playerInventory;
 		this.engineering = engineering;
@@ -197,42 +165,46 @@ public class ContainerEngineeringTable extends Container
 				for (int z = -2; z < 3; z++)
 				{
 					BlockPos pos = engineering.getPos().add(x, y, z);
-					TileEntity te = engineering.getWorld().getTileEntity(pos);
-					if (te != null && te instanceof TileEntityBlueprintArchive)
+					TileEntity tileEntity = engineering.getWorld().getTileEntity(pos);
+					if (tileEntity instanceof TileEntityBlueprintArchive)
 					{
-						if (archive == null || te.getPos().equals(target))
+						if ( archive == null
+						  || tileEntity.getPos().equals(target) )
 						{
-							archive = (TileEntityBlueprintArchive) te;
+							archive = (TileEntityBlueprintArchive) tileEntity;
 							archiveIndex = archiveList.size();
 						}
-
-						archiveList.add((TileEntityBlueprintArchive) te);
+						
+						archiveList.add((TileEntityBlueprintArchive) tileEntity);
 					}
 				}
 			}
 		}
 		
-		for (int i = 0; i < playerInventory.mainInventory.size(); i++)
+		for (int indexSlot = 0; indexSlot < playerInventory.mainInventory.size(); indexSlot++)
 		{
-			ItemStack stack = playerInventory.mainInventory.get(i);
-			if (!stack.isEmpty() && stack.getItem() == CyberwareContent.componentBox.ib)
+			ItemStack stack = playerInventory.mainInventory.get(indexSlot);
+			if ( !stack.isEmpty()
+			  && stack.getItem() == CyberwareContent.componentBox.itemBlock)
 			{
-				if (!stack.hasTagCompound())
+				NBTTagCompound tagCompoundStack = stack.getTagCompound();
+				if (tagCompoundStack == null)
 				{
-					stack.setTagCompound(new NBTTagCompound());
+					tagCompoundStack = new NBTTagCompound();
+					stack.setTagCompound(tagCompoundStack);
 				}
-				if (!stack.getTagCompound().hasKey("contents"))
+				if (!tagCompoundStack.hasKey("contents"))
 				{
 					ItemStackHandler slots = new ItemStackHandlerComponent(18);
-					stack.getTagCompound().setTag("contents", slots.serializeNBT());
+					tagCompoundStack.setTag("contents", slots.serializeNBT());
 				}
 				if (componentBox == null )
 				{
-					componentBox = i;
+					componentBox = indexSlot;
 					componentBoxIndex = componentBoxList.size();
 				}
-
-				componentBoxList.add(i);
+				
+				componentBoxList.add(indexSlot);
 			}
 		}
 		
@@ -243,16 +215,16 @@ public class ContainerEngineeringTable extends Container
 				for (int z = -2; z < 3; z++)
 				{
 					BlockPos pos = engineering.getPos().add(x, y, z);
-					TileEntity te = engineering.getWorld().getTileEntity(pos);
-					if (te != null && te instanceof TileEntityComponentBox)
+					TileEntity tileEntity = engineering.getWorld().getTileEntity(pos);
+					if (tileEntity instanceof TileEntityComponentBox)
 					{
 						if (componentBox == null )
 						{
-							componentBox = (TileEntityComponentBox) te;
+							componentBox = tileEntity;
 							componentBoxIndex = componentBoxList.size();
 						}
-
-						componentBoxList.add((TileEntityComponentBox) te);
+						
+						componentBoxList.add(tileEntity);
 					}
 				}
 			}
@@ -260,42 +232,41 @@ public class ContainerEngineeringTable extends Container
 		
 		int offset = componentBox == null ? 0 : 65;
 		
-		this.addSlotToContainer(new SlotEngineering(engineering.guiSlots, 0, 15 + offset, 20));
-		this.addSlotToContainer(new SlotEngineering(engineering.guiSlots, 1, 15 + offset, 53));
+		addSlotToContainer(new SlotEngineering(engineering.guiSlots, 0, 15 + offset, 20));
+		addSlotToContainer(new SlotEngineering(engineering.guiSlots, 1, 15 + offset, 53));
 		
-		for (int w = 0; w < 2; w++)
+		for (int indexColumn = 0; indexColumn < 2; indexColumn++)
 		{
-			for (int h = 0; h < 3; h++)
+			for (int indexRow = 0; indexRow < 3; indexRow++)
 			{
-				this.addSlotToContainer(new SlotEngineering(engineering.guiSlots, 2 + h * 2 + w, 71 + w * 18 + offset, 17 + h * 18));
+				addSlotToContainer(new SlotEngineering(engineering.guiSlots, 2 + indexRow * 2 + indexColumn, 71 + indexColumn * 18 + offset, 17 + indexRow * 18));
 			}
 		}
 		
-		this.addSlotToContainer(new SlotEngineering(engineering.guiSlots, 8, 115 + offset, 53));
-		this.addSlotToContainer(new SlotEngineering(engineering.guiSlots, 9, 145 + offset, 21));
-
-
-		for (int i = 0; i < 3; ++i)
+		addSlotToContainer(new SlotEngineering(engineering.guiSlots, 8, 115 + offset, 53));
+		addSlotToContainer(new SlotEngineering(engineering.guiSlots, 9, 145 + offset, 21));
+		
+		for (int indexRow = 0; indexRow < 3; indexRow++)
 		{
-			for (int j = 0; j < 9; ++j)
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 			{
-				this.addSlotToContainer(new SlotInv(playerInventory, j + i * 9 + 9, 8 + j * 18 + offset, 84 + i * 18));
+				addSlotToContainer(new SlotInv(playerInventory, indexColumn + indexRow * 9 + 9, 8 + indexColumn * 18 + offset, 84 + indexRow * 18));
 			}
 		}
 
-		for (int k = 0; k < 9; ++k)
+		for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 		{
-			this.addSlotToContainer(new SlotInv(playerInventory, k, 8 + k * 18 + offset, 142));
+			addSlotToContainer(new SlotInv(playerInventory, indexColumn, 8 + indexColumn * 18 + offset, 142));
 		}
 		
 		if (archive != null)
 		{
 			int numRows = archive.slots.getSlots() / 6;
-			for (int j = 0; j < 6; ++j)
+			for (int indexRow = 0; indexRow < 6; indexRow++)
 			{
-				for (int k = 0; k < numRows; ++k)
+				for (int indexColumn = 0; indexColumn < numRows; indexColumn++)
 				{
-					this.addSlotToContainer(new SlotItemHandler(archive.slots, k + j * numRows, 181 + k * 18 + offset, 22 + j * 18));
+					addSlotToContainer(new SlotItemHandler(archive.slots, indexColumn + indexRow * numRows, 181 + indexColumn * 18 + offset, 22 + indexRow * 18));
 				}
 			}
 		}
@@ -307,17 +278,17 @@ public class ContainerEngineeringTable extends Container
 			}
 			else
 			{
-				ItemStackHandler slots = new ItemStackHandlerComponent(18);
 				ItemStack item = playerInv.mainInventory.get((Integer) componentBox);
+				ItemStackHandler slots = new ItemStackHandlerComponent(18);
 				slots.deserializeNBT(item.getTagCompound().getCompoundTag("contents"));
 				componentHandler = slots;
 			}
 			int numRows = componentHandler.getSlots() / 6;
-			for (int j = 0; j < 6; ++j)
+			for (int indexRow = 0; indexRow < 6; indexRow++)
 			{
-				for (int k = 0; k < numRows; ++k)
+				for (int indexColumn = 0; indexColumn < numRows; indexColumn++)
 				{
-					this.addSlotToContainer(new SlotComponentBox(componentHandler, k + j * numRows, 8 + k * 18, 22 + j * 18));
+					addSlotToContainer(new SlotComponentBox(componentHandler, indexColumn + indexRow * numRows, 8 + indexColumn * 18, 22 + indexRow * 18));
 				}
 			}
 		}
@@ -325,23 +296,22 @@ public class ContainerEngineeringTable extends Container
 		engineering.updateRecipe();
 	}
 	
-	@Override
-	public boolean canInteractWith(EntityPlayer entityPlayer)
+	private void validateComponentAndArchive()
 	{
-		while (archive != null && archive.getWorld().getTileEntity(archive.getPos()) != archive)
+		while ( archive != null
+		     && archive.getWorld().getTileEntity(archive.getPos()) != archive)
 		{
-			archiveList.remove(this.archiveIndex);
+			archiveList.remove(archiveIndex);
 			if (archiveList.size() == 0)
 			{
-				int offset = (this.componentBox == null ? 0 : 18);
-				int numRows = 18 / 6;
-				for (int j = 0; j < 6; ++j)
+				int offset = (componentBox == null ? 0 : 18);
+				int numColumns = 18 / 6;
+				for (int indexRow = 0; indexRow < 6; indexRow++)
 				{
-					for (int k = 0; k < numRows; ++k)
+					for (int indexColumn = 0; indexColumn < numColumns; indexColumn++)
 					{
-						this.inventorySlots.remove(this.inventorySlots.size() - 1 - offset);
-						this.inventoryItemStacks.remove(this.inventoryItemStacks.size() - 1 - offset);
-
+						inventorySlots.remove(inventorySlots.size() - 1 - offset);
+						inventoryItemStacks.remove(inventoryItemStacks.size() - 1 - offset);
 					}
 				}
 				archive = null;
@@ -349,132 +319,155 @@ public class ContainerEngineeringTable extends Container
 			else
 			{
 				archiveIndex = archiveIndex - 1;
-				this.nextArchive();
+				nextArchive();
 			}
 		}
 		
-		while (componentBox != null
-				&& ((componentBox instanceof TileEntityComponentBox && ((TileEntityComponentBox) componentBox).getWorld().getTileEntity(((TileEntityComponentBox) componentBox).getPos()) != componentBox))
-				|| (componentBox instanceof Integer && (playerInv.mainInventory.get((Integer) componentBox).isEmpty() || playerInv.mainInventory.get((Integer) componentBox).getItem() != CyberwareContent.componentBox.ib)))
+		while ( ( ( componentBox instanceof TileEntityComponentBox
+		         && ((TileEntityComponentBox) componentBox).getWorld().getTileEntity(((TileEntityComponentBox) componentBox).getPos()) != componentBox ) )
+		       || ( componentBox instanceof Integer
+		          && ( playerInv.mainInventory.get((Integer) componentBox).isEmpty()
+		            || playerInv.mainInventory.get((Integer) componentBox).getItem() != CyberwareContent.componentBox.itemBlock) ) )
 		{
-			componentBoxList.remove(this.componentBoxIndex);
+			componentBoxList.remove(componentBoxIndex);
 			if (componentBoxList.size() == 0)
 			{
-				int numRows = 18 / 6;
-				for (int j = 0; j < 6; ++j)
+				int numColumns = 18 / 6;
+				for (int indexRow = 0; indexRow < 6; indexRow++)
 				{
-					for (int k = 0; k < numRows; ++k)
+					for (int indexColumn = 0; indexColumn < numColumns; indexColumn++)
 					{
-						this.inventorySlots.remove(this.inventorySlots.size() - 1);
-						this.inventoryItemStacks.remove(this.inventoryItemStacks.size() - 1);
-
+						inventorySlots.remove(inventorySlots.size() - 1);
+						inventoryItemStacks.remove(inventoryItemStacks.size() - 1);
+						
 					}
 				}
 				componentBox = null;
-				this.componentHandler = null;
+				componentHandler = null;
 			}
 			else
 			{
 				componentBoxIndex = componentBoxIndex - 1;
-				this.nextComponentBox();
+				nextComponentBox();
 			}
 		}
-		return entityPlayer == null ? false : engineering.isUseableByPlayer(entityPlayer);
 	}
-
-
+	
+	@Override
+	public boolean canInteractWith(@Nonnull EntityPlayer entityPlayer)
+	{
+		validateComponentAndArchive();
+		return engineering.isUsableByPlayer(entityPlayer);
+	}
+	
 	@Nonnull
+	@Override
 	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = inventorySlots.get(index);
 		boolean doUpdate = false;
 		
-		int componentLow = (this.archive == null ? 46 : 64);
+		int componentLow = (archive == null ? 46 : 64);
 		int componentHigh = componentLow + 18;
 		int archiveLow = 46;
 		int archiveHigh = archiveLow + 18;
-		
 		
 		if (slot != null && slot.getHasStack())
 		{
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
-
+			
 			if (index == 9)
 			{
-				if (!this.mergeItemStack(itemstack1, 10, 46, true))
+				if (!mergeItemStack(itemstack1, 10, 46, true))
 				{
 					return ItemStack.EMPTY;
 				}
-
+				
 				engineering.subtractResources();
 				doUpdate = true;
-				//slot.onSlotChange(itemstack1, itemstack);
-				//engineering.updateRecipe();
 			}
 			else if (index == 8 && archive != null)
 			{
-				if (!this.mergeItemStack(itemstack1, archiveLow, archiveHigh, true) && !this.mergeItemStack(itemstack1, 10, 46, false))
+				if ( !mergeItemStack(itemstack1, archiveLow, archiveHigh, true)
+				  && !mergeItemStack(itemstack1, 10, 46, false) )
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			else if (index == 1 && archive != null)
 			{
-				if (!this.mergeItemStack(itemstack1, archiveLow, archiveHigh, true) && !this.mergeItemStack(itemstack1, 10, 46, false))
+				if ( !mergeItemStack(itemstack1, archiveLow, archiveHigh, true)
+				  && !mergeItemStack(itemstack1, 10, 46, false) )
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			else if (index > 9)
 			{
-				if (engineering.slots.isItemValidForSlot(1, itemstack1) && this.mergeItemStack(itemstack1, 1, 2, false))
+				if ( engineering.slots.isItemValidForSlot(1, itemstack1)
+				  && mergeItemStack(itemstack1, 1, 2, false) )
 				{
 
 				}
 				else if (engineering.slots.isItemValidForSlot(0, itemstack1))
 				{
-					if (!this.mergeItemStack(itemstack1, 0, 1, false))
+					if (!mergeItemStack(itemstack1, 0, 1, false))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 				else if (engineering.slots.isItemValidForSlot(8, itemstack1))
 				{
-					if (!this.mergeItemStack(itemstack1, 8, 9, false))
+					if (!mergeItemStack(itemstack1, 8, 9, false))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 				else if (index >= 10 && index < 37)
 				{
-					if ((archive == null || !this.mergeItemStack(itemstack1, archiveLow, archiveHigh, false)) && !this.mergeItemStack(itemstack1, 2, 8, false)  && (componentBox == null || !this.mergeItemStack(itemstack1, componentLow, componentHigh, false))  && !this.mergeItemStack(itemstack1, 37, 46, false))
+					if ( ( archive == null
+					    || !mergeItemStack(itemstack1, archiveLow, archiveHigh, false) )
+					    && !mergeItemStack(itemstack1, 2, 8, false)
+					    && ( componentBox == null
+					      || !mergeItemStack(itemstack1, componentLow, componentHigh, false) )
+					    && !mergeItemStack(itemstack1, 37, 46, false) )
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 				else if (index >= archiveLow && index < archiveHigh)
 				{
-					if (!this.mergeItemStack(itemstack1, 10, 37, false) && !this.mergeItemStack(itemstack1, 37, 46, false))
+					if ( !mergeItemStack(itemstack1, 10, 37, false)
+					  && !mergeItemStack(itemstack1, 37, 46, false) )
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 				else if (index >= componentLow && index < componentHigh)
 				{
-					
-					if (!this.mergeItemStack(itemstack1, 2, 8, false) && !this.mergeItemStack(itemstack1, 10, 37, false) && !this.mergeItemStack(itemstack1, 37, 46, false))
+					if ( !mergeItemStack(itemstack1, 2, 8, false)
+					  && !mergeItemStack(itemstack1, 10, 37, false)
+					  && !mergeItemStack(itemstack1, 37, 46, false) )
 					{
 						return ItemStack.EMPTY;
 					}
 				}
-				else if (index >= 37 && index < 46 && !this.mergeItemStack(itemstack1, 2, 8, false) && !this.mergeItemStack(itemstack1, 10, 37, false) )
+				else if (index >= 37 && index < 46)
 				{
-					return ItemStack.EMPTY;
+					if ( !mergeItemStack(itemstack1, 2, 8, false)
+					  && !mergeItemStack(itemstack1, 10, 37, false) )
+					{
+						return ItemStack.EMPTY;
+					}
 				}
 			}
-			else if ((componentBox == null || !this.mergeItemStack(itemstack1, componentLow, componentHigh, false)) && (archive == null || !this.mergeItemStack(itemstack1, archiveLow, archiveHigh, false)) && !this.mergeItemStack(itemstack1, 10, 46, false))
+			else if ( ( componentBox == null
+			         || !mergeItemStack(itemstack1, componentLow, componentHigh, false) )
+			       && ( archive == null
+			         || !mergeItemStack(itemstack1, archiveLow, archiveHigh, false) )
+			       && !mergeItemStack(itemstack1, 10, 46, false) )
 			{
 				return ItemStack.EMPTY;
 			}
@@ -504,38 +497,39 @@ public class ContainerEngineeringTable extends Container
 		return itemstack;
 	}
 	
-
 	public void checkForNewBoxes()
 	{
-		for (int i = 0; i < playerInv.mainInventory.size(); i++)
+		for (int indexSlot = 0; indexSlot < playerInv.mainInventory.size(); indexSlot++)
 		{
-			if (!this.componentBoxList.contains(i))
+			if (!componentBoxList.contains(indexSlot))
 			{
-				ItemStack stack = playerInv.mainInventory.get(i);
-				if (!stack.isEmpty() && stack.getItem() == CyberwareContent.componentBox.ib)
+				ItemStack stack = playerInv.mainInventory.get(indexSlot);
+				if ( !stack.isEmpty()
+				  && stack.getItem() == CyberwareContent.componentBox.itemBlock)
 				{
-					if (!stack.hasTagCompound())
+					NBTTagCompound tagCompoundStack = stack.getTagCompound();
+					if (tagCompoundStack == null)
 					{
-						stack.setTagCompound(new NBTTagCompound());
+						tagCompoundStack = new NBTTagCompound();
+						stack.setTagCompound(tagCompoundStack);
 					}
-					if (!stack.getTagCompound().hasKey("contents"))
+					if (!tagCompoundStack.hasKey("contents"))
 					{
 						ItemStackHandler slots = new ItemStackHandlerComponent(18);
-						stack.getTagCompound().setTag("contents", slots.serializeNBT());
+						tagCompoundStack.setTag("contents", slots.serializeNBT());
 					}
 					if (componentBox == null )
 					{
-						componentBox = i;
+						componentBox = indexSlot;
 						componentBoxIndex = componentBoxList.size();
 					}
-	
-					componentBoxList.add(i);
+					
+					componentBoxList.add(indexSlot);
 				}
 			}
 		}
 	}
-
-
+	
 	public void nextArchive()
 	{
 		clearSlots();
@@ -543,7 +537,7 @@ public class ContainerEngineeringTable extends Container
 		archive = archiveList.get(archiveIndex);
 		createSlots();
 	}
-
+	
 	public void prevArchive()
 	{
 		clearSlots();
@@ -551,7 +545,6 @@ public class ContainerEngineeringTable extends Container
 		archive = archiveList.get(archiveIndex);
 		createSlots();
 	}
-	
 	
 	public void nextComponentBox()
 	{
@@ -561,7 +554,6 @@ public class ContainerEngineeringTable extends Container
 		componentBoxIndex = (componentBoxIndex + 1) % componentBoxList.size();
 		componentBox = componentBoxList.get(componentBoxIndex);
 		createSlots();
-		
 	}
 	
 	public void prevComponentBox()
@@ -579,25 +571,24 @@ public class ContainerEngineeringTable extends Container
 		int numOccupied = 0;
 		if (componentBox != null) numOccupied += 18;
 		if (archive != null) numOccupied += 18;
-		for (int k = 0; k < numOccupied; ++k)
+		for (int index = 0; index < numOccupied; index++)
 		{
-			this.inventorySlots.remove(this.inventorySlots.size() - 1);
-			this.inventoryItemStacks.remove(this.inventoryItemStacks.size() - 1);
-
+			inventorySlots.remove(inventorySlots.size() - 1);
+			inventoryItemStacks.remove(inventoryItemStacks.size() - 1);
 		}
 	}
 	
 	public void createSlots()
 	{
-		canInteractWith(null);
+		validateComponentAndArchive();
 		if (archive != null)
 		{
-			int numRows = archive.slots.getSlots() / 6;
-			for (int j = 0; j < 6; ++j)
+			int numColumns = archive.slots.getSlots() / 6;
+			for (int indexRow = 0; indexRow < 6; indexRow++)
 			{
-				for (int k = 0; k < numRows; ++k)
+				for (int indexColumn = 0; indexColumn < numColumns; indexColumn++)
 				{
-					this.addSlotToContainer(new SlotItemHandler(archive.slots, k + j * numRows, 181 + k * 18 + (componentBox == null ? 0 : 65), 22 + j * 18));
+					addSlotToContainer(new SlotItemHandler(archive.slots, indexColumn + indexRow * numColumns, 181 + indexColumn * 18 + (componentBox == null ? 0 : 65), 22 + indexRow * 18));
 				}
 			}
 		}
@@ -615,12 +606,12 @@ public class ContainerEngineeringTable extends Container
 				componentHandler = slots;
 			}
 			
-			int numRows = componentHandler.getSlots() / 6;
-			for (int j = 0; j < 6; ++j)
+			int numColumns = componentHandler.getSlots() / 6;
+			for (int indexRow = 0; indexRow < 6; indexRow++)
 			{
-				for (int k = 0; k < numRows; ++k)
+				for (int indexColumn = 0; indexColumn < numColumns; indexColumn++)
 				{
-					this.addSlotToContainer(new SlotComponentBox(componentHandler, k + j * numRows, 8 + k * 18, 22 + j * 18));
+					addSlotToContainer(new SlotComponentBox(componentHandler, indexColumn + indexRow * numColumns, 8 + indexColumn * 18, 22 + indexRow * 18));
 				}
 			}
 		}

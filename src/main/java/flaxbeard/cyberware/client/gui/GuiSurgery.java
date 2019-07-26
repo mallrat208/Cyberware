@@ -3,7 +3,7 @@ package flaxbeard.cyberware.client.gui;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -73,13 +73,16 @@ public class GuiSurgery extends GuiContainer
 		@Override
 		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
-			if (this.visible)
+			if (visible)
 			{
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				
 				float trans = 0.4F;
-				if (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + buttonSize && mouseY < this.y + buttonSize)
+				if ( mouseX >= x
+				  && mouseY >= y
+				  && mouseX < x + buttonSize
+				  && mouseY < y + buttonSize )
 				{
 					trans = 0.6F;
 				}
@@ -88,7 +91,7 @@ public class GuiSurgery extends GuiContainer
 				
 				mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
 				GlStateManager.translate(xPos, yPos, 0);
-				this.drawTexturedModalRect(0, 0, 194, 0, this.width, this.height);
+				drawTexturedModalRect(0, 0, 194, 0, width, height);
 
 				GlStateManager.popMatrix();
 			}
@@ -129,36 +132,36 @@ public class GuiSurgery extends GuiContainer
 	
 	private static class InterfaceButton extends GuiButton
 	{
-
 		private final Type type;
 		
-		public InterfaceButton(int p_i46316_1_, int p_i46316_2_, int p_i46316_3_, Type type)
+		public InterfaceButton(int buttonId, int x, int y, Type type)
 		{
-			super(p_i46316_1_, p_i46316_2_, p_i46316_3_, type.width, type.height, "");
+			super(buttonId, x, y, type.width, type.height, "");
 			this.type = type;
 		}
 
 		@Override
 		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
-			if (this.visible)
+			if (visible)
 			{
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				float trans = 0.4F;
-				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-				if (flag) trans = 0.6F;
+				boolean isHovering = mouseX >= x
+				                  && mouseY >= y
+				                  && mouseX < x + width
+				                  && mouseY < y + height;
+				if (isHovering) trans = 0.6F;
 				
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 				mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
-
-	
-				this.drawTexturedModalRect(this.x, this.y, type.left + type.width, type.top, type.width, type.height);
 				
+				drawTexturedModalRect(x, y, type.left + type.width, type.top, type.width, type.height);
 				
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans / 2F);
-				this.drawTexturedModalRect(this.x, this.y, type.left, type.top, type.width, type.height);
-
+				drawTexturedModalRect(x, y, type.left, type.top, type.width, type.height);
+				
 				GlStateManager.popMatrix();
 			}
 		}
@@ -202,7 +205,6 @@ public class GuiSurgery extends GuiContainer
 	private static final ResourceLocation SURGERY_GUI_TEXTURES = new ResourceLocation(Cyberware.MODID + ":textures/gui/surgery.png");
 	private static final ResourceLocation GREY_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/greypx.png");
 	private static final ResourceLocation BLUE_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/gui/bluepx.png");
-	public static final ResourceLocation BONE_TEXTURE = new ResourceLocation(Cyberware.MODID + ":textures/models/skin.png");
 
 	private final TileEntitySurgery surgery;
 	
@@ -254,7 +256,6 @@ public class GuiSurgery extends GuiContainer
 	public GuiSurgery(InventoryPlayer inventoryPlayer, TileEntitySurgery surgery)
 	{
 		super(new ContainerSurgery(inventoryPlayer, surgery));
-		((ContainerSurgery) this.inventorySlots).gui = this;
 		
 		this.surgery = surgery;
 		this.ySize = 222;
@@ -292,38 +293,38 @@ public class GuiSurgery extends GuiContainer
 	public void initGui()
 	{
 		super.initGui();
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		this.buttonList.add(bodyIcons[0] = new GuiButtonSurgery(1, i + (this.xSize / 2) - 18, j + 8, 36, 27));
-		this.buttonList.add(bodyIcons[1] = new GuiButtonSurgery(2, i + (this.xSize / 2) - 13, j + 35, 26, 38));
-		this.buttonList.add(bodyIcons[2] = new GuiButtonSurgery(3, i + (this.xSize / 2) - 8 + 21, j + 35, 16, 38));
-		this.buttonList.add(bodyIcons[3] = new GuiButtonSurgery(4, i + (this.xSize / 2) - 8 - 21, j + 35, 16, 38));
-		this.buttonList.add(bodyIcons[4] = new GuiButtonSurgery(5, i + (this.xSize / 2) - 6 + 7, j + 73, 12, 39));
-		this.buttonList.add(bodyIcons[5] = new GuiButtonSurgery(6, i + (this.xSize / 2) - 6 - 7, j + 73, 12, 39));
-		this.buttonList.add(back = new InterfaceButton(8, i + this.xSize - 25, j + 5, Type.BACK));
-		this.buttonList.add(index = new InterfaceButton(9, i + this.xSize - 22, j + 5, Type.INDEX));
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
+		buttonList.add(bodyIcons[0] = new GuiButtonSurgery(1, xLeft + (xSize / 2) - 18, yTop + 8, 36, 27));
+		buttonList.add(bodyIcons[1] = new GuiButtonSurgery(2, xLeft + (xSize / 2) - 13, yTop + 35, 26, 38));
+		buttonList.add(bodyIcons[2] = new GuiButtonSurgery(3, xLeft + (xSize / 2) - 8 + 21, yTop + 35, 16, 38));
+		buttonList.add(bodyIcons[3] = new GuiButtonSurgery(4, xLeft + (xSize / 2) - 8 - 21, yTop + 35, 16, 38));
+		buttonList.add(bodyIcons[4] = new GuiButtonSurgery(5, xLeft + (xSize / 2) - 6 + 7, yTop + 73, 12, 39));
+		buttonList.add(bodyIcons[5] = new GuiButtonSurgery(6, xLeft + (xSize / 2) - 6 - 7, yTop + 73, 12, 39));
+		buttonList.add(back = new InterfaceButton(8, xLeft + xSize - 25, yTop + 5, Type.BACK));
+		buttonList.add(index = new InterfaceButton(9, xLeft + xSize - 22, yTop + 5, Type.INDEX));
 		back.visible = false;
 		
-		this.buttonList.add(bodyIcons[6] = new GuiButtonSurgery(7, 
-				i + (int) (xSize / 2 + configs[0].boxX - (configs[0].boxWidth / 2)),
-				j + (int) ((125F / 2F) + 3F + configs[0].boxY - (configs[0].boxHeight / 2)),
+		buttonList.add(bodyIcons[6] = new GuiButtonSurgery(7, 
+				xLeft + (int) (xSize / 2 + configs[0].boxX - (configs[0].boxWidth / 2)),
+				yTop + (int) ((125F / 2F) + 3F + configs[0].boxY - (configs[0].boxHeight / 2)),
 				(int) configs[0].boxWidth, (int) configs[0].boxHeight)); // CAW
 
-		this.buttonList.add(headIcons[0] = new GuiButtonSurgeryLocation(11, -2F, 19, 0));
-		this.buttonList.add(headIcons[1] = new GuiButtonSurgeryLocation(12, 4F, 21, 2.F));
-		this.buttonList.add(headIcons[2] = new GuiButtonSurgeryLocation(13, 4F, 21, -2F));
-		this.buttonList.add(torsoIcons[0] = new GuiButtonSurgeryLocation(14, 1F, 8, -1F));
-		this.buttonList.add(torsoIcons[1] = new GuiButtonSurgeryLocation(15, 0F, 9, -2F));
-		this.buttonList.add(torsoIcons[2] = new GuiButtonSurgeryLocation(16, 0F, 9, 2F));
-		this.buttonList.add(torsoIcons[3] = new GuiButtonSurgeryLocation(17, 0F, 13, 0F));
-		this.buttonList.add(crossSectionIcons[0] = new GuiButtonSurgeryLocation(18, -12F, -8, -1F));
-		this.buttonList.add(crossSectionIcons[1] = new GuiButtonSurgeryLocation(19, 12F, -1, 2F));
-		this.buttonList.add(crossSectionIcons[2] = new GuiButtonSurgeryLocation(20, 3F, 5, 12F));
-		this.buttonList.add(armIcons[0] = new GuiButtonSurgeryLocation(21, 0F, 10, -5.3F));
-		this.buttonList.add(armIcons[1] = new GuiButtonSurgeryLocation(22, 0F, 16, -6.0F));
-		this.buttonList.add(legIcons[0] = new GuiButtonSurgeryLocation(23, 0F, 1, -2.2F));
-		this.buttonList.add(legIcons[1] = new GuiButtonSurgeryLocation(24, 0F, 6.4F, -2.2F));
-		updateSlots(true);
+		buttonList.add(headIcons[0] = new GuiButtonSurgeryLocation(11, -2F, 19, 0));
+		buttonList.add(headIcons[1] = new GuiButtonSurgeryLocation(12, 4F, 21, 2.F));
+		buttonList.add(headIcons[2] = new GuiButtonSurgeryLocation(13, 4F, 21, -2F));
+		buttonList.add(torsoIcons[0] = new GuiButtonSurgeryLocation(14, 1F, 8, -1F));
+		buttonList.add(torsoIcons[1] = new GuiButtonSurgeryLocation(15, 0F, 9, -2F));
+		buttonList.add(torsoIcons[2] = new GuiButtonSurgeryLocation(16, 0F, 9, 2F));
+		buttonList.add(torsoIcons[3] = new GuiButtonSurgeryLocation(17, 0F, 13, 0F));
+		buttonList.add(crossSectionIcons[0] = new GuiButtonSurgeryLocation(18, -12F, -8, -1F));
+		buttonList.add(crossSectionIcons[1] = new GuiButtonSurgeryLocation(19, 12F, -1, 2F));
+		buttonList.add(crossSectionIcons[2] = new GuiButtonSurgeryLocation(20, 3F, 5, 12F));
+		buttonList.add(armIcons[0] = new GuiButtonSurgeryLocation(21, 0F, 10, -5.3F));
+		buttonList.add(armIcons[1] = new GuiButtonSurgeryLocation(22, 0F, 16, -6.0F));
+		buttonList.add(legIcons[0] = new GuiButtonSurgeryLocation(23, 0F, 1, -2.2F));
+		buttonList.add(legIcons[1] = new GuiButtonSurgeryLocation(24, 0F, 6.4F, -2.2F));
+		updateSurgerySlotsVisibility(true);
 	}
 	
 	private void prepTransition(int time, int targetPage)
@@ -336,16 +337,17 @@ public class GuiSurgery extends GuiContainer
 				
 				page = 0;
 				showHideRelevantButtons(true);
-				this.ease = this.current = configs[0].copy();
+				ease = current = configs[0].copy();
 
 				return;
 			}
 			else
 			{
-				if (targetPage >= 18 && targetPage <= 20)
+				if ( targetPage >= 18
+				  && targetPage <= 20 )
 				{
-					this.ease = this.current = configs[targetPage].copy();
-					this.page = targetPage;
+					ease = current = configs[targetPage].copy();
+					page = targetPage;
 					showHideRelevantButtons(true);
 					return;
 				}
@@ -353,12 +355,12 @@ public class GuiSurgery extends GuiContainer
 				{
 					if (time == 0)
 					{
-						this.ease = this.current = configs[targetPage].copy();
-						this.page = targetPage;
+						ease = current = configs[targetPage].copy();
+						page = targetPage;
 						showHideRelevantButtons(true);
 						return;
 					}
-					this.ease = this.current = configs[0].copy();
+					ease = current = configs[0].copy();
 				}
 			}
 
@@ -382,10 +384,11 @@ public class GuiSurgery extends GuiContainer
 			indexNews = new int[5 * 8];
 
 			indexCount = 0;
-			for (int d = 0; d < surgery.slots.getSlots() && indexCount < indexStacks.size(); d++)
+			for (int indexSurgeySlot = 0; indexSurgeySlot < surgery.slots.getSlots()
+			                           && indexCount < indexStacks.size(); indexSurgeySlot++)
 			{
-				ItemStack playerStack = surgery.slotsPlayer.getStackInSlot(d);
-				ItemStack surgeryStack = surgery.slots.getStackInSlot(d);
+				ItemStack playerStack = surgery.slotsPlayer.getStackInSlot(indexSurgeySlot);
+				ItemStack surgeryStack = surgery.slots.getStackInSlot(indexSurgeySlot);
 				
 				int nu = 0;
 				ItemStack draw = ItemStack.EMPTY;
@@ -402,7 +405,7 @@ public class GuiSurgery extends GuiContainer
 						else
 						{
 							indexStacks.set(indexCount,playerStack.copy());
-							EnumSlot slot = EnumSlot.values()[d / LibConstants.WARE_PER_SLOT];
+							EnumSlot slot = EnumSlot.values()[indexSurgeySlot / LibConstants.WARE_PER_SLOT];
 							indexPages[indexCount] = slot.getSlotNumber();
 							indexNews[indexCount] = 2;
 							indexCount++;
@@ -416,12 +419,12 @@ public class GuiSurgery extends GuiContainer
 					nu = 1;
 				}
 				else if ( !playerStack.isEmpty()
-				       && !surgery.discardSlots[d] )
+				       && !surgery.discardSlots[indexSurgeySlot] )
 				{
 					draw = playerStack.copy();
 				}
 				else if ( !playerStack.isEmpty()
-				       && surgery.discardSlots[d] )
+				       && surgery.discardSlots[indexSurgeySlot] )
 				{
 					draw = playerStack.copy();
 					nu = 2;
@@ -430,7 +433,7 @@ public class GuiSurgery extends GuiContainer
 				if (!draw.isEmpty())
 				{
 					indexStacks.set(indexCount, draw);
-					EnumSlot slot = EnumSlot.values()[d / LibConstants.WARE_PER_SLOT];
+					EnumSlot slot = EnumSlot.values()[indexSurgeySlot / LibConstants.WARE_PER_SLOT];
 					indexPages[indexCount] = slot.getSlotNumber();
 					indexNews[indexCount] = nu;
 					indexCount++;
@@ -468,7 +471,8 @@ public class GuiSurgery extends GuiContainer
 			// BACK
 			if (button.id == back.id)
 			{
-				if (page != 0 || ease.rotation != 0)
+				if ( page != 0
+				  || ease.rotation != 0 )
 				{
 					int pageToGoTo = page <= 10 ? 0 : parent;
 					prepTransition(20, pageToGoTo);
@@ -535,7 +539,7 @@ public class GuiSurgery extends GuiContainer
 			guiButton.visible = show;
 		}
 		
-		updateSlots(show);
+		updateSurgerySlotsVisibility(show);
 	}
 	
 	private void updateLocationButtons(float rot, float scale, float yOffset)
@@ -545,8 +549,8 @@ public class GuiSurgery extends GuiContainer
 		{
 			index.visible = true;
 		}
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
 		
 		GuiButtonSurgeryLocation[] list = new GuiButtonSurgeryLocation[0];
 		
@@ -580,7 +584,7 @@ public class GuiSurgery extends GuiContainer
 		float upDown = page == 7 ? (float) Math.sin(Math.toRadians(10)) : 0;
 		
 		for (GuiButtonSurgeryLocation guiButtonSurgeryLocation : list) {
-			guiButtonSurgeryLocation.xPos = i
+			guiButtonSurgeryLocation.xPos = xLeft
 			                              + sin * scale * guiButtonSurgeryLocation.x3 * 0.065F
 			                              + cos * scale * guiButtonSurgeryLocation.z3 * 0.065F
 			                              + xSize / 2F
@@ -588,7 +592,7 @@ public class GuiSurgery extends GuiContainer
 			                              - guiButtonSurgeryLocation.width / 2F;
 			guiButtonSurgeryLocation.yPos = -upDown * cos * scale * guiButtonSurgeryLocation.x3 * 0.065F
 			                              +  upDown * sin * scale * guiButtonSurgeryLocation.z3 * 0.065F
-			                              + j + 2 - yOffset
+			                              + yTop + 2 - yOffset
 			                              + scale * guiButtonSurgeryLocation.y3 * 0.065F
 			                              + 130 / 2F
 			                              - guiButtonSurgeryLocation.height / 2F;
@@ -597,10 +601,10 @@ public class GuiSurgery extends GuiContainer
 		}
 	}
 	
-	private void drawSlots(int mouseX, int mouseY)
+	private void drawSlots()
 	{
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
@@ -609,7 +613,7 @@ public class GuiSurgery extends GuiContainer
 		int criticalEssence = (int) ((CyberwareConfig.CRITICAL_ESSENCE * 1F  / surgery.maxEssence) * 49);
 		// TODO int warningEssence = (int) ((LibConstants.WARNING_ESSENCE * 1F  / surgery.maxEssence) * 49);
 		int warningEssence = criticalEssence;
-		this.zLevel = 200;
+		zLevel = 200;
 		
 		mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
 		
@@ -621,7 +625,7 @@ public class GuiSurgery extends GuiContainer
 				GlStateManager.color(1.0F, 1.0F, 1.0F, trans);
 	
 				Slot slot = inventorySlots.inventorySlots.get(surgery.wrongSlot);
-				drawTexturedModalRect(i + slot.xPos - 5, j + slot.yPos - 5, 185, 61, 26, 26);		// Blue slot
+				drawTexturedModalRect(xLeft + slot.xPos - 5, yTop + slot.yPos - 5, 185, 61, 26, 26);		// Blue slot
 			}
 			else
 			{
@@ -634,30 +638,30 @@ public class GuiSurgery extends GuiContainer
 		// Draw the less-transparent slot borders
 		for (SlotSurgery pos : visibleSlots)
 		{
-			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1, 176, 43, 18, 18);		// Blue slot
-			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1 - 26, 176, 18, 18, 25);	// Red 'slot'
+			drawTexturedModalRect(xLeft + pos.xPos - 1, yTop + pos.yPos - 1, 176, 43, 18, 18);		// Blue slot
+			drawTexturedModalRect(xLeft + pos.xPos - 1, yTop + pos.yPos - 1 - 26, 176, 18, 18, 25);	// Red 'slot'
 		}
 		
 		if (page != index.id)
 		{
 			// Draw the solid part of the essence bar
-			this.drawTexturedModalRect(i + 5, j + 5 + (49 - essence), 176, 61 + (49 - essence), 9, Math.max(0, essence - warningEssence));
+			drawTexturedModalRect(xLeft + 5, yTop + 5 + (49 - essence), 176, 61 + (49 - essence), 9, Math.max(0, essence - warningEssence));
 			
-			this.drawTexturedModalRect(i + 5, j + 5 + (49 - Math.min(warningEssence, essence)), 229, 61 + (49 - Math.min(warningEssence, essence)), 9, Math.max(0, Math.min(warningEssence, essence) - criticalEssence));
+			drawTexturedModalRect(xLeft + 5, yTop + 5 + (49 - Math.min(warningEssence, essence)), 229, 61 + (49 - Math.min(warningEssence, essence)), 9, Math.max(0, Math.min(warningEssence, essence) - criticalEssence));
 	
-			this.drawTexturedModalRect(i + 5, j + 5 + (49 - Math.min(criticalEssence, essence)), 220, 61 + (49 - Math.min(criticalEssence, essence)), 9, Math.max(0, Math.min(criticalEssence, essence)));
+			drawTexturedModalRect(xLeft + 5, yTop + 5 + (49 - Math.min(criticalEssence, essence)), 220, 61 + (49 - Math.min(criticalEssence, essence)), 9, Math.max(0, Math.min(criticalEssence, essence)));
 
 			// Draw the grey, emptied essence
-			this.drawTexturedModalRect(i + 5, j + 5, 211, 61, 9, 49 - essence);
+			drawTexturedModalRect(xLeft + 5, yTop + 5, 211, 61, 9, 49 - essence);
 		}
 		else
 		{
-			this.zLevel = 50;
+			zLevel = 50;
 			for (int w = 0; w < 8; w++)
 			{
 				for (int h = 0; h < 5; h++)
 				{
-					this.drawTexturedModalRect(i + (20 * w + 9) - 1, j + (20 * h + 50) - 1 - 26, 176, indexNews[w + h * 8] == 2 ? 18 : 43, 18, 18);
+					drawTexturedModalRect(xLeft + (20 * w + 9) - 1, yTop + (20 * h + 50) - 1 - 26, 176, indexNews[w + h * 8] == 2 ? 18 : 43, 18, 18);
 				}
 			}
 			
@@ -666,10 +670,10 @@ public class GuiSurgery extends GuiContainer
 			{
 				for (int h = 0; h < 5; h++)
 				{
-					this.drawTexturedModalRect(i + (20 * w + 9) - 1, j + (20 * h + 50) - 1 - 26, 176 + 18, indexNews[w + h * 8] == 2 ? 18 : 43, 18, 18);
+					drawTexturedModalRect(xLeft + (20 * w + 9) - 1, yTop + (20 * h + 50) - 1 - 26, 176 + 18, indexNews[w + h * 8] == 2 ? 18 : 43, 18, 18);
 				}
 			}
-			this.zLevel = 500;
+			zLevel = 500;
 		}
 
 		
@@ -677,8 +681,8 @@ public class GuiSurgery extends GuiContainer
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 0.2F);
 		for (SlotSurgery pos : visibleSlots)
 		{
-			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1, 176 + 18, 43, 18, 18);		// Blue slot
-			this.drawTexturedModalRect(i + pos.xPos - 1, j + pos.yPos - 1 - 26, 176 + 18, 18, 18, 18);	// Red 'slot'
+			drawTexturedModalRect(xLeft + pos.xPos - 1, yTop + pos.yPos - 1, 176 + 18, 43, 18, 18);		// Blue slot
+			drawTexturedModalRect(xLeft + pos.xPos - 1, yTop + pos.yPos - 1 - 26, 176 + 18, 18, 18, 18);	// Red 'slot'
 		}
 		
 		List<String> missingSlots = new ArrayList<>();
@@ -700,30 +704,30 @@ public class GuiSurgery extends GuiContainer
 			}
 			
 			
-			for (int k = 0; k < surgery.isEssentialMissing.length; k++)
+			for (int index = 0; index < surgery.isEssentialMissing.length; index++)
 			{
-				EnumSlot slot = EnumSlot.values()[k / 2];
+				EnumSlot slot = EnumSlot.values()[index / 2];
 				
 				if (slot.isSided())
 				{
-					if (k % 2 ==0)
+					if (index % 2 ==0)
 					{
-						if (surgery.isEssentialMissing[k])
+						if (surgery.isEssentialMissing[index])
 						{
 							missingSlots.add(I18n.format("cyberware.gui.missingEssential." + slot.getName() + ".left"));
 						}
 					}
 					else
 					{
-						if (surgery.isEssentialMissing[k])
+						if (surgery.isEssentialMissing[index])
 						{
 							missingSlots.add(I18n.format("cyberware.gui.missingEssential." + slot.getName() + ".right"));
 						}
 					}
 				}
-				else if (k % 2 ==0)
+				else if (index % 2 ==0)
 				{
-					if (surgery.isEssentialMissing[k])
+					if (surgery.isEssentialMissing[index])
 					{
 						missingSlots.add(I18n.format("cyberware.gui.missingEssential." + slot.getName()));
 					}
@@ -735,15 +739,11 @@ public class GuiSurgery extends GuiContainer
 
 			if (missingSlots.size() > 0)
 			{
-				this.drawTexturedModalRect(this.xSize - 23 + i, 20 + j, 212, 43, 16, 16);
+				drawTexturedModalRect(xSize - 23 + xLeft, 20 + yTop, 212, 43, 16, 16);
 			}
-
-
 		}
 		
-
-		
-		this.zLevel = 0;
+		zLevel = 0;
 
 		GlStateManager.popMatrix();
 	}
@@ -758,21 +758,21 @@ public class GuiSurgery extends GuiContainer
 		float time = ticksExisted() + partialTicks;
 		
 		// Only play animation if the player's body has changed since last opening
-		if (this.openTime == 0)
+		if (openTime == 0)
 		{
 			boolean isEqual = true;
 			ItemStackHandler newSlots = new ItemStackHandler(surgery.slotsPlayer.getSlots());
-			for (int i = 0; i < surgery.slotsPlayer.getSlots(); i++)
+			for (int indexSlot = 0; indexSlot < surgery.slotsPlayer.getSlots(); indexSlot++)
 			{
-				ItemStack surgeryItem = surgery.slotsPlayer.getStackInSlot(i);
-				ItemStack thisItem = lastLastInv.getStackInSlot(i);
+				ItemStack surgeryItem = surgery.slotsPlayer.getStackInSlot(indexSlot);
+				ItemStack thisItem = lastLastInv.getStackInSlot(indexSlot);
 				
 				if (!ItemStack.areItemsEqual(surgeryItem, thisItem))
 				{
 					isEqual = false;
 				}
 				
-				newSlots.setStackInSlot(i, surgeryItem);
+				newSlots.setStackInSlot(indexSlot, surgeryItem);
 			}
 			if (!isEqual)
 			{
@@ -787,16 +787,17 @@ public class GuiSurgery extends GuiContainer
 		}
 		
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
+		mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
 		
-		this.zLevel = 0;
-		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
-		this.zLevel = 0;
+		zLevel = 0;
+		drawTexturedModalRect(xLeft, yTop, 0, 0, xSize, ySize);
+		zLevel = 0;
 		
-		World world = Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().world : null;
-		if (skeleton == null || skeleton.isDead)
+		World world = mc.world;
+		if ( skeleton == null
+		  || skeleton.isDead )
 		{
 			skeleton = new EntitySkeleton(world);
 		}
@@ -840,7 +841,8 @@ public class GuiSurgery extends GuiContainer
 		}
 		
 		// Rotate the screen if the player drags (as long as we're not viewing slots)
-		if (mouseDown && page <= 10)
+		if ( mouseDown
+		  && page <= 10 )
 		{
 			ease.rotation = oldRotate + (mouseX - mouseDownX)  % 360;
 			for (int index = 1; index < 5; index++)
@@ -872,18 +874,18 @@ public class GuiSurgery extends GuiContainer
 			}
 			
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			scissor(i + 3, j + 3, 170, 125);
+			scissor(xLeft + 3, yTop + 3, 170, 125);
 			
 			// Scan line
 			if (percentageSkele < 0.9F)
 			{
-				this.zLevel = 90;
+				zLevel = 90;
 				GlStateManager.pushMatrix();
 	
-				GlStateManager.translate(i + xSize / 2 - 40, j + (int) (percentageSkele * 125F) + 2, 0F);
-				this.drawTexturedModalRect(0, 0, 176, 110, 80, 1);
+				GlStateManager.translate(xLeft + xSize / 2 - 40, yTop + (int) (percentageSkele * 125F) + 2, 0F);
+				drawTexturedModalRect(0, 0, 176, 110, 80, 1);
 				GlStateManager.popMatrix();
-				this.zLevel = 0;
+				zLevel = 0;
 			}
 			
 	
@@ -894,31 +896,31 @@ public class GuiSurgery extends GuiContainer
 				
 				float height = Math.min(125, ease.boxHeight);
 				float width = Math.min(170, ease.boxWidth);
-				this.mc.getTextureManager().bindTexture(GREY_TEXTURE);
+				mc.getTextureManager().bindTexture(GREY_TEXTURE);
 		
-				this.zLevel = page == 0 ? 90 : 70;
-				GlStateManager.translate(i + xSize / 2F + ease.boxX - (width / 2F),
-				                         j + (125F / 2F) + 3F + ease.boxY - (height / 2F), 0F);
+				zLevel = page == 0 ? 90 : 70;
+				GlStateManager.translate(xLeft + xSize / 2F + ease.boxX - (width / 2F),
+				                         yTop + (125F / 2F) + 3F + ease.boxY - (height / 2F), 0F);
 				
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(width, height, 1F);
-				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+				drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 				GlStateManager.popMatrix();
 				
-				this.mc.getTextureManager().bindTexture(BLUE_TEXTURE);
+				mc.getTextureManager().bindTexture(BLUE_TEXTURE);
 				
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(width, 1F, 1F);
-				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+				drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 				GlStateManager.translate(0F, height - 1F, 0F);
-				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+				drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 				GlStateManager.popMatrix();
 				
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(1F, height, 1F);
-				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+				drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 				GlStateManager.translate(width - 1F, 0F, 0F);
-				this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+				drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 				GlStateManager.popMatrix();
 				
 				GlStateManager.popMatrix();
@@ -928,50 +930,51 @@ public class GuiSurgery extends GuiContainer
 					GlStateManager.pushMatrix();
 					
 					// Draw the connectors for the box
-					GlStateManager.translate(i + xSize / 2F + ease.boxX - (ease.boxWidth / 2F),
-					                         j + (125F / 2F) + 3F + ease.boxY - (ease.boxHeight / 2F), 0F);
+					GlStateManager.translate(xLeft + xSize / 2F + ease.boxX - (ease.boxWidth / 2F),
+					                         yTop + (125F / 2F) + 3F + ease.boxY - (ease.boxHeight / 2F), 0F);
 		
 					GlStateManager.pushMatrix();
-					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+					drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 					GlStateManager.translate((configs[0].boxWidth / 2F), -12F, 0F);
 					GlStateManager.scale(1F, 12F, 1F);
-					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+					drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 					GlStateManager.popMatrix();
 					
 					GlStateManager.pushMatrix();
-					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+					drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 					GlStateManager.translate((configs[0].boxWidth / 2F) + 1, -12F, 0F);
 					GlStateManager.scale(25F, 1F, 1F);
-					this.drawTexturedModalRect(0, 0, 0, 0, 1, 1);
+					drawTexturedModalRect(0, 0, 0, 0, 1, 1);
 					GlStateManager.popMatrix();
 					
 					GlStateManager.popMatrix();
 				}
 				
-				this.zLevel = 0;
+				zLevel = 0;
 				
 				ClientUtils.bindTexture( "cyberware:textures/models/skin" + ".png");
 				
-				if (!mouseDown && page < 10)
+				if ( !mouseDown
+				  && page < 10 )
 				{
-					this.addedRotate = (addedRotate + (ticksExisted() + partialTicks - lastTicks) * 2f) % 360;
+					addedRotate = (addedRotate + (ticksExisted() + partialTicks - lastTicks) * 2f) % 360;
 				}
-				this.lastTicks = ticksExisted() + partialTicks;
+				lastTicks = ticksExisted() + partialTicks;
 				renderModel(box, 
-						i + xSize / 2F + ease.boxX,
-						j + (125F / 2F) + 3F + ease.boxY,
+						xLeft + xSize / 2F + ease.boxX,
+						yTop + (125F / 2F) + 3F + ease.boxY,
 						(ease.boxHeight / 50F) * 40F, endRotate + addedRotate);
 			
 			}
 			
-			scissor(i + 3, j + 3, 170, (int) (percentageSkele * 125));
+			scissor(xLeft + 3, yTop + 3, 170, (int) (percentageSkele * 125));
 			
 			renderEntity(skeleton,
-			             i + xSize / 2F + ease.x,
-			             j + 110 + ease.y,
+			             xLeft + xSize / 2F + ease.x,
+			             yTop + 110 + ease.y,
 			             ease.scale, endRotate, partialTicks);
 			
-			scissor(i + 3, j + 3 + (int) (percentageSkele * 125), 170, 125 - (int) (percentageSkele * 125));
+			scissor(xLeft + 3, yTop + 3 + (int) (percentageSkele * 125), 170, 125 - (int) (percentageSkele * 125));
 					
 			EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 			
@@ -988,8 +991,8 @@ public class GuiSurgery extends GuiContainer
 			entityPlayer.swingProgress = 0F;
 		  
 			renderEntity(entityPlayer,
-			             i + xSize / 2F + ease.x,
-			             j + 115 + (ease.y) * (60F / 63F),
+			             xLeft + xSize / 2F + ease.x,
+			             yTop + 115 + (ease.y) * (60F / 63F),
 			             ease.scale * (57F / 50F),
 			             ease.rotation  + (float) (5F * Math.sin((time) / 25F)),
 			             partialTicks);
@@ -1006,7 +1009,7 @@ public class GuiSurgery extends GuiContainer
 		
 		updateLocationButtons(endRotate, ease.scale, ease.y);
 		
-		drawSlots(mouseX, mouseY);
+		drawSlots();
 		
 		GlStateManager.popMatrix();
 	}
@@ -1014,11 +1017,15 @@ public class GuiSurgery extends GuiContainer
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
 	{
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
 		
 		// Rotation
-		if (mouseButton == 0 && mouseX >= i && mouseX < i + this.xSize && mouseY >= j && mouseY < j + 130)
+		if ( mouseButton == 0
+		  && mouseX >= xLeft
+		  && mouseX < xLeft + xSize
+		  && mouseY >= yTop
+		  && mouseY < yTop + 130 )
 		{
 			oldRotate = ease.rotation;
 			mouseDown = true;
@@ -1030,7 +1037,11 @@ public class GuiSurgery extends GuiContainer
 		}
 		
 		// Right click to go back
-		if (mouseButton == 1 && (page != 0 || ease.rotation != 0) && this.getSlotAtPosition(mouseX, mouseY) == null && mouseY < j + 130)
+		if ( mouseButton == 1
+		  && ( page != 0
+		    || ease.rotation != 0 )
+		  && getSlotAtPosition(mouseX, mouseY) == null
+		  && mouseY < yTop + 130 )
 		{
 			int pageToGoTo = page <= 10 ? 0 : parent;
 			prepTransition(20, pageToGoTo);
@@ -1041,11 +1052,11 @@ public class GuiSurgery extends GuiContainer
 	// Taken from GuiContainer
 	private Slot getSlotAtPosition(int x, int y)
 	{
-		for (int i = 0; i < inventorySlots.inventorySlots.size(); ++i)
+		for (int indexSlot = 0; indexSlot < inventorySlots.inventorySlots.size(); indexSlot++)
 		{
-			Slot slot = inventorySlots.inventorySlots.get(i);
+			Slot slot = inventorySlots.inventorySlots.get(indexSlot);
 
-			if (this.isMouseOverSlot(slot, x, y))
+			if (isMouseOverSlot(slot, x, y))
 			{
 				return slot;
 			}
@@ -1081,7 +1092,7 @@ public class GuiSurgery extends GuiContainer
 	
 	private float ticksExisted()
 	{
-		return Minecraft.getMinecraft() != null ? Minecraft.getMinecraft().player != null ? Minecraft.getMinecraft().player.ticksExisted : 0 : 0;
+		return mc.player != null ? Minecraft.getMinecraft().player.ticksExisted : 0;
 	}
 	
 	
@@ -1164,41 +1175,48 @@ public class GuiSurgery extends GuiContainer
 	}
 	
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		renderHoveredToolTip(mouseX, mouseY);
+	}
+	
+	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
+		int xLeft = (width - xSize) / 2;
+		int yTop = (height - ySize) / 2;
 		
 		RenderHelper.enableGUIStandardItemLighting();
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0, 0, 900F);
-		if (page == 0 && this.transitionStart == 0)
+		if ( page == 0
+		  && transitionStart == 0 )
 		{
 			String s = "_" + Minecraft.getMinecraft().player.getName().toUpperCase();
-			this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 115, 0x1DA9C1);
+			fontRenderer.drawString(s, xSize / 2 - fontRenderer.getStringWidth(s) / 2, 115, 0x1DA9C1);
 		}
 		
 		if (page == 9)
 		{
 			String s = I18n.format("cyberware.gui.installed");
-			this.fontRenderer.drawString(s, 8, 9, 0x1DA9C1);
+			fontRenderer.drawString(s, 8, 9, 0x1DA9C1);
 		}
 		
 		if (page != index.id)
 		{
 			String s = surgery.essence + " / " + surgery.maxEssence;
-			this.fontRenderer.drawString(s, 18, 6, 0x1DA9C1);
+			fontRenderer.drawString(s, 18, 6, 0x1DA9C1);
 		}
 		
 		GlStateManager.popMatrix();
 		
 		GlStateManager.enableBlend();
 
-		this.zLevel = 500;
-		this.itemRender.zLevel = 500;
+		zLevel = 500;
+		itemRender.zLevel = 500;
 		
-		this.mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
+		mc.getTextureManager().bindTexture(SURGERY_GUI_TEXTURES);
 		
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		
@@ -1208,47 +1226,55 @@ public class GuiSurgery extends GuiContainer
 			GlStateManager.pushMatrix();
 
 			ItemStack stack = pos.getPlayerStack();
-			this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, stack, pos.xPos, pos.yPos - 26);
+			// render red/current slot content
+			itemRender.renderItemAndEffectIntoGUI(mc.player, stack, pos.xPos, pos.yPos - 26);
 			
-			if (!stack.isEmpty() && stack.getCount() > 1)
+			if ( !stack.isEmpty()
+			  && stack.getCount() > 1 )
 			{
-				FontRenderer font = stack.getItem().getFontRenderer(stack);
-				if (font == null) font = fontRenderer;
+				FontRenderer fontRenderItem = stack.getItem().getFontRenderer(stack);
+				if (fontRenderItem == null) fontRenderItem = fontRenderer;
 				
-				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos - 26, Integer.toString(stack.getCount()));
+				itemRender.renderItemOverlayIntoGUI(fontRenderItem, stack, pos.xPos, pos.yPos - 26, Integer.toString(stack.getCount()));
 			}
-
-			if (pos.getStack().isEmpty() && !pos.slotDiscarded())
+			
+			// render blue/target slot content
+			if ( pos.getStack().isEmpty()
+			  && !pos.slotDiscarded() )
 			{
-				this.itemRender.zLevel = 50;
+				itemRender.zLevel = 50;
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.colorMask(true, true, true, false);
 				
-				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, pos.getPlayerStack(), pos.xPos, pos.yPos);
+				itemRender.renderItemAndEffectIntoGUI(mc.player, pos.getPlayerStack(), pos.xPos, pos.yPos);
 				
-				if (!stack.isEmpty() && stack.getCount() > 1)
+				if ( !stack.isEmpty()
+				  && stack.getCount() > 1 )
 				{
-					FontRenderer font = stack.getItem().getFontRenderer(stack);
-					if (font == null) font = fontRenderer;
+					FontRenderer fontRenderItem = stack.getItem().getFontRenderer(stack);
+					if (fontRenderItem == null) fontRenderItem = fontRenderer;
 					
-					this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos, pos.yPos, Integer.toString(stack.getCount()));
+					itemRender.renderItemOverlayIntoGUI(fontRenderItem, stack, pos.xPos, pos.yPos, Integer.toString(stack.getCount()));
 				}
 				
 				GlStateManager.colorMask(true, true, true, true);
-				this.itemRender.zLevel = 500;
+				itemRender.zLevel = 500;
 			}
 			else if (CyberwareAPI.areCyberwareStacksEqual(stack, pos.getStack()))
 			{
-				FontRenderer font = stack.getItem().getFontRenderer(stack);
-				if (font == null) font = fontRenderer;
+				FontRenderer fontRenderItem = stack.getItem().getFontRenderer(stack);
+				if (fontRenderItem == null) fontRenderItem = fontRenderer;
+				
 				String str = pos.getStack().getCount() == 1 ? "+1" : "+";
-				int width = pos.getStack().getCount() == 1 ? 0 : font.getStringWidth(Integer.toString(pos.getStack().getCount()));
-				this.itemRender.renderItemOverlayIntoGUI(font, stack, pos.xPos - width, pos.yPos, str);
+				int width = pos.getStack().getCount() == 1 ? 0 : fontRenderItem.getStringWidth(Integer.toString(pos.getStack().getCount()));
+				
+				itemRender.renderItemOverlayIntoGUI(fontRenderItem, stack, pos.xPos - width, pos.yPos, str);
 			}
 			
 			GlStateManager.popMatrix();
 		}
 		
+		// draw index page
 		if (page == index.id)
 		{
 			for (int zee = 0; zee < indexCount; zee++)
@@ -1257,34 +1283,33 @@ public class GuiSurgery extends GuiContainer
 				
 				int x = (zee % 8) * 20 + 9;
 				int y = (zee / 8) * 20 + 24;
-				this.itemRender.zLevel = 0;
+				itemRender.zLevel = 0;
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.colorMask(true, true, true, false);
 				
-				this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, draw, x, y);
+				itemRender.renderItemAndEffectIntoGUI(mc.player, draw, x, y);
 				
-				if (!draw.isEmpty() && draw.getCount() > 1)
+				FontRenderer fontRendererItem = draw.getItem().getFontRenderer(draw);
+				if (fontRendererItem == null) fontRendererItem = fontRenderer;
+				
+				if ( !draw.isEmpty()
+				  && draw.getCount() > 1 )
 				{
-					FontRenderer font = draw.getItem().getFontRenderer(draw);
-					if (font == null) font = fontRenderer;
-					
-					this.itemRender.renderItemOverlayIntoGUI(font, draw, x, y, Integer.toString(draw.getCount()));
+					itemRender.renderItemOverlayIntoGUI(fontRendererItem, draw, x, y, Integer.toString(draw.getCount()));
 				}
 				
-				FontRenderer font = draw.getItem().getFontRenderer(draw);
-				if (font == null) font = fontRenderer;
 				int nu = indexNews[zee];
 				if (nu == 1)
 				{
-					this.itemRender.renderItemOverlayIntoGUI(font, draw, x - 10, y - 10, "+");
+					itemRender.renderItemOverlayIntoGUI(fontRendererItem, draw, x - 10, y - 10, "+");
 				}
 				else if (nu == 2)
 				{
-					this.itemRender.renderItemOverlayIntoGUI(font, draw, x - 10, y - 10, "-");
+					itemRender.renderItemOverlayIntoGUI(fontRendererItem, draw, x - 10, y - 10, "-");
 				}
 				
 				GlStateManager.colorMask(true, true, true, true);
-				this.itemRender.zLevel = 500;
+				itemRender.zLevel = 500;
 			}
 		}
 		
@@ -1306,30 +1331,30 @@ public class GuiSurgery extends GuiContainer
 				missingSlots.add(I18n.format("cyberware.gui.no_power"));
 			}
 			
-			for (int k = 0; k < surgery.isEssentialMissing.length; k++)
+			for (int index = 0; index < surgery.isEssentialMissing.length; index++)
 			{
-				EnumSlot slot = EnumSlot.values()[k / 2];
+				EnumSlot slot = EnumSlot.values()[index / 2];
 				
 				if (slot.isSided())
 				{
-					if (k % 2 ==0)
+					if (index % 2 == 0)
 					{
-						if (surgery.isEssentialMissing[k])
+						if (surgery.isEssentialMissing[index])
 						{
 							missingSlots.add(I18n.format("cyberware.gui.missing_essential." + slot.getName() + ".left"));
 						}
 					}
 					else
 					{
-						if (surgery.isEssentialMissing[k])
+						if (surgery.isEssentialMissing[index])
 						{
 							missingSlots.add(I18n.format("cyberware.gui.missing_essential." + slot.getName() + ".right"));
 						}
 					}
 				}
-				else if (k % 2 ==0)
+				else if (index % 2 == 0)
 				{
-					if (surgery.isEssentialMissing[k])
+					if (surgery.isEssentialMissing[index])
 					{
 						missingSlots.add(I18n.format("cyberware.gui.missing_essential." + slot.getName()));
 					}
@@ -1348,16 +1373,18 @@ public class GuiSurgery extends GuiContainer
 				// Otherwise, see if a blue slot is hovered and a ghost item carries over
 				ghost = true;
 				slot = getSlotAtPosition(mouseX, mouseY);
-				if (slot != null && (!slot.getStack().isEmpty()))
+				if ( slot != null
+				  && !slot.getStack().isEmpty() )
 				{
 					slot = null;
 				}
 				
-				if ((slot instanceof SlotSurgery && ((SlotSurgery) slot).slotDiscarded()))
+				if ( slot instanceof SlotSurgery
+				  && ((SlotSurgery) slot).slotDiscarded() )
 				{
 					if (!((SlotSurgery) slot).getPlayerStack().isEmpty())
 					{
-						if (this.mc.player.inventory.getItemStack().isEmpty())
+						if (mc.player.inventory.getItemStack().isEmpty())
 						{
 							add = true;
 						}
@@ -1368,69 +1395,71 @@ public class GuiSurgery extends GuiContainer
 					}
 				}
 			}
-				
+			
 			// Draw the tooltip if there is a red slot item or ghost item that needs one drawn
 			if (slot instanceof SlotSurgery)
 			{
 				ItemStack stack = ((SlotSurgery) slot).getPlayerStack();
 				if (add)
 				{
-					List<String> l = new ArrayList<>();
-					l.add(I18n.format("cyberware.gui.add", I18n.format(stack.getTranslationKey() + ".name")));
-					this.drawHoveringText(l, mouseX - i, mouseY - j, fontRenderer);
+					drawHoveringText(Collections.singletonList(I18n.format("cyberware.gui.add", I18n.format(stack.getTranslationKey() + ".name"))),
+					                 mouseX - xLeft, mouseY - yTop, fontRenderer );
 				}
 				else
 				{
 					if (!stack.isEmpty())
 					{
-						this.renderToolTip(stack, mouseX - i, mouseY - j, ghost ? 1 : 0);
+						renderToolTip(stack, mouseX - xLeft, mouseY - yTop, ghost ? 1 : 0);
 					}
 				}
 			}
 			
 			if (missingSlots.size() > 0)
 			{			
-				if (this.isPointInRegion(this.xSize - 23, 20, 16, 16, mouseX, mouseY))
+				if (isPointInRegion(xSize - 23, 20, 16, 16, mouseX, mouseY))
 				{
-					this.drawHoveringText(missingSlots, mouseX - i, mouseY - j, fontRenderer);
+					drawHoveringText(missingSlots, mouseX - xLeft, mouseY - yTop, fontRenderer);
 				}
 			}
 		}
 		else
 		{
+			// render tooltip & capture click event in index page
 			for (int n = 0; n < indexCount; n++)
 			{
 				int x = (n % 8) * 20 + 9;
 				int y = (n / 8) * 20 + 24;
 				
-				if (this.isPointInRegion(x - 1, y - 1, 18, 18, mouseX, mouseY))
+				if (isPointInRegion(x - 1, y - 1, 18, 18, mouseX, mouseY))
 				{
-					this.renderToolTip(indexStacks.get(n), mouseX - i, mouseY - j, 2 + indexNews[n]);
-					if (this.mouseDown)
+					renderToolTip(indexStacks.get(n), mouseX - xLeft, mouseY - yTop, 2 + indexNews[n]);
+					if (mouseDown)
 					{
-						this.parent = index.id;
+						parent = index.id;
 						int time = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) ? 0 : 30;
-						this.prepTransition(time, indexPages[n]);
+						prepTransition(time, indexPages[n]);
 					}
 				}
 			}
 		}
 		
 		if ( page != 0
-		  && isPointInRegion(this.xSize - 25, 5, back.width, back.height, mouseX, mouseY) )
+		  && isPointInRegion(xSize - 25, 5, back.width, back.height, mouseX, mouseY) )
 		{
-			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.back")), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Collections.singletonList(I18n.format("cyberware.gui.back")),
+			                 mouseX - xLeft, mouseY - yTop, fontRenderer );
 		}
 		else if ( page == 0
-		       && isPointInRegion(this.xSize - 22, 5, index.width, index.height, mouseX, mouseY))
+		       && isPointInRegion(xSize - 22, 5, index.width, index.height, mouseX, mouseY) )
 		{
-			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.index")), mouseX - i, mouseY - j, fontRenderer);
+			drawHoveringText(Collections.singletonList(I18n.format("cyberware.gui.index")),
+			                 mouseX - xLeft, mouseY - yTop, fontRenderer );
 		}
 		
 		GlStateManager.disableBlend();
 
-		this.zLevel = 0;
-		this.itemRender.zLevel = 0;
+		zLevel = 0;
+		itemRender.zLevel = 0;
 	}
 
 	@Override
@@ -1445,7 +1474,9 @@ public class GuiSurgery extends GuiContainer
 		if (slotIn instanceof SlotSurgery)
 		{
 			SlotSurgery surgerySlot = (SlotSurgery) slotIn;
-			if (surgerySlot.getStack().isEmpty() && !surgerySlot.getPlayerStack().isEmpty() && this.mc.player.inventory.getItemStack().isEmpty())
+			if ( surgerySlot.getStack().isEmpty()
+			  && !surgerySlot.getPlayerStack().isEmpty()
+			  && mc.player.inventory.getItemStack().isEmpty() )
 			{
 				int number = surgerySlot.slotNumber;
 				
@@ -1475,22 +1506,23 @@ public class GuiSurgery extends GuiContainer
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
 	}
 
-	public boolean isSlotAccessible(SlotSurgery slot)
+	public boolean isSlotAccessible(@Nonnull SlotSurgery slot)
 	{
 		return page == slot.slot.getSlotNumber();
 	}
 	
-	public void updateSlots(boolean show)
+	protected void updateSurgerySlotsVisibility(boolean show)
 	{
 		visibleSlots.clear();
-		Iterator<Slot> i = inventorySlots.inventorySlots.iterator();
+		Iterator<Slot> iteratorSlots = inventorySlots.inventorySlots.iterator();
 		
-		Slot slot = i.next();
+		Slot slot = iteratorSlots.next();
 		while (slot instanceof SlotSurgery)
 		{
 			SlotSurgery slotSurgery = (SlotSurgery) slot;
 			
-			if (isSlotAccessible(slotSurgery) && show)
+			if ( show
+			  && isSlotAccessible(slotSurgery) )
 			{
 				slotSurgery.xPos = slotSurgery.savedXPosition;
 				slotSurgery.yPos = slotSurgery.savedYPosition;
@@ -1502,48 +1534,46 @@ public class GuiSurgery extends GuiContainer
 				slotSurgery.yPos = Integer.MIN_VALUE;
 			}
 			
-			slot = i.next();
+			slot = iteratorSlots.next();
 		}
 	}
 
-	protected void renderToolTip(ItemStack stack, int x, int y, int extras)
+	protected void renderToolTip(@Nonnull ItemStack stack, int x, int y, int extras)
 	{
-		// TODO: ITooltipFlag
-		//List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
-		List<String> list = stack.getTooltip(this.mc.player, ITooltipFlag.TooltipFlags.ADVANCED);
+		List<String> listTooltips = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 
-		for (int i = 0; i < list.size(); ++i)
+		for (int indexTooltip = 0; indexTooltip < listTooltips.size(); indexTooltip++)
 		{
-			if (i == 0)
+			if (indexTooltip == 0)
 			{
-				list.set(i, stack.getRarity().getColor() + list.get(i));
+				listTooltips.set(indexTooltip, stack.getItem().getForgeRarity(stack).getColor() + listTooltips.get(indexTooltip));
 			}
 			else
 			{
-				list.set(i, TextFormatting.GRAY + list.get(i));
+				listTooltips.set(indexTooltip, TextFormatting.GRAY + listTooltips.get(indexTooltip));
 			}
 		}
 		
 		if (extras == 1)
 		{
-			list.add(1, I18n.format("cyberware.gui.remove"));
+			listTooltips.add(1, I18n.format("cyberware.gui.remove"));
 		}
 		else if (extras >= 2)
 		{
-			list.add(1, I18n.format("cyberware.gui.click"));
+			listTooltips.add(1, I18n.format("cyberware.gui.click"));
 			
 			if (extras == 3)
 			{
-				list.set(0, list.get(0) + " " + I18n.format("cyberware.gui.added"));
+				listTooltips.set(0, listTooltips.get(0) + " " + I18n.format("cyberware.gui.added"));
 			}
 			else if (extras == 4)
 			{
-				list.set(0, list.get(0) + " " + I18n.format("cyberware.gui.removed"));
+				listTooltips.set(0, listTooltips.get(0) + " " + I18n.format("cyberware.gui.removed"));
 			}
 		}
 
-		FontRenderer font = stack.getItem().getFontRenderer(stack);
-		this.drawHoveringText(list, x, y, (font == null ? fontRenderer : font));
+		FontRenderer frontRendererItem = stack.getItem().getFontRenderer(stack);
+		drawHoveringText(listTooltips, x, y, (frontRendererItem == null ? fontRenderer : frontRendererItem));
 	}
 	
 }

@@ -8,14 +8,16 @@ public class ItemSurgeryTable extends Item
 {
 	public ItemSurgeryTable()
 	{
+		super();
+		
 		String name = "surgery_table";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-        this.setMaxDamage(0);
+		setTranslationKey(Cyberware.MODID + "." + name);
+        setMaxDamage(0);
         
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 	}
 
 	/*

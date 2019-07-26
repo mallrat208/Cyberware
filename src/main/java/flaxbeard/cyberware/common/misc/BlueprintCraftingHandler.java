@@ -20,58 +20,51 @@ public class BlueprintCraftingHandler implements IRecipe
 	{
 		RecipeSorter.register(Cyberware.MODID + ":blueprintCrafting", BlueprintCraftingHandler.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
 	}
-
+	
 	private IRecipe realRecipe;
-
+	
 	public BlueprintCraftingHandler()
 	{
 		this.realRecipe = this;
 	}
-
+	
 	@Override
 	public ResourceLocation getRegistryName()
 	{
 		return new ResourceLocation(Cyberware.MODID, "blueprintCrafting");
-		//return this.realRecipe.getRegistryName();
 	}
-
+	
 	@Override
 	public boolean canFit(int width, int height)
 	{
 		return true;
 	}
-
+	
 	@Override
 	public IRecipe setRegistryName(ResourceLocation name)
 	{
-		return this.realRecipe.setRegistryName(name);
+		return realRecipe.setRegistryName(name);
 	}
-
+	
 	@Override
 	public Class<IRecipe> getRegistryType()
 	{
-		return this.realRecipe.getRegistryType();
+		return realRecipe.getRegistryType();
 	}
-
+	
 	@Override
-	public boolean matches(InventoryCrafting inv, World worldIn)
+	public boolean matches(@Nonnull InventoryCrafting inventoryCrafting, @Nonnull World world)
 	{
-		return new BlueprintResult(inv).canCraft;
+		return new BlueprintResult(inventoryCrafting).canCraft;
 	}
 	
 	@Nonnull
 	@Override
-	public ItemStack getCraftingResult(InventoryCrafting inv)
+	public ItemStack getCraftingResult(@Nonnull InventoryCrafting inventoryCrafting)
 	{
-		return new BlueprintResult(inv).output;
+		return new BlueprintResult(inventoryCrafting).output;
 	}
-
-	//@Override
-	//public int getRecipeSize()
-	//{
-	//	return 0;
-	//}
-
+	
 	@Nonnull
 	@Override
 	public ItemStack getRecipeOutput()
@@ -81,9 +74,9 @@ public class BlueprintCraftingHandler implements IRecipe
 	
 	@Nonnull
 	@Override
-	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
+	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inventoryCrafting)
 	{
-		return new BlueprintResult(inv).remaining;
+		return new BlueprintResult(inventoryCrafting).remaining;
 	}
 	
 	private class BlueprintResult
@@ -94,7 +87,7 @@ public class BlueprintCraftingHandler implements IRecipe
 		
 		private ItemStack ware;
 		int wareStack = 0;
-
+		
 		public BlueprintResult(InventoryCrafting inv)
 		{
 			this.ware = ItemStack.EMPTY;
@@ -112,12 +105,12 @@ public class BlueprintCraftingHandler implements IRecipe
 			}
 		}
 		
-		private boolean process(InventoryCrafting inv)
+		private boolean process(InventoryCrafting inventoryCrafting)
 		{
 			boolean hasBlankBlueprint = false;
-			for (int i = 0; i < inv.getSizeInventory(); i++)
+			for (int indexSlot = 0; indexSlot < inventoryCrafting.getSizeInventory(); indexSlot++)
 			{
-				ItemStack stack = inv.getStackInSlot(i);
+				ItemStack stack = inventoryCrafting.getStackInSlot(indexSlot);
 				if (!stack.isEmpty())
 				{
 					if (stack.getItem() instanceof IDeconstructable)
@@ -125,16 +118,16 @@ public class BlueprintCraftingHandler implements IRecipe
 						if (ware.isEmpty())
 						{
 							ware = stack;
-							wareStack = i;
+							wareStack = indexSlot;
 						}
 						else
 						{
 							return false;
 						}
 					}
-					else if (stack.getItem() == CyberwareContent.blueprint
-							&& (!stack.hasTagCompound()
-							|| !stack.getTagCompound().hasKey("blueprintItem")))
+					else if ( stack.getItem() == CyberwareContent.blueprint
+					       && ( !stack.hasTagCompound()
+					         || !stack.getTagCompound().hasKey("blueprintItem") ) )
 					{
 						if (!hasBlankBlueprint)
 						{

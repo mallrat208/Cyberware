@@ -71,7 +71,7 @@ public class DodgePacket implements IMessage
 			
 			if (targetEntity != null)
 			{
-				for (int i = 0; i < 25; i++)
+				for (int index = 0; index < 25; index++)
 				{
 					Random rand = targetEntity.world.rand;
 					targetEntity.world.spawnParticle(EnumParticleTypes.SPELL, targetEntity.posX, targetEntity.posY + rand.nextFloat() * targetEntity.height, targetEntity.posZ, 
@@ -88,13 +88,10 @@ public class DodgePacket implements IMessage
 				{
 					HudHandler.addNotification(new NotificationInstance(targetEntity.ticksExisted, new DodgeNotification()));
 				}
-
 			}
 			
 			return null;
 		}
-		
-
 	}
 	
 	private static class DodgeNotification implements INotification

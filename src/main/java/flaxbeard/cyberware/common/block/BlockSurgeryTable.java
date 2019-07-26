@@ -28,13 +28,12 @@ public class BlockSurgeryTable extends BlockBed
 	
 	public BlockSurgeryTable()
 	{
-		
 		String name = "surgeryTable";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
 
 		GameRegistry.registerTileEntity(TileEntitySurgery.class, new ResourceLocation(Cyberware.MODID, name));
 		
@@ -42,90 +41,80 @@ public class BlockSurgeryTable extends BlockBed
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		if (worldIn.isRemote)
+		if (world.isRemote)
 		{
 			return true;
 		}
-		else
+		
+		if (blockState.getValue(PART) != BlockBed.EnumPartType.HEAD)
 		{
-			if (state.getValue(PART) != BlockBed.EnumPartType.HEAD)
+			pos = pos.offset(blockState.getValue(FACING));
+			blockState = world.getBlockState(pos);
+
+			if (blockState.getBlock() != this)
 			{
-				pos = pos.offset(state.getValue(FACING));
-				state = worldIn.getBlockState(pos);
-
-				if (state.getBlock() != this)
-				{
-					return true;
-				}
-			}
-
-			if (worldIn.provider.canRespawnHere() && worldIn.getBiome(pos) != Biomes.HELL)
-			{
-				if (state.getValue(OCCUPIED))
-				{
-					EntityPlayer entityplayer = this.getPlayerInBed(worldIn, pos);
-
-					if (entityplayer != null)
-					{
-						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.occupied"));
-						return true;
-					}
-
-					state = state.withProperty(OCCUPIED, Boolean.FALSE);
-					worldIn.setBlockState(pos, state, 4);
-				}
-
-				EntityPlayer.SleepResult entityplayer$sleepresult = entityPlayer.trySleep(pos);
-
-				if (entityplayer$sleepresult == EntityPlayer.SleepResult.OK)
-				{
-					state = state.withProperty(OCCUPIED, Boolean.TRUE);
-					worldIn.setBlockState(pos, state, 4);
-					return true;
-				}
-				else
-				{
-					if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_POSSIBLE_NOW)
-					{
-						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.noSleep"));
-					}
-					else if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_SAFE)
-					{
-						entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.notSafe"));
-					}
-
-					return true;
-				}
-			}
-			else
-			{
-				worldIn.setBlockToAir(pos);
-				BlockPos blockpos = pos.offset(state.getValue(FACING).getOpposite());
-
-				if (worldIn.getBlockState(blockpos).getBlock() == this)
-				{
-					worldIn.setBlockToAir(blockpos);
-				}
-
-				worldIn.newExplosion(null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, true);
 				return true;
 			}
 		}
+
+		if ( world.provider.canRespawnHere()
+		  && world.getBiome(pos) != Biomes.HELL )
+		{
+			if (blockState.getValue(OCCUPIED))
+			{
+				EntityPlayer entityplayer = this.getPlayerInBed(world, pos);
+
+				if (entityplayer != null)
+				{
+					entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.occupied"));
+					return true;
+				}
+				
+				blockState = blockState.withProperty(OCCUPIED, Boolean.FALSE);
+				world.setBlockState(pos, blockState, 4);
+			}
+
+			EntityPlayer.SleepResult entityplayer$sleepresult = entityPlayer.trySleep(pos);
+
+			if (entityplayer$sleepresult == EntityPlayer.SleepResult.OK)
+			{
+				blockState = blockState.withProperty(OCCUPIED, Boolean.TRUE);
+				world.setBlockState(pos, blockState, 4);
+				return true;
+			}
+			else
+			{
+				if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_POSSIBLE_NOW)
+				{
+					entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.noSleep"));
+				}
+				else if (entityplayer$sleepresult == EntityPlayer.SleepResult.NOT_SAFE)
+				{
+					entityPlayer.sendMessage(new TextComponentTranslation("tile.bed.notSafe"));
+				}
+
+				return true;
+			}
+		}
+		else
+		{
+			world.setBlockToAir(pos);
+			BlockPos blockpos = pos.offset(blockState.getValue(FACING).getOpposite());
+
+			if (world.getBlockState(blockpos).getBlock() == this)
+			{
+				world.setBlockToAir(blockpos);
+			}
+
+			world.newExplosion(null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, 5.0F, true, true);
+			return true;
+		}
 	}
-
-/*	@Nonnull
-	public Item getItemDropped(IBlockState state, Random rand, int fortune)
-	{
-		return state.getValue(PART) == BlockBed.EnumPartType.HEAD ? Items.AIR : CyberwareContent.surgeryTableItem;
-	}
-
-	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
-	{
-		return new ItemStack(CyberwareContent.surgeryTableItem);
-	}*/
-
+	
 	@Nullable
 	private EntityPlayer getPlayerInBed(World worldIn, BlockPos pos)
 	{

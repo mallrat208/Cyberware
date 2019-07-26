@@ -39,23 +39,23 @@ public class BlockSurgery extends BlockContainer
 		
 		String name = "surgery";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ItemBlock ib = new ItemBlockCyberware(this,"cyberware.tooltip.surgery.0", "cyberware.tooltip.surgery.1");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-
-		this.setCreativeTab(Cyberware.creativeTab);
+		ItemBlock itemBlock = new ItemBlockCyberware(this,"cyberware.tooltip.surgery.0", "cyberware.tooltip.surgery.1");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
+		
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntitySurgery.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
 	}
-
+	
 	@Override
-	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntitySurgery();
 	}
@@ -63,50 +63,54 @@ public class BlockSurgery extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state)
+	public EnumBlockRenderType getRenderType(IBlockState blockState)
 	{
 		return EnumBlockRenderType.MODEL;
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 		
-		if (tileentity instanceof TileEntitySurgery)
+		if (tileEntity instanceof TileEntitySurgery)
 		{
-			TileEntitySurgery tileEntitySurgery = (TileEntitySurgery) tileentity;
+			TileEntitySurgery tileEntitySurgery = (TileEntitySurgery) tileEntity;
 			
 			//Ensure the Base Tolerance Attribute has been updated for any Config Changes
 			entityPlayer.getEntityAttribute(CyberwareAPI.TOLERANCE_ATTR).setBaseValue(CyberwareConfig.ESSENCE);
 			
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
 			tileEntitySurgery.updatePlayerSlots(entityPlayer, cyberwareUserData);
-			entityPlayer.openGui(Cyberware.INSTANCE, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
+			entityPlayer.openGui(Cyberware.INSTANCE, 0, world, pos.getX(), pos.getY(), pos.getZ());
 		}
 		
 		return true;
 	}
 	
 	@Override
-	public void breakBlock(World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state)
+	public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState)
 	{ 
-		TileEntity tileentity = worldIn.getTileEntity(pos);
-
-		if (tileentity instanceof TileEntitySurgery && !worldIn.isRemote)
+		TileEntity tileentity = world.getTileEntity(pos);
+		
+		if ( tileentity instanceof TileEntitySurgery
+		  && !world.isRemote )
 		{
 			TileEntitySurgery surgery = (TileEntitySurgery) tileentity;
 			
-			for (int i = 0; i < surgery.slots.getSlots(); i++)
+			for (int indexSlot = 0; indexSlot < surgery.slots.getSlots(); indexSlot++)
 			{
-				ItemStack stack = surgery.slots.getStackInSlot(i);
+				ItemStack stack = surgery.slots.getStackInSlot(indexSlot);
 				if (!stack.isEmpty())
 				{
-					InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
+					InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
 				}
 			}
 		}
-		super.breakBlock(worldIn, pos, state);
+		
+		super.breakBlock(world, pos, blockState);
 	}
 
 }

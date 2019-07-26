@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -18,17 +17,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
-import flaxbeard.cyberware.common.item.ItemArmorCyberware.ModelTrenchcoat;
+import flaxbeard.cyberware.client.render.ModelTrenchCoat;
 import flaxbeard.cyberware.common.network.CyberwarePacketHandler;
 import flaxbeard.cyberware.common.network.TriggerActiveAbilityPacket;
 
 public class ClientUtils
 {
-	@SideOnly(Side.CLIENT)
-	public static final ModelBiped armor = new ModelBiped(0.51F);
 	
 	@SideOnly(Side.CLIENT)
-	public static final ModelBiped trench = new ModelTrenchcoat(0.51F);
+	public static final ModelTrenchCoat modelTrenchCoat = new ModelTrenchCoat(0.51F);
 	
 	private static final float TEXTURE_SCALE = 1.0F / 256; 
 	public static void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)

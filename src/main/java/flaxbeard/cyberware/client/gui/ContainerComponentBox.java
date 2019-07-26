@@ -1,7 +1,6 @@
 package flaxbeard.cyberware.client.gui;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -21,117 +20,116 @@ public class ContainerComponentBox extends Container
 	private final TileEntityComponentBox box;
 	private final ItemStack item;
 
-	public ContainerComponentBox(IInventory playerInventory, TileEntityComponentBox box)
-	{
+	public ContainerComponentBox(IInventory playerInventory, @Nonnull TileEntityComponentBox box) {
+		super();
+		
 		this.box = box;
-		this.item = ItemStack.EMPTY;
-		this.slots = box.slots;
-		this.numRows = slots.getSlots() / 9;
-		int i = (this.numRows - 4) * 18;
-
-		for (int j = 0; j < this.numRows; ++j)
-		{
-			for (int k = 0; k < 9; ++k)
-			{
-				this.addSlotToContainer(new SlotItemHandler(slots, k + j * 9, 8 + k * 18, 18 + j * 18));
-			}
-		}
-
-		for (int l = 0; l < 3; ++l)
-		{
-			for (int j1 = 0; j1 < 9; ++j1)
-			{
-				this.addSlotToContainer(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
-			}
-		}
-
-		for (int i1 = 0; i1 < 9; ++i1)
-		{
-			this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 161 + i));
-		}
+		item = ItemStack.EMPTY;
+		slots = box.slots;
+		numRows = slots.getSlots() / 9;
+		
+		addSlots(playerInventory);
 	}
-
-	public ContainerComponentBox(IInventory playerInventory, ItemStack itemStack)
+	
+	public ContainerComponentBox(IInventory playerInventory, @Nonnull ItemStack itemStack)
 	{
-		this.box = null;
-		this.item = itemStack;
+		super();
+		
+		box = null;
+		item = itemStack;
 		slots = new ItemStackHandlerComponent(18);
 
-		if (itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("contents"))
+		NBTTagCompound tagCompound = itemStack.getTagCompound();
+		if ( tagCompound != null
+		  && itemStack.getTagCompound().hasKey("contents") )
 		{
-			slots.deserializeNBT(itemStack.getTagCompound().getCompoundTag("contents"));
+			slots.deserializeNBT(tagCompound.getCompoundTag("contents"));
 		}
 		
-		this.numRows = slots.getSlots() / 9;
-		int i = (this.numRows - 4) * 18;
-
-		for (int j = 0; j < this.numRows; ++j)
-		{
-			for (int k = 0; k < 9; ++k)
-			{
-				this.addSlotToContainer(new SlotItemHandler(slots, k + j * 9, 8 + k * 18, 18 + j * 18));
-			}
-		}
-
-		for (int l = 0; l < 3; ++l)
-		{
-			for (int j1 = 0; j1 < 9; ++j1)
-			{
-				this.addSlotToContainer(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
-			}
-		}
-
-		for (int i1 = 0; i1 < 9; ++i1)
-		{
-			this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 161 + i));
-		}
+		numRows = slots.getSlots() / 9;
+		
+		addSlots(playerInventory);
 	}
-
-	public boolean canInteractWith(EntityPlayer entityPlayer)
+	
+	private void addSlots(IInventory playerInventory)
 	{
-		return box == null ? entityPlayer.inventory.mainInventory.get(entityPlayer.inventory.currentItem) == item : this.box.isUseableByPlayer(entityPlayer);
+		int yOffset = (numRows - 4) * 18;
+		
+		// component box's inventory
+		for (int indexRow = 0; indexRow < numRows; indexRow++)
+		{
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
+			{
+				addSlotToContainer(new SlotItemHandler(slots, indexColumn + indexRow * 9, 8 + indexColumn * 18, 18 + indexRow * 18));
+			}
+		}
+		
+		// player's inventory
+		for (int indexRow = 0; indexRow < 3; indexRow++)
+		{
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
+			{
+				addSlotToContainer(new Slot(playerInventory, indexColumn + indexRow * 9 + 9, 8 + indexColumn * 18, 103 + indexRow * 18 + yOffset));
+			}
+		}
+		
+		// player's hotbar
+		for (int indexColumn = 0; indexColumn < 9; indexColumn++)
+		{
+			addSlotToContainer(new Slot(playerInventory, indexColumn, 8 + indexColumn * 18, 161 + yOffset));
+		}
 	}
-
-	public void onContainerClosed(EntityPlayer entityPlayer)
+	
+	@Override
+	public boolean canInteractWith(@Nonnull EntityPlayer entityPlayer)
+	{
+		return box == null ? entityPlayer.inventory.mainInventory.get(entityPlayer.inventory.currentItem) == item
+		                   : box.isUsableByPlayer(entityPlayer);
+	}
+	
+	@Override
+	public void onContainerClosed(@Nonnull EntityPlayer entityPlayer)
 	{
 		super.onContainerClosed(entityPlayer);
 		
 		if (!item.isEmpty())
 		{
 			NBTTagCompound tagCompoundSlots = slots.serializeNBT();
-			if (!item.hasTagCompound())
+			NBTTagCompound tagCompoundItem = item.getTagCompound();
+			if (tagCompoundItem == null)
 			{
-				item.setTagCompound(new NBTTagCompound());
+				tagCompoundItem = new NBTTagCompound();
+				item.setTagCompound(tagCompoundItem);
 			}
-			item.getTagCompound().setTag("contents", tagCompoundSlots);
+			tagCompoundItem.setTag("contents", tagCompoundSlots);
 		}
 	}
-	/**
-	 * Take a stack from the specified inventory slot.
-	 */
+	
 	@Nonnull
+	@Override
 	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.inventorySlots.get(index);
-
-		if (slot != null && slot.getHasStack())
+		Slot slot = inventorySlots.get(index);
+		
+		if ( slot != null
+		  && slot.getHasStack() )
 		{
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
-
-			if (index < this.numRows * 9)
+			
+			if (index < numRows * 9)
 			{
-				if (!this.mergeItemStack(itemstack1, this.numRows * 9, this.inventorySlots.size(), true))
+				if (!mergeItemStack(itemstack1, numRows * 9, inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if (!this.mergeItemStack(itemstack1, 0, this.numRows * 9, false))
+			else if (!mergeItemStack(itemstack1, 0, numRows * 9, false))
 			{
 				return ItemStack.EMPTY;
 			}
-
+			
 			if (itemstack1.getCount() == 0)
 			{
 				slot.putStack(ItemStack.EMPTY);
@@ -141,7 +139,7 @@ public class ContainerComponentBox extends Container
 				slot.onSlotChanged();
 			}
 		}
-
+		
 		return itemstack;
 	}
 

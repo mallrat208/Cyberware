@@ -31,14 +31,16 @@ public class ItemBlueprint extends Item implements IBlueprint
 {
 	public ItemBlueprint(String name)
 	{
-		this.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(this);
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		super();
 		
-		this.setCreativeTab(Cyberware.creativeTab);
+		setRegistryName(name);
+		ForgeRegistries.ITEMS.register(this);
+		setTranslationKey(Cyberware.MODID + "." + name);
+		
+		setCreativeTab(Cyberware.creativeTab);
 				
-		this.setHasSubtypes(true);
-		this.setMaxStackSize(1);
+		setHasSubtypes(true);
+		setMaxStackSize(1);
 
 		CyberwareContent.items.add(this);
 	}

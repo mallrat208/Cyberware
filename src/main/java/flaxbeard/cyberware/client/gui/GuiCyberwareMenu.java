@@ -1,6 +1,7 @@
 package flaxbeard.cyberware.client.gui;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -203,7 +204,7 @@ public class GuiCyberwareMenu extends GuiScreen
 					GlStateManager.color(color[0], color[1], color[2], alpha);
 					
 					double radians = ((rotation + deg) / 180F) * Math.PI;
-	
+					
 					float xS = centerX + ((float) Math.cos(radians) * innerRadius);
 					float yS = centerY + ((float) Math.sin(radians) * innerRadius);
 					GL11.glVertex2f(xS, yS);
@@ -217,7 +218,7 @@ public class GuiCyberwareMenu extends GuiScreen
 					}
 					
 					radians = ((rotation + deg - stepsPerTrial) / 180F) * Math.PI;
-	
+					
 					xS = centerX + ((float) Math.cos(radians) * innerRadius);
 					yS = centerY + ((float) Math.sin(radians) * innerRadius);
 					GL11.glVertex2f(xS, yS);
@@ -240,7 +241,7 @@ public class GuiCyberwareMenu extends GuiScreen
 			for (int piece = 0; piece < piePieces; piece++)
 			{
 				ItemStack stack = cyberwareUserData.getActiveItems().get(piece);
-	
+				
 				float itemRadius = (piece == selectedPart ? itemRadiusBase + 10F : itemRadiusBase);
 				float rotation = (degreesPerPiece * (piece + .5F) + 270) % 360;
 				double radians = ((rotation) / 180F) * Math.PI;
@@ -288,7 +289,7 @@ public class GuiCyberwareMenu extends GuiScreen
 						str = Keyboard.getKeyName(boundKey);
 					}
 					int i = fontRenderer.getStringWidth(str);
-		
+					
 					GlStateManager.translate(xS - i / 2F, yS + offset, 0);
 					fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 					GlStateManager.popMatrix();
@@ -297,14 +298,14 @@ public class GuiCyberwareMenu extends GuiScreen
 				GlStateManager.pushMatrix();
 				String str = I18n.format(((IMenuItem) stack.getItem()).getUnlocalizedLabel(stack));
 				int i = fontRenderer.getStringWidth(str);
-	
+				
 				GlStateManager.translate(xS - i / 2F, yS - offset + yOffset - fontRenderer.FONT_HEIGHT, 0);
 				fontRenderer.drawStringWithShadow(str, 0, 0, 0xFFFFFF);
 				GlStateManager.popMatrix();
 			}
 			
 			fontRenderer.setUnicodeFlag(unicode);
-	
+			
 			if (selectedPart >= 0)
 			{
 				GlStateManager.pushMatrix();
@@ -316,10 +317,10 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		
 		GlStateManager.pushMatrix();
-
+		
 		int sx = (int) ((width / 2F) + radiusBase);
 		int sy = (int) ((height / 2F) - radiusBase);
-
+		
 		if (isPointInRegion(sx + 1 * 2, sy, 6 * 2, 8 * 2, mouseX, mouseY))
 		{
 			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.keybind.0"),
@@ -330,13 +331,13 @@ public class GuiCyberwareMenu extends GuiScreen
 		}
 		else if (isPointInRegion(sx, sy + 9 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.open_hud_config")), mouseX, mouseY, fontRenderer);
+			drawHoveringText(Collections.singletonList(I18n.format("cyberware.gui.open_hud_config")), mouseX, mouseY, fontRenderer);
 		}
 		else if (isPointInRegion(sx, sy + 18 * 2, 8 * 2, 8 * 2, mouseX, mouseY))
 		{
-			drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.open_color_change")), mouseX, mouseY, fontRenderer);
+			drawHoveringText(Collections.singletonList(I18n.format("cyberware.gui.open_color_change")), mouseX, mouseY, fontRenderer);
 		}
-
+		
 		GlStateManager.popMatrix();
 	}
 	
@@ -528,7 +529,8 @@ public class GuiCyberwareMenu extends GuiScreen
 		{
 			boolean shiftPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
 			assignHotkey(keyCode + (shiftPressed ? 900 : 0));
-			/*for (int i = 0; i < mc.gameSettings.keyBindsHotbar.length; i++)
+			/*
+			for (int i = 0; i < mc.gameSettings.keyBindsHotbar.length; i++)
 			{
 				KeyBinding kb = mc.gameSettings.keyBindsHotbar[i];
 				if (kb.getKeyCode() == keyCode)
@@ -544,7 +546,8 @@ public class GuiCyberwareMenu extends GuiScreen
 
 					return;
 				}
-			}*/
+			}
+			*/
 		}
 		
 		hex.textboxKeyTyped(typedChar, keyCode);

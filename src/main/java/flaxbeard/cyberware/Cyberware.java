@@ -12,7 +12,12 @@ import flaxbeard.cyberware.common.misc.CommandClearCyberware;
 import flaxbeard.cyberware.common.misc.TabCyberware;
 import org.apache.logging.log4j.Logger;
 
-@Mod(name = Cyberware.MODNAME, modid = Cyberware.MODID, version = Cyberware.VERSION, certificateFingerprint = "@MOD_SIGNATURE@")
+@Mod(name = Cyberware.MODNAME,
+     modid = Cyberware.MODID,
+     version = Cyberware.VERSION,
+     dependencies = ""
+                  + "required-after:forge@[14.23.5.2816,);",
+     certificateFingerprint = "@MOD_SIGNATURE@")
 public class Cyberware
 {
 	public static final String MODNAME = "Cyberware";

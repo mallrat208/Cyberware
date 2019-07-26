@@ -38,7 +38,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntityComponentBox;
 public class BlockComponentBox extends BlockContainer
 {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
-	public ItemBlock ib;
+	public ItemBlock itemBlock;
 	
 	public BlockComponentBox()
 	{
@@ -49,21 +49,21 @@ public class BlockComponentBox extends BlockContainer
 		
 		String name = "component_box";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ib = new ItemComponentBox(this);
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		itemBlock = new ItemComponentBox(this);
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
 
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityComponentBox.class, new ResourceLocation(Cyberware.MODID, name));
 		
-		CyberwareContent.items.add(ib);
+		CyberwareContent.items.add(itemBlock);
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 	}
 	
 	private static final AxisAlignedBB ns = new AxisAlignedBB(4F / 16F, 0F, 1F / 16F, 12F / 16F, 10F / 16F, 15F / 16F);
@@ -101,13 +101,13 @@ public class BlockComponentBox extends BlockContainer
 	
 	@Nonnull
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
 	
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntityComponentBox();
 	}
@@ -147,9 +147,9 @@ public class BlockComponentBox extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
-		EnumFacing enumfacing = EnumFacing.byIndex(meta);
+		EnumFacing enumfacing = EnumFacing.byIndex(metadata);
 
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
@@ -160,25 +160,25 @@ public class BlockComponentBox extends BlockContainer
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return state.getValue(FACING).getIndex();
+		return blockState.getValue(FACING).getIndex();
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot)
+	public IBlockState withRotation(@Nonnull IBlockState blockState, Rotation rotation)
 	{
-		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+		return blockState.withProperty(FACING, rotation.rotate(blockState.getValue(FACING)));
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+	public IBlockState withMirror(@Nonnull IBlockState blockState, Mirror mirrorIn)
 	{
-		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+		return blockState.withRotation(mirrorIn.toRotation(blockState.getValue(FACING)));
 	}
 	
 	@Nonnull
@@ -189,19 +189,14 @@ public class BlockComponentBox extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileentity = world.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntityComponentBox)
 		{
-			/*
-			if (entityPlayer.isCreative() && entityPlayer.isSneaking())
-			{
-				TileEntityScanner scanner = ((TileEntityScanner) tileentity);
-				scanner.ticks = CyberwareConfig.SCANNER_TIME - 200;
-			}
-			*/
 			if (entityPlayer.isSneaking())
 			{
 				TileEntityComponentBox box = (TileEntityComponentBox) tileentity;
@@ -215,15 +210,15 @@ public class BlockComponentBox extends BlockContainer
 				{
 					if (!entityPlayer.inventory.addItemStackToInventory(toDrop))
 					{
-						InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), toDrop);
+						InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), toDrop);
 					}
 				}
 				box.doDrop = false;
-				worldIn.setBlockToAir(pos);
+				world.setBlockToAir(pos);
 			}
 			else
 			{
-				entityPlayer.openGui(Cyberware.INSTANCE, 5, worldIn, pos.getX(), pos.getY(), pos.getZ());
+				entityPlayer.openGui(Cyberware.INSTANCE, 5, world, pos.getX(), pos.getY(), pos.getZ());
 			}
 		}
 		
@@ -233,7 +228,7 @@ public class BlockComponentBox extends BlockContainer
 	
 	private ItemStack getStack(TileEntityComponentBox box)
 	{
-		ItemStack stackToDrop = new ItemStack(ib);
+		ItemStack stackToDrop = new ItemStack(itemBlock);
 
 		NBTTagCompound tagCompound = new NBTTagCompound();
 		tagCompound.setTag("contents", box.slots.serializeNBT());
@@ -247,21 +242,22 @@ public class BlockComponentBox extends BlockContainer
 	}
 
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState)
 	{ 
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (tileentity instanceof TileEntityComponentBox && !worldIn.isRemote)
+		if ( tileentity instanceof TileEntityComponentBox
+		  && !world.isRemote )
 		{
 			TileEntityComponentBox box = (TileEntityComponentBox) tileentity;
 			if (box.doDrop)
 			{
 				ItemStack stackToDrop = getStack(box);
-				InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stackToDrop);
+				InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stackToDrop);
 			}
 		}
 		
-		super.breakBlock(worldIn, pos, state);
+		super.breakBlock(world, pos, blockState);
 	}
 	
 	@Override

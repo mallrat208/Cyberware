@@ -95,28 +95,27 @@ public class SwitchHeldItemAndRotationPacket implements IMessage
 			return null;
 		}
 		
-		
-		public static void faceEntity(Entity player, Entity entityIn)
+		public static void faceEntity(Entity player, Entity entity)
 		{
-			double d0 = entityIn.posX - player.posX;
-			double d2 = entityIn.posZ - player.posZ;
+			double d0 = entity.posX - player.posX;
+			double d2 = entity.posZ - player.posZ;
 			double d1;
 
-			if (entityIn instanceof EntityLivingBase)
+			if (entity instanceof EntityLivingBase)
 			{
-				EntityLivingBase entitylivingbase = (EntityLivingBase)entityIn;
-				d1 = entitylivingbase.posY + (double)entitylivingbase.getEyeHeight() - (player.posY + (double)player.getEyeHeight());
+				EntityLivingBase entitylivingbase = (EntityLivingBase) entity;
+				d1 = entitylivingbase.posY + entitylivingbase.getEyeHeight()
+				   - (player.posY + player.getEyeHeight());
 			}
 			else
 			{
-				d1 = (entityIn.getEntityBoundingBox().minY + entityIn.getEntityBoundingBox().maxY) / 2.0D - (player.posY + (double)player.getEyeHeight());
+				d1 = (entity.getEntityBoundingBox().minY + entity.getEntityBoundingBox().maxY) / 2.0D
+				   - (player.posY + player.getEyeHeight());
 			}
 
-			double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
-			float f = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
-			float f1 = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
-			player.rotationPitch = f1;
-			player.rotationYaw = f;
+			double d3 = (double) MathHelper.sqrt(d0 * d0 + d2 * d2);
+			player.rotationPitch = (float) (-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
+			player.rotationYaw = (float) (MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
 		}
 		
 	}

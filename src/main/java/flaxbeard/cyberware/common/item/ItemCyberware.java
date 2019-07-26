@@ -110,9 +110,9 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 			{
 				list.add(new ItemStack(this));
 			}
-			for (int i = 0; i < subnames.length; i++)
+			for (int metadata = 0; metadata < subnames.length; metadata++)
 			{
-				list.add(new ItemStack(this, 1, i));
+				list.add(new ItemStack(this, 1, metadata));
 			}
 		}
 	}
