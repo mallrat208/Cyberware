@@ -148,7 +148,7 @@ public final class CyberwareAPI
 		if (tagCompound == null)
 		{
 			tagCompound = new NBTTagCompound();
-			stack.setTagCompound(new NBTTagCompound());
+			stack.setTagCompound(tagCompound);
 		}
 		tagCompound.setString(QUALITY_TAG, quality.getUnlocalizedName());
 		return stack;
