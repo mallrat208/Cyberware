@@ -76,11 +76,10 @@ public class EntityCyberZombie extends EntityZombie
 		super.onLivingUpdate();
 	}
 	
-	
 	protected void setSizeNormal(float width, float height)
 	{
-		if ( width != width
-		  || height != height )
+		if ( width != this.width
+		  || height != this.height )
 		{
 			float widthPrevious = this.width;
 			this.width = width;
@@ -88,8 +87,8 @@ public class EntityCyberZombie extends EntityZombie
 			AxisAlignedBB axisalignedbb = getEntityBoundingBox();
 			setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ,
 			                                       axisalignedbb.minX + width, axisalignedbb.minY + height, axisalignedbb.minZ + width ));
-
-			if ( width > widthPrevious
+			
+			if ( this.width > widthPrevious
 			  && !firstUpdate
 			  && !world.isRemote )
 			{
@@ -103,10 +102,10 @@ public class EntityCyberZombie extends EntityZombie
 	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
 	{
 		tagCompound = super.writeToNBT(tagCompound);
-
+		
 		tagCompound.setBoolean("hasRandomWare", hasRandomWare);
 		tagCompound.setBoolean("brute", isBrute());
-
+		
 		if (hasRandomWare)
 		{
 			NBTTagCompound tagCompoundCyberware = cyberware.serializeNBT();
@@ -114,7 +113,7 @@ public class EntityCyberZombie extends EntityZombie
 		}
 		return tagCompound;
 	}
-
+	
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
@@ -141,7 +140,7 @@ public class EntityCyberZombie extends EntityZombie
 		}
 		return super.getCapability(capability, facing);
 	}
-
+	
 	@Override
 	public boolean hasCapability(@Nonnull net.minecraftforge.common.capabilities.Capability<?> capability, net.minecraft.util.EnumFacing facing)
 	{
@@ -154,56 +153,59 @@ public class EntityCyberZombie extends EntityZombie
 	{
 		super.dropEquipment(wasRecentlyHit, lootingModifier);
 		
-		if ( CyberwareConfig.KATANA
-		  && !CyberwareConfig.NO_CLOTHES
+		if ( CyberwareConfig.ENABLE_KATANA
+		  && CyberwareConfig.MOBS_ADD_CLOTHES
 		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
 		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == CyberwareContent.katana )
 		{
-			
 			ItemStack itemstack = getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).copy();
 			if (itemstack.isItemStackDamageable())
 			{
 				int i = Math.max(itemstack.getMaxDamage() - 25, 1);
 				int j = itemstack.getMaxDamage() - rand.nextInt(rand.nextInt(i) + 1);
-
+				
 				if (j > i)
 				{
 					j = i;
 				}
-
+				
 				if (j < 1)
 				{
 					j = 1;
 				}
-
+				
 				itemstack.setItemDamage(j);
 			}
-
+			
 			entityDropItem(itemstack, 0.0F);
 		}
 		
-		
 		if (hasRandomWare)
 		{
-			float rarity = Math.min(100, CyberwareConfig.DROP_RARITY + lootingModifier * 5F);
-			if (world.rand.nextFloat() < (rarity / 100F))
+			float rarity = Math.min(100.0F, CyberwareConfig.MOBS_CYBER_ZOMBIE_DROP_RARITY + lootingModifier * 5.0F);
+			if (world.rand.nextFloat() < (rarity / 100.0F))
 			{
 				List<ItemStack> allWares = new ArrayList<>();
 				for (EnumSlot slot : EnumSlot.values())
 				{
-					NonNullList<ItemStack> stuff = cyberware.getInstalledCyberware(slot);
-					for (ItemStack s : stuff){
-						if (!s.isEmpty()){
-							allWares.add(s);
+					NonNullList<ItemStack> nnlInstalled = cyberware.getInstalledCyberware(slot);
+					for (ItemStack stack : nnlInstalled)
+					{
+						if (!stack.isEmpty())
+						{
+							allWares.add(stack);
 						}
 					}
 				}
 				
 				allWares.removeAll(Collections.singleton(ItemStack.EMPTY));
-
+				
 				ItemStack drop = ItemStack.EMPTY;
 				int count = 0;
-				while (count < 50 && (drop.isEmpty() || drop.getItem() == CyberwareContent.creativeBattery || drop.getItem() == CyberwareContent.bodyPart))
+				while ( count < 50
+				     && ( drop.isEmpty()
+				       || drop.getItem() == CyberwareContent.creativeBattery
+				       || drop.getItem() == CyberwareContent.bodyPart ) )
 				{
 					int random = world.rand.nextInt(allWares.size());
 					drop = allWares.get(random).copy();
@@ -212,7 +214,7 @@ public class EntityCyberZombie extends EntityZombie
 					drop.setCount(1);
 					count++;
 				}
-
+				
 				if (count < 50)
 				{
 					entityDropItem(drop, 0.0F);
@@ -226,8 +228,8 @@ public class EntityCyberZombie extends EntityZombie
 	{
 		super.setEquipmentBasedOnDifficulty(difficulty);
 		
-		if ( CyberwareConfig.KATANA
-		  && !CyberwareConfig.NO_CLOTHES
+		if ( CyberwareConfig.ENABLE_KATANA
+		  && CyberwareConfig.MOBS_ADD_CLOTHES
 		  && !getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()
 		  && getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD )
 		{
@@ -235,7 +237,7 @@ public class EntityCyberZombie extends EntityZombie
 			setDropChance(EntityEquipmentSlot.MAINHAND, 0F);
 		}
 	}
-
+	
 	public boolean isBrute()
 	{
 		return dataManager.get(CYBER_VARIANT) == 1;

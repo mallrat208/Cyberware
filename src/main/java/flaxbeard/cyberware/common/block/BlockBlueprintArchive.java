@@ -33,7 +33,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntityBlueprintArchive;
 public class BlockBlueprintArchive extends BlockContainer
 {
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
-
+	
 	public BlockBlueprintArchive()
 	{
 		super(Material.IRON);
@@ -43,34 +43,32 @@ public class BlockBlueprintArchive extends BlockContainer
 		
 		String name = "blueprint_archive";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.blueprint_archive.0","cyberware.tooltip.blueprint_archive.1");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-
-		this.setCreativeTab(Cyberware.creativeTab);
+		ItemBlock itemBlock = new ItemBlockCyberware(this, "cyberware.tooltip.blueprint_archive.0","cyberware.tooltip.blueprint_archive.1");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
+		
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityBlueprintArchive.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
 		
-		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 	}
 	
 	@Nonnull
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
 	{
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
-
 	
-
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntityBlueprintArchive();
 	}
@@ -84,12 +82,12 @@ public class BlockBlueprintArchive extends BlockContainer
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState blockState, EntityLivingBase placer, ItemStack stack)
 	{
-		worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()), 2);
+		world.setBlockState(pos, blockState.withProperty(FACING, placer.getHorizontalFacing().getOpposite()), 2);
 		if (stack.hasDisplayName())
 		{
-			TileEntity tileentity = worldIn.getTileEntity(pos);
+			TileEntity tileentity = world.getTileEntity(pos);
 
 			if (tileentity instanceof TileEntityBlueprintArchive)
 			{
@@ -101,38 +99,38 @@ public class BlockBlueprintArchive extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
-		EnumFacing enumfacing = EnumFacing.byIndex(meta);
-
+		EnumFacing enumfacing = EnumFacing.byIndex(metadata);
+		
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y)
 		{
 			enumfacing = EnumFacing.NORTH;
 		}
-
+		
 		return this.getDefaultState().withProperty(FACING, enumfacing);
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return state.getValue(FACING).getIndex();
+		return blockState.getValue(FACING).getIndex();
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot)
+	public IBlockState withRotation(@Nonnull IBlockState blockState, Rotation rotation)
 	{
-		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+		return blockState.withProperty(FACING, rotation.rotate(blockState.getValue(FACING)));
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+	public IBlockState withMirror(@Nonnull IBlockState blockState, Mirror mirrorIn)
 	{
-		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+		return blockState.withRotation(mirrorIn.toRotation(blockState.getValue(FACING)));
 	}
 	
 	@Nonnull
@@ -143,46 +141,41 @@ public class BlockBlueprintArchive extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileentity = world.getTileEntity(pos);
 		
 		if (tileentity instanceof TileEntityBlueprintArchive)
 		{
-			/*
-			if (entityPlayer.isCreative() && entityPlayer.isSneaking())
-			{
-				TileEntityScanner scanner = ((TileEntityScanner) tileentity);
-				scanner.ticks = CyberwareConfig.SCANNER_TIME - 200;
-			}
-			*/
-			entityPlayer.openGui(Cyberware.INSTANCE, 4, worldIn, pos.getX(), pos.getY(), pos.getZ());
+			entityPlayer.openGui(Cyberware.INSTANCE, 4, world, pos.getX(), pos.getY(), pos.getZ());
 		}
 		
 		return true;
-		
 	}
 	
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState)
 	{ 
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileentity = world.getTileEntity(pos);
 
-		if (tileentity instanceof TileEntityBlueprintArchive && !worldIn.isRemote)
+		if ( tileentity instanceof TileEntityBlueprintArchive
+		  && !world.isRemote )
 		{
 			TileEntityBlueprintArchive scanner = (TileEntityBlueprintArchive) tileentity;
 			
-			for (int i = 0; i < scanner.slots.getSlots(); i++)
+			for (int indexSlot = 0; indexSlot < scanner.slots.getSlots(); indexSlot++)
 			{
-				ItemStack stack = scanner.slots.getStackInSlot(i);
+				ItemStack stack = scanner.slots.getStackInSlot(indexSlot);
 				if (!stack.isEmpty())
 				{
-					InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), stack);
+					InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
 				}
 			}
 		}
-		super.breakBlock(worldIn, pos, state);
-
+		
+		super.breakBlock(world, pos, blockState);
 	}
 
 }

@@ -2,7 +2,6 @@ package flaxbeard.cyberware.common.block.tile;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,11 +9,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -24,21 +21,21 @@ public class TileEntityComponentBox extends TileEntity
 {
 	public static class ItemStackHandlerComponent extends ItemStackHandler
 	{		
-		public ItemStackHandlerComponent(int i)
+		public ItemStackHandlerComponent(int size)
 		{
-			super(i);
+			super(size);
 		}
 		
 		@Nonnull
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
 		{
 			if (!isItemValidForSlot(slot, stack)) return stack;
 			
 			return super.insertItem(slot, stack, simulate);
 		}
 		
-		public boolean isItemValidForSlot(int slot, ItemStack stack)
+		public boolean isItemValidForSlot(int slot, @Nonnull ItemStack stack)
 		{
 			if (!stack.isEmpty() && stack.getItem() == CyberwareContent.component) return true;
 			
@@ -52,7 +49,7 @@ public class TileEntityComponentBox extends TileEntity
 	public boolean doDrop = true;
 	
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing)
 	{
 		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
@@ -61,9 +58,8 @@ public class TileEntityComponentBox extends TileEntity
 		return super.hasCapability(capability, facing);
 	}
 	
-
 	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+	public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing)
 	{
 		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
@@ -73,7 +69,7 @@ public class TileEntityComponentBox extends TileEntity
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound tagCompound)
+	public void readFromNBT(@Nonnull NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
 		
@@ -87,33 +83,33 @@ public class TileEntityComponentBox extends TileEntity
 	
 	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound)
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound tagCompound)
 	{
 		tagCompound = super.writeToNBT(tagCompound);
 		
-		tagCompound.setTag("inv", this.slots.serializeNBT());
+		tagCompound.setTag("inv", slots.serializeNBT());
 		
-		if (this.hasCustomName())
+		if (hasCustomName())
 		{
 			tagCompound.setString("CustomName", customName);
 		}
-				
+		
 		return tagCompound;
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
+	public void onDataPacket(NetworkManager networkManager, SPacketUpdateTileEntity packetUpdateTileEntity)
 	{
-		NBTTagCompound data = pkt.getNbtCompound();
-		this.readFromNBT(data);
+		NBTTagCompound tagCompound = packetUpdateTileEntity.getNbtCompound();
+		readFromNBT(tagCompound);
 	}
 	
 	@Override
 	public SPacketUpdateTileEntity getUpdatePacket()
 	{
-		NBTTagCompound data = new NBTTagCompound();
-		this.writeToNBT(data);
-		return new SPacketUpdateTileEntity(pos, 0, data);
+		NBTTagCompound tagCompound = new NBTTagCompound();
+		writeToNBT(tagCompound);
+		return new SPacketUpdateTileEntity(pos, 0, tagCompound);
 	}
 	
 	@Nonnull
@@ -123,35 +119,30 @@ public class TileEntityComponentBox extends TileEntity
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
+	public boolean isUsableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) == this
-		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
+		return world.getTileEntity(pos) == this
+		    && entityPlayer.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
 	{
-		return this.hasCustomName() ? customName : "cyberware.container.component_box";
+		return hasCustomName() ? customName : "cyberware.container.component_box";
 	}
 
 	public boolean hasCustomName()
 	{
-		return this.customName != null && !this.customName.isEmpty();
+		return customName != null && !customName.isEmpty();
 	}
 
-	public void setCustomInventoryName(String p_145951_1_)
+	public void setCustomInventoryName(String name)
 	{
-		this.customName = p_145951_1_;
-	}
-	
-	public ITextComponent getDisplayName()
-	{
-		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());
+		customName = name;
 	}
 	
 	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
+	public ITextComponent getDisplayName()
 	{
-		return (oldState.getBlock() != newState.getBlock());
+		return hasCustomName() ? new TextComponentString(getName()) : new TextComponentTranslation(getName());
 	}
 }

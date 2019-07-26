@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntityZombie;
@@ -22,6 +24,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameRules.ValueType;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome.SpawnListEntry;
 
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -132,7 +136,8 @@ public class CyberwareDataHandler
 					{
 						NonNullList<ItemStack> nnlInstalled = cyberwareUserData.getInstalledCyberware(slot);
 						NonNullList<ItemStack> nnlDefaults = NonNullList.create();
-						for (ItemStack itemStackDefault : CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()])){
+						for (ItemStack itemStackDefault : CyberwareConfig.getStartingItems(EnumSlot.values()[slot.ordinal()]))
+						{
 							nnlDefaults.add(itemStackDefault.copy());
 						}
 						for (ItemStack itemStackInstalled : nnlInstalled)
@@ -156,7 +161,8 @@ public class CyberwareDataHandler
 									}
 								}
 
-								if (!found && entityPlayer.world.rand.nextFloat() < CyberwareConfig.DROP_CHANCE / 100F)
+								if ( !found
+								  && entityPlayer.world.rand.nextFloat() < CyberwareConfig.DROP_CHANCE / 100F )
 								{
 									EntityItem entityItem = new EntityItem(entityPlayer.world, entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ, itemStackToDrop);
 									event.getDrops().add(entityItem);
@@ -177,10 +183,10 @@ public class CyberwareDataHandler
 		if (source == EssentialsMissingHandler.brainless) return true;
 		if (source == EssentialsMissingHandler.nomuscles) return true;
 		if (source == EssentialsMissingHandler.spineless) return true;
-
+		
 		return false;
 	}
-
+	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleCZSpawn(LivingSpawnEvent.SpecialSpawn event)
 	{
@@ -201,8 +207,10 @@ public class CyberwareDataHandler
 			}
 		}
 		
-		if ( !CyberwareConfig.NO_ZOMBIES
-		  && !(entityLiving instanceof EntityCyberZombie) )
+		if ( CyberwareConfig.MOBS_ENABLE_CYBER_ZOMBIES
+		  && !(entityLiving instanceof EntityCyberZombie)
+		  && ( !CyberwareConfig.MOBS_APPLY_DIMENSION_TO_BEACON
+		    || isValidDimension(event.getWorld()) ) )
 		{
 			int tier = TileEntityBeacon.isInRange(entityLiving.world, entityLiving.posX, entityLiving.posY, entityLiving.posZ);
 			if (tier > 0)
@@ -216,10 +224,14 @@ public class CyberwareDataHandler
 						boolean works = entityCyberZombie.setBrute();
 					}
 					entityCyberZombie.setLocationAndAngles(entityLiving.posX, entityLiving.posY, entityLiving.posZ, entityLiving.rotationYaw, entityLiving.rotationPitch);
+					entityCyberZombie.onInitialSpawn(event.getWorld().getDifficultyForLocation(entityCyberZombie.getPosition()), null);
 					
 					for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-						entityCyberZombie.setItemStackToSlot(slot, entityLiving.getItemStackFromSlot(slot));
-						// @TODO: transfer drop chance, see Halloween in Vanilla
+						if (entityCyberZombie.getItemStackFromSlot(slot).isEmpty())
+						{
+							entityCyberZombie.setItemStackToSlot(slot, entityLiving.getItemStackFromSlot(slot));
+							// @TODO: transfer drop chance, see Halloween in Vanilla
+						}
 					}
 					event.getWorld().spawnEntity(entityCyberZombie);
 					entityLiving.deathTime = 19;
@@ -231,8 +243,8 @@ public class CyberwareDataHandler
 			}
 		}
 		
-		if ( CyberwareConfig.CLOTHES
-		  && !CyberwareConfig.NO_CLOTHES )
+		if ( CyberwareConfig.ENABLE_CLOTHES
+		  && CyberwareConfig.MOBS_ADD_CLOTHES )
 		{
 			if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmpty()
 			  && entityLiving.world.rand.nextFloat() < LibConstants.ZOMBIE_SHADES_CHANCE / 100F )
@@ -246,7 +258,7 @@ public class CyberwareDataHandler
 					entityLiving.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(CyberwareContent.shades2));
 				}
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.HEAD, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 			
 			float chestRand = entityLiving.world.rand.nextFloat();
@@ -254,20 +266,20 @@ public class CyberwareDataHandler
 			if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()
 			  && chestRand < LibConstants.ZOMBIE_TRENCH_CHANCE / 100F )
 			{
-				ItemStack stack = new ItemStack(CyberwareContent.trenchcoat);
+				ItemStack stack = new ItemStack(CyberwareContent.trenchCoat);
 				int rand = entityLiving.world.rand.nextInt(3);
 				if (rand == 0)
 				{
-					CyberwareContent.trenchcoat.setColor(stack, 0x664028);
+					CyberwareContent.trenchCoat.setColor(stack, 0x664028);
 				}
 				else if (rand == 1)
 				{
-					CyberwareContent.trenchcoat.setColor(stack, 0xEAEAEA);
+					CyberwareContent.trenchCoat.setColor(stack, 0xEAEAEA);
 				}
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 			else if ( entityLiving.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty()
 			       && chestRand - (LibConstants.ZOMBIE_TRENCH_CHANCE / 100F) < LibConstants.ZOMBIE_BIKER_CHANCE / 100F )
@@ -276,7 +288,7 @@ public class CyberwareDataHandler
 				
 				entityLiving.setItemStackToSlot(EntityEquipmentSlot.CHEST, stack);
 				
-				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.DROP_RARITY / 100F);
+				entityLiving.setDropChance(EntityEquipmentSlot.CHEST, CyberwareConfig.MOBS_CLOTH_DROP_RARITY / 100F);
 			}
 		}
 	}
@@ -306,15 +318,9 @@ public class CyberwareDataHandler
 		}
 		
 		List<ItemStack> installed = new ArrayList<>();
-
-		/*
-		ItemStack re = new ItemStack(CyberwareContent.heartUpgrades, 1, ItemHeartUpgrade.META_INTERNAL_DEFIBRILLATOR);
-		wares.get(((ICyberware) re.getItem()).getSlot(re).ordinal()).add(re);
-		installed.add(re);
-		*/
 		
 		List<ZombieItem> items = new ArrayList<>(CyberwareContent.zombieItems);
-		for (int i = 0; i < numberOfItemsToInstall; i++)
+		for (int indexItem = 0; indexItem < numberOfItemsToInstall; indexItem++)
 		{
 			int tries = 0;
 			ItemStack randomItem;
@@ -355,7 +361,7 @@ public class CyberwareDataHandler
 						req.setCount(reqWare.installedStackSize(req));
 						wares.get(reqWare.getSlot(req).ordinal()).add(req);
 						installed.add(req);
-						i++;
+						indexItem++;
 					}
 				}
 				wares.get(randomWare.getSlot(randomItem).ordinal()).add(randomItem);
@@ -385,16 +391,46 @@ public class CyberwareDataHandler
 		CyberwareAPI.updateData(cyberZombie);
 	}
 	
-	public static boolean contains(NonNullList<ItemStack> items, ItemStack item)
+	private static boolean contains(NonNullList<ItemStack> nnlHaystack, ItemStack needle)
 	{
-		for (ItemStack check : items)
+		for (ItemStack check : nnlHaystack)
 		{			
-			if (!check.isEmpty() && !item.isEmpty() && check.getItem() == item.getItem() && check.getItemDamage() == item.getItemDamage())
+			if ( !check.isEmpty()
+			  && !needle.isEmpty()
+			  && check.getItem() == needle.getItem()
+			  && check.getItemDamage() == needle.getItemDamage() )
 			{
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onPotentialSpawns(@Nonnull WorldEvent.PotentialSpawns event)
+	{
+		if (event.getType() != EnumCreatureType.MONSTER) return;
+		
+		if (!CyberwareConfig.MOBS_APPLY_DIMENSION_TO_SPAWNING) return;
+		
+		if (isValidDimension(event.getWorld())) return;
+		
+		List<SpawnListEntry> spawnListEntriesToRemove = new ArrayList<>(4);
+		for (SpawnListEntry spawnListEntry : event.getList())
+		{
+			if (spawnListEntry.entityClass.equals(EntityCyberZombie.class))
+			{
+				spawnListEntriesToRemove.add(spawnListEntry);
+			}
+		}
+		event.getList().removeAll(spawnListEntriesToRemove);
+	}
+	
+	public boolean isValidDimension(@Nonnull World world)
+	{
+		boolean isListed = CyberwareConfig.MOBS_DIMENSION_IDS.contains(world.provider.getDimension());
+		return (CyberwareConfig.MOBS_IS_DIMENSION_BLACKLIST && !isListed)
+		    || (!CyberwareConfig.MOBS_IS_DIMENSION_BLACKLIST && isListed);
 	}
 	
 	@SubscribeEvent

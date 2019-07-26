@@ -44,7 +44,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
 	public static final PropertyBool OPEN = PropertyBool.create("open");
 	public static final PropertyEnum<EnumChamberHalf> HALF = PropertyEnum.create("half", EnumChamberHalf.class);
-	public final Item ib;
+	public final Item itemBlock;
 	
 	public BlockSurgeryChamber()
 	{
@@ -60,21 +60,21 @@ public class BlockSurgeryChamber extends BlockContainer
 		
 		String name = "surgery_chamber";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
-
-		ib = new ItemSurgeryChamber(this,"cyberware.tooltip.surgery_chamber.0","cyberware.tooltip.surgery_chamber.1");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-		ib.setTranslationKey(Cyberware.MODID + "." + name);
-
-		ib.setCreativeTab(Cyberware.creativeTab);
+		itemBlock = new ItemSurgeryChamber(this, "cyberware.tooltip.surgery_chamber.0", "cyberware.tooltip.surgery_chamber.1");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
+		
+		setTranslationKey(Cyberware.MODID + "." + name);
+		itemBlock.setTranslationKey(Cyberware.MODID + "." + name);
+		
+		itemBlock.setCreativeTab(Cyberware.creativeTab);
 		
 		GameRegistry.registerTileEntity(TileEntitySurgeryChamber.class, new ResourceLocation(Cyberware.MODID, name));
 		
-		CyberwareContent.items.add(ib);
+		CyberwareContent.items.add(itemBlock);
 	}
 	
 	private static final AxisAlignedBB top    = new AxisAlignedBB(       0F, 15F / 16F,        0F,       1F,       1F,       1F);
@@ -88,12 +88,14 @@ public class BlockSurgeryChamber extends BlockContainer
 	@Override
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
 	{
-		return new ItemStack(ib);
+		return new ItemStack(itemBlock);
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean b)
+	public void addCollisionBoxToList(IBlockState state, @Nonnull World world, @Nonnull BlockPos pos,
+	                                  @Nonnull AxisAlignedBB entityBox, @Nonnull List<AxisAlignedBB> collidingBoxes,
+	                                  @Nullable Entity entity, boolean isActualState)
 	{
 		EnumFacing face = state.getValue(FACING);
 		boolean open = state.getValue(OPEN);
@@ -141,23 +143,25 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		boolean top = state.getValue(HALF) == EnumChamberHalf.UPPER;
-		if (canOpen(top ? pos : pos.up(), worldIn))
+		boolean top = blockState.getValue(HALF) == EnumChamberHalf.UPPER;
+		if (canOpen(top ? pos : pos.up(), world))
 		{
-			toggleDoor(top, state, pos, worldIn);
+			toggleDoor(top, blockState, pos, world);
 			
-			notifySurgeon(top ? pos : pos.up(), worldIn);
+			notifySurgeon(top ? pos : pos.up(), world);
 		}
 		
 		return true;
 	}
 	
-	public void toggleDoor(boolean top, IBlockState state, BlockPos pos, World worldIn)
+	public void toggleDoor(boolean top, IBlockState blockState, BlockPos pos, World worldIn)
 	{
-		state = state.cycleProperty(OPEN);
-		worldIn.setBlockState(pos, state, 2);
+		IBlockState blockStateNew = blockState.cycleProperty(OPEN);
+		worldIn.setBlockState(pos, blockStateNew, 2);
 		
 		BlockPos otherPos = pos.up();
 		if (top)
@@ -196,33 +200,33 @@ public class BlockSurgeryChamber extends BlockContainer
 	}
 	
 	@Override
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+	public void neighborChanged(IBlockState blockState, World world, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
-		if (state.getValue(HALF) == EnumChamberHalf.UPPER)
+		if (blockState.getValue(HALF) == EnumChamberHalf.UPPER)
 		{
 			BlockPos blockpos = pos.down();
-			IBlockState iblockstate = worldIn.getBlockState(blockpos);
+			IBlockState iblockstate = world.getBlockState(blockpos);
 
 			if (iblockstate.getBlock() != this)
 			{
-				worldIn.setBlockToAir(pos);
+				world.setBlockToAir(pos);
 			}
 			else if (blockIn != this)
 			{
-				iblockstate.neighborChanged(worldIn, blockpos, blockIn, fromPos);
+				iblockstate.neighborChanged(world, blockpos, blockIn, fromPos);
 			}
 		}
 		else
 		{
 			BlockPos blockpos1 = pos.up();
-			IBlockState iblockstate1 = worldIn.getBlockState(blockpos1);
+			IBlockState iblockstate1 = world.getBlockState(blockpos1);
 
 			if (iblockstate1.getBlock() != this)
 			{
-				worldIn.setBlockToAir(pos);
-				if (!worldIn.isRemote)
+				world.setBlockToAir(pos);
+				if (!world.isRemote)
 				{
-					this.dropBlockAsItem(worldIn, pos, state, 0);
+					dropBlockAsItem(world, pos, blockState, 0);
 				}
 			}
 		}
@@ -232,7 +236,7 @@ public class BlockSurgeryChamber extends BlockContainer
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune)
 	{
-		return state.getValue(HALF) == EnumChamberHalf.UPPER ? Items.AIR : this.ib;
+		return state.getValue(HALF) == EnumChamberHalf.UPPER ? Items.AIR : this.itemBlock;
 	}
 	
 	@Override
@@ -255,18 +259,20 @@ public class BlockSurgeryChamber extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
 		return this.getDefaultState()
-				.withProperty(HALF, (meta & 1) > 0 ? EnumChamberHalf.UPPER : EnumChamberHalf.LOWER)
-				.withProperty(OPEN, (meta & 2) > 0)
-				.withProperty(FACING, EnumFacing.byHorizontalIndex(meta >> 2));
+				.withProperty(HALF, (metadata & 1) > 0 ? EnumChamberHalf.UPPER : EnumChamberHalf.LOWER)
+				.withProperty(OPEN, (metadata & 2) > 0)
+				.withProperty(FACING, EnumFacing.byHorizontalIndex(metadata >> 2));
 	}
 	
 	@Override
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return (state.getValue(FACING).getHorizontalIndex() << 2) + (state.getValue(HALF) == EnumChamberHalf.UPPER ? 1 : 0) + (state.getValue(OPEN) ? 2 : 0);
+		return (blockState.getValue(FACING).getHorizontalIndex() << 2)
+		     + (blockState.getValue(HALF) == EnumChamberHalf.UPPER ? 1 : 0)
+		     + (blockState.getValue(OPEN) ? 2 : 0);
 	}
 	
 	@Nonnull
@@ -339,8 +345,8 @@ public class BlockSurgeryChamber extends BlockContainer
 
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
-		return (meta & 1) > 0 ? new TileEntitySurgeryChamber() : null;
+		return (metadata & 1) > 0 ? new TileEntitySurgeryChamber() : null;
 	}
 }

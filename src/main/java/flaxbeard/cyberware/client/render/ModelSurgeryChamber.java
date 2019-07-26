@@ -22,14 +22,14 @@ public class ModelSurgeryChamber extends ModelBase
 	}
 	
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.left.render(f5);
+		this.left.render(scale);
 	}
 	
-	public void renderRight(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderRight(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.right.render(f5);
+		this.right.render(scale);
 	}
 	
 	

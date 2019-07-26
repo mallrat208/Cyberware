@@ -21,33 +21,34 @@ public class ContainerBlueprintArchive extends Container
 		this.numRows = archive.slots.getSlots() / 9;
 		int i = (numRows - 4) * 18;
 
-		for (int j = 0; j < numRows; ++j)
+		for (int indexRow = 0; indexRow < numRows; indexRow++)
 		{
-			for (int k = 0; k < 9; ++k)
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 			{
-				addSlotToContainer(new SlotItemHandler(archive.slots, k + j * 9, 8 + k * 18, 18 + j * 18));
+				addSlotToContainer(new SlotItemHandler(archive.slots, indexColumn + indexRow * 9, 8 + indexColumn * 18, 18 + indexRow * 18));
 			}
 		}
 
-		for (int l = 0; l < 3; ++l)
+		for (int indexRow = 0; indexRow < 3; indexRow++)
 		{
-			for (int j1 = 0; j1 < 9; ++j1)
+			for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 			{
-				addSlotToContainer(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
+				addSlotToContainer(new Slot(playerInventory, indexColumn + indexRow * 9 + 9, 8 + indexColumn * 18, 103 + indexRow * 18 + i));
 			}
 		}
 
-		for (int i1 = 0; i1 < 9; ++i1)
+		for (int indexColumn = 0; indexColumn < 9; indexColumn++)
 		{
-			addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 161 + i));
+			addSlotToContainer(new Slot(playerInventory, indexColumn, 8 + indexColumn * 18, 161 + i));
 		}
 	}
-
-	public boolean canInteractWith(EntityPlayer entityPlayer)
+	
+	@Override
+	public boolean canInteractWith(@Nonnull EntityPlayer entityPlayer)
 	{
-		return archive.isUseableByPlayer(entityPlayer);
+		return archive.isUsableByPlayer(entityPlayer);
 	}
-
+	
 	@Nonnull
 	public ItemStack transferStackInSlot(EntityPlayer entityPlayer, int index)
 	{

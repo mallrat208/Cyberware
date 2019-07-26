@@ -83,30 +83,31 @@ public class ParticlePacket implements IMessage
 			{
 				switch (effectId)
 				{
-					case 0:
-						for (int i = 0; i < 5; i++)
-						{
-							world.spawnParticle(EnumParticleTypes.HEART,
-									x + world.rand.nextFloat() - 0.5F,
-									y + world.rand.nextFloat() - 0.5F,
-									z + world.rand.nextFloat() - 0.5F,
-									2.0F * (world.rand.nextFloat() - 0.5F),
-									0.5F,
-									2.0F * (world.rand.nextFloat() - 0.5F) );
-						}
-						break;
-					case 1:
-						for (int i = 0; i < 5; i++)
-						{
-							world.spawnParticle(EnumParticleTypes.VILLAGER_ANGRY,
-									x + world.rand.nextFloat() - 0.5F,
-									y + world.rand.nextFloat() - 0.5F,
-									z + world.rand.nextFloat() - 0.5F,
-									2.0F * (world.rand.nextFloat() - 0.5F),
-									.5F,
-									2.0F * (world.rand.nextFloat() - 0.5F) );
-						}
-						break;
+				case 0:
+					for (int index = 0; index < 5; index++)
+					{
+						world.spawnParticle(EnumParticleTypes.HEART,
+								x + world.rand.nextFloat() - 0.5F,
+								y + world.rand.nextFloat() - 0.5F,
+								z + world.rand.nextFloat() - 0.5F,
+								2.0F * (world.rand.nextFloat() - 0.5F),
+								0.5F,
+								2.0F * (world.rand.nextFloat() - 0.5F) );
+					}
+					break;
+					
+				case 1:
+					for (int index = 0; index < 5; index++)
+					{
+						world.spawnParticle(EnumParticleTypes.VILLAGER_ANGRY,
+								x + world.rand.nextFloat() - 0.5F,
+								y + world.rand.nextFloat() - 0.5F,
+								z + world.rand.nextFloat() - 0.5F,
+								2.0F * (world.rand.nextFloat() - 0.5F),
+								.5F,
+								2.0F * (world.rand.nextFloat() - 0.5F) );
+					}
+					break;
 				}
 			}
 			

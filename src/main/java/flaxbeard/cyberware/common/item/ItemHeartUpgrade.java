@@ -69,14 +69,14 @@ public class ItemHeartUpgrade extends ItemCyberware
 					NonNullList<ItemStack> items = cyberwareUserData.getInstalledCyberware(EnumSlot.HEART);
 					NonNullList<ItemStack> itemsNew = NonNullList.create();
 					itemsNew.addAll(items);
-					for (int i = 0; i < items.size(); i++)
+					for (int index = 0; index < items.size(); index++)
 					{
-						ItemStack item = items.get(i);
+						ItemStack item = items.get(index);
 						if ( !item.isEmpty()
 						  && item.getItem() == this
 						  && item.getItemDamage() == META_INTERNAL_DEFIBRILLATOR )
 						{
-							itemsNew.set(i, ItemStack.EMPTY);
+							itemsNew.set(index, ItemStack.EMPTY);
 							break;
 						}
 					}

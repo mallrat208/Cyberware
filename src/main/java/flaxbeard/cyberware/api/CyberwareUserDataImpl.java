@@ -96,7 +96,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		{
 			NonNullList<ItemStack> nnlCyberwaresInSlot = NonNullList.create();
 			NonNullList<ItemStack> startItems = CyberwareConfig.getStartingItems(slot);
-			for (ItemStack startItem : startItems){
+			for (ItemStack startItem : startItems)
+			{
 				nnlCyberwaresInSlot.add(startItem.copy());
 			}
 			cyberwaresBySlot.set(slot.ordinal(), nnlCyberwaresInSlot);
@@ -545,7 +546,8 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		tagCompound.setTag("cyberware", listSlots);
 		
 		NBTTagList listEssentials = new NBTTagList();
-		for (boolean missingEssential : missingEssentials) {
+		for (boolean missingEssential : missingEssentials)
+		{
 			listEssentials.appendTag(new NBTTagByte((byte) (missingEssential ? 1 : 0)));
 		}
 		tagCompound.setTag("discard", listEssentials);
@@ -620,9 +622,9 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 		hudData = tagCompound.getCompoundTag("hud");
 		hasOpenedRadialMenu = tagCompound.getBoolean("hasOpenedRadialMenu");
 		NBTTagList listEssentials = (NBTTagList) tagCompound.getTag("discard");
-		for (int i = 0; i < listEssentials.tagCount(); i++)
+		for (int indexEssential = 0; indexEssential < listEssentials.tagCount(); indexEssential++)
 		{
-			missingEssentials[i] = ((NBTTagByte) listEssentials.get(i)).getByte() > 0;
+			missingEssentials[indexEssential] = ((NBTTagByte) listEssentials.get(indexEssential)).getByte() > 0;
 		}
 		
 		NBTTagList listSlots = (NBTTagList) tagCompound.getTag("cyberware");
@@ -768,25 +770,25 @@ public class CyberwareUserDataImpl implements ICyberwareUserData
 
 	@Override
 	@Deprecated
-	public void setEssence(int e)
+	public void setEssence(int essence)
 	{
-		missingEssence = getMaxEssence() - e;
+		missingEssence = getMaxEssence() - essence;
 	}
 
 	@Override
-	public int getMaxTolerance(EntityLivingBase entityLivingBase)
+	public int getMaxTolerance(@Nonnull EntityLivingBase entityLivingBase)
 	{
 		return (int) entityLivingBase.getAttributeMap().getAttributeInstance(CyberwareAPI.TOLERANCE_ATTR).getAttributeValue();
 	}
 
 	@Override
-	public int getTolerance(EntityLivingBase entityLivingBase)
+	public int getTolerance(@Nonnull EntityLivingBase entityLivingBase)
 	{
 		return getMaxTolerance(entityLivingBase) - missingEssence;
 	}
 
 	@Override
-	public void setTolerance(EntityLivingBase entityLivingBase, int amount)
+	public void setTolerance(@Nonnull EntityLivingBase entityLivingBase, int amount)
 	{
 		missingEssence = getMaxTolerance(entityLivingBase) - amount;
 	}

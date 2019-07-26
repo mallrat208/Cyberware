@@ -11,37 +11,35 @@ public class ModelBeaconLarge extends ModelBase
 	public ModelRenderer bar3;
 	public ModelRenderer bar4;
 	public ModelRenderer base;
-
+	
 	public ModelRenderer[] crossbars;
-
+	
 	public ModelBeaconLarge()
 	{
-		this.textureWidth = 128;
-		this.textureHeight = 256;
+		textureWidth = 128;
+		textureHeight = 256;
 		
 		float angle = 173.8F;
 		
-		this.bar1 = new ModelRenderer(this, 0, 0);
-		this.bar1.addBox(-1.5F, 8F, -2F, 3, 163, 3);
-		this.bar1.rotateAngleY = (float) Math.toRadians(45F);
-		this.bar1.rotateAngleX = (float) Math.toRadians(angle);
+		bar1 = new ModelRenderer(this, 0, 0);
+		bar1.addBox(-1.5F, 8F, -2F, 3, 163, 3);
+		bar1.rotateAngleY = (float) Math.toRadians(45F);
+		bar1.rotateAngleX = (float) Math.toRadians(angle);
 		
-		this.bar2 = new ModelRenderer(this, 0, 0);
-		this.bar2.addBox(-1.5F, 8F, -2F, 3, 163, 3);
-		this.bar2.rotateAngleY = (float) Math.toRadians(135F);
-		this.bar2.rotateAngleX = (float) Math.toRadians(angle);
+		bar2 = new ModelRenderer(this, 0, 0);
+		bar2.addBox(-1.5F, 8F, -2F, 3, 163, 3);
+		bar2.rotateAngleY = (float) Math.toRadians(135F);
+		bar2.rotateAngleX = (float) Math.toRadians(angle);
 		
-		this.bar3 = new ModelRenderer(this, 0, 0);
-		this.bar3.addBox(-1.5F, 8F, -2F, 3, 163, 3);
-		this.bar3.rotateAngleY = (float) Math.toRadians(-45F);
-		this.bar3.rotateAngleX = (float) Math.toRadians(angle);
+		bar3 = new ModelRenderer(this, 0, 0);
+		bar3.addBox(-1.5F, 8F, -2F, 3, 163, 3);
+		bar3.rotateAngleY = (float) Math.toRadians(-45F);
+		bar3.rotateAngleX = (float) Math.toRadians(angle);
 		
-		this.bar4 = new ModelRenderer(this, 0, 0);
-		this.bar4.addBox(-1.5F, 8F, -2F, 3, 163, 3);
-		this.bar4.rotateAngleY = (float) Math.toRadians(-135F);
-		this.bar4.rotateAngleX = (float) Math.toRadians(angle);
-
-		
+		bar4 = new ModelRenderer(this, 0, 0);
+		bar4.addBox(-1.5F, 8F, -2F, 3, 163, 3);
+		bar4.rotateAngleY = (float) Math.toRadians(-135F);
+		bar4.rotateAngleX = (float) Math.toRadians(angle);
 		
 		float hPercent = (float) -Math.cos(Math.toRadians(angle));
 		float wPercent = (float) Math.sin(Math.toRadians(angle));
@@ -50,9 +48,9 @@ public class ModelBeaconLarge extends ModelBase
 		
 		float progressChg = 25F;
 		crossbars = new ModelRenderer[num * 4];
-		float x = 0F;
-		float y = 0F;
-		float z = 0F;
+		float x;
+		float y;
+		float z;
 		float progress = 10F + progressChg;
 		float pi4 = (float) Math.PI / 4F;
 		for (int i = 0; i < num; i++)
@@ -84,38 +82,35 @@ public class ModelBeaconLarge extends ModelBase
 			
 		}
 		
+		textureWidth = 256;
+		textureHeight = 64;
 		
-		this.textureWidth = 256;
-		this.textureHeight = 64;
-		
-		this.base = new ModelRenderer(this, 0, 0);
-		this.base.addBox(-24F, -168F, -24F, 48, 4, 48);
-		
+		base = new ModelRenderer(this, 0, 0);
+		base.addBox(-24F, -168F, -24F, 48, 4, 48);
 	}
 	
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.bar1.render(f5);
-		this.bar2.render(f5);
-		this.bar3.render(f5);
-		this.bar4.render(f5);
-		this.base.render(f5);
+		bar1.render(scale);
+		bar2.render(scale);
+		bar3.render(scale);
+		bar4.render(scale);
+		base.render(scale);
 		
 		for (ModelRenderer bar : crossbars)
 		{
 			if (bar != null)
 			{
-				bar.render(f5);
+				bar.render(scale);
 			}
 		}
 	}
 	
-	public void renderBase(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderBase(Entity entity, float f, float f1, float f2, float f3, float f4, float scale)
 	{
-		this.base.render(f5);
+		base.render(scale);
 	}
-	
 	
 	public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z)
 	{

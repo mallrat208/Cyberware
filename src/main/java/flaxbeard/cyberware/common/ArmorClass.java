@@ -1,6 +1,7 @@
 package flaxbeard.cyberware.common;
 
-import net.minecraft.client.Minecraft;
+import javax.annotation.Nonnull;
+
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
@@ -20,7 +21,7 @@ public enum ArmorClass {
 		return get(entityLivingBase) != HEAVY;
 	}
 	
-	public static ArmorClass get(EntityLivingBase entityLivingBase)
+	public static ArmorClass get(@Nonnull EntityLivingBase entityLivingBase)
 	{
 		boolean hasNoArmor = true;
 		
@@ -39,7 +40,7 @@ public enum ArmorClass {
 			
 			if (stack.getItem() instanceof ISpecialArmor)
 			{
-				if (((ISpecialArmor) stack.getItem()).getProperties(Minecraft.getMinecraft().player, stack, DamageSource.CACTUS, 1, 1).AbsorbRatio * 25D > 4)
+				if (((ISpecialArmor) stack.getItem()).getProperties(entityLivingBase, stack, DamageSource.CACTUS, 1, 1).AbsorbRatio * 25D > 4)
 				{
 					return HEAVY;
 				}

@@ -73,27 +73,27 @@ public class BlockBeaconPost extends BlockContainer
 		
 		String name = "radio_post";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 		
 
-		ItemBlock ib = new ItemBlockCyberware(this,
+		ItemBlock itemBlock = new ItemBlockCyberware(this,
 				"cyberware.tooltip.beacon_post.0",
 				"cyberware.tooltip.beacon_post.1",
 				"cyberware.tooltip.beacon_post.2");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
-
-		this.setCreativeTab(Cyberware.creativeTab);
+		setTranslationKey(Cyberware.MODID + "." + name);
+		
+		setCreativeTab(Cyberware.creativeTab);
 		
 		CyberwareContent.blocks.add(this);
 		
 		GameRegistry.registerTileEntity(TileEntityBeaconPost.class, new ResourceLocation(Cyberware.MODID, name));
 		GameRegistry.registerTileEntity(TileEntityBeaconPostMaster.class, new ResourceLocation(Cyberware.MODID, name + "_master"));
 
-		this.setDefaultState(this.blockState.getBaseState()
+		setDefaultState(blockState.getBaseState()
 				.withProperty(TRANSFORMED, 0)
 				.withProperty(NORTH, Boolean.FALSE)
 				.withProperty(EAST, Boolean.FALSE)
@@ -192,12 +192,14 @@ public class BlockBeaconPost extends BlockContainer
 	}
 	
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
-		state = state.getActualState(worldIn, pos);
+	public void addCollisionBoxToList(IBlockState state, @Nonnull World world, @Nonnull BlockPos pos,
+	                                  @Nonnull AxisAlignedBB entityBox, @Nonnull List<AxisAlignedBB> collidingBoxes,
+	                                  @Nullable Entity entity, boolean isActualState) {
+		state = state.getActualState(world, pos);
 		
 		if (state.getValue(TRANSFORMED) > 0)
 		{
-			addCollisionBoxToList(pos, entityBox, collidingBoxes, getBoundingBox(state, worldIn, pos));
+			addCollisionBoxToList(pos, entityBox, collidingBoxes, getBoundingBox(state, world, pos));
 			return;
 		}
 		
@@ -298,27 +300,30 @@ public class BlockBeaconPost extends BlockContainer
 	@SideOnly(Side.CLIENT)
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
+	public boolean shouldSideBeRendered(IBlockState blockState, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side)
 	{
 		return true;
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer entityPlayer, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		return worldIn.isRemote || ItemLead.attachToFence(entityPlayer, worldIn, pos);
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState,
+	                                EntityPlayer entityPlayer, EnumHand hand,
+	                                EnumFacing facing, float hitX, float hitY, float hitZ) {
+		return world.isRemote
+		    || ItemLead.attachToFence(entityPlayer, world, pos);
 	}
 
-	public int getMetaFromState(IBlockState state)
+	public int getMetaFromState(IBlockState blockState)
 	{
-		return state.getValue(TRANSFORMED);
+		return blockState.getValue(TRANSFORMED);
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState getStateFromMeta(int meta)
+	public IBlockState getStateFromMeta(int metadata)
 	{
-		return this.getDefaultState().withProperty(TRANSFORMED, meta);
+		return this.getDefaultState().withProperty(TRANSFORMED, metadata);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -335,34 +340,34 @@ public class BlockBeaconPost extends BlockContainer
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot)
+	public IBlockState withRotation(@Nonnull IBlockState blockState, Rotation rotation)
 	{
-		switch (rot)
+		switch (rotation)
 		{
-			case CLOCKWISE_180:
-				return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(EAST, state.getValue(WEST)).withProperty(SOUTH, state.getValue(NORTH)).withProperty(WEST, state.getValue(EAST));
-			case COUNTERCLOCKWISE_90:
-				return state.withProperty(NORTH, state.getValue(EAST)).withProperty(EAST, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(WEST)).withProperty(WEST, state.getValue(NORTH));
-			case CLOCKWISE_90:
-				return state.withProperty(NORTH, state.getValue(WEST)).withProperty(EAST, state.getValue(NORTH)).withProperty(SOUTH, state.getValue(EAST)).withProperty(WEST, state.getValue(SOUTH));
-			default:
-				return state;
+		case CLOCKWISE_180:
+			return blockState.withProperty(NORTH, blockState.getValue(SOUTH)).withProperty(EAST, blockState.getValue(WEST)).withProperty(SOUTH, blockState.getValue(NORTH)).withProperty(WEST, blockState.getValue(EAST));
+		case COUNTERCLOCKWISE_90:
+			return blockState.withProperty(NORTH, blockState.getValue(EAST)).withProperty(EAST, blockState.getValue(SOUTH)).withProperty(SOUTH, blockState.getValue(WEST)).withProperty(WEST, blockState.getValue(NORTH));
+		case CLOCKWISE_90:
+			return blockState.withProperty(NORTH, blockState.getValue(WEST)).withProperty(EAST, blockState.getValue(NORTH)).withProperty(SOUTH, blockState.getValue(EAST)).withProperty(WEST, blockState.getValue(SOUTH));
+		default:
+			return blockState;
 		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Nonnull
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+	public IBlockState withMirror(@Nonnull IBlockState blockState, Mirror mirrorIn)
 	{
 		switch (mirrorIn)
 		{
 			case LEFT_RIGHT:
-				return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(NORTH));
+				return blockState.withProperty(NORTH, blockState.getValue(SOUTH)).withProperty(SOUTH, blockState.getValue(NORTH));
 			case FRONT_BACK:
-				return state.withProperty(EAST, state.getValue(WEST)).withProperty(WEST, state.getValue(EAST));
+				return blockState.withProperty(EAST, blockState.getValue(WEST)).withProperty(WEST, blockState.getValue(EAST));
 			default:
-				return super.withMirror(state, mirrorIn);
+				return super.withMirror(blockState, mirrorIn);
 		}
 	}
 	
@@ -382,42 +387,45 @@ public class BlockBeaconPost extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
-		switch (meta)
+		switch (metadata)
 		{
-			case 2:
-				return new TileEntityBeaconPostMaster();
-			case 1:
-				return new TileEntityBeaconPost();
-			default:
-				return null;
+		case 2:
+			return new TileEntityBeaconPostMaster();
+		case 1:
+			return new TileEntityBeaconPost();
+		default:
+			return null;
 		}
 	}
 	
 	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState)
 	{
-		if(world != null && state.getValue(TRANSFORMED) > 0)
+		if ( world != null
+		  && blockState.getValue(TRANSFORMED) > 0 )
 		{
-
-			TileEntity te = world.getTileEntity(pos);
-			if (te instanceof TileEntityBeaconPost)
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if (tileEntity instanceof TileEntityBeaconPost)
 			{
-				TileEntityBeaconPost post = (TileEntityBeaconPost) te;
-				if (state.getValue(TRANSFORMED) == 2)
+				TileEntityBeaconPost tileEntityBeaconPost = (TileEntityBeaconPost) tileEntity;
+				if (blockState.getValue(TRANSFORMED) == 2)
 				{
-					post.destruct();
+					tileEntityBeaconPost.destruct();
 				}
-				else if (post.master != null && !post.master.equals(pos) && !post.destructing)
+				else if ( tileEntityBeaconPost.master != null
+				       && !tileEntityBeaconPost.master.equals(pos)
+				       && !tileEntityBeaconPost.destructing )
 				{
-					TileEntity masterTe = world.getTileEntity(post.master);
+					TileEntity masterTe = world.getTileEntity(tileEntityBeaconPost.master);
 					
 					if (masterTe instanceof TileEntityBeaconPost)
 					{
 						TileEntityBeaconPost post2 = (TileEntityBeaconPost) masterTe;
 						
-						if (post2 instanceof TileEntityBeaconPostMaster && !post2.destructing)
+						if ( post2 instanceof TileEntityBeaconPostMaster
+						  && !post2.destructing )
 						{
 							post2.destruct();
 						}
@@ -432,6 +440,5 @@ public class BlockBeaconPost extends BlockContainer
     {
     	return state.getValue(TRANSFORMED) > 0;
     }
-
-	
+    
 }

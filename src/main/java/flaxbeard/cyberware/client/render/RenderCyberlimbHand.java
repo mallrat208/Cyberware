@@ -349,14 +349,14 @@ public class RenderCyberlimbHand
 		{
 			if (rightRobot)
 			{
-				return EssentialsMissingHandlerClient.renderF;
+				return EssentialsMissingHandlerClient.renderLargeArms;
 			}
 		}
 		else
 		{
 			if (leftRobot)
 			{
-				return EssentialsMissingHandlerClient.renderF;
+				return EssentialsMissingHandlerClient.renderLargeArms;
 			}
 		}
 		

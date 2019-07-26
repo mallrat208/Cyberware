@@ -30,23 +30,23 @@ public class BlockCharger extends BlockContainer
 		
 		String name = "charger";
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.BLOCKS.register(this);
 
-		ItemBlock ib = new ItemBlockCyberware(this, "cyberware.tooltip.charger.0","cyberware.tooltip.charger.1");
-		ib.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(ib);
+		ItemBlock itemBlock = new ItemBlockCyberware(this, "cyberware.tooltip.charger.0","cyberware.tooltip.charger.1");
+		itemBlock.setRegistryName(name);
+		ForgeRegistries.ITEMS.register(itemBlock);
 		
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
 
-		this.setCreativeTab(Cyberware.creativeTab);
+		setCreativeTab(Cyberware.creativeTab);
 		GameRegistry.registerTileEntity(TileEntityCharger.class, new ResourceLocation(Cyberware.MODID, name));
 		
 		CyberwareContent.blocks.add(this);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
+	public TileEntity createNewTileEntity(@Nonnull World world, int metadata)
 	{
 		return new TileEntityCharger();
 	}

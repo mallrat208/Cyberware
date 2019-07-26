@@ -17,12 +17,12 @@ public class ItemSwordCyberware extends ItemSword implements IDeconstructable
 	{
 		super(material);
 		
-		this.setRegistryName(name);
+		setRegistryName(name);
 		ForgeRegistries.ITEMS.register(this);
-		this.setTranslationKey(Cyberware.MODID + "." + name);
+		setTranslationKey(Cyberware.MODID + "." + name);
         
-		this.setCreativeTab(Cyberware.creativeTab);
-				
+		setCreativeTab(Cyberware.creativeTab);
+		
         CyberwareContent.items.add(this);
 	}
 

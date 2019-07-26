@@ -10,12 +10,11 @@ public class ModelBox extends ModelBase
 
 	public ModelBox()
 	{
-		this.textureWidth = 48;
-		this.textureHeight = 21;
+		textureWidth = 48;
+		textureHeight = 21;
 		
-		this.box = new ModelRenderer(this, 0, 0);
-		this.box.addBox(-6F, -4.5F, -6F, 12, 9, 12);
-		
+		box = new ModelRenderer(this, 0, 0);
+		box.addBox(-6F, -4.5F, -6F, 12, 9, 12);
 	}
 	
 	@Override

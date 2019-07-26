@@ -132,10 +132,10 @@ public class TileEntityBlueprintArchive extends TileEntity
 		return writeToNBT(new NBTTagCompound());
 	}
 	
-	public boolean isUseableByPlayer(EntityPlayer entityPlayer)
+	public boolean isUsableByPlayer(EntityPlayer entityPlayer)
 	{
-		return this.world.getTileEntity(this.pos) == this
-		    && entityPlayer.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(pos) == this
+		    && entityPlayer.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
 	}
 	
 	public String getName()
@@ -148,11 +148,12 @@ public class TileEntityBlueprintArchive extends TileEntity
 		return this.customName != null && !this.customName.isEmpty();
 	}
 
-	public void setCustomInventoryName(String p_145951_1_)
+	public void setCustomInventoryName(String name)
 	{
-		this.customName = p_145951_1_;
+		this.customName = name;
 	}
 	
+	@Override
 	public ITextComponent getDisplayName()
 	{
 		return this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName());

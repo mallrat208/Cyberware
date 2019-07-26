@@ -244,9 +244,9 @@ public class GuiEngineeringTable extends GuiContainer
 			NonNullList<ItemStack> nnlReq = blueprint.getRequirementsForDisplay(blueprintStack);
 			ItemStack[] requiredItems = nnlReq.toArray(new ItemStack[nnlReq.size()]);
 
-			for (int h = 0; h < requiredItems.length; h++)
+			for (int index = 0; index < requiredItems.length; index++)
 			{
-				requiredItems[h] = requiredItems[h].copy();
+				requiredItems[index] = requiredItems[index].copy();
 			}
 			if (requiredItems.length!=0)
 			{
@@ -254,8 +254,8 @@ public class GuiEngineeringTable extends GuiContainer
 				{
 					if (!requiredItem.isEmpty())
 					{
-						for (int k = 2; k < 8; k++) {
-							ItemStack crafting = tileEntityEngineeringTable.slots.getStackInSlot(k);
+						for (int indexSlot = 2; indexSlot < 8; indexSlot++) {
+							ItemStack crafting = tileEntityEngineeringTable.slots.getStackInSlot(indexSlot);
 							if (!crafting.isEmpty()) {
 								if ( crafting.getItem() == requiredItem.getItem()
 								  && crafting.getItemDamage() == requiredItem.getItemDamage()
@@ -276,16 +276,16 @@ public class GuiEngineeringTable extends GuiContainer
 				}
 
 				int index = 0;
-				for (int k = 2; k < 8 && index < toRender.size(); k++)
+				for (int indexSlot = 2; indexSlot < 8 && index < toRender.size(); indexSlot++)
 				{
-					if (tileEntityEngineeringTable.slots.getStackInSlot(k) == ItemStack.EMPTY)
+					if (tileEntityEngineeringTable.slots.getStackInSlot(indexSlot) == ItemStack.EMPTY)
 					{
-						itemRender.renderItemAndEffectIntoGUI(mc.player, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2));
+						itemRender.renderItemAndEffectIntoGUI(mc.player, toRender.get(index), offset + 71 + 18 * (indexSlot % 2), -1 + 18 * (indexSlot / 2));
 
 						FontRenderer font = toRender.get(index).getItem().getFontRenderer(toRender.get(index));
 						if (font == null) font = fontRenderer;
 
-						itemRender.renderItemOverlayIntoGUI(font, toRender.get(index), offset + 71 + 18 * (k % 2), -1 + 18 * (k / 2),
+						itemRender.renderItemOverlayIntoGUI(font, toRender.get(index), offset + 71 + 18 * (indexSlot % 2), -1 + 18 * (indexSlot / 2),
 						                                    "+" + toRender.get(index).getCount());
 
 						index++;

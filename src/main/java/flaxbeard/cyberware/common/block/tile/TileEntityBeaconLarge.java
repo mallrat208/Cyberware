@@ -54,7 +54,7 @@ public class TileEntityBeaconLarge extends TileEntityBeacon implements ITickable
 					float dist = .5F;
 					float speedMod = .2F;
 					int degrees = 45;
-					for (int i = 0; i < 18; i++)
+					for (int index = 0; index < 18; index++)
 					{
 						float sin = (float) Math.sin(Math.toRadians(degrees));
 						float cos = (float) Math.cos(Math.toRadians(degrees));
