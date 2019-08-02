@@ -167,12 +167,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 		
 		if (doRobo)
 		{
-			entity.setItemStackToSlot(EntityEquipmentSlot.HEAD, ItemStack.EMPTY);
-			entity.setItemStackToSlot(EntityEquipmentSlot.CHEST, ItemStack.EMPTY);
-			entity.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
-			entity.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
-			entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStack.EMPTY);
-			entity.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.HEAD.getIndex(), ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.CHEST.getIndex(), ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.MAINHAND.getIndex(), ItemStack.EMPTY);
+			entity.inventory.armorInventory.set(EntityEquipmentSlot.OFFHAND.getIndex(), ItemStack.EMPTY);
 		}
 		
 		try
@@ -290,12 +290,12 @@ public class RenderPlayerCyberware extends RenderPlayer
 			                                     entity, this));
 		}
 		
-		entity.setItemStackToSlot(EntityEquipmentSlot.HEAD, head);
-		entity.setItemStackToSlot(EntityEquipmentSlot.CHEST, body);
-		entity.setItemStackToSlot(EntityEquipmentSlot.LEGS, legs);
-		entity.setItemStackToSlot(EntityEquipmentSlot.FEET, shoes);
-		entity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, heldItem);
-		entity.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, offHand);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.HEAD.getIndex(), head);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.CHEST.getIndex(), body);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), legs);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), shoes);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.MAINHAND.getIndex(), heldItem);
+		entity.inventory.armorInventory.set(EntityEquipmentSlot.OFFHAND.getIndex(), offHand);
 		
 //		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.enableTexture2D();

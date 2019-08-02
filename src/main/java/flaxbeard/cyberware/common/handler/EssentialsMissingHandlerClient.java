@@ -99,9 +99,9 @@ public class EssentialsMissingHandlerClient
 			{
 				// Hide pants + shoes
 				pants.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.LEGS));
-				entityPlayer.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStack.EMPTY);
+				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), ItemStack.EMPTY);
 				shoes.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.FEET));
-				entityPlayer.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStack.EMPTY);
+				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY);
 				hasNoLegs = true;
 			}
 			
