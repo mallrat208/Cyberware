@@ -3,6 +3,7 @@ package flaxbeard.cyberware.common.item;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.resources.I18n;
@@ -71,9 +72,7 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	public ItemCyberware setComponents(NonNullList<ItemStack>... components)
 	{
 		NonNullList<NonNullList<ItemStack>> list = NonNullList.create();
-		for (NonNullList<ItemStack> l : components){
-			list.add(l);
-		}
+		Collections.addAll(list, components);
 		this.components = list;
 		return this;
 	}

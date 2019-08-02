@@ -27,7 +27,7 @@ public class Cyberware
 	
 	@Instance(MODID)
 	public static Cyberware INSTANCE;
-		
+	
 	@SidedProxy(clientSide = "flaxbeard.cyberware.client.ClientProxy", serverSide = "flaxbeard.cyberware.common.CommonProxy")
 	public static CommonProxy proxy;
 	

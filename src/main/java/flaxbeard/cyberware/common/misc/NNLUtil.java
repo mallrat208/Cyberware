@@ -2,6 +2,9 @@ package flaxbeard.cyberware.common.misc;
 
 import javax.annotation.Nonnull;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
@@ -15,10 +18,7 @@ public class NNLUtil {
 	
 	public static NonNullList<ItemStack> fromArray(@Nonnull ItemStack[] array){
 		NonNullList<ItemStack> nnl = NonNullList.create();
-		for (ItemStack stack : array)
-		{
-			nnl.add(stack);
-		}
+		Collections.addAll(nnl, array);
 		return nnl;
 	}
 	
@@ -27,10 +27,7 @@ public class NNLUtil {
 		for (ItemStack[] arraySub : array)
 		{
 			NonNullList<ItemStack> nnlSub = NonNullList.create();
-			for (ItemStack stack : arraySub)
-			{
-				nnlSub.add(stack);
-			}
+			nnlSub.addAll(Arrays.asList(arraySub));
 			nnlRoot.add(nnlSub);
 		}
 		return nnlRoot;

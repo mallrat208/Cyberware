@@ -256,7 +256,10 @@ public class CyberwareContent
         eyeUpgrades.setEssenceCost(1);
         eyeUpgrades.setWeights(VERY_COMMON);
         eyeUpgrades.setComponents(
-                NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3), new ItemStack(component, 1, 5), new ItemStack(component, 1, 6), new ItemStack(component, 2, 7) }
+                NNLUtil.fromArray(new ItemStack[] { new ItemStack(component, 1, 3),
+                                                    new ItemStack(component, 1, 5),
+                                                    new ItemStack(component, 1, 6),
+                                                    new ItemStack(component, 2, 7) }
                 ));
 
         CyberwareAPI.linkCyberware(Items.SPIDER_EYE, new SpiderEyeWare());
@@ -683,7 +686,12 @@ public class CyberwareContent
         {
             if (!(target instanceof ZombieItem)) return false;
             ItemStack stack2 = ((ZombieItem)target).stack;
-            return (stack == stack2 || (!stack.isEmpty() && !stack2.isEmpty() && stack.getItem() == stack2.getItem() && stack.getItemDamage() == stack2.getItemDamage() && stack.getCount() == stack2.getCount()));
+            return ( stack == stack2
+                  || ( !stack.isEmpty()
+                    && !stack2.isEmpty()
+                    && stack.getItem() == stack2.getItem()
+                    && stack.getItemDamage() == stack2.getItemDamage()
+                    && stack.getCount() == stack2.getCount() ) );
         }
     }
 }

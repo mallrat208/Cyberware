@@ -391,7 +391,7 @@ public class EssentialsMissingHandlerClient
 		if (missingArm || missingSecondArm || hasRoboLeft || hasRoboRight)
 		{
 			float partialTicks = event.getPartialTicks();
-			EntityRenderer er = mc.entityRenderer;
+			EntityRenderer entityRenderer = mc.entityRenderer;
 			event.setCanceled(true);
 			
 			boolean isSleeping = mc.getRenderViewEntity() instanceof EntityLivingBase
@@ -402,9 +402,9 @@ public class EssentialsMissingHandlerClient
 			  && !mc.gameSettings.hideGUI
 			  && !mc.playerController.isSpectator() )
 			{
-				er.enableLightmap();
+				entityRenderer.enableLightmap();
 				renderItemInFirstPerson(partialTicks);
-				er.disableLightmap();
+				entityRenderer.disableLightmap();
 			}
 		}
 	}
