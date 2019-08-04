@@ -25,7 +25,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //  Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 // ***************************************************************************** //
 repositories {
-
+    mavenCentral()
     maven {
         name = "JitPack"
         url = 'https://jitpack.io'
@@ -99,6 +99,7 @@ repositories {
     //    name = "PrimalCore"
     //    url = "https://maven.nmd.so"
     //}
+    mavenLocal()
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -176,7 +177,7 @@ dependencies {
     //
     // compile against the JEI API
     // http://dvs1.progwml6.com/files/maven/mezz/jei/jei_1.11.2/4.3.3.266/jei_1.11.2-4.3.3.266-api.jar
-    deobfCompile "mezz.jei:jei_${mc_version}:${jei_version}:api"
+    provided "mezz.jei:jei_${mc_version}:${jei_version}:api"
     // at runtime, use the full JEI jar
     //runtime "mezz.jei:jei_${mc_version}:${jei_version}"
 
@@ -203,25 +204,23 @@ dependencies {
     //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
 
     // Matter Overdrive 
-    provided 'matteroverdrive:MatterOverdrive-1.12.2:0.7.1.0:universal'
+    provided "matteroverdrive:MatterOverdrive-1.12.2:${matteroverdrive_version}:universal"
 
+    // EnderIO with a manual dependency to EnderCore
     provided "com.enderio.core:EnderCore:${mc_version}-${endercore_version}:core"
-    provided "com.enderio:EnderIO:${mc_version}-${enderio_version}"
-    provided "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
-    //Given we are only compiling EnderCore we also need a reference to auto save
-    provided "info.loenwind.autosave:AutoSave:${mc_version}-1.0.10"
-    
+    provided("com.enderio:EnderIO:${mc_version}-${enderio_version}") {
+        transitive = false
+    }
+
     // ToughAsNails
-    provided "tough-as-nails:ToughAsNails-1.12.2:3.1.0.140:universal"
+    provided "tough-as-nails:ToughAsNails-1.12.2:${tan_version}:universal"
 
     // TESLA
     // https://github.com/Darkhax-Minecraft/Tesla/blob/master/README.md
-    provided "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
+    provided "net.darkhax.tesla:Tesla-1.12.2:${tesla_version}"
 
     // RF
     provided "cofh:RedstoneFlux:1.12-2.0.2.3:universal"
-
-    // Compile Included JARs
 }
 
 processResources {
@@ -298,6 +297,16 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
 
 build.dependsOn signJar
 
-// ***************************************************************************** //
-//  ..
-// ***************************************************************************** //
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
+runClient {
+    jvmArgs "-Xmx2048m", "-Xms1024m", "-ea"
+}
+
+runServer {
+    jvmArgs "-Xmx2048m", "-Xms1024m", "-ea"
+}
