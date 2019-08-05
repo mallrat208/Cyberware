@@ -16,7 +16,9 @@ import org.apache.logging.log4j.Logger;
      modid = Cyberware.MODID,
      version = Cyberware.VERSION,
      dependencies = ""
-                  + "required-after:forge@[14.23.5.2816,);",
+                  + "after:botania;"
+                  + "required-after:forge@[14.23.5.2816,);"
+                  + "",
      certificateFingerprint = "@MOD_SIGNATURE@")
 public class Cyberware
 {

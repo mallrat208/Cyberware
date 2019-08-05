@@ -1,6 +1,7 @@
 package flaxbeard.cyberware.common.integration.botania;
 
-/**
+import javax.annotation.Nonnull;
+import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -13,15 +14,19 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import flaxbeard.cyberware.api.ICyberwareUserData;
+import flaxbeard.cyberware.common.misc.NNLUtil;
 import vazkii.botania.api.subtile.ISubTileContainer;
 import vazkii.botania.api.subtile.RadiusDescriptor;
 import vazkii.botania.api.subtile.SubTileEntity;
@@ -33,62 +38,65 @@ import vazkii.botania.common.item.ModItems;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.common.CyberwareContent;
 import flaxbeard.cyberware.common.item.ItemCyberware;
-**/
+import vazkii.botania.common.item.equipment.bauble.ItemMonocle;
 
-public class ItemManaLens //extends ItemCyberware
+
+public class ItemManaLens extends ItemCyberware
 {
-    /**
-	//private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderCircle" }, BlockPos.class, Double.class);
-	//private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, new String[] { "renderRectangle" }, AxisAlignedBB.class);
-
-	private static Method renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, "renderCircle", BlockPos.class, Double.class);
-	private static Method renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, null, "renderRectangle", AxisAlignedBB.class);
-
-
+	
+	public static final int META_LENS        = 0;
+	public static final int META_LINK        = 1;
+	
+	private static Method BlockHighlightRenderHandler_renderCircle;
+	private static Method BlockHighlightRenderHandler_renderRectangle;
+	
 	public ItemManaLens(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
+		
 		MinecraftForge.EVENT_BUS.register(this);
-		FMLCommonHandler.instance().bus().register(this);
 	}
 	
 	@Override
-	public NonNullList<NonNullList<ItemStack>> required(ItemStack stack)
+	public NonNullList<NonNullList<ItemStack>> required(@Nonnull ItemStack stack)
 	{
-		if (stack.getItemDamage() == 0)
+		if (stack.getItemDamage() == META_LENS)
 		{
 			return NonNullList.create();
 		}
 		
-		NonNullList<NonNullList<ItemStack>> lists = NonNullList.create();
-		NonNullList<ItemStack> l = NonNullList.create();
-		l.add(new ItemStack(CyberwareContent.cybereyes));
-		return lists;
+		return NNLUtil.fromArray(new ItemStack[][] {
+				new ItemStack[] { CyberwareContent.cybereyes.getCachedStack(0) }});
 	}
-
 	
 	@Override
-	public boolean isIncompatible(ItemStack stack, ItemStack other)
+	public boolean isIncompatible(@Nonnull ItemStack stack, @Nonnull ItemStack other)
 	{
-		return stack.getItemDamage() == 0 ? other.getItem() == CyberwareContent.cybereyes : false;
+		return stack.getItemDamage() == META_LENS && other.getItem() == CyberwareContent.cybereyes;
 	}
 	
 	private boolean hasLensNotMonocle(EntityPlayer entityPlayer)
 	{
-		return !Botania.proxy.isClientPlayerWearingMonocle()
-		    && CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(0))
-		    || CyberwareAPI.isCyberwareInstalled(entityPlayer, getCachedStack(1));
+		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
+		if (cyberwareUserData == null)
+		{
+			return false;
+		}
+		
+		return ( !Botania.proxy.isClientPlayerWearingMonocle()
+		      && cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LENS)) )
+		    || cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LINK));
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onDrawScreenPost(RenderGameOverlayEvent.Post event)
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
-		
-		if (hasLensNotMonocle(entityPlayer))
+		if ( event.getType() == ElementType.ALL
+		  && hasLensNotMonocle(entityPlayer) )
 		{
-			//ItemMonocle.renderHUD(event.getResolution(), entityPlayer);
+			ItemMonocle.renderHUD(event.getResolution(), entityPlayer);
 		}
 	}
 	
@@ -96,63 +104,80 @@ public class ItemManaLens //extends ItemCyberware
 	@SubscribeEvent
 	public void onWorldRenderLast(RenderWorldLastEvent event)
 	{
-		Minecraft mc = Minecraft.getMinecraft();
-		RayTraceResult pos = mc.objectMouseOver;
-
-		if(!hasLensNotMonocle(mc.player) || pos == null || pos.entityHit != null)
-			return;
-		BlockPos bPos = pos.getBlockPos();
-
-		ItemStack stackHeld = PlayerHelper.getFirstHeldItem(mc.player, ModItems.twigWand);
-		if(!stackHeld.isEmpty() && ItemTwigWand.getBindMode(stackHeld))
+		if (BlockHighlightRenderHandler_renderCircle == null)
 		{
-			BlockPos coords = ItemTwigWand.getBoundTile(stackHeld);
-			if(coords.getY() != -1)
+			BlockHighlightRenderHandler_renderCircle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, "renderCircle", null, BlockPos.class, double.class);
+			BlockHighlightRenderHandler_renderRectangle = ReflectionHelper.findMethod(BlockHighlightRenderHandler.class, "renderRectangle", null, AxisAlignedBB.class, boolean.class, Color.class, byte.class);
+		}
+		
+		// skip if wearing a monocle, or not targeting a block, or targeting an entity
+		Minecraft mc = Minecraft.getMinecraft();
+		RayTraceResult rayTraceResult = mc.objectMouseOver;
+		
+		if ( !hasLensNotMonocle(mc.player)
+		  || rayTraceResult == null
+		  || rayTraceResult.entityHit != null )
+		{
+			return;
+		}
+		BlockPos blockPos = rayTraceResult.getBlockPos();
+		
+		// use the Botania's wand bounded tile if it's defined
+		ItemStack stackHeld = PlayerHelper.getFirstHeldItem(mc.player, ModItems.twigWand);
+		if ( !stackHeld.isEmpty()
+		  && ItemTwigWand.getBindMode(stackHeld) )
+		{
+			BlockPos blockPosBound = ItemTwigWand.getBoundTile(stackHeld);
+			if (blockPosBound.getY() != -1)
 			{
-				bPos = coords;
+				blockPos = blockPosBound;
 			}
 		}
-
-		TileEntity tile = mc.world.getTileEntity(bPos);
-		if(tile == null || !(tile instanceof ISubTileContainer))
+		
+		// get the radius for that flower
+		TileEntity tile = mc.world.getTileEntity(blockPos);
+		if (!(tile instanceof ISubTileContainer))
+		{
 			return;
+		}
 		ISubTileContainer container = (ISubTileContainer) tile;
 		SubTileEntity subtile = container.getSubTile();
-		if(subtile == null)
+		if (subtile == null)
+		{
 			return;
+		}
 		RadiusDescriptor descriptor = subtile.getRadius();
-		if(descriptor == null)
+		if (descriptor == null)
+		{
 			return;
-
+		}
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.disableTexture2D();
-		GlStateManager.pushAttrib(GL11.GL_LIGHTING_BIT);
+		// GlStateManager.pushAttrib(GL11.GL_LIGHTING_BIT);
 		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
+		
 		try
 		{
-			if(descriptor.isCircle())
-					renderCircle.invoke(descriptor.getSubtileCoords(), descriptor.getCircleRadius());
-			else renderRectangle.invoke(descriptor.getAABB());
+			if (descriptor.isCircle())
+			{
+				BlockHighlightRenderHandler_renderCircle.invoke(null, descriptor.getSubtileCoords(), descriptor.getCircleRadius());
+			}
+			else
+			{
+				BlockHighlightRenderHandler_renderRectangle.invoke(null, descriptor.getAABB(), false, null, (byte) 32);
+			}
 		}
-		catch (IllegalAccessException e)
+		catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException exception)
 		{
-			e.printStackTrace();
+			exception.printStackTrace();
 		}
-		catch (IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InvocationTargetException e)
-		{
-			e.printStackTrace();
-		}
-
+		
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
-		GlStateManager.popAttrib();
+		// GlStateManager.popAttrib();
 		GlStateManager.popMatrix();
-	} **/
+	}
 }

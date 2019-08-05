@@ -59,10 +59,10 @@ repositories {
         name 'tterrag2'
         url 'http://maven2.tterrag.com/'
     }
-    //maven {
-    //    name "CraftTweaker"
-    //    url "http://maven.blamejared.com/"
-    //}
+    maven {
+        name "CraftTweaker, Vazkii's Botania, etc."
+        url "http://maven.blamejared.com/"
+    }
     //maven {
     //    name = "mobius"
     //    url = "http://mobiusstrip.eu/maven"
@@ -221,6 +221,9 @@ dependencies {
 
     // RF
     provided "cofh:RedstoneFlux:1.12-2.0.2.3:universal"
+
+    // Botania
+    provided "vazkii.botania:Botania:${botania_version}"
 }
 
 processResources {

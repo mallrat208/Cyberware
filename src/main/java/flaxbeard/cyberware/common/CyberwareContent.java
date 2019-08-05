@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -693,5 +694,29 @@ public class CyberwareContent
                     && stack.getItemDamage() == stack2.getItemDamage()
                     && stack.getCount() == stack2.getCount() ) );
         }
+    }
+    
+    public static ItemStack getItemStackByRegistryName(@Nonnull final String registryName, final int meta) {
+        final ResourceLocation resourceLocation = new ResourceLocation(registryName);
+        final Item item = Item.REGISTRY.getObject(resourceLocation);
+        if (item == null)
+        {
+            throw new RuntimeException(String.format("Skipping missing mod item %s@%d",
+                                                     registryName, meta ));
+        }
+        final ItemStack itemStack = new ItemStack(item);
+        if (meta != -1)
+        {
+            try
+            {
+                itemStack.setItemDamage(meta);
+            }
+            catch (final Exception exception)
+            {
+                throw new RuntimeException(String.format("Failed to get mod item for %s@%d",
+                                                         registryName, meta ));
+            }
+        }
+        return itemStack;
     }
 }
