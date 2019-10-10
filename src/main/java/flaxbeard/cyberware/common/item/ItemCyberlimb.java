@@ -82,7 +82,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 			if (cyberwareUserData == null) return;
 			if ( cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LEFT_CYBER_LEG))
-		      || cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)) )
+		      && cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)) )
 			{
 				didFall.add(entityLivingBase.getEntityId());
 			}
