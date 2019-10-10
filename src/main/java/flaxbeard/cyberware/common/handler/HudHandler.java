@@ -1,5 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -12,10 +13,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -119,15 +121,20 @@ public class HudHandler
 	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onDrawScreenPost(RenderTickEvent event)
+	public void onRender(@Nonnull RenderGameOverlayEvent.Pre event)
 	{
-		if (event.phase != Phase.END) return;
-		
+		if (event.getType() == ElementType.CHAT)
+		{
+			drawHUD(event.getResolution(), event.getPartialTicks());
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void drawHUD(ScaledResolution scaledResolution, float partialTick)
+	{
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayerSP entityPlayerSP = mc.player;
 		if (entityPlayerSP == null) return;
-		
-		ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
 		
 		if (entityPlayerSP.ticksExisted != cache_tickExisted) {
 			cache_tickExisted = entityPlayerSP.ticksExisted;
@@ -166,10 +173,10 @@ public class HudHandler
 		
 		double accelLastY = lastVelY - lastLastVelY;
 		double accelY = entityPlayerSP.motionY - lastVelY;
-		double accelPitch = accelLastY + (accelY - accelLastY) * (event.renderTickTime + entityPlayerSP.ticksExisted - lastTickExisted) / 2F;
+		double accelPitch = accelLastY + (accelY - accelLastY) * (partialTick + entityPlayerSP.ticksExisted - lastTickExisted) / 2F;
 		
-		double pitchCameraMove = cache_floatingFactor * ((entityPlayerSP.prevRenderArmPitch + (entityPlayerSP.renderArmPitch - entityPlayerSP.prevRenderArmPitch) * event.renderTickTime) - entityPlayerSP.rotationPitch);
-		double yawCameraMove   = cache_floatingFactor * ((entityPlayerSP.prevRenderArmYaw   + (entityPlayerSP.renderArmYaw   - entityPlayerSP.prevRenderArmYaw  ) * event.renderTickTime) - entityPlayerSP.rotationYaw  );
+		double pitchCameraMove = cache_floatingFactor * ((entityPlayerSP.prevRenderArmPitch + (entityPlayerSP.renderArmPitch - entityPlayerSP.prevRenderArmPitch) * partialTick) - entityPlayerSP.rotationPitch);
+		double yawCameraMove   = cache_floatingFactor * ((entityPlayerSP.prevRenderArmYaw   + (entityPlayerSP.renderArmYaw   - entityPlayerSP.prevRenderArmYaw  ) * partialTick) - entityPlayerSP.rotationYaw  );
 		
 		GlStateManager.translate(yawCameraMove, pitchCameraMove + accelPitch * 50F * cache_floatingFactor, 0);
 		
@@ -206,7 +213,7 @@ public class HudHandler
 				GuiHudConfiguration.setXFromAbsolute(scaledResolution, hudElement, scaledResolution.getScaledWidth() - 4);
 			}
 			
-			hudElement.render(entityPlayerSP, scaledResolution, cache_isHUDjackAvailable, mc.currentScreen instanceof GuiHudConfiguration, event.renderTickTime);
+			hudElement.render(entityPlayerSP, scaledResolution, cache_isHUDjackAvailable, mc.currentScreen instanceof GuiHudConfiguration, partialTick);
 		}
 		
 		// Display a prompt to the user to open the radial menu if they haven't yet
