@@ -113,6 +113,7 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 				{
 					entityLivingBase.setGlowing(false);
 				}
+				entitiesInRange.clear();
 			}
 		}
 	}
