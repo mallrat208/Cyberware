@@ -74,7 +74,7 @@ public class CyberwareConfig
     
     public static boolean ENABLE_KATANA = true;
     public static boolean ENABLE_CLOTHES = true;
-    public static boolean RENDER = true;
+    public static boolean ENABLE_CUSTOM_PLAYER_MODEL = true;
     
     public static int TESLA_PER_POWER = 1;
     
@@ -185,8 +185,7 @@ public class CyberwareConfig
         
         ENABLE_KATANA = config.getBoolean("Enable Katana", C_OTHER, ENABLE_KATANA, "");
         ENABLE_CLOTHES = config.getBoolean("Enable Trench Coat, Mirror Shades, and Biker Jacket", C_OTHER, ENABLE_CLOTHES, "");
-        
-        RENDER = config.getBoolean("Enable changes to player model (missing skin, missing limbs, Cybernetic limbs)", C_OTHER, RENDER, "");
+        ENABLE_CUSTOM_PLAYER_MODEL = config.getBoolean("Enable changes to player model (missing skin, missing limbs, Cybernetic limbs)", C_OTHER, ENABLE_CUSTOM_PLAYER_MODEL, "");
         
         ENABLE_FLOAT = config.getBoolean("Enable hudlens and hudjack float.", C_HUD, ENABLE_FLOAT, "Experimental, defaults to false.");
         

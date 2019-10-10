@@ -63,7 +63,7 @@ public class EssentialsMissingHandlerClient
 	@SubscribeEvent
 	public void handleMissingSkin(RenderPlayerEvent.Pre event)
 	{
-		if (!CyberwareConfig.RENDER) return;
+		if (!CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL) return;
 		
 		EntityPlayer entityPlayer = event.getEntityPlayer();
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
@@ -79,11 +79,11 @@ public class EssentialsMissingHandlerClient
 		boolean robotLeftLeg  = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG ));
 		boolean robotRightLeg = cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG));
 		
-		RenderPlayer renderer = event.getRenderer();
+		RenderPlayer renderPlayer = event.getRenderer();
 		
-		if (!(renderer instanceof RenderPlayerCyberware))
+		if (!(renderPlayer instanceof RenderPlayerCyberware))
 		{
-			boolean useSmallArms = ReflectionHelper.getPrivateValue(RenderPlayer.class, renderer, 0);
+			boolean useSmallArms = ReflectionHelper.getPrivateValue(RenderPlayer.class, renderPlayer, 0);
 			RenderPlayerCyberware renderToUse = useSmallArms ? renderSmallArms : renderLargeArms;
 			
 			boolean hasNoSkin = false;
@@ -180,17 +180,17 @@ public class EssentialsMissingHandlerClient
 		
 		if (!hasLeftLeg)
 		{
-			renderer.getMainModel().bipedLeftLeg.isHidden = true;
+			renderPlayer.getMainModel().bipedLeftLeg.isHidden = true;
 		}
 		
 		if (!hasRightLeg)
 		{
-			renderer.getMainModel().bipedRightLeg.isHidden = true;
+			renderPlayer.getMainModel().bipedRightLeg.isHidden = true;
 		}
 		
 		if (!hasLeftArm)
 		{
-			renderer.getMainModel().bipedLeftArm.isHidden = true;
+			renderPlayer.getMainModel().bipedLeftArm.isHidden = true;
 			
 			// Hide the main or offhand item if no arm there
 			if (!mainHand.containsKey(entityPlayer.getEntityId()))
@@ -210,7 +210,7 @@ public class EssentialsMissingHandlerClient
 		
 		if (!hasRightArm)
 		{
-			renderer.getMainModel().bipedRightArm.isHidden = true;
+			renderPlayer.getMainModel().bipedRightArm.isHidden = true;
 			
 			// Hide the main or offhand item if no arm there
 			if (!mainHand.containsKey(entityPlayer.getEntityId()))
@@ -239,7 +239,7 @@ public class EssentialsMissingHandlerClient
 	@SubscribeEvent
 	public void handleMissingSkin(RenderPlayerEvent.Post event)
 	{
-		if (!CyberwareConfig.RENDER) return;
+		if (!CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL) return;
 		
 		event.getRenderer().getMainModel().bipedLeftArm.isHidden = false;
 		event.getRenderer().getMainModel().bipedRightArm.isHidden = false;
@@ -386,7 +386,7 @@ public class EssentialsMissingHandlerClient
 	@SubscribeEvent
 	public void handleRenderHand(RenderHandEvent event)
 	{
-		if (!CyberwareConfig.RENDER || FMLClientHandler.instance().hasOptifine()) return;
+		if (!CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL || FMLClientHandler.instance().hasOptifine()) return;
 		
 		if (missingArm || missingSecondArm || hasRoboLeft || hasRoboRight)
 		{

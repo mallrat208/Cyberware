@@ -32,7 +32,8 @@ public class InventoryTabFineManipulators extends AbstractTab
 	{
 		EntityPlayer entityPlayer = Minecraft.getMinecraft().player;
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityPlayer);
-		if (cyberwareUserData == null) {
+		if (cyberwareUserData == null)
+		{
 			return false;
 		}
 		return cyberwareUserData.isCyberwareInstalled(CyberwareContent.handUpgrades.getCachedStack(ItemHandUpgrade.META_CRAFT_HANDS));

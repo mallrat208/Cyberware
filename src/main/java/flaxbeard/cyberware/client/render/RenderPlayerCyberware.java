@@ -79,7 +79,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		{
 			GlStateManager.pushMatrix();
 			
-			float percent = ((Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F);
+			float percent = (Minecraft.getMinecraft().player.ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks() - ItemHandUpgrade.clawsTime) / 4F;
 			percent = Math.min(1.0F, percent);
 			percent = Math.max(0F, percent);
 			percent = (float) Math.sin(percent * Math.PI / 2F);
@@ -284,7 +284,7 @@ public class RenderPlayerCyberware extends RenderPlayer
 		catch (Exception exception)
 		{
 			Cyberware.logger.error("Disabling custom render until next restart");
-			CyberwareConfig.RENDER = false;
+			CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL = false;
 			exception.printStackTrace();
 			Cyberware.logger.error(String.format("Exception while rendering %s with %s",
 			                                     entity, this));
