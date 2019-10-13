@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EnumPlayerModelParts;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -162,8 +163,8 @@ public class RenderPlayerCyberware extends RenderPlayer
 		ItemStack body  = entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
 		ItemStack legs  = entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
 		ItemStack shoes = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
-		ItemStack heldItem = entity.getHeldItemMainhand();
-		ItemStack offHand = entity.getHeldItemOffhand();
+		ItemStack heldItem = InventoryPlayer.isHotbar(entity.inventory.currentItem) ? entity.inventory.mainInventory.get(entity.inventory.currentItem) : null;
+		ItemStack offHand = entity.inventory.offHandInventory.get(0);
 		
 		if (doRobo)
 		{
@@ -171,8 +172,8 @@ public class RenderPlayerCyberware extends RenderPlayer
 			entity.inventory.armorInventory.set(EntityEquipmentSlot.CHEST.getIndex(), ItemStack.EMPTY);
 			entity.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), ItemStack.EMPTY);
 			entity.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY);
-			entity.inventory.armorInventory.set(EntityEquipmentSlot.MAINHAND.getIndex(), ItemStack.EMPTY);
-			entity.inventory.armorInventory.set(EntityEquipmentSlot.OFFHAND.getIndex(), ItemStack.EMPTY);
+			entity.inventory.mainInventory.set(entity.inventory.currentItem, ItemStack.EMPTY);
+			entity.inventory.offHandInventory.set(0, ItemStack.EMPTY);
 		}
 		
 		try
@@ -294,8 +295,11 @@ public class RenderPlayerCyberware extends RenderPlayer
 		entity.inventory.armorInventory.set(EntityEquipmentSlot.CHEST.getIndex(), body);
 		entity.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), legs);
 		entity.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), shoes);
-		entity.inventory.armorInventory.set(EntityEquipmentSlot.MAINHAND.getIndex(), heldItem);
-		entity.inventory.armorInventory.set(EntityEquipmentSlot.OFFHAND.getIndex(), offHand);
+		if (heldItem != null)
+		{
+			entity.inventory.mainInventory.set(entity.inventory.currentItem, heldItem);
+		}
+		entity.inventory.offHandInventory.set(0, offHand);
 		
 //		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.enableTexture2D();

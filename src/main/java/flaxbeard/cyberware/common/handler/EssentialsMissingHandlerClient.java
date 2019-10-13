@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -60,7 +61,7 @@ public class EssentialsMissingHandlerClient
 	public static final RenderPlayerCyberware renderLargeArms = new RenderPlayerCyberware(Minecraft.getMinecraft().getRenderManager(), false);
 	
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
+	@SubscribeEvent(priority=EventPriority.HIGHEST)
 	public void handleMissingSkin(RenderPlayerEvent.Pre event)
 	{
 		if (!CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL) return;
@@ -98,10 +99,14 @@ public class EssentialsMissingHandlerClient
 			if (!hasRightLeg && !hasLeftLeg)
 			{
 				// Hide pants + shoes
-				pants.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.LEGS));
-				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), ItemStack.EMPTY);
-				shoes.put(entityPlayer.getEntityId(), entityPlayer.getItemStackFromSlot(EntityEquipmentSlot.FEET));
-				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY);
+				if (!pants.containsKey(entityPlayer.getEntityId()))
+				{
+					pants.put(entityPlayer.getEntityId(), entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), ItemStack.EMPTY));
+				}
+				if (!shoes.containsKey(entityPlayer.getEntityId()))
+				{
+					shoes.put(entityPlayer.getEntityId(), entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY));
+				}
 				hasNoLegs = true;
 			}
 			
@@ -193,18 +198,20 @@ public class EssentialsMissingHandlerClient
 			renderPlayer.getMainModel().bipedLeftArm.isHidden = true;
 			
 			// Hide the main or offhand item if no arm there
-			if (!mainHand.containsKey(entityPlayer.getEntityId()))
-			{
-				mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
-				offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
-			}
 			if (mc.gameSettings.mainHand == EnumHandSide.LEFT)
 			{
-				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
+				if ( !mainHand.containsKey(entityPlayer.getEntityId())
+				  && InventoryPlayer.isHotbar(entityPlayer.inventory.currentItem) )
+				{
+					mainHand.put(entityPlayer.getEntityId(), entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem, ItemStack.EMPTY));
+				}
 			}
 			else
 			{
-				entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
+				if (!offHand.containsKey(entityPlayer.getEntityId()))
+				{
+					offHand.put(entityPlayer.getEntityId(), entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY));
+				}
 			}
 		}
 		
@@ -213,18 +220,20 @@ public class EssentialsMissingHandlerClient
 			renderPlayer.getMainModel().bipedRightArm.isHidden = true;
 			
 			// Hide the main or offhand item if no arm there
-			if (!mainHand.containsKey(entityPlayer.getEntityId()))
-			{
-				mainHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemMainhand());
-				offHand.put(entityPlayer.getEntityId(), entityPlayer.getHeldItemOffhand());
-			}
 			if (mc.gameSettings.mainHand == EnumHandSide.RIGHT)
 			{
-				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,ItemStack.EMPTY);
+				if ( !mainHand.containsKey(entityPlayer.getEntityId())
+				  && InventoryPlayer.isHotbar(entityPlayer.inventory.currentItem) )
+				{
+					mainHand.put(entityPlayer.getEntityId(), entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem, ItemStack.EMPTY));
+				}
 			}
 			else
 			{
-				entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY);
+				if (!offHand.containsKey(entityPlayer.getEntityId()))
+				{
+					offHand.put(entityPlayer.getEntityId(), entityPlayer.inventory.offHandInventory.set(0, ItemStack.EMPTY));
+				}
 			}
 		}
 	}
@@ -236,7 +245,7 @@ public class EssentialsMissingHandlerClient
 	private static Map<Integer, ItemStack> shoes = new HashMap<>();
 
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
+	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void handleMissingSkin(RenderPlayerEvent.Post event)
 	{
 		if (!CyberwareConfig.ENABLE_CUSTOM_PLAYER_MODEL) return;
@@ -252,38 +261,32 @@ public class EssentialsMissingHandlerClient
 		{
 			if (pants.containsKey(entityPlayer.getEntityId()))
 			{
-				entityPlayer.inventory.armorInventory.set(1, pants.get(entityPlayer.getEntityId()));
-				pants.remove(entityPlayer.getEntityId());
+				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.LEGS.getIndex(), pants.remove(entityPlayer.getEntityId()));
 			}
 			
 			if (shoes.containsKey(entityPlayer.getEntityId()))
 			{
-				entityPlayer.inventory.armorInventory.set(0, shoes.get(entityPlayer.getEntityId()));
-				shoes.remove(entityPlayer.getEntityId());
+				entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), shoes.remove(entityPlayer.getEntityId()));
+			}
+			
+			if (mainHand.containsKey(entityPlayer.getEntityId()))
+			{
+				entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem, mainHand.remove(entityPlayer.getEntityId()));
+			}
+			
+			if (offHand.containsKey(entityPlayer.getEntityId()))
+			{
+				entityPlayer.inventory.offHandInventory.set(0, offHand.remove(entityPlayer.getEntityId()));
 			}
 			
 			if (!cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.LEFT))
 			{
 				event.getRenderer().getMainModel().bipedLeftArm.isHidden = false;
-				if (mainHand.containsKey(entityPlayer.getEntityId()))
-				{
-					entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,mainHand.get(entityPlayer.getEntityId()));
-					entityPlayer.inventory.offHandInventory.set(0, offHand.get(entityPlayer.getEntityId()));
-					mainHand.remove(entityPlayer.getEntityId());
-					offHand.remove(entityPlayer.getEntityId());
-				}
 			}
 			
 			if (!cyberwareUserData.hasEssential(EnumSlot.ARM, EnumSide.RIGHT))
 			{
 				event.getRenderer().getMainModel().bipedRightArm.isHidden = false;
-				if (mainHand.containsKey(entityPlayer.getEntityId()))
-				{
-					entityPlayer.inventory.mainInventory.set(entityPlayer.inventory.currentItem,mainHand.get(entityPlayer.getEntityId()));
-					entityPlayer.inventory.offHandInventory.set(0, offHand.get(entityPlayer.getEntityId()));
-					mainHand.remove(entityPlayer.getEntityId());
-					offHand.remove(entityPlayer.getEntityId());
-				}
 			}
 		}
 	}
