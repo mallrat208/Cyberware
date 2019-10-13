@@ -28,7 +28,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUpdateEvent;
 import flaxbeard.cyberware.api.ICyberwareUserData;
@@ -332,7 +331,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                         event.setCanceled(true);
                         entityLivingBase.hurtResistantTime = entityLivingBase.maxHurtResistantTime;
                         entityLivingBase.hurtTime = entityLivingBase.maxHurtTime = 10;
-                        ReflectionHelper.setPrivateValue(EntityLivingBase.class, entityLivingBase, 9999F, "lastDamage", "field_110153_bc");
+                        entityLivingBase.lastDamage = 9999F;
                         CyberwarePacketHandler.INSTANCE.sendToAllAround(new DodgePacket(entityLivingBase.getEntityId()),
                                                                         new TargetPoint(entityLivingBase.world.provider.getDimension(), entityLivingBase.posX, entityLivingBase.posY, entityLivingBase.posZ, 50));
                     }

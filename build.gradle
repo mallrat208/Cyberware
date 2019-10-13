@@ -250,6 +250,10 @@ jar {
     exclude "**/TODO.txt"
     exclude "**/update-dist.json"
     destinationDir = file 'output'
+    
+    manifest {
+        attributes FMLAT: "cyberware_at.cfg"
+    }
 }
 
 task devJar(type: Jar) {

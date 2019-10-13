@@ -13,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.util.CombatTracker;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.world.WorldServer;
@@ -21,7 +20,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -112,7 +110,7 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			{
 				EntityDamageSource source = (EntityDamageSource) event.getSource();
 				Entity attacker = source.getTrueSource();
-				int lastAttacked = ReflectionHelper.getPrivateValue(CombatTracker.class, entityPlayer.getCombatTracker(), 2);
+				int lastAttacked = entityPlayer.getCombatTracker().lastDamageTime;
 				
 				if (entityPlayer.ticksExisted - lastAttacked > 120)
 				{

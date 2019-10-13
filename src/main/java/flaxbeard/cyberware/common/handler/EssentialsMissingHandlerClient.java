@@ -30,7 +30,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -84,7 +83,7 @@ public class EssentialsMissingHandlerClient
 		
 		if (!(renderPlayer instanceof RenderPlayerCyberware))
 		{
-			boolean useSmallArms = ReflectionHelper.getPrivateValue(RenderPlayer.class, renderPlayer, 0);
+			boolean useSmallArms = renderPlayer.smallArms;
 			RenderPlayerCyberware renderToUse = useSmallArms ? renderSmallArms : renderLargeArms;
 			
 			boolean hasNoSkin = false;
@@ -446,32 +445,25 @@ public class EssentialsMissingHandlerClient
 		rotateArm(partialTicks);
 		GlStateManager.enableRescaleNormal();
 
-		ItemStack itemStackMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 3);
-		ItemStack itemStackOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 4);
-		float equippedProgressMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 5);
-		float prevEquippedProgressMainHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 6);
-		float equippedProgressOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 7);
-		float prevEquippedProgressOffHand = ReflectionHelper.getPrivateValue(ItemRenderer.class, itemRenderer, 8);
-
-		RenderCyberlimbHand.INSTANCE.itemStackMainHand = itemStackMainHand;
-		RenderCyberlimbHand.INSTANCE.itemStackOffHand = itemStackOffHand;
+		RenderCyberlimbHand.INSTANCE.itemStackMainHand = itemRenderer.itemStackMainHand;
+		RenderCyberlimbHand.INSTANCE.itemStackOffHand = itemRenderer.itemStackOffHand;
 
 		if (doRenderMainHand && !missingSecondArm)
 		{
 			float f3 = enumhand == EnumHand.MAIN_HAND ? swingProgress : 0.0F;
-			float f5 = 1.0F - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * partialTicks);
+			float f5 = 1.0F - (itemRenderer.prevEquippedProgressMainHand + (itemRenderer.equippedProgressMainHand - itemRenderer.prevEquippedProgressMainHand) * partialTicks);
 			RenderCyberlimbHand.INSTANCE.leftRobot = hasRoboLeft;
 			RenderCyberlimbHand.INSTANCE.rightRobot = hasRoboRight;
-			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, rotationPitch, EnumHand.MAIN_HAND, f3, itemStackMainHand, f5);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, rotationPitch, EnumHand.MAIN_HAND, f3, itemRenderer.itemStackMainHand, f5);
 		}
 
 		if (doRenderOffHand && !missingArm)
 		{
 			float f4 = enumhand == EnumHand.OFF_HAND ? swingProgress : 0.0F;
-			float f6 = 1.0F - (prevEquippedProgressOffHand + (equippedProgressOffHand - prevEquippedProgressOffHand) * partialTicks);
+			float f6 = 1.0F - (itemRenderer.prevEquippedProgressOffHand + (itemRenderer.equippedProgressOffHand - itemRenderer.prevEquippedProgressOffHand) * partialTicks);
 			RenderCyberlimbHand.INSTANCE.leftRobot = hasRoboLeft;
 			RenderCyberlimbHand.INSTANCE.rightRobot = hasRoboRight;
-			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, rotationPitch, EnumHand.OFF_HAND, f4, itemStackOffHand, f6);
+			RenderCyberlimbHand.INSTANCE.renderItemInFirstPerson(abstractclientplayer, partialTicks, rotationPitch, EnumHand.OFF_HAND, f4, itemRenderer.itemStackOffHand, f6);
 		}
 
 		GlStateManager.disableRescaleNormal();

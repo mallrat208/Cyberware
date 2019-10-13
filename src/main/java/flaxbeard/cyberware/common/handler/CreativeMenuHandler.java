@@ -1,7 +1,6 @@
 package flaxbeard.cyberware.common.handler;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
@@ -20,7 +18,6 @@ import net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import org.lwjgl.input.Mouse;
 
@@ -190,15 +187,7 @@ public class CreativeMenuHandler
 			
 			// force a refresh of the page
 			// note: this only called client side, when clicking, hence there's no need to cache it
-			Method methodGuiContainerCreative_setCurrentCreativeTab = ReflectionHelper.findMethod(GuiContainerCreative.class,"setCurrentCreativeTab", "func_147050_b", CreativeTabs.class);
-			try
-			{
-				methodGuiContainerCreative_setCurrentCreativeTab.invoke(gui, Cyberware.creativeTab);
-			}
-			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-			{
-				e.printStackTrace();
-			}
+			gui.setCurrentCreativeTab(Cyberware.creativeTab);
 		}
 	}
 
