@@ -15,15 +15,13 @@ import flaxbeard.cyberware.common.block.tile.TileEntityScanner;
 public class TileEntityScannerRenderer extends TileEntitySpecialRenderer<TileEntityScanner>
 {
 	private static ModelScanner model = new ModelScanner();
-	private static String texture = "cyberware:textures/models/scanner.png";
+	private static final String texture = "cyberware:textures/models/scanner.png";
 
 	@Override
 	public void render(TileEntityScanner te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te != null)
 		{
-			float ticks = Minecraft.getMinecraft().player.ticksExisted + partialTicks;
-			
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.translate(x+.5, y+.5, z+.5);

@@ -14,13 +14,6 @@ import flaxbeard.cyberware.Cyberware;
 public class GuiFineManipulators extends InventoryEffectRenderer
 {
 	private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocation(Cyberware.MODID + ":textures/gui/inventory_crafting.png");
-	/** The old x position of the mouse pointer */
-	private float oldMouseX;
-	/** The old y position of the mouse pointer */
-	private float oldMouseY;
-	
-	private int potionOffsetLast;
-	private boolean initWithPotion;
 	
 	public GuiFineManipulators(EntityPlayer entityPlayer, ContainerFineManipulators fineManipulators)
 	{
@@ -53,9 +46,6 @@ public class GuiFineManipulators extends InventoryEffectRenderer
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		
 		this.renderHoveredToolTip(mouseX, mouseY);
-		
-		this.oldMouseX=(float) mouseX;
-		this.oldMouseY=(float) mouseY;
 	}
 	
 	@Override
@@ -65,7 +55,6 @@ public class GuiFineManipulators extends InventoryEffectRenderer
 		
 		this.guiLeft = (this.width - this.xSize) / 2;
 		this.guiLeft += TabRegistry.getPotionOffset();
-		this.potionOffsetLast = TabRegistry.getPotionOffsetNEI();
 		
 		int cornerX = this.guiLeft;
 		int cornerY = this.guiTop;

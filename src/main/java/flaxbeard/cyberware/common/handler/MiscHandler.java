@@ -120,7 +120,7 @@ public class MiscHandler
 		  || event.getName() == LootTableList.CHESTS_JUNGLE_TEMPLE )
 		{
 			LootTable table = event.getTable();
-			LootPool main = event.getTable().getPool("main");
+			LootPool main = table.getPool("main");
 			if (main != null)
 			{
 				LootCondition[] lc = new LootCondition[0];
@@ -132,7 +132,7 @@ public class MiscHandler
 		if (event.getName() == LootTableList.CHESTS_NETHER_BRIDGE)
 		{
 			LootTable table = event.getTable();
-			LootPool main = event.getTable().getPool("main");
+			LootPool main = table.getPool("main");
 			if (main != null)
 			{
 				LootCondition[] lc = new LootCondition[0];

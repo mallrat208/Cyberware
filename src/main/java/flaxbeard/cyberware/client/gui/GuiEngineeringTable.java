@@ -106,7 +106,6 @@ public class GuiEngineeringTable extends GuiContainer
 
 	private TileEntityEngineeringTable tileEntityEngineeringTable;
 
-	private SmashButton smash;
 	private GuiButton next;
 	private GuiButton prev;
 	private GuiButton nextC;

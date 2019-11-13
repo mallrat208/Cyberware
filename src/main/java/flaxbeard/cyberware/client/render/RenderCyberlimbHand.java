@@ -5,7 +5,10 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -21,12 +24,12 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.storage.MapData;
+
 import flaxbeard.cyberware.common.handler.EssentialsMissingHandlerClient;
 
 public class RenderCyberlimbHand
 {
 	private Minecraft mc = Minecraft.getMinecraft();
-	private ItemRenderer ir = mc.getItemRenderer();
 	private RenderManager renderManager = mc.getRenderManager();
 	private RenderItem itemRenderer = mc.getRenderItem();
 	public ItemStack itemStackMainHand;
@@ -247,7 +250,7 @@ public class RenderCyberlimbHand
 			GlStateManager.translate(0.0F, f2, 0.0F);
 		}
 
-		float f3 = 1.0F - (float)Math.pow((double)f1, 27.0D);
+		float f3 = 1.0F - (float)Math.pow(f1, 27.0D);
 		int i = p_187454_2_ == EnumHandSide.RIGHT ? 1 : -1;
 		GlStateManager.translate(f3 * 0.6F * (float)i, f3 * -0.5F, f3 * 0.0F);
 		GlStateManager.rotate((float)i * f3 * 90.0F, 0.0F, 1.0F, 0.0F);

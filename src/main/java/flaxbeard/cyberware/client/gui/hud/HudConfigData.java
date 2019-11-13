@@ -3,7 +3,6 @@ package flaxbeard.cyberware.client.gui.hud;
 import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
-import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.hud.IHudSaveData;
 import flaxbeard.cyberware.common.CyberwareConfig;
 

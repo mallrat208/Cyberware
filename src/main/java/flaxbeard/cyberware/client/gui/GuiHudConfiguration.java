@@ -453,7 +453,6 @@ public class GuiHudConfiguration extends GuiScreen
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(mc.player);
 		if (cyberwareUserData != null)
 		{
-			NBTTagCompound tagCompoundOld = cyberwareUserData.getHudData();
 			cyberwareUserData.setHudData(tagCompound);
 		}
 		
