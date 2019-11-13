@@ -221,7 +221,7 @@ public class CyberwareDataHandler
 				if ((event.getWorld().rand.nextFloat() < (chance / 100F))) {
 					EntityCyberZombie entityCyberZombie = new EntityCyberZombie(event.getWorld());
 					if (event.getWorld().rand.nextFloat() < (LibConstants.BEACON_BRUTE_CHANCE / 100F)) {
-						boolean works = entityCyberZombie.setBrute();
+						entityCyberZombie.setBrute();
 					}
 					entityCyberZombie.setLocationAndAngles(entityLiving.posX, entityLiving.posY, entityLiving.posZ, entityLiving.rotationYaw, entityLiving.rotationPitch);
 					entityCyberZombie.onInitialSpawn(event.getWorld().getDifficultyForLocation(entityCyberZombie.getPosition()), null);

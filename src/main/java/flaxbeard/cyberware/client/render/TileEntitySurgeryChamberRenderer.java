@@ -14,7 +14,7 @@ import flaxbeard.cyberware.common.block.tile.TileEntitySurgeryChamber;
 public class TileEntitySurgeryChamberRenderer extends TileEntitySpecialRenderer<TileEntitySurgeryChamber>
 {
 	private static ModelSurgeryChamber model = new ModelSurgeryChamber();
-	private static String texture = "cyberware:textures/models/surgery_chamber_door.png";
+	private static final String texture = "cyberware:textures/models/surgery_chamber_door.png";
 
 	@Override
 	public void render(TileEntitySurgeryChamber te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)

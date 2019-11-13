@@ -105,7 +105,7 @@ public class EngineeringSwitchArchivePacket implements IMessage
 						{
 							((ContainerEngineeringTable) entityPlayer.openContainer).prevComponentBox();
 						}
-						TileEntityEngineeringTable te = (TileEntityEngineeringTable) world.getTileEntity(pos);
+						// TileEntityEngineeringTable te = (TileEntityEngineeringTable) world.getTileEntity(pos);
 						//te.lastPlayerArchive.put(entityPlayer.getCachedUniqueIdString(), ((ContainerEngineeringTable) entityPlayer.openContainer).archive.getPos());
 					}
 				}

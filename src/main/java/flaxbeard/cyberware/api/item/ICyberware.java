@@ -9,8 +9,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
-
 public interface ICyberware
 {
 	public EnumSlot getSlot(ItemStack stack);

@@ -17,16 +17,13 @@ import flaxbeard.cyberware.common.block.tile.TileEntityEngineeringTable;
 public class TileEntityEngineeringRenderer extends TileEntitySpecialRenderer<TileEntityEngineeringTable>
 {
 	private static ModelEngineering model = new ModelEngineering();
-	private static String texture = "cyberware:textures/models/engineering.png";
+	private static final String texture = "cyberware:textures/models/engineering.png";
 
 	@Override
 	public void render(TileEntityEngineeringTable te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te != null)
 		{
-			float ticks = Minecraft.getMinecraft().player.ticksExisted + partialTicks;
-
-			
 			IBlockState state = te.getWorld().getBlockState(te.getPos());
 			if (state.getBlock() == CyberwareContent.engineering)
 			{

@@ -106,7 +106,6 @@ public class GuiEngineeringTable extends GuiContainer
 
 	private TileEntityEngineeringTable tileEntityEngineeringTable;
 
-	private SmashButton smash;
 	private GuiButton next;
 	private GuiButton prev;
 	private GuiButton nextC;
@@ -340,7 +339,7 @@ public class GuiEngineeringTable extends GuiContainer
 		super.initGui();
 		int i = (width - xSize) / 2;
 		int j = (height - ySize) / 2;
-		buttonList.add(smash = new SmashButton(0, offset + i + 39, j + 34));
+		buttonList.add(new SmashButton(0, offset + i + 39, j + 34));
 
 		buttonList.add(next = new NextPageButton(1, offset + i + 180, j + 131, false));
 		buttonList.add(prev = new NextPageButton(2, offset + i + 216, j + 131, true));

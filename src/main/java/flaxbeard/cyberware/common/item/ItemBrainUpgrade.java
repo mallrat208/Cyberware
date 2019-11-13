@@ -323,7 +323,7 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
                 ArmorClass armorClass = ArmorClass.get(entityLivingBase);
                 if (armorClass == ArmorClass.HEAVY) return;
                 
-                if (!((float) entityLivingBase.hurtResistantTime > (float) entityLivingBase.maxHurtResistantTime / 2.0F))
+                if ( (float) entityLivingBase.hurtResistantTime <= (float) entityLivingBase.maxHurtResistantTime / 2.0F )
                 {
                     Random random = entityLivingBase.getRNG();
                     if (random.nextFloat() < (armorClass == ArmorClass.LIGHT ? LibConstants.DODGE_ARMOR : LibConstants.DODGE_NO_ARMOR))

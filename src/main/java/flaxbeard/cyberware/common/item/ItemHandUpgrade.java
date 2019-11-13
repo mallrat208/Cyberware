@@ -43,12 +43,12 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     
     private final Item tool_level;
     
-    private static final UUID isClawsStrengthAttribute = UUID.fromString("63c32801-94fb-40d4-8bd2-89135c1e44b1");
+    private static final UUID uuidClawsStrengthAttribute = UUID.fromString("63c32801-94fb-40d4-8bd2-89135c1e44b1");
     private static final HashMultimap<String, AttributeModifier> multimapClawsStrengthAttribute;
     
     static {
         multimapClawsStrengthAttribute = HashMultimap.create();
-        multimapClawsStrengthAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(isClawsStrengthAttribute, "Claws damage upgrade", 5.5F, 0));
+        multimapClawsStrengthAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(uuidClawsStrengthAttribute, "Claws damage upgrade", 5.5F, 0));
     }
     
     public ItemHandUpgrade(String name, EnumSlot slot, String[] subnames)

@@ -175,8 +175,6 @@ public class BlockBeaconPost extends BlockContainer
 					if (newPos.equals(start))
 					{
 						world.setBlockState(newPos, world.getBlockState(newPos).withProperty(TRANSFORMED, 2), 2);
-						
-						TileEntityBeaconPost post = (TileEntityBeaconPost) world.getTileEntity(newPos);
 					}
 					else
 					{

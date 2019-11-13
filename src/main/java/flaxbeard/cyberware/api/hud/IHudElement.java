@@ -1,9 +1,7 @@
 package flaxbeard.cyberware.api.hud;
 
-import flaxbeard.cyberware.client.gui.hud.HudNBTData;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 
 public interface IHudElement
 {
