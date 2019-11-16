@@ -301,40 +301,38 @@ public class ItemBrainUpgrade extends ItemCyberware implements IMenuItem
         ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
         if (cyberwareUserData == null) return;
 
-        if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_THREAT_MATRIX)))
+        if ( cyberwareUserData.isCyberwareInstalled(getCachedStack(META_THREAT_MATRIX))
+          && !entityLivingBase.world.isRemote
+          && event.getSource() instanceof EntityDamageSource )
         {
-            if ( !entityLivingBase.world.isRemote
-              && event.getSource() instanceof EntityDamageSource )
+            Entity attacker = event.getSource().getTrueSource();
+            if (entityLivingBase instanceof EntityPlayer)
             {
-                Entity attacker = event.getSource().getTrueSource();
-                if (entityLivingBase instanceof EntityPlayer)
+                String str = entityLivingBase.getEntityId() + " " + entityLivingBase.ticksExisted + " " + (attacker == null ? -1 : attacker.getEntityId());
+                if (lastHits.contains(str))
                 {
-                    String str = entityLivingBase.getEntityId() + " " + entityLivingBase.ticksExisted + " " + (attacker == null ? -1 : attacker.getEntityId());
-                    if (lastHits.contains(str))
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        lastHits.add(str);
-                    }
+                    return;
                 }
-
-                ArmorClass armorClass = ArmorClass.get(entityLivingBase);
-                if (armorClass == ArmorClass.HEAVY) return;
-                
-                if ( (float) entityLivingBase.hurtResistantTime <= (float) entityLivingBase.maxHurtResistantTime / 2.0F )
+                else
                 {
-                    Random random = entityLivingBase.getRNG();
-                    if (random.nextFloat() < (armorClass == ArmorClass.LIGHT ? LibConstants.DODGE_ARMOR : LibConstants.DODGE_NO_ARMOR))
-                    {
-                        event.setCanceled(true);
-                        entityLivingBase.hurtResistantTime = entityLivingBase.maxHurtResistantTime;
-                        entityLivingBase.hurtTime = entityLivingBase.maxHurtTime = 10;
-                        entityLivingBase.lastDamage = 9999F;
-                        CyberwarePacketHandler.INSTANCE.sendToAllAround(new DodgePacket(entityLivingBase.getEntityId()),
-                                                                        new TargetPoint(entityLivingBase.world.provider.getDimension(), entityLivingBase.posX, entityLivingBase.posY, entityLivingBase.posZ, 50));
-                    }
+                    lastHits.add(str);
+                }
+            }
+
+            ArmorClass armorClass = ArmorClass.get(entityLivingBase);
+            if (armorClass == ArmorClass.HEAVY) return;
+            
+            if ( (float) entityLivingBase.hurtResistantTime <= (float) entityLivingBase.maxHurtResistantTime / 2.0F )
+            {
+                Random random = entityLivingBase.getRNG();
+                if (random.nextFloat() < (armorClass == ArmorClass.LIGHT ? LibConstants.DODGE_ARMOR : LibConstants.DODGE_NO_ARMOR))
+                {
+                    event.setCanceled(true);
+                    entityLivingBase.hurtResistantTime = entityLivingBase.maxHurtResistantTime;
+                    entityLivingBase.hurtTime = entityLivingBase.maxHurtTime = 10;
+                    entityLivingBase.lastDamage = 9999F;
+                    CyberwarePacketHandler.INSTANCE.sendToAllAround(new DodgePacket(entityLivingBase.getEntityId()),
+                                                                    new TargetPoint(entityLivingBase.world.provider.getDimension(), entityLivingBase.posX, entityLivingBase.posY, entityLivingBase.posZ, 50));
                 }
             }
         }

@@ -115,35 +115,33 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 		
 		ItemStack itemStackMetabolicGenerator = cyberwareUserData.getCyberware(getCachedStack(META_METABOLIC_GENERATOR));
 		if ( !itemStackMetabolicGenerator.isEmpty()
-		  && EnableDisableHelper.isEnabled(itemStackMetabolicGenerator) )
+		  && EnableDisableHelper.isEnabled(itemStackMetabolicGenerator)
+		  && !cyberwareUserData.isAtCapacity(itemStackMetabolicGenerator, getPowerProduction(itemStackMetabolicGenerator)) )
 		{
-			if (!cyberwareUserData.isAtCapacity(itemStackMetabolicGenerator, getPowerProduction(itemStackMetabolicGenerator)))
+			if (entityLivingBase instanceof EntityPlayer)
 			{
-				if (entityLivingBase instanceof EntityPlayer)
+				EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
+				if ( entityPlayer.getFoodStats().getFoodLevel() > 0
+				  || entityPlayer.isCreative() )
 				{
-					EntityPlayer entityPlayer = (EntityPlayer) entityLivingBase;
-					if ( entityPlayer.getFoodStats().getFoodLevel() > 0
-					  || entityPlayer.isCreative() )
+					int toRemove = getTicksTilRemove(itemStackMetabolicGenerator);
+					if (!entityPlayer.isCreative() && toRemove <= 0)
 					{
-						int toRemove = getTicksTilRemove(itemStackMetabolicGenerator);
-						if (!entityPlayer.isCreative() && toRemove <= 0)
-						{
-							entityPlayer.getFoodStats().addExhaustion(6.0F);
-							toRemove = LibConstants.METABOLIC_USES;
-						}
-						else if (toRemove > 0)
-						{
-							toRemove--;
-						}
-						CyberwareAPI.getCyberwareNBT(itemStackMetabolicGenerator).setInteger("toRemove", toRemove);
-						
-						cyberwareUserData.addPower(getPowerProduction(itemStackMetabolicGenerator), itemStackMetabolicGenerator);
+						entityPlayer.getFoodStats().addExhaustion(6.0F);
+						toRemove = LibConstants.METABOLIC_USES;
 					}
+					else if (toRemove > 0)
+					{
+						toRemove--;
+					}
+					CyberwareAPI.getCyberwareNBT(itemStackMetabolicGenerator).setInteger("toRemove", toRemove);
+					
+					cyberwareUserData.addPower(getPowerProduction(itemStackMetabolicGenerator), itemStackMetabolicGenerator);
 				}
-				else
-				{
-					cyberwareUserData.addPower(getPowerProduction(itemStackMetabolicGenerator) / 10, itemStackMetabolicGenerator);
-				}
+			}
+			else
+			{
+				cyberwareUserData.addPower(getPowerProduction(itemStackMetabolicGenerator) / 10, itemStackMetabolicGenerator);
 			}
 		}
 		

@@ -15,10 +15,16 @@ public class OpenRadialMenuPacket implements IMessage
 	public OpenRadialMenuPacket() {}
 
 	@Override
-	public void toBytes(ByteBuf buf) {}
+	public void toBytes(ByteBuf buf)
+	{
+		// no operation
+	}
 	
 	@Override
-	public void fromBytes(ByteBuf buf) {}
+	public void fromBytes(ByteBuf buf)
+	{
+		// no operation
+	}
 	
 	public static class OpenRadialMenuPacketHandler implements IMessageHandler<OpenRadialMenuPacket, IMessage>
 	{

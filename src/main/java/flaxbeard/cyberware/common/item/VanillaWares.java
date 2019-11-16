@@ -178,10 +178,16 @@ public class VanillaWares
 		}
 
 		@Override
-		public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack) {}
+		public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
+		{
+			// no operation
+		}
 
 		@Override
-		public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack) {}
+		public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
+		{
+			// no operation
+		}
 
 		@Override
 		public int getEssenceCost(ItemStack stack)

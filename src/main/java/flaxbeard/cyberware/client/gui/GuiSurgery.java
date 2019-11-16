@@ -108,6 +108,7 @@ public class GuiSurgery extends GuiContainer
 		@Override
 		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks)
 		{
+			// no operation
 		}
 	}
 	

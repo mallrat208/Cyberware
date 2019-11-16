@@ -206,12 +206,10 @@ public class ItemSkinUpgrade extends ItemCyberware
 				
 				Random random = entityLivingBase.getRNG();
 				Entity attacker = event.getSource().getTrueSource();
-				if (EnchantmentThorns.shouldHit(3, random))
+				if ( EnchantmentThorns.shouldHit(3, random)
+				  && attacker != null )
 				{
-					if (attacker != null)
-					{
-						attacker.attackEntityFrom(DamageSource.causeThornsDamage(entityLivingBase), (float) EnchantmentThorns.getDamage(2, random));
-					}
+					attacker.attackEntityFrom(DamageSource.causeThornsDamage(entityLivingBase), (float) EnchantmentThorns.getDamage(2, random));
 				}
 			}
 		}

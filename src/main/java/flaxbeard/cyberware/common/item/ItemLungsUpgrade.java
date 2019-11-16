@@ -124,7 +124,9 @@ public class ItemLungsUpgrade extends ItemCyberware
 		ItemStack itemStackHyperoxygenationBoost = cyberwareUserData.getCyberware(getCachedStack(META_HYPEROXYGENATION_BOOST));
 		if (!itemStackHyperoxygenationBoost.isEmpty())
 		{
-			if ((entityLivingBase.isSprinting() || entityLivingBase instanceof EntityMob) && !entityLivingBase.isInWater() && entityLivingBase.onGround)
+			if ( (entityLivingBase.isSprinting() || entityLivingBase instanceof EntityMob)
+			  && !entityLivingBase.isInWater()
+			  && entityLivingBase.onGround )
 			{
 				boolean wasPowered = getIsOxygenPowered(entityLivingBase);
 				int ranks = itemStackHyperoxygenationBoost.getCount();

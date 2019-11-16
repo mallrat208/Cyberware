@@ -99,12 +99,10 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
                 addUnarmedDamage(entityLivingBase, itemStackClaws);
                 lastClaws.put(entityLivingBase.getUniqueID(), true);
 
-                if (!wasEquipped)
+                if ( !wasEquipped
+                  && FMLCommonHandler.instance().getSide() == Side.CLIENT)
                 {
-                    if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-                    {
-                        updateHand(entityLivingBase, true);
-                    }
+                    updateHand(entityLivingBase, true);
                 }
             }
             else if (wasEquipped)
@@ -123,12 +121,10 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     private void updateHand(EntityLivingBase entityLivingBase, boolean delay)
     {
         if ( Minecraft.getMinecraft() != null
-          && Minecraft.getMinecraft().player != null )
+          && Minecraft.getMinecraft().player != null
+          && entityLivingBase == Minecraft.getMinecraft().player )
         {
-            if (entityLivingBase == Minecraft.getMinecraft().player)
-            {
-                clawsTime = Minecraft.getMinecraft().getRenderPartialTicks() + entityLivingBase.ticksExisted + (delay ? 5 : 0);
-            }
+            clawsTime = Minecraft.getMinecraft().getRenderPartialTicks() + entityLivingBase.ticksExisted + (delay ? 5 : 0);
         }
     }
 

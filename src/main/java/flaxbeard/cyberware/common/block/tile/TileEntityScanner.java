@@ -133,8 +133,10 @@ public class TileEntityScanner extends TileEntity implements ITickable
 	public String customName = null;
 	public int ticks = 0;
 	public int ticksMove = 0;
-	public int lastX = 0, x = 0;
-	public int lastZ = 0, z = 0;
+	public int lastX = 0;
+	public int x = 0;
+	public int lastZ = 0;
+	public int z = 0;
 	
 	@Override
 	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing)

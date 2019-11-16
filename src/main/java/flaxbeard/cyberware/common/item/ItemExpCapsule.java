@@ -69,12 +69,10 @@ public class ItemExpCapsule extends Item
 
 		int xp = 0;
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("xp") )
 		{
-			if (tagCompound.hasKey("xp"))
-			{
-				xp = tagCompound.getInteger("xp");
-			}
+			xp = tagCompound.getInteger("xp");
 		}
 
 		if (!entityPlayer.capabilities.isCreativeMode)
@@ -93,12 +91,10 @@ public class ItemExpCapsule extends Item
 	{
 		int xp = 0;
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("xp") )
 		{
-			if (tagCompound.hasKey("xp"))
-			{
-				xp = tagCompound.getInteger("xp");
-			}
+			xp = tagCompound.getInteger("xp");
 		}
 		String before = I18n.format("cyberware.tooltip.exp_capsule.before");
 		if (before.length() > 0) before += " ";

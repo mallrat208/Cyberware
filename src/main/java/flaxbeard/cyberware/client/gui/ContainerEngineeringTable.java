@@ -626,6 +626,6 @@ public class ContainerEngineeringTable extends Container
 	
 	public void handleClosingBox()
 	{
-
+		// no operation
 	}
 }

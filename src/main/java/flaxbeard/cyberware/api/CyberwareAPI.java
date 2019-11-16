@@ -327,12 +327,10 @@ public final class CyberwareAPI
 	 */
 	public static NonNullList<ItemStack> getComponents(@Nonnull ItemStack stack)
 	{
-		if (!stack.isEmpty())
+		if ( !stack.isEmpty()
+		  && stack.getItem() instanceof IDeconstructable )
 		{
-			if (stack.getItem() instanceof IDeconstructable)
-			{
-				return NNLUtil.copyList(((IDeconstructable)stack.getItem()).getComponents(stack));
-			}
+			return NNLUtil.copyList(((IDeconstructable)stack.getItem()).getComponents(stack));
 		}
 		
 		throw new RuntimeException("Cannot call getComponents on a non-cyberware or non deconstructable item!");

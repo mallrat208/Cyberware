@@ -8,11 +8,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class CyberwareHudDataEvent extends Event
 {
 	private List<IHudElement> elements = new ArrayList<>();
-
-	public CyberwareHudDataEvent()
-	{
-		super();
-	}
 	
 	public List<IHudElement> getElements()
 	{

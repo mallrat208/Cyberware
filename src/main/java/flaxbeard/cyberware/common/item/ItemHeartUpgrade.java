@@ -112,12 +112,10 @@ public class ItemHeartUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
 		
 		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
-		if (entityLivingBase.ticksExisted % 20 == 0)
+		if ( entityLivingBase.ticksExisted % 20 == 0
+		  && !itemStackStemCellSynthesizer.isEmpty() )
 		{
-			if (!itemStackStemCellSynthesizer.isEmpty())
-			{
-				isStemWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackStemCellSynthesizer, getPowerConsumption(itemStackStemCellSynthesizer)));
-			}
+			isStemWorking.put(entityLivingBase.getUniqueID(), cyberwareUserData.usePower(itemStackStemCellSynthesizer, getPowerConsumption(itemStackStemCellSynthesizer)));
 		}
 		
 		ItemStack itemStackPlateletDispatcher = cyberwareUserData.getCyberware(getCachedStack(META_PLATELET_DISPATCHER));

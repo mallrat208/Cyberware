@@ -115,25 +115,23 @@ public class TileEntityCharger extends TileEntity implements ITickable, IEnergyR
 		for (EntityLivingBase entityInRange : entitiesInRange)
 		{
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityInRange);
-			if (cyberwareUserData != null)
+			if ( cyberwareUserData != null
+			  && !cyberwareUserData.isAtCapacity(ItemStack.EMPTY, 20)
+			  && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER) )
 			{
-				if ( !cyberwareUserData.isAtCapacity(ItemStack.EMPTY, 20)
-				  && (container.getStoredPower() >= CyberwareConfig.TESLA_PER_POWER) )
+				if (!world.isRemote)
 				{
-					if (!world.isRemote)
-					{
-						container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
-					}
-					cyberwareUserData.addPower(20, ItemStack.EMPTY);
-					
-					if (entityInRange.ticksExisted % 5 == 0)
-					{
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, 255, 150, 255 );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, 255, 150, 255 );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, 255, 150, 255 );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, 255, 150, 255 );
-						world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, 255, 150, 255 );
-					}
+					container.takePower(CyberwareConfig.TESLA_PER_POWER, false);
+				}
+				cyberwareUserData.addPower(20, ItemStack.EMPTY);
+				
+				if (entityInRange.ticksExisted % 5 == 0)
+				{
+					world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, 0F, .05F, 0F, 255, 150, 255 );
+					world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, .04F, 255, 150, 255 );
+					world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, .04F, 255, 150, 255 );
+					world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, .04F, .05F, -.04F, 255, 150, 255 );
+					world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, pos.getX() + .5F, pos.getY() + 1F, pos.getZ() + .5F, -.04F, .05F, -.04F, 255, 150, 255 );
 				}
 			}
 		}

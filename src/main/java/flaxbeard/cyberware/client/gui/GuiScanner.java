@@ -120,15 +120,13 @@ public class GuiScanner extends GuiContainer
 			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.paper")), mouseX - i, mouseY - j, fontRenderer);
 		}
 		
-		if (scanner.ticks > 0)
+		if ( scanner.ticks > 0
+		  && this.isPointInRegion(5, 32, 162, 9, mouseX, mouseY) )
 		{
-			if (this.isPointInRegion(5, 32, 162, 9, mouseX, mouseY))
-			{
-				int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
-				int seconds = (ticksLeft % 1200) / 20;
-				int minutes = (ticksLeft / 1200);
-				this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.time_left", minutes, seconds)), mouseX - i, mouseY - j, fontRenderer);
-			}
+			int ticksLeft = CyberwareConfig.SCANNER_TIME - scanner.ticks;
+			int seconds = (ticksLeft % 1200) / 20;
+			int minutes = (ticksLeft / 1200);
+			this.drawHoveringText(Arrays.asList(I18n.format("cyberware.gui.time_left", minutes, seconds)), mouseX - i, mouseY - j, fontRenderer);
 		}
 	}
 

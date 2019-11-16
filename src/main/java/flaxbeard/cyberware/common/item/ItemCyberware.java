@@ -324,10 +324,16 @@ public class ItemCyberware extends ItemCyberwareBase implements ICyberware, ICyb
 	}
 
 	@Override
-	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack) {}
+	public void onAdded(EntityLivingBase entityLivingBase, ItemStack stack)
+	{
+		// no operation
+	}
 
 	@Override
-	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack) {}
+	public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
+	{
+		// no operation
+	}
 
 	@Override
 	public boolean canDestroy(ItemStack stack)

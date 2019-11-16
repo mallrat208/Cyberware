@@ -138,6 +138,6 @@ public class BlockSurgeryTable extends BlockBed
 	@SubscribeEvent
 	public void handleSleep(PlayerSleepInBedEvent event)
 	{
-
+		// no operation
 	}
 }

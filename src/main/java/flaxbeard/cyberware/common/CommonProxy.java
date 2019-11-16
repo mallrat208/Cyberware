@@ -38,7 +38,10 @@ public class CommonProxy
 		CyberwareContent.postInit();
 	}
 
-	public void wrong(TileEntitySurgery tileEntitySurgery) {}
+	public void wrong(TileEntitySurgery tileEntitySurgery)
+	{
+		// client side only
+	}
 
 	public boolean workingOnPlayer(EntityLivingBase entityLivingBase)
 	{

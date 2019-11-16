@@ -95,31 +95,27 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 		Entity entity = event.getEntity();
 		if ( entity instanceof EntityPlayer
 		  && event.getSound() == SoundEvents.ENTITY_PLAYER_HURT
-		  && entity.world.isRemote )
+		  && entity.world.isRemote
+		  && didFall.contains(entity.getEntityId()) )
 		{
-			if (didFall.contains(entity.getEntityId()))
+			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entity);
+			if (cyberwareUserData == null) return;
+			
+			int numLegs = 0;
+			if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LEFT_CYBER_LEG)))
 			{
-				int numLegs = 0;
-				
-				ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entity);
-				if (cyberwareUserData == null) return;
-				
-				if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_LEFT_CYBER_LEG)))
-				{
-					numLegs++;
-				}
-				
-				if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)))
-				{
-					numLegs++;
-				}
-				
-				if (numLegs > 0)
-				{	
-					event.setSound(SoundEvents.ENTITY_IRONGOLEM_HURT);
-					event.setPitch(event.getPitch() + 1F);
-					didFall.remove(entity.getEntityId());
-				}
+				numLegs++;
+			}
+			if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_RIGHT_CYBER_LEG)))
+			{
+				numLegs++;
+			}
+			
+			if (numLegs > 0)
+			{	
+				event.setSound(SoundEvents.ENTITY_IRONGOLEM_HURT);
+				event.setPitch(event.getPitch() + 1F);
+				didFall.remove(entity.getEntityId());
 			}
 		}	
 	}

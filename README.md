@@ -2,13 +2,11 @@ Robotic Parts a port of Cyberware to Minecraft 1.12 [![Robotic Parts Curse stati
 
 Cyberware is a Minecraft mod for versions 1.9.4 through 1.10.2 that allows for augmentation of the human body.
 
-For Original Mod, see https://minecraft.curseforge.com/projects/cyberware [![Cyberware Curse statistics](http://cf.way2muchnoise.eu/cyberware.svg)](http://minecraft.curseforge.com/projects/cyberware)
+For Original Mod, see <https://minecraft.curseforge.com/projects/cyberware> [![Cyberware Curse statistics](http://cf.way2muchnoise.eu/cyberware.svg)](http://minecraft.curseforge.com/projects/cyberware)
 
-
-For more information and downloads, see the CurseForge page, or join the Cyberware Discord: https://discord.gg/mnSNSF9
+For more information and downloads, see the CurseForge page, or join the Cyberware Discord: <https://discord.gg/mnSNSF9>
 
 This fork is under the same MIT License as the original mod
-
 
 The MIT License (MIT)
 

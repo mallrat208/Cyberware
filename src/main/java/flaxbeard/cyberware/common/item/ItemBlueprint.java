@@ -50,33 +50,31 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
+			GameSettings settings = Minecraft.getMinecraft().gameSettings;
+			if (settings.isKeyDown(settings.keyBindSneak))
 			{
-				GameSettings settings = Minecraft.getMinecraft().gameSettings;
-				if (settings.isKeyDown(settings.keyBindSneak))
+				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 				{
-					ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-					if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
+					NonNullList<ItemStack> items = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
+					tooltip.add(I18n.format("cyberware.tooltip.blueprint", blueprintItem.getDisplayName()));
+					for (ItemStack item : items)
 					{
-						NonNullList<ItemStack> items = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
-						tooltip.add(I18n.format("cyberware.tooltip.blueprint", blueprintItem.getDisplayName()));
-						for (ItemStack item : items)
+						if (!item.isEmpty())
 						{
-							if (!item.isEmpty())
-							{
-								tooltip.add(item.getCount() + " x " + item.getDisplayName());
-							}
+							tooltip.add(item.getCount() + " x " + item.getDisplayName());
 						}
-						return;
 					}
-				}
-				else
-				{
-					tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shift_prompt"));
 					return;
 				}
+			}
+			else
+			{
+				tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.shift_prompt"));
+				return;
 			}
 		}
 		tooltip.add(ChatFormatting.DARK_GRAY + I18n.format("cyberware.tooltip.craft_blueprint"));
@@ -123,15 +121,13 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public String getItemStackDisplayName(ItemStack stack)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
+			ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+			if (!blueprintItem.isEmpty())
 			{
-				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-				if (!blueprintItem.isEmpty())
-				{
-					return I18n.format("item.cyberware.blueprint.not_blank.name", blueprintItem.getDisplayName()).trim();
-				}
+				return I18n.format("item.cyberware.blueprint.not_blank.name", blueprintItem.getDisplayName()).trim();
 			}
 		}
 		return ("" + I18n.format(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
@@ -141,33 +137,31 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public ItemStack getResult(ItemStack stack, NonNullList<ItemStack> craftingItems)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
+			ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+			if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 			{
-				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
-				{
-					NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
-					for (ItemStack requiredItem : requiredItems) {
-						ItemStack required = requiredItem.copy();
-						boolean satisfied = false;
-						for (ItemStack crafting : craftingItems) {
-							if (!crafting.isEmpty() && !required.isEmpty()) {
-								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
-									required.shrink(crafting.getCount());
-								}
-								if (required.getCount() <= 0) {
-									satisfied = true;
-									break;
-								}
+				NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
+				for (ItemStack requiredItem : requiredItems) {
+					ItemStack required = requiredItem.copy();
+					boolean satisfied = false;
+					for (ItemStack crafting : craftingItems) {
+						if (!crafting.isEmpty() && !required.isEmpty()) {
+							if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
+								required.shrink(crafting.getCount());
+							}
+							if (required.getCount() <= 0) {
+								satisfied = true;
+								break;
 							}
 						}
-						if (!satisfied) return ItemStack.EMPTY;
 					}
-					
-					return blueprintItem;
+					if (!satisfied) return ItemStack.EMPTY;
 				}
+				
+				return blueprintItem;
 			}
 		}
 		return ItemStack.EMPTY;
@@ -177,39 +171,37 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public NonNullList<ItemStack> consumeItems(ItemStack stack, NonNullList<ItemStack> craftingItems)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
+			ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+			if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 			{
-				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
-				{
-					NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
-					NonNullList<ItemStack> newCrafting = NonNullList.create();
-					newCrafting.addAll(craftingItems);
-					for (ItemStack requiredItem : requiredItems) {
-						ItemStack required = requiredItem.copy();
-						for (int c = 0; c < newCrafting.size(); c++) {
-							ItemStack crafting = newCrafting.get(c);
-							if (!crafting.isEmpty() && !required.isEmpty()) {
-								if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
-									int toSubtract = Math.min(required.getCount(), crafting.getCount());
-									required.shrink(toSubtract);
-									crafting.shrink(toSubtract);
-									if (crafting.getCount() <= 0) {
-										crafting = ItemStack.EMPTY;
-									}
-									newCrafting.set(c, crafting);
+				NonNullList<ItemStack> requiredItems = NNLUtil.copyList(CyberwareAPI.getComponents(blueprintItem));
+				NonNullList<ItemStack> newCrafting = NonNullList.create();
+				newCrafting.addAll(craftingItems);
+				for (ItemStack requiredItem : requiredItems) {
+					ItemStack required = requiredItem.copy();
+					for (int c = 0; c < newCrafting.size(); c++) {
+						ItemStack crafting = newCrafting.get(c);
+						if (!crafting.isEmpty() && !required.isEmpty()) {
+							if (crafting.getItem() == required.getItem() && crafting.getItemDamage() == required.getItemDamage() && (!required.hasTagCompound() || (ItemStack.areItemStackTagsEqual(required, crafting)))) {
+								int toSubtract = Math.min(required.getCount(), crafting.getCount());
+								required.shrink(toSubtract);
+								crafting.shrink(toSubtract);
+								if (crafting.getCount() <= 0) {
+									crafting = ItemStack.EMPTY;
 								}
-								if (required.getCount() <= 0) {
-									break;
-								}
+								newCrafting.set(c, crafting);
+							}
+							if (required.getCount() <= 0) {
+								break;
 							}
 						}
 					}
-					
-					return newCrafting;
 				}
+				
+				return newCrafting;
 			}
 		}
 		throw new IllegalStateException("Consuming items when items shouldn't be consumed!");
@@ -219,18 +211,16 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public NonNullList<ItemStack> getRequirementsForDisplay(ItemStack stack)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if ( tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
+			ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
+			if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
 			{
-				ItemStack blueprintItem = new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-				if (!blueprintItem.isEmpty() && CyberwareAPI.canDeconstruct(blueprintItem))
-				{
-					return CyberwareAPI.getComponents(blueprintItem);
-				}
+				return CyberwareAPI.getComponents(blueprintItem);
 			}
 		}
-
+		
 		return NonNullList.create();
 	}
 
@@ -238,14 +228,12 @@ public class ItemBlueprint extends Item implements IBlueprint
 	public ItemStack getIconForDisplay(ItemStack stack)
 	{
 		NBTTagCompound tagCompound = stack.getTagCompound();
-		if (tagCompound != null)
+		if (  tagCompound != null
+		  && tagCompound.hasKey("blueprintItem") )
 		{
-			if (tagCompound.hasKey("blueprintItem"))
-			{
-				return new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
-			}
+			return new ItemStack(tagCompound.getCompoundTag("blueprintItem"));
 		}
-
+		
 		return ItemStack.EMPTY;
 	}
 }

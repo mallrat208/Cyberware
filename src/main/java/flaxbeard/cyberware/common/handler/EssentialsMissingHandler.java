@@ -422,12 +422,11 @@ public class EssentialsMissingHandler
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData != null)
 		{
-			if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
+			if ( !cyberwareUserData.hasEssential(EnumSlot.SKIN)
+			  && ( !event.getSource().isUnblockable()
+			    || event.getSource() == DamageSource.FALL ) )
 			{
-				if (!event.getSource().isUnblockable() || event.getSource() == DamageSource.FALL)
-				{
-					event.setAmount(event.getAmount() * 3F);
-				}
+				event.setAmount(event.getAmount() * 3F);
 			}
 		}
 	}

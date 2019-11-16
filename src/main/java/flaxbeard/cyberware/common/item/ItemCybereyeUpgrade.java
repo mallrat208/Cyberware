@@ -173,13 +173,11 @@ public class ItemCybereyeUpgrade extends ItemCyberware implements IMenuItem, IHu
 		if (cyberwareUserData == null) return;
 		ItemStack itemStackUnderwaterVision = cyberwareUserData.getCyberware(getCachedStack(META_UNDERWATER_VISION));
 		
-		if (!itemStackUnderwaterVision.isEmpty())
+		if ( !itemStackUnderwaterVision.isEmpty()
+		  && ( event.getBlockForOverlay().getMaterial() == Material.WATER
+		    || event.getBlockForOverlay().getMaterial() == Material.LAVA ) )
 		{
-			if ( event.getBlockForOverlay().getMaterial() == Material.WATER
-			  || event.getBlockForOverlay().getMaterial() == Material.LAVA )
-			{
-				event.setCanceled(true);
-			}
+			event.setCanceled(true);
 		}
 	}
 	

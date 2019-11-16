@@ -102,40 +102,31 @@ public class BlockBeaconPost extends BlockContainer
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+	public void onBlockPlacedBy(World world, BlockPos blockPos, IBlockState blockState, EntityLivingBase placer, ItemStack itemStack)
 	{
-		BlockPos complete = complete(worldIn, pos);
+		super.onBlockPlacedBy(world, blockPos, blockState, placer, itemStack);
 		
-		if (complete != null)
-		{
-			
-		}
-	}
-
-	private BlockPos complete(World world, BlockPos pos)
-	{
 		for (int y = -9; y <= 0; y++)
 		{
 			for (int x = -1; x <= 1; x++)
 			{
 				for (int z = -1; z <= 1; z++)
 				{
-					BlockPos start = pos.add(x, y, z);
+					BlockPos start = blockPos.add(x, y, z);
 					
-					BlockPos result = complete(world, pos, start);
-					if (result != null)
+					boolean isCompleted = complete(world, start);
+					if (isCompleted)
 					{
-						return result;
+						return;
 					}
 				}
 			}
 		}
-		
-		return null;
 	}
 	
-	private BlockPos complete(World world, BlockPos pos, BlockPos start)
+	private boolean complete(World world, BlockPos start)
 	{
+		// validate the structure
 		for (int y = 0; y <= 9; y++)
 		{
 			for (int x = -1; x <= 1; x++)
@@ -153,11 +144,13 @@ public class BlockBeaconPost extends BlockContainer
 					Block block = state.getBlock();
 					if (block != this || state.getValue(TRANSFORMED) != 0)
 					{
-						return null;
+						return false;
 					}
 				}
 			}
 		}
+		
+		// update the block states
 		for (int y = 0; y <= 9; y++)
 		{
 			for (int x = -1; x <= 1; x++)
@@ -171,7 +164,6 @@ public class BlockBeaconPost extends BlockContainer
 					
 					BlockPos newPos = start.add(x, y, z);
 					
-	
 					if (newPos.equals(start))
 					{
 						world.setBlockState(newPos, world.getBlockState(newPos).withProperty(TRANSFORMED, 2), 2);
@@ -186,7 +178,7 @@ public class BlockBeaconPost extends BlockContainer
 				}
 			}
 		}
-		return start;
+		return true;
 	}
 	
 	@Override

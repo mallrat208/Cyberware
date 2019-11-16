@@ -255,13 +255,12 @@ public class GuiEngineeringTable extends GuiContainer
 					{
 						for (int indexSlot = 2; indexSlot < 8; indexSlot++) {
 							ItemStack crafting = tileEntityEngineeringTable.slots.getStackInSlot(indexSlot);
-							if (!crafting.isEmpty()) {
-								if ( crafting.getItem() == requiredItem.getItem()
-								  && crafting.getItemDamage() == requiredItem.getItemDamage()
-								  && ( !requiredItem.hasTagCompound()
-								    || ItemStack.areItemStackTagsEqual(requiredItem, crafting) ) ) {
-									requiredItem.setCount(Math.max(0, requiredItem.getCount() - crafting.getCount()));
-								}
+							if (!crafting.isEmpty()
+							  && crafting.getItem() == requiredItem.getItem()
+							  && crafting.getItemDamage() == requiredItem.getItemDamage()
+							  && ( !requiredItem.hasTagCompound()
+							    || ItemStack.areItemStackTagsEqual(requiredItem, crafting) ) ) {
+								requiredItem.setCount(Math.max(0, requiredItem.getCount() - crafting.getCount()));
 							}
 						}
 					}
