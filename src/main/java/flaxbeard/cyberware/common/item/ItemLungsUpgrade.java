@@ -1,7 +1,9 @@
 package flaxbeard.cyberware.common.item;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.block.material.Material;
@@ -97,7 +99,7 @@ public class ItemLungsUpgrade extends ItemCyberware
 		}
 	}
 	
-	private Map<UUID, Boolean> mapIsOxygenPowered = new HashMap<>();
+	private Set<UUID> setIsOxygenPowered = new HashSet<>();
 	
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
@@ -128,28 +130,31 @@ public class ItemLungsUpgrade extends ItemCyberware
 			  && !entityLivingBase.isInWater()
 			  && entityLivingBase.onGround )
 			{
-				boolean wasPowered = getIsOxygenPowered(entityLivingBase);
-				int ranks = itemStackHyperoxygenationBoost.getCount();
+				boolean wasPowered = setIsOxygenPowered.contains(entityLivingBase.getUniqueID());
 				boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
 				                  ? cyberwareUserData.usePower(itemStackHyperoxygenationBoost, getPowerConsumption(itemStackHyperoxygenationBoost))
 				                  : wasPowered;
 				if (isPowered)
 				{
-					entityLivingBase.moveRelative(0F, 0.0F, .2F * ranks, 0.075F);
+					if ( Math.abs(entityLivingBase.moveStrafing) + Math.abs(entityLivingBase.moveForward) > 0.0F
+					  && Math.abs(entityLivingBase.motionX) + Math.abs(entityLivingBase.motionZ) > 0.0F )
+					{
+						// increase maximum horizontal motion
+						float boost = 0.21F * itemStackHyperoxygenationBoost.getCount();
+						entityLivingBase.moveRelative(entityLivingBase.moveStrafing * boost, 0.0F, entityLivingBase.moveForward * boost, 0.075F);
+					}
+					
+					if (!wasPowered)
+					{
+						setIsOxygenPowered.add(entityLivingBase.getUniqueID());
+					}
 				}
-				
-				mapIsOxygenPowered.put(entityLivingBase.getUniqueID(), isPowered);
+				else if (entityLivingBase.ticksExisted % 20 == 0)
+				{
+					setIsOxygenPowered.remove(entityLivingBase.getUniqueID());
+				}
 			}
 		}
-	}
-	
-	private boolean getIsOxygenPowered(EntityLivingBase entityLivingBase)
-	{
-		if (!mapIsOxygenPowered.containsKey(entityLivingBase.getUniqueID()))
-		{
-			mapIsOxygenPowered.put(entityLivingBase.getUniqueID(), Boolean.TRUE);
-		}
-		return mapIsOxygenPowered.get(entityLivingBase.getUniqueID());
 	}
 	
 	@Override

@@ -1,7 +1,9 @@
 package flaxbeard.cyberware.common.item;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.entity.Entity;
@@ -71,7 +73,7 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
         }
     }
 
-    private Map<UUID, Boolean> mapIsAquaPowered = new HashMap<>();
+    private Set<UUID> setIsAquaPowered = new HashSet<>();
     private Map<UUID, Integer> mapCountdownWheelsPowered = new HashMap<>();
     private Map<UUID, Float> mapStepHeight = new HashMap<>();
 
@@ -87,34 +89,43 @@ public class ItemFootUpgrade extends ItemCyberware implements IMenuItem
             ItemStack itemStackAqua = cyberwareUserData.getCyberware(getCachedStack(META_AQUA));
             if (!itemStackAqua.isEmpty())
             {
-                int numLegs = 0;
-                if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
-                {
-                    numLegs++;
-                }
-                if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
-                {
-                    numLegs++;
-                }
-                boolean wasPowered = mapIsAquaPowered.computeIfAbsent(entityLivingBase.getUniqueID(), k -> Boolean.TRUE);
-                
+                boolean wasPowered = setIsAquaPowered.contains(entityLivingBase.getUniqueID());
                 boolean isPowered = entityLivingBase.ticksExisted % 20 == 0
                                   ? cyberwareUserData.usePower(itemStackAqua, getPowerConsumption(itemStackAqua))
                                   : wasPowered;
                 if (isPowered)
                 {
-                    if (entityLivingBase.moveForward > 0)
+                    if ( Math.abs(entityLivingBase.moveStrafing) + Math.abs(entityLivingBase.moveForward) > 0.0F
+                      && Math.abs(entityLivingBase.motionX) + Math.abs(entityLivingBase.motionZ) > 0.0F )
                     {
-                        entityLivingBase.moveRelative(0F, 0F, numLegs * 0.4F, 0.075F);
+                        int numLegs = 0;
+                        if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG)))
+                        {
+                            numLegs++;
+                        }
+                        if (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)))
+                        {
+                            numLegs++;
+                        }
+                        
+                        // increase maximum horizontal motion
+                        float boost = numLegs * 0.4F;
+                        entityLivingBase.moveRelative(entityLivingBase.moveStrafing * boost, 0.26F, entityLivingBase.moveForward * boost, 0.075F);
+                    }
+                    if (!wasPowered)
+                    {
+                        setIsAquaPowered.add(entityLivingBase.getUniqueID());
                     }
                 }
-                
-                mapIsAquaPowered.put(entityLivingBase.getUniqueID(), isPowered);
+                else if (entityLivingBase.ticksExisted % 20 == 0)
+                {
+                    setIsAquaPowered.remove(entityLivingBase.getUniqueID());
+                }
             }
         }
         else if (entityLivingBase.ticksExisted % 20 == 0)
         {
-            mapIsAquaPowered.remove(entityLivingBase.getUniqueID());
+            setIsAquaPowered.remove(entityLivingBase.getUniqueID());
         }
 
         ItemStack itemStackWheels = cyberwareUserData.getCyberware(getCachedStack(META_WHEELS));

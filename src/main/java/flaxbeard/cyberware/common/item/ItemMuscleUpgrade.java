@@ -195,9 +195,12 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			{
 				if ( !entityLivingBase.isInWater()
 				  && entityLivingBase.onGround
-				  && entityLivingBase.moveForward > 0 )
+				  && Math.abs(entityLivingBase.moveStrafing) + Math.abs(entityLivingBase.moveForward) > 0.0F
+				  && Math.abs(entityLivingBase.motionX) + Math.abs(entityLivingBase.motionZ) > 0.0F )
 				{
-					entityLivingBase.moveRelative(0F, 0.0F,.5F, 0.075F);
+					// increase maximum horizontal motion by 70% (0.118 -> 0.200)
+					float boost = 0.51F;
+					entityLivingBase.moveRelative(entityLivingBase.moveStrafing * boost, 0.0F, entityLivingBase.moveForward * boost, 0.075F);
 				}
 
 				if (!wasPowered)
