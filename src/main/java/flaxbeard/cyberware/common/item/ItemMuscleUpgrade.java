@@ -175,7 +175,6 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 		}
 	}
 	
-	private Set<UUID> setIsSpeedPowered = new HashSet<>();
 	private Set<UUID> setIsStrengthPowered = new HashSet<>();
 
 	@SubscribeEvent(priority=EventPriority.NORMAL)
@@ -203,13 +202,16 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 					entityLivingBase.moveRelative(entityLivingBase.moveStrafing * boost, 0.0F, entityLivingBase.moveForward * boost, 0.075F);
 				}
 
-				if (!wasPowered)
+				if (entityLivingBase.ticksExisted % 20 == 0)
 				{
 					onAdded(entityLivingBase, itemStackMuscleReplacement);
+				}
+				if (!wasPowered)
+				{
 					setIsStrengthPowered.add(entityLivingBase.getUniqueID());
 				}
 			}
-			else if (wasPowered)
+			else if (entityLivingBase.ticksExisted % 20 == 0)
 			{
 				onRemoved(entityLivingBase, itemStackMuscleReplacement);
 				setIsStrengthPowered.remove(entityLivingBase.getUniqueID());
@@ -227,25 +229,19 @@ public class ItemMuscleUpgrade extends ItemCyberware implements IMenuItem
 			if ( !itemStackWiredReflexes.isEmpty()
 			  && EnableDisableHelper.isEnabled(itemStackWiredReflexes) )
 			{
-				boolean wasPowered = setIsSpeedPowered.contains(entityLivingBase.getUniqueID());
 				boolean isPowered = cyberwareUserData.usePower(itemStackWiredReflexes, getPowerConsumption(itemStackWiredReflexes));
-				if ( !wasPowered
-				  && isPowered )
+				if (isPowered)
 				{
 					onAdded(entityLivingBase, itemStackWiredReflexes);
-					setIsSpeedPowered.add(entityLivingBase.getUniqueID());
 				}
-				else if ( wasPowered
-				       && !isPowered )
+				else
 				{
 					onRemoved(entityLivingBase, itemStackWiredReflexes);
-					setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
 				}
 			}
 			else
 			{
 				onRemoved(entityLivingBase, itemStackWiredReflexes);
-				setIsSpeedPowered.remove(entityLivingBase.getUniqueID());
 			}
 		}
 	}
