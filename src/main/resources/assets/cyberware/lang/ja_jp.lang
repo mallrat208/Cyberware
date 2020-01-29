@@ -62,7 +62,7 @@ item.cyberware.heart_upgrades.coupler.name=心血管系カプラー
 item.cyberware.lungs_upgrades.oxygen.name=圧縮酸素インプラント
 item.cyberware.lungs_upgrades.hyperoxygenation.name=過酸素化ブースト
 item.cyberware.lower_organs_upgrades.liver_filter.name=肝臓フィルター
-item.cyberware.lower_organs_upgrades.metabolic.name=新陳代謝発電機
+item.cyberware.lower_organs_upgrades.metabolic.name=メタボリック発電機
 item.cyberware.lower_organs_upgrades.battery.name=内臓バッテリー
 item.cyberware.lower_organs_upgrades.adrenaline.name=アドレナリンポンプ
 item.cyberware.dense_battery.name=超濃縮蓄電器
@@ -100,7 +100,7 @@ item.cyberware.component.plating.name=クロムメッキ
 item.cyberware.component.fiberoptics.name=光ファイバー
 item.cyberware.component.fullerene.name=フラーレン微細構造体
 item.cyberware.component.synthnerves.name=合成神経
-item.cyberware.component.storage.name=容量セル
+item.cyberware.component.storage.name=ストレージセル
 item.cyberware.component.microelectric.name=微小電気セル
 
 item.cyberware.shades.name=ミラーサングラス
@@ -387,8 +387,8 @@ cyberware.gui.scanner_saying.45=排出率の表示を偽装します
 cyberware.gui.scanner_saying.46=捕らぬ狸の皮を数えています
 cyberware.gui.scanner_saying.47=あなたは赤い部屋好きですか？
 cyberware.gui.scanner_saying.48=問題をイジングモデルに変換
-cyberware.gui.scanner_saying.49=追証が発生しました
-cyberware.gui.scanner_saying.50=Bitcoinをマイニング中
+cyberware.gui.scanner_saying.49=コギトエルゴスム
+cyberware.gui.scanner_saying.50=ビットコインをマイニング中
 cyberware.gui.scanner_saying.51=AlphaGoと対局中
 cyberware.gui.scanner_saying.52=トポロジー最適化を行います
 cyberware.gui.scanner_saying.53=ジェネレーティブデザインを出力
@@ -409,9 +409,9 @@ cyberware.gui.scanner_saying.67=Herobrineの顔をスティーブに偽装
 cyberware.gui.scanner_saying.68=Akinatorが私を知っているか検証
 cyberware.gui.scanner_saying.69=AIがチーターを検知しました
 cyberware.gui.scanner_saying.70=平行世界を使い並列処理しています
-cyberware.gui.scanner_saying.71=siriにOKグーグルと話しかけいます
-cyberware.gui.scanner_saying.72=ブースト広告を打っています
-cyberware.gui.scanner_saying.73=OD-10／コギトエルゴスム
+cyberware.gui.scanner_saying.71=トランザクションのガス代が不足
+cyberware.gui.scanner_saying.72=51%攻撃を受けています
+cyberware.gui.scanner_saying.73=100ビットコインをGOXしました
 
 
 # MISC
