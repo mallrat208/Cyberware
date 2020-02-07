@@ -13,10 +13,12 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -348,7 +350,12 @@ public class EssentialsMissingHandler
 				Float saturation = mapSaturation.get(entityPlayer.getEntityId());
 				if (saturation != null)
 				{
-					entityPlayer.getFoodStats().setFoodSaturationLevel(saturation);
+					// note: setFoodSaturationLevel() is client side only
+					FoodStats foodStats = entityPlayer.getFoodStats();
+					NBTTagCompound tagCompound = new NBTTagCompound();
+					foodStats.writeNBT(tagCompound);
+					tagCompound.setFloat("foodSaturationLevel", saturation);
+					foodStats.readNBT(tagCompound);
 				}
 			}
 		}
