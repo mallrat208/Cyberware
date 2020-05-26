@@ -21,6 +21,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 
+import flaxbeard.cyberware.Cyberware;
 import flaxbeard.cyberware.api.CyberwareAPI;
 import flaxbeard.cyberware.api.CyberwareUserDataImpl;
 import flaxbeard.cyberware.api.item.ICyberware.EnumSlot;
@@ -200,6 +201,14 @@ public class EntityCyberZombie extends EntityZombie
 				}
 				
 				allWares.removeAll(Collections.singleton(ItemStack.EMPTY));
+				
+				// Sanity check for corrupted NBT
+				if (allWares.size() == 0)
+				{
+					Cyberware.logger.error(String.format("Invalid cyberzombie with hasRandomWare %s with actually no implants: %s",
+					                                     hasRandomWare, this ));
+					return;
+				}
 				
 				ItemStack drop = ItemStack.EMPTY;
 				int count = 0;
