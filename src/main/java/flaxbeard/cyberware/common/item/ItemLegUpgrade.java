@@ -98,7 +98,7 @@ public class ItemLegUpgrade extends ItemCyberware
 			event.setCanceled(true);
 		}
 	}
-
+	
 	@Override
 	public int getPowerConsumption(ItemStack stack)
 	{

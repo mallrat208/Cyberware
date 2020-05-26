@@ -11,12 +11,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class EnderIOIntegration
 {
     public static final String MOD_ID = "enderio";
-
+    
     public static void preInit()
     {
         MinecraftForge.EVENT_BUS.register(new EnderIOIntegration());
     }
-
+    
     @Optional.Method(modid=MOD_ID)
     @SubscribeEvent(priority= EventPriority.HIGHEST)
     public void onTeleportEntity(crazypants.enderio.api.teleport.TeleportEntityEvent event)

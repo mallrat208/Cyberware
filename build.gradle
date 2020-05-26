@@ -181,27 +181,8 @@ dependencies {
     // at runtime, use the full JEI jar
     //runtime "mezz.jei:jei_${mc_version}:${jei_version}"
 
-    // CraftTweaker
-    //compile "CraftTweaker2:CraftTweaker2-MC1120-Main:${craftweaker_version}"
-
     // Baubles
     provided "com.github.azanor:baubles:-SNAPSHOT"
-
-    // APPLECORE
-    // https://github.com/squeek502/AppleCore/wiki
-    //deobfCompile "applecore:AppleCore:${mc_version}-${apple_version}:deobf"
-    //deobfCompile "applecore:AppleCore:${mc_version}-${apple_version}:api"
-
-    // WAILA/HWYLA
-    //compile "mcp.mobius.waila:Waila:${config.waila_version}_${config.mc_version}:dev"
-    //compile "mcp.mobius.waila:Hwyla:+"
-
-    // IC2
-    // http://maven.ic2.player.to/net/industrial-craft/industrialcraft-2/2.7.9-ex111/industrialcraft-2-2.7.9-ex111-api.jar
-    //deobfCompile "net.industrial-craft:industrialcraft-2:${ic2_version}-ex112:api"
-
-    // BiomesOPlenty
-    //compile "com.github.glitchfiend.biomesoplenty:BiomesOPlenty:${mc_version}-${bop_version}:api"
 
     // Matter Overdrive 
     provided "matteroverdrive:MatterOverdrive-1.12.2:${matteroverdrive_version}:universal"

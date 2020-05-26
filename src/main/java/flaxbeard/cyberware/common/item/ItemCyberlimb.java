@@ -121,7 +121,7 @@ public class ItemCyberlimb extends ItemCyberware implements ISidedLimb
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public void power(CyberwareUpdateEvent event)
+	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase.ticksExisted % 20 != 0) return;

@@ -36,6 +36,12 @@ public class ItemHeartUpgrade extends ItemCyberware
 	public static final int META_STEM_CELL_SYNTHESIZER   = 2;
 	public static final int META_CARDIOVASCULAR_COUPLER  = 3;
 	
+	private static final Map<UUID, Integer> timesPlatelets = new HashMap<>();
+	private static final Map<UUID, Boolean> isPlateletWorking = new HashMap<>();
+	private static final Map<UUID, Boolean> isStemWorking = new HashMap<>();
+	private static final Map<UUID, Integer> timesMedkit = new HashMap<>();
+	private static final Map<UUID, Float> damageMedkit = new HashMap<>();
+	
 	public ItemHeartUpgrade(String name, EnumSlot slot, String[] subnames)
 	{
 		super(name, slot, subnames);
@@ -103,13 +109,19 @@ public class ItemHeartUpgrade extends ItemCyberware
 		}
 	}
 	
-	private static Map<UUID, Integer> timesPlatelets = new HashMap<>();
-
 	@SubscribeEvent
 	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
+		
+		if (entityLivingBase.ticksExisted % 20 == 0) {
+			ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(getCachedStack(META_CARDIOVASCULAR_COUPLER));
+			if (!itemStackCardiovascularCoupler.isEmpty())
+			{
+				cyberwareUserData.addPower(getPowerProduction(itemStackCardiovascularCoupler), itemStackCardiovascularCoupler);
+			}
+		}
 		
 		ItemStack itemStackStemCellSynthesizer = cyberwareUserData.getCyberware(getCachedStack(META_STEM_CELL_SYNTHESIZER));
 		if ( entityLivingBase.ticksExisted % 20 == 0
@@ -177,8 +189,6 @@ public class ItemHeartUpgrade extends ItemCyberware
 		*/
 	}
 	
-	private static Map<UUID, Boolean> isPlateletWorking = new HashMap<>();
-	
 	private boolean isPlateletWorking(EntityLivingBase entityLivingBase)
 	{
 		if (!isPlateletWorking.containsKey(entityLivingBase.getUniqueID()))
@@ -190,8 +200,6 @@ public class ItemHeartUpgrade extends ItemCyberware
 		return isPlateletWorking.get(entityLivingBase.getUniqueID());
 	}
 	
-	private static Map<UUID, Boolean> isStemWorking = new HashMap<>();
-	
 	private boolean isStemWorking(EntityLivingBase entityLivingBase)
 	{
 		if (!isStemWorking.containsKey(entityLivingBase.getUniqueID()))
@@ -202,10 +210,6 @@ public class ItemHeartUpgrade extends ItemCyberware
 		
 		return isStemWorking.get(entityLivingBase.getUniqueID());
 	}
-	
-	
-	private static Map<UUID, Integer> timesMedkit = new HashMap<>();
-	private static Map<UUID, Float> damageMedkit = new HashMap<>();
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void handleHurt(LivingHurtEvent event)
@@ -303,21 +307,6 @@ public class ItemHeartUpgrade extends ItemCyberware
 			return entityLivingBase.ticksExisted - timesMedkit.get(entityLivingBase.getUniqueID());
 		}
 		return 0;
-	}
-	
-	@SubscribeEvent
-	public void power(CyberwareUpdateEvent event)
-	{
-		EntityLivingBase entityLivingBase = event.getEntityLiving();
-		if (entityLivingBase.ticksExisted % 20 != 0) return;
-		
-		ICyberwareUserData cyberwareUserData = event.getCyberwareUserData();
-		
-		ItemStack itemStackCardiovascularCoupler = cyberwareUserData.getCyberware(getCachedStack(META_CARDIOVASCULAR_COUPLER));
-		if (!itemStackCardiovascularCoupler.isEmpty())
-		{
-			cyberwareUserData.addPower(getPowerProduction(itemStackCardiovascularCoupler), itemStackCardiovascularCoupler);
-		}
 	}
 	
 	@Override

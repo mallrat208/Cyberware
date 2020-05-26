@@ -201,7 +201,7 @@ public class CyberwareDataHandler
 		{
 			final ResourceLocation resourceLocation = EntityList.getKey(entityLiving);
 			if ( resourceLocation == null
-			     || !resourceLocation.getPath().contains("ombie") )
+			  || !resourceLocation.getPath().contains("ombie") )
 			{
 				return;
 			}

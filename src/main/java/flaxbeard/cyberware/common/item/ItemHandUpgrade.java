@@ -45,10 +45,13 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
     
     private static final UUID uuidClawsStrengthAttribute = UUID.fromString("63c32801-94fb-40d4-8bd2-89135c1e44b1");
     private static final HashMultimap<String, AttributeModifier> multimapClawsStrengthAttribute;
+    private static final Map<UUID, Boolean> lastClaws = new HashMap<>();
+    public static float clawsTime;
     
     static {
         multimapClawsStrengthAttribute = HashMultimap.create();
-        multimapClawsStrengthAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(uuidClawsStrengthAttribute, "Claws damage upgrade", 5.5F, 0));
+        multimapClawsStrengthAttribute.put(SharedMonsterAttributes.ATTACK_SPEED.getName(),
+                                           new AttributeModifier(uuidClawsStrengthAttribute, "Claws damage upgrade", 5.5F, 0) );
     }
     
     public ItemHandUpgrade(String name, EnumSlot slot, String[] subnames)
@@ -76,9 +79,6 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         return other.getItem() == this;
     }
 
-    private Map<UUID, Boolean> lastClaws = new HashMap<>();
-    public static float clawsTime;
-
     @SubscribeEvent(priority=EventPriority.NORMAL)
     public void handleLivingUpdate(CyberwareUpdateEvent event)
     {
@@ -92,15 +92,15 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
             boolean isEquipped = entityLivingBase.getHeldItemMainhand().isEmpty()
                  && ( entityLivingBase.getPrimaryHand() == EnumHandSide.RIGHT
                     ? (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_ARM)))
-                    : (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))) );
-            if ( isEquipped
-              && EnableDisableHelper.isEnabled(itemStackClaws) )
+                    : (cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_ARM))) )
+                 && EnableDisableHelper.isEnabled(itemStackClaws);
+            if (isEquipped)
             {
                 addUnarmedDamage(entityLivingBase, itemStackClaws);
-                lastClaws.put(entityLivingBase.getUniqueID(), true);
-
+                lastClaws.put(entityLivingBase.getUniqueID(), Boolean.TRUE);
+                
                 if ( !wasEquipped
-                  && FMLCommonHandler.instance().getSide() == Side.CLIENT)
+                  && entityLivingBase.getEntityWorld().isRemote )
                 {
                     updateHand(entityLivingBase, true);
                 }
@@ -108,13 +108,13 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
             else if (wasEquipped)
             {
                 removeUnarmedDamage(entityLivingBase, itemStackClaws);
-                lastClaws.put(entityLivingBase.getUniqueID(), false);
+                lastClaws.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
             }
         }
         else if (entityLivingBase.ticksExisted % 20 == 0)
         {
             removeUnarmedDamage(entityLivingBase, itemStackClaws);
-            lastClaws.put(entityLivingBase.getUniqueID(), false);
+            lastClaws.put(entityLivingBase.getUniqueID(), Boolean.FALSE);
         }
     }
 
@@ -137,22 +137,22 @@ public class ItemHandUpgrade extends ItemCyberware implements IMenuItem
         return lastClaws.get(entityLivingBase.getUniqueID());
     }
     
-    public void addUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
+    private void addUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
     {
         if (stack.getItemDamage() == META_CLAWS)
         {
             entityLivingBase.getAttributeMap().applyAttributeModifiers(multimapClawsStrengthAttribute);
         }
     }
-
-    public void removeUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
+    
+    private void removeUnarmedDamage(EntityLivingBase entityLivingBase, ItemStack stack)
     {
         if (stack.getItemDamage() == META_CLAWS)
         {
             entityLivingBase.getAttributeMap().removeAttributeModifiers(multimapClawsStrengthAttribute);
         }
     }
-
+    
     @Override
     public void onRemoved(EntityLivingBase entityLivingBase, ItemStack stack)
     {

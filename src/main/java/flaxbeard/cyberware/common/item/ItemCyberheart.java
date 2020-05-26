@@ -34,7 +34,7 @@ public class ItemCyberheart extends ItemCyberware
 	}
 	
 	@SubscribeEvent(priority=EventPriority.HIGHEST)
-	public void power(CyberwareUpdateEvent event)
+	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase.ticksExisted % 20 != 0) return;

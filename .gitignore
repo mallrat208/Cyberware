@@ -1,55 +1,11 @@
 # ---> Forge and Friends
-README.txt
-MinecraftForge-*
-Paulscode*
-forge-*-changelog.txt
-*-fml.txt
-*-new.txt
 .gradle
 build/
 run/
-out/
+output/
 tmp/
-crash-reports
-saves/
-logs
-usercache.json
-options.txt
 *.jks
 *.cer
-
-# ---> Java/Scala
-*.class
-*.jar
-*.war
-*.ear
-*.hprof
-*.zip
-*.tar*
-.mtj.tmp/
-.scala_dependencies
-.worksheet
-
-# ---> Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-
-# ---> Temp Files, Logs, Backups
-*~
-*.log
-*.tmp
-*.bak
-.Temp*
-.Trash*
-.cache
-.history
 
 # ---> OSX
 .DS_Store
@@ -60,13 +16,6 @@ Icon
 
 # ---> Windows
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msm
-*.msp
 *.lnk
 
 # ---> JetBrains
@@ -94,35 +43,5 @@ local.properties
 .buildpath
 .target
 .texlipse
-
-# ---> Vim
-[._]*.s[a-w][a-z]
-[._]s[a-w][a-z]
-*.un~
-Session.vim
-.netrwhist
-
-# ---> Emacs
-# -*- mode: gitignore; -*-
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-.org-id-locations
-*_archive
-*_flymake.*
-/eshell/history
-/eshell/lastdir
-/elpa/
-*.rel
-/auto/
-.cask/
-
-# ---> Just Checking
-!.gitignore
-!gradle-wrapper.jar
 
 ## end ##

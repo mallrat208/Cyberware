@@ -35,9 +35,10 @@ public class ItemArmUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void useBow(LivingEntityUseItemEvent.Tick event)
 	{
-		ItemStack item = event.getItem();
-		if ( !item.isEmpty()
-		  && item.getItem() instanceof ItemBow )
+		ItemStack itemStack = event.getItem();
+		// note: we can't use itemStack.getItemUseAction() == EnumAction.BOW because it's use for many other things unrelated to bows
+		if ( !itemStack.isEmpty()
+		  && itemStack.getItem() instanceof ItemBow )
 		{
 			EntityLivingBase entityLivingBase = event.getEntityLiving();
 			ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);

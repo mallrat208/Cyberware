@@ -106,7 +106,7 @@ public class ItemLowerOrgansUpgrade extends ItemCyberware implements IMenuItem
 	}
 	
 	@SubscribeEvent
-	public void power(CyberwareUpdateEvent event)
+	public void handleLivingUpdate(CyberwareUpdateEvent event)
 	{
 		EntityLivingBase entityLivingBase = event.getEntityLiving();
 		if (entityLivingBase.ticksExisted % 20 != 0) return;

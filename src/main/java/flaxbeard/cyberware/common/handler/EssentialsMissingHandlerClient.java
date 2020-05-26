@@ -86,16 +86,15 @@ public class EssentialsMissingHandlerClient
 			boolean useSmallArms = renderPlayer.smallArms;
 			RenderPlayerCyberware renderToUse = useSmallArms ? renderSmallArms : renderLargeArms;
 			
-			boolean hasNoSkin = false;
-			if (!cyberwareUserData.hasEssential(EnumSlot.SKIN))
+			boolean hasNoSkin = !cyberwareUserData.hasEssential(EnumSlot.SKIN);
+			if (hasNoSkin)
 			{
 				event.setCanceled(true);
-				hasNoSkin = true;
 				renderToUse.doMuscles = true;
 			}
 			
-			boolean hasNoLegs = false;
-			if (!hasRightLeg && !hasLeftLeg)
+			boolean hasNoLegs = !hasRightLeg && !hasLeftLeg;
+			if (hasNoLegs)
 			{
 				// Hide pants + shoes
 				if (!pants.containsKey(entityPlayer.getEntityId()))
@@ -106,7 +105,6 @@ public class EssentialsMissingHandlerClient
 				{
 					shoes.put(entityPlayer.getEntityId(), entityPlayer.inventory.armorInventory.set(EntityEquipmentSlot.FEET.getIndex(), ItemStack.EMPTY));
 				}
-				hasNoLegs = true;
 			}
 			
 			if ( !hasRightLeg  || !hasLeftLeg  || !hasRightArm  || !hasLeftArm
