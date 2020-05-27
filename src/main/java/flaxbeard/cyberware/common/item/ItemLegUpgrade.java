@@ -83,8 +83,7 @@ public class ItemLegUpgrade extends ItemCyberware
 	@SubscribeEvent
 	public void onFallDamage(LivingAttackEvent event)
 	{
-		if ( event.getSource() != DamageSource.FALL
-		  || event.getAmount() > 6F )
+		if (event.getSource() != DamageSource.FALL)
 		{
 			return;
 		}
@@ -93,7 +92,9 @@ public class ItemLegUpgrade extends ItemCyberware
 		ICyberwareUserData cyberwareUserData = CyberwareAPI.getCapabilityOrNull(entityLivingBase);
 		if (cyberwareUserData == null) return;
 		
-		if (cyberwareUserData.isCyberwareInstalled(getCachedStack(META_FALL_DAMAGE)))
+		if ( cyberwareUserData.isCyberwareInstalled(getCachedStack(META_FALL_DAMAGE))
+		  && cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_LEFT_CYBER_LEG))
+		  && cyberwareUserData.isCyberwareInstalled(CyberwareContent.cyberlimbs.getCachedStack(ItemCyberlimb.META_RIGHT_CYBER_LEG)) )
 		{
 			event.setCanceled(true);
 		}
